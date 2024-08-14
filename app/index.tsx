@@ -6,7 +6,7 @@ import { client } from "~/lib/kinde";
 import { useRouter } from "expo-router";
 
 
-export default async function HomePage() {
+export default function HomePage() {
   const router = useRouter();
   if (!client) {
     return null;
