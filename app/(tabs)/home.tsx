@@ -21,7 +21,7 @@ export default function Home() {
 		<SafeAreaView className="h-full">
 			<View className="p-4 gap-4 h-full">
 				<FlatList
-					ItemSeparatorComponent={() => <View className="p-2"></View>}
+					ItemSeparatorComponent={() => <View className="p-2" />}
 					data={goals}
 					renderItem={({ item }) => <GoalItem goal={item} />}
 					keyExtractor={(g) => g._id}
