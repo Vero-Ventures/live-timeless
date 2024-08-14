@@ -10,7 +10,6 @@ import * as React from "react";
 import { Platform } from "react-native";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/hooks/useColorScheme";
-import { KindeAuthProvider } from "~/components/providers/KindeAuthProvider";
 
 const LIGHT_THEME: Theme = {
   dark: false,
@@ -68,7 +67,6 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-      <KindeAuthProvider>
         <ConvexProvider client={convex}>
           <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
           <Stack>
@@ -76,7 +74,6 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           </Stack>
         </ConvexProvider>
-      </KindeAuthProvider>
     </ThemeProvider>
   );
 }
