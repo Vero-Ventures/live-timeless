@@ -12,13 +12,27 @@ export const client = new KindeSDK(
 export function useKindeAuth() {
 	const router = useRouter();
 	const [user, setUser] = useState<UserProfile | null>(null);
+	const [isAuthenticated, setIsAuthenticated] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
 	useEffect(() => {
-		getUserProfile()
-			.then((profile) => setUser(profile))
-			.catch((e: unknown) => {
-				if (e instanceof Error) console.error(e.message);
-			});
+		async function initAuth() {
+			setIsLoading(true);
+			try {
+				const profile = await getUserProfile();
+				setUser(profile);
+
+				const authenticated = await client.isAuthenticated;
+				setIsAuthenticated(authenticated);
+			} catch (e) {
+				if (e instanceof Error) {
+					console.error(e.message);
+				}
+			} finally {
+				setIsLoading(false);
+			}
+		}
+		initAuth();
 	}, []);
 
 	const register = async () => {
@@ -41,17 +55,10 @@ export function useKindeAuth() {
 			router.replace("/");
 		}
 	};
-
-	const isAuthenticated = async () => {
-		if (await client.isAuthenticated) {
-			router.replace("/home");
-		}
-	};
-
 	const getUserProfile = async () => {
 		const userProfile = await client.getUserDetails();
 		return userProfile;
 	};
 
-	return { register, login, logout, isAuthenticated, user };
+	return { register, login, logout, isAuthenticated, user, isLoading };
 }

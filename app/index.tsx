@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { Redirect } from "expo-router";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "~/components/ui/button";
@@ -6,11 +6,15 @@ import { Text } from "~/components/ui/text";
 import { useKindeAuth } from "~/lib/kinde";
 
 export default function HomePage() {
-	const { login, register, isAuthenticated } = useKindeAuth();
+	const { login, register, isAuthenticated, isLoading } = useKindeAuth();
 
-	useEffect(() => {
-		isAuthenticated();
-	});
+	if (isLoading) {
+		return null;
+	}
+
+	if (isAuthenticated) {
+		return <Redirect href="/home" />;
+	}
 
 	return (
 		<SafeAreaView className="h-full">
