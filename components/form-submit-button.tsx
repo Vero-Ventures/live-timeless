@@ -1,9 +1,10 @@
-import { Button } from "./ui/button";
+import { Button, type ButtonProps } from "./ui/button";
 import { Loader2 } from "~/lib/icons/Loader2";
-import type { ComponentProps, ReactNode } from "react";
 import { Text } from "./ui/text";
+import { cn } from "~/lib/utils";
+import type { ReactNode } from "react";
 
-interface FormSubmitButtonProps extends ComponentProps<typeof Button> {
+interface FormSubmitButtonProps extends ButtonProps {
 	children: ReactNode;
 	isPending: boolean;
 }
@@ -14,7 +15,11 @@ export default function FormSubmitButton({
 	...props
 }: FormSubmitButtonProps) {
 	return (
-		<Button className="relative" disabled={isPending} {...props}>
+		<Button
+			className={cn("relative", props.className)}
+			disabled={isPending}
+			{...props}
+		>
 			{!isPending ? (
 				<Text>{children}</Text>
 			) : (

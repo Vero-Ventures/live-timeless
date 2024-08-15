@@ -19,11 +19,7 @@ export function useKindeAuth() {
 			.catch((e: unknown) => {
 				if (e instanceof Error) console.error(e.message);
 			});
-	});
-
-	if (!client) {
-		throw new Error("Kinde client is not instanciated");
-	}
+	}, []);
 
 	const register = async () => {
 		const token = await client.register();
