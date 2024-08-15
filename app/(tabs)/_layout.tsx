@@ -3,6 +3,7 @@ import { Text } from "~/components/ui/text";
 import { Tabs } from "expo-router";
 import { User } from "~/lib/icons/User";
 import { Home } from "~/lib/icons/Home";
+import { Goal } from "lucide-react-native";
 
 export default function TabLayout() {
 	return (
@@ -12,6 +13,7 @@ export default function TabLayout() {
 					tabBarShowLabel: true,
 					tabBarStyle: {
 						height: 80,
+						paddingTop: 14,
 					},
 				}}
 			>
@@ -35,6 +37,18 @@ export default function TabLayout() {
 						tabBarIcon: ({ color }) => (
 							<Text>
 								<User color={color} />
+							</Text>
+						),
+					}}
+				/>
+				<Tabs.Screen
+					name="goals"
+					options={{
+						title: "Goals",
+						headerShown: false,
+						tabBarIcon: ({ color }) => (
+							<Text>
+								<Goal color={color} />
 							</Text>
 						),
 					}}

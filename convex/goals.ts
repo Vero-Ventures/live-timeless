@@ -9,7 +9,7 @@ export const listGoals = query({
 });
 
 export const createGoal = mutation({
-	args: { description: v.string() },
+	args: { name: v.string(), description: v.optional(v.string()) },
 	handler: async (ctx, args) => {
 		const goalId = await ctx.db.insert("goals", args);
 		return goalId;
