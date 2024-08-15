@@ -1,0 +1,88 @@
+import { httpRouter } from "convex/server";
+import { httpAction } from "./_generated/server";
+import { internal } from "./_generated/api";
+
+type UserProperties = {
+  email: string;
+  first_name: string;
+  id: string;
+  is_password_reset_requested: boolean;
+  is_suspended: boolean;
+  last_name: string;
+  phone: string | null;
+  username: string | null;
+};
+type UserData = {
+  user: UserProperties;
+};
+type Payload = {
+  data: UserData;
+  event_id: string;
+  source: string;
+  timestamp: string;
+  type: string;
+};
+
+// Function to validate and decode JWT from the incoming request
+async function validateRequest(request: Request): Promise<{
+  payload: Payload;
+} | null> {
+  const jwt = await request.text();
+  if (!jwt) {
+    console.error("JWT not found.");
+    return null;
+  }
+
+  const base64Url = jwt.split(".")[1];
+  const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+  const jsonPayload = decodeURIComponent(
+    atob(base64)
+      .split("")
+      .map(function (c) {
+        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+      })
+      .join("")
+  );
+
+  const payload = JSON.parse(jsonPayload);
+
+  return { payload };
+}
+
+// Defining the webhook handler
+const handleKindeWebhook = httpAction(async (ctx, request) => {
+  const event = await validateRequest(request);
+  if (!event) {
+    return new Response("Error occurred", { status: 400 });
+  }
+
+  const { payload } = event;
+  switch (payload.type) {
+    case "user.created": {
+      const { user } = payload.data;
+      await ctx.runMutation(internal.users.createUser, {
+        kindeId: user.id,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        email: user.email,
+      });
+      break;
+    }
+    default: {
+      console.log("ignored Kinde webhook event", payload.type);
+    }
+  }
+  return new Response(null, { status: 200 });
+});
+
+// Initializing the HTTP router
+const http = httpRouter();
+
+// Configuring the webhook route
+http.route({
+  path: "/kinde-users-webhook",
+  method: "POST",
+  handler: handleKindeWebhook,
+});
+
+export default http;
