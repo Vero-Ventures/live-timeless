@@ -3,6 +3,7 @@ import { Loader2 } from "~/lib/icons/Loader2";
 import { Text } from "./ui/text";
 import { cn } from "~/lib/utils";
 import type { ReactNode } from "react";
+import { View } from "react-native";
 
 interface FormSubmitButtonProps extends ButtonProps {
 	children: ReactNode;
@@ -15,18 +16,16 @@ export default function FormSubmitButton({
 	...props
 }: FormSubmitButtonProps) {
 	return (
-		<Button
-			className={cn("relative", props.className)}
-			disabled={isPending}
-			{...props}
-		>
-			{!isPending ? (
-				<Text>{children}</Text>
-			) : (
-				<Text className="animate-spin">
-					<Loader2 />
+		<Button className={props.className} disabled={isPending} {...props}>
+			<View>
+				<Text>
+					{isPending ? (
+						<Loader2 className="animate-spin text-foreground" />
+					) : (
+						children
+					)}
 				</Text>
-			)}
+			</View>
 		</Button>
 	);
 }

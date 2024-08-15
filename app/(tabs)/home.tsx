@@ -21,8 +21,8 @@ export default function Home() {
 		<SafeAreaView className="h-full">
 			<View className="p-4 gap-4 h-full">
 				<FlatList
-					ItemSeparatorComponent={() => <View className="p-2" />}
 					data={goals}
+					ItemSeparatorComponent={() => <View className="p-2" />}
 					renderItem={({ item }) => <GoalItem goal={item} />}
 					keyExtractor={(g) => g._id}
 				/>
@@ -51,7 +51,9 @@ function GoalItem({
 				<CardFooter />
 			</Card>
 			<FormSubmitButton
-				className="h-full"
+				style={{
+					height: "auto",
+				}}
 				variant="destructive"
 				isPending={isPending}
 				onPress={async () => {
@@ -60,7 +62,7 @@ function GoalItem({
 					setIsPending(false);
 				}}
 			>
-				<Trash2 />
+				<Trash2 className="text-foreground" />
 			</FormSubmitButton>
 		</View>
 	);
