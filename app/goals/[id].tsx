@@ -1,27 +1,21 @@
-import { View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import type { Id } from "~/convex/_generated/dataModel";
 import FormSubmitButton from "~/components/form-submit-button";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
-import { useChat } from "ai/react";
 
 export default function SingleGoalsPage() {
   const { id } = useLocalSearchParams<{ id: Id<"goals"> }>();
   const goal = useQuery(api.goals.get, { goalId: id });
-  let { messages, input, handleSubmit } = useChat({
-    api: `${process.env.EXPO_PUBLIC_CONVEX_URL}/ai/habit-plan"`,
-  });
+  const generateHabitPlan = useAction(api.ai.generateHabitPlan);
 
   if (!goal) {
     return null;
   }
-  input = JSON.stringify({ name: goal.name, description: goal.description });
-
-  console.log(input);
 
   return (
     <>
@@ -34,15 +28,20 @@ export default function SingleGoalsPage() {
       <View className="gap-4 p-4 h-full">
         <Text className="text-4xl font-bold">{goal.name}</Text>
         <Text className="text-3xl font-bold">{goal.description}</Text>
-        <Button onPress={handleSubmit} size="lg">
+        <Button
+          onPress={async () => {
+            await generateHabitPlan({ goalId: goal._id });
+          }}
+          size="lg"
+        >
           <Text>Generate Habit Plan</Text>
         </Button>
         <DeleteGoalButton id={goal._id} />
-        {messages.map((m) => (
-          <div key={m.id} className="whitespace-pre-wrap">
-            {m.role === "assistant" && m.content}
-          </div>
-        ))}
+        {
+          <ScrollView>
+            <Text>{goal.plan}</Text>
+          </ScrollView>
+        }
       </View>
     </>
   );
