@@ -2,73 +2,70 @@ import { useMutation, useQuery } from "convex/react";
 import type { FunctionReturnType } from "convex/server";
 import { Trash2 } from "~/lib/icons/Trash2";
 import { useState } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList, Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FormSubmitButton from "~/components/form-submit-button";
 import {
-	Card,
-	CardContent,
-	CardFooter,
-	CardHeader,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
 } from "~/components/ui/card";
 import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
 import { Button } from "~/components/ui/button";
 import { Link } from "expo-router";
 
-export default function Home() {
-	const goals = useQuery(api.goals.listGoals);
-	return (
-		<SafeAreaView className="h-full">
-			<View className="p-4 gap-4 h-full">
-				<FlatList
-					data={goals}
-					ItemSeparatorComponent={() => <View className="p-2" />}
-					renderItem={({ item }) => <GoalItem goal={item} />}
-					keyExtractor={(g) => g._id}
-				/>
-				<View>
-					<Link href="/goals/create" asChild>
-						<Button>
-							<Text>Set Goal</Text>
-						</Button>
-					</Link>
-				</View>
-			</View>
-		</SafeAreaView>
-	);
+export default function GoalsPage() {
+  const goals = useQuery(api.goals.list);
+  return (
+    <SafeAreaView
+      style={{
+        height: "100%",
+      }}
+    >
+      <View className="gap-4">
+        <FlatList
+          className="p-4 create-goal-form"
+          data={goals}
+          ItemSeparatorComponent={() => <View className="p-2" />}
+          renderItem={({ item }) => <GoalItem goal={item} />}
+          keyExtractor={(g) => g._id}
+        />
+        <View>
+          <Link href="/goals/create" asChild>
+            <Button size="lg">
+              <Text>Set Goal</Text>
+            </Button>
+          </Link>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
 }
 
 function GoalItem({
-	goal,
+  goal,
 }: {
-	goal: FunctionReturnType<typeof api.goals.listGoals>[number];
+  goal: FunctionReturnType<typeof api.goals.list>[number];
 }) {
-	const [isPending, setIsPending] = useState(false);
-	const deleteGoal = useMutation(api.goals.deleteGoal);
-	return (
-		<View className="flex gap-2 flex-row">
-			<Card className="flex-1">
-				<CardHeader />
-				<CardContent className="flex flex-row justify-between">
-					<Text className="text-lg font-bold">{goal.name}</Text>
-				</CardContent>
-				<CardFooter />
-			</Card>
-			<FormSubmitButton
-				style={{
-					height: "auto",
-				}}
-				variant="destructive"
-				isPending={isPending}
-				onPress={async () => {
-					setIsPending(true);
-					await deleteGoal({ id: goal._id });
-					setIsPending(false);
-				}}
-			>
-				<Trash2 className="text-foreground" />
-			</FormSubmitButton>
-		</View>
-	);
+  return (
+    <Link
+      href={{
+        pathname: "/goals/[id]",
+        params: { id: goal._id },
+      }}
+      asChild
+    >
+      <Pressable>
+        <Card>
+          <CardHeader />
+          <CardContent>
+            <Text className="text-lg font-bold">{goal.name}</Text>
+          </CardContent>
+          <CardFooter />
+        </Card>
+      </Pressable>
+    </Link>
+  );
 }
