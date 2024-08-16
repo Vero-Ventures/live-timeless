@@ -15,6 +15,9 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as goals from "../goals.js";
+import type * as http from "../http.js";
+import type * as users from "../users.js";
+import type * as webhooks from "../webhooks.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -26,6 +29,9 @@ import type * as goals from "../goals.js";
  */
 declare const fullApi: ApiFromModules<{
   goals: typeof goals;
+  http: typeof http;
+  users: typeof users;
+  webhooks: typeof webhooks;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
