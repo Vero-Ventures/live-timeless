@@ -3,6 +3,7 @@ import { v } from "convex/values";
 
 export default defineSchema({
 	goals: defineTable({
-		description: v.string(),
+		name: v.string(),
+		description: v.optional(v.string()),
 	}),
 });
