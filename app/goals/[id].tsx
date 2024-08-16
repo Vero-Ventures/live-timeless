@@ -19,7 +19,10 @@ export default function SingleGoalsPage() {
   return (
     <>
       <Stack.Screen
-        options={{ headerTitle: goal.name, headerBackTitleVisible: false }}
+        options={{
+          headerTitle: goal.name,
+          headerBackTitleVisible: false,
+        }}
       />
       <View className="gap-4 p-4 h-full">
         <Text className="text-4xl font-bold">{goal.name}</Text>

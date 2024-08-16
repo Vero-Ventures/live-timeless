@@ -1,10 +1,7 @@
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import type { FunctionReturnType } from "convex/server";
-import { Trash2 } from "~/lib/icons/Trash2";
-import { useState } from "react";
 import { FlatList, Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import FormSubmitButton from "~/components/form-submit-button";
 import {
   Card,
   CardContent,
