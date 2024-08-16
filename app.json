@@ -1,7 +1,8 @@
 {
   "expo": {
+    "owner": "live-timeless",
     "name": "live-timeless",
-    "slug": "live-timeless",
+    "slug": "live-timeless-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -13,13 +14,15 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.alex.live.timeless"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.alex.live.timeless"
     },
     "web": {
       "bundler": "metro",
@@ -31,6 +34,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "bcce0143-5443-475c-a2f1-17a28f176ad2"
+      }
     }
   }
 }
