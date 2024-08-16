@@ -36,5 +36,12 @@ export const remove = mutation({
   args: { id: v.id("goals") },
   handler: async (ctx, args) => {
     await ctx.db.delete(args.id);
+    const habitPlan = await ctx.db
+      .query("habitPlans")
+      .filter((q) => q.eq(q.field("goalId"), args.id))
+      .first();
+    if (habitPlan) {
+      await ctx.db.delete(habitPlan._id);
+    }
   },
 });
