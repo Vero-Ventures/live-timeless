@@ -25,9 +25,7 @@ type Payload = {
 };
 
 // Function to validate and decode JWT from the incoming request
-async function validateRequest(request: Request): Promise<{
-  payload: Payload;
-} | null> {
+async function validateRequest(request: Request): Promise<Payload | null> {
   const jwt = await request.text();
   if (!jwt) {
     console.error("JWT not found.");
@@ -46,8 +44,7 @@ async function validateRequest(request: Request): Promise<{
   );
 
   const payload = JSON.parse(jsonPayload);
-
-  return { payload };
+  return payload;
 }
 
 async function isWebhookProcessed(ctx: any, webhookId: string) {
@@ -75,12 +72,11 @@ const handleKindeWebhook = httpAction(async (ctx, request) => {
     return new Response("Already processed", { status: 200 });
   }
 
-  const event = await validateRequest(request);
-  if (!event) {
+  const payload = await validateRequest(request);
+  if (!payload) {
     return new Response("Error occurred", { status: 400 });
   }
 
-  const { payload } = event;
   switch (payload.type) {
     case "user.created": {
       const { user } = payload.data;
