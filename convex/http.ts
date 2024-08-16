@@ -4,6 +4,7 @@ import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { ConvexError } from "convex/values";
+import { generateHabitPlan } from "./ai";
 
 const userEventSchema = z.object({
   data: z.object({
@@ -106,6 +107,12 @@ http.route({
   path: "/kinde-users-webhook",
   method: "POST",
   handler: handleKindeWebhook,
+});
+
+http.route({
+  path: "/ai/habit-plan",
+  method: "POST",
+  handler: generateHabitPlan,
 });
 
 export default http;

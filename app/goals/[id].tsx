@@ -13,7 +13,7 @@ export default function SingleGoalsPage() {
   const { id } = useLocalSearchParams<{ id: Id<"goals"> }>();
   const goal = useQuery(api.goals.get, { goalId: id });
   let { messages, input, handleSubmit } = useChat({
-    api: `${process.env.EXPO_PUBLIC_CONVEX_URL}/chat`,
+    api: `${process.env.EXPO_PUBLIC_CONVEX_URL}/ai/habit-plan"`,
   });
 
   if (!goal) {
