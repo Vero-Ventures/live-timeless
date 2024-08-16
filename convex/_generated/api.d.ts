@@ -14,6 +14,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as ai from "../ai.js";
 import type * as goals from "../goals.js";
 
 /**
@@ -25,6 +26,7 @@ import type * as goals from "../goals.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  ai: typeof ai;
   goals: typeof goals;
 }>;
 export declare const api: FilterApi<
