@@ -1,31 +1,24 @@
+import { z } from "zod";
+
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { ConvexError } from "convex/values";
 
-type UserProperties = {
-  email: string;
-  first_name: string;
-  id: string;
-  is_password_reset_requested: boolean;
-  is_suspended: boolean;
-  last_name: string;
-  phone: string | null;
-  username: string | null;
-};
-type UserData = {
-  user: UserProperties;
-};
-type Payload = {
-  data: UserData;
-  event_id: string;
-  source: string;
-  timestamp: string;
-  type: string;
-};
+const userEventSchema = z.object({
+  data: z.object({
+    user: z.object({
+      id: z.string(),
+      first_name: z.string(),
+      last_name: z.string(),
+      email: z.string().email(),
+    }),
+  }),
+  type: z.string(),
+});
 
 // Function to validate and decode JWT from the incoming request
-async function validateRequest(request: Request): Promise<Payload | null> {
+async function validateRequest(request: Request) {
   const jwt = await request.text();
   if (!jwt) {
     console.error("JWT not found.");
@@ -44,7 +37,12 @@ async function validateRequest(request: Request): Promise<Payload | null> {
   );
 
   const payload = JSON.parse(jsonPayload);
-  return payload;
+  const result = userEventSchema.safeParse(payload);
+  if (!result.success) {
+    throw new ConvexError(result.error.message);
+  } else {
+    return result.data;
+  }
 }
 
 async function isWebhookProcessed(ctx: any, webhookId: string) {
@@ -72,14 +70,14 @@ const handleKindeWebhook = httpAction(async (ctx, request) => {
     return new Response("Already processed", { status: 200 });
   }
 
-  const payload = await validateRequest(request);
-  if (!payload) {
+  const event = await validateRequest(request);
+  if (!event) {
     return new Response("Error occurred", { status: 400 });
   }
 
-  switch (payload.type) {
+  switch (event.type) {
     case "user.created": {
-      const { user } = payload.data;
+      const { user } = event.data;
       await ctx.runMutation(internal.users.createUser, {
         kindeId: user.id,
         firstName: user.first_name,
@@ -89,7 +87,7 @@ const handleKindeWebhook = httpAction(async (ctx, request) => {
       break;
     }
     default: {
-      console.log("ignored Kinde webhook event", payload.type);
+      console.log("ignored Kinde webhook event", event.type);
     }
   }
 
