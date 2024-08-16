@@ -6,33 +6,33 @@ import { Text } from "~/components/ui/text";
 import { useKindeAuth } from "~/lib/kinde";
 
 export default function HomePage() {
-	const { login, register, isAuthenticated, isLoading } = useKindeAuth();
+  const { login, register, isAuthenticated, isLoading } = useKindeAuth();
 
-	if (isLoading) {
-		return null;
-	}
+  if (isLoading) {
+    return null;
+  }
 
-	if (isAuthenticated) {
-		return <Redirect href="/home" />;
-	}
+  if (isAuthenticated) {
+    return <Redirect href="/home" />;
+  }
 
-	return (
-		<SafeAreaView className="h-full">
-			<View className="h-full p-4 gap-4">
-				<View className="h-80">
-					<Text className="text-xl font-bold">Live Timeless</Text>
-				</View>
-				<View className="">
-					<Button onPress={login}>
-						<Text>Sign In</Text>
-					</Button>
-				</View>
-				<View>
-					<Button variant="secondary" onPress={register}>
-						<Text>Sign Up</Text>
-					</Button>
-				</View>
-			</View>
-		</SafeAreaView>
-	);
+  return (
+    <SafeAreaView className="h-full">
+      <View className="h-full p-4 gap-4">
+        <View className="h-80">
+          <Text className="text-xl font-bold">Live Timeless</Text>
+        </View>
+        <View className="">
+          <Button onPress={login}>
+            <Text>Sign In</Text>
+          </Button>
+        </View>
+        <View>
+          <Button variant="secondary" onPress={register}>
+            <Text>Sign Up</Text>
+          </Button>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
 }
