@@ -7,6 +7,7 @@ import type { Id } from "~/convex/_generated/dataModel";
 import FormSubmitButton from "~/components/form-submit-button";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
+import Markdown from "react-native-markdown-display";
 
 export default function SingleGoalsPage() {
   const { id } = useLocalSearchParams<{ id: Id<"goals"> }>();
@@ -38,8 +39,8 @@ export default function SingleGoalsPage() {
         </Button>
         <DeleteGoalButton id={goal._id} />
         {
-          <ScrollView>
-            <Text>{goal.plan}</Text>
+          <ScrollView className="bg-white">
+            <Markdown>{goal.plan}</Markdown>
           </ScrollView>
         }
       </View>
