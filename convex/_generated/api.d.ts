@@ -18,6 +18,7 @@ import type * as ai from "../ai.js";
 import type * as goals from "../goals.js";
 import type * as http from "../http.js";
 import type * as users from "../users.js";
+import type * as webhook_kinde from "../webhook/kinde.js";
 import type * as webhooks from "../webhooks.js";
 
 /**
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   goals: typeof goals;
   http: typeof http;
   users: typeof users;
+  "webhook/kinde": typeof webhook_kinde;
   webhooks: typeof webhooks;
 }>;
 export declare const api: FilterApi<
