@@ -16,9 +16,10 @@ const userEventSchema = z.object({
   }),
   type: z.string(),
 });
+type UserEvent = z.infer<typeof userEventSchema>;
 
 // Function to validate and decode JWT from the incoming request
-async function validateRequest(request: Request) {
+async function validateRequest(request: Request): Promise<UserEvent | null> {
   const jwt = await request.text();
   if (!jwt) {
     console.error("JWT not found.");
