@@ -1,6 +1,7 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { internal } from "./_generated/api";
+import { ConvexError } from "convex/values";
 
 type UserProperties = {
   email: string;
@@ -49,8 +50,31 @@ async function validateRequest(request: Request): Promise<{
   return { payload };
 }
 
+async function isWebhookProcessed(ctx: any, webhookId: string) {
+  const processed = await ctx.runQuery(internal.webhooks.getProcessedWebhook, {
+    webhookId,
+  });
+  return processed !== null;
+}
+
+async function markWebhookProcessed(ctx: any, webhookId: string) {
+  await ctx.runMutation(internal.webhooks.markWebhookProcessed, { webhookId });
+}
+
 // Defining the webhook handler
 const handleKindeWebhook = httpAction(async (ctx, request) => {
+  // Extract the webhook-id from headers
+  const webhookId = request.headers.get("webhook-id");
+  if (!webhookId) {
+    throw new ConvexError("Missing webhook-id header");
+  }
+
+  // Check if we've already processed this webhook
+  if (await isWebhookProcessed(ctx, webhookId)) {
+    console.log(`Webhook ${webhookId} already processed. Skipping.`);
+    return new Response("Already processed", { status: 200 });
+  }
+
   const event = await validateRequest(request);
   if (!event) {
     return new Response("Error occurred", { status: 400 });
@@ -72,6 +96,10 @@ const handleKindeWebhook = httpAction(async (ctx, request) => {
       console.log("ignored Kinde webhook event", payload.type);
     }
   }
+
+  // Mark the webhook as processed
+  await markWebhookProcessed(ctx, webhookId);
+
   return new Response(null, { status: 200 });
 });
 
