@@ -1,30 +1,37 @@
-import { Redirect, useRouter } from "expo-router";
+import { Redirect } from "expo-router";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { useKindeAuth } from "@kinde/expo";
+import { api } from "~/convex/_generated/api";
+import { useMutation } from "convex/react";
 
 export default function HomePage() {
-  const { isAuthenticated, register, login } = useKindeAuth();
-  const router = useRouter();
+  const { isAuthenticated, register, login, getUserProfile } = useKindeAuth();
+  const createUser = useMutation(api.users.createUser);
 
   if (isAuthenticated) {
     return <Redirect href="/home" />;
   }
 
   const handleSignUp = async () => {
-    const token = await register({});
-    if (token) {
-      router.replace("/home");
+    const token = await register({ redirectURL: "/home" });
+    if (token.success) {
+      const userProfile = await getUserProfile();
+      if (!userProfile) return;
+
+      await createUser({
+        kindeId: userProfile.id,
+        firstName: userProfile.givenName,
+        lastName: userProfile.familyName,
+        email: userProfile.email,
+      });
     }
   };
 
   const handleSignIn = async () => {
-    const token = await login({});
-    if (token) {
-      router.replace("/home");
-    }
+    await login({ redirectURL: "/home" });
   };
 
   return (
