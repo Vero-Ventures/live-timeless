@@ -1,5 +1,6 @@
 import { useKindeAuth } from "@kinde/expo";
 import { UserProfile } from "@kinde/expo/dist/types";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -10,6 +11,7 @@ import { Text } from "~/components/ui/text";
 export default function Profile() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const { logout, getUserProfile } = useKindeAuth();
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchUser() {
@@ -20,7 +22,13 @@ export default function Profile() {
   }, [getUserProfile]);
 
   const handleLogout = async () => {
-    await logout({ revokeToken: true });
+    const result = await logout({ revokeToken: true });
+    if (result.success) {
+      setUser(null);
+      router.replace("/");
+    } else {
+      console.error("Failed to logout");
+    }
   };
 
   return (
