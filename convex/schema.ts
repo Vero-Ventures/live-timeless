@@ -8,10 +8,6 @@ export default defineSchema({
     lastName: v.string(),
     email: v.string(),
   }).index("by_kinde_id", ["kindeId"]),
-  processedWebhooks: defineTable({
-    webhookId: v.string(),
-    processedAt: v.number(),
-  }).index("by_webhook_id", ["webhookId"]),
   goals: defineTable({
     name: v.string(),
     description: v.optional(v.string()),
