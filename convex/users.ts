@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { internalMutation, query } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 
 export const getUser = query({
   args: { userId: v.string() },
@@ -11,7 +11,7 @@ export const getUser = query({
   },
 });
 
-export const createUser = internalMutation({
+export const createUser = mutation({
   args: {
     kindeId: v.string(),
     firstName: v.string(),
