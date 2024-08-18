@@ -6,11 +6,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
-import { useGetUserProfile } from "~/hooks/useGetUserProfile";
+import { useUserProfile } from "~/providers/kindeUserProfileProvider";
 
 export default function Profile() {
   const { logout } = useKindeAuth();
-  const { user, setUser } = useGetUserProfile();
+  const { user, setUser } = useUserProfile();
   const router = useRouter();
 
   const handleLogout = async () => {

@@ -10,7 +10,7 @@ import FormSubmitButton from "~/components/form-submit-button";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import Markdown from "react-native-markdown-display";
-import { useGetUserProfile } from "~/hooks/useGetUserProfile";
+import { useUserProfile } from "~/providers/kindeUserProfileProvider";
 
 const markdownStyles = StyleSheet.create({
   text: {
@@ -90,7 +90,7 @@ const markdownStyles = StyleSheet.create({
 export default function SingleGoalsPage() {
   const { id } = useLocalSearchParams<{ id: Id<"goals"> }>();
   const generateHabitPlan = useAction(api.ai.generateHabitPlan);
-  const { user } = useGetUserProfile();
+  const { user } = useUserProfile();
   const goal = useQuery(api.goals.get, { goalId: id, userId: user?.id ?? "" });
 
   if (!goal || !user) {

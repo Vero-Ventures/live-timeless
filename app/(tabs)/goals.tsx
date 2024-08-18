@@ -12,11 +12,11 @@ import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
 import { Button } from "~/components/ui/button";
 import { Link } from "expo-router";
-import { useGetUserProfile } from "~/hooks/useGetUserProfile";
+import { useUserProfile } from "~/providers/kindeUserProfileProvider";
 
 export default function GoalsPage() {
-  const { user } = useGetUserProfile();
-  const goals = useQuery(api.goals.list, { userId: user?.id ?? "" });
+  const { user: userProfile } = useUserProfile();
+  const goals = useQuery(api.goals.list, { userId: userProfile?.id ?? "" });
 
   return (
     <SafeAreaView
