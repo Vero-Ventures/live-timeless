@@ -1,25 +1,17 @@
 import { useKindeAuth } from "@kinde/expo";
-import { UserProfile } from "@kinde/expo/dist/types";
+
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
+import { useGetUserProfile } from "~/hooks/useGetUserProfile";
 
 export default function Profile() {
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const { logout, getUserProfile } = useKindeAuth();
+  const { logout } = useKindeAuth();
+  const { user, setUser } = useGetUserProfile();
   const router = useRouter();
-
-  useEffect(() => {
-    async function fetchUser() {
-      const userProfile = await getUserProfile();
-      setUser(userProfile);
-    }
-    fetchUser();
-  }, [getUserProfile]);
 
   const handleLogout = async () => {
     const result = await logout({ revokeToken: true });
