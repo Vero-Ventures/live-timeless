@@ -5,7 +5,7 @@ import { api } from "./_generated/api";
 import { v } from "convex/values";
 
 export const generateHabitPlan = action({
-  args: { goalId: v.id("goals") },
+  args: { goalId: v.id("goals"), userId: v.string() },
   handler: async (ctx, args) => {
     const goal = await ctx.runQuery(api.goals.get, args);
     const result = await streamText({
@@ -19,6 +19,7 @@ export const generateHabitPlan = action({
       fullResponse += delta;
       await ctx.runMutation(api.ai.updatePlan, {
         goalId: args.goalId,
+        userId: args.userId,
         fullResponse,
       });
     }
@@ -26,11 +27,16 @@ export const generateHabitPlan = action({
 });
 
 export const updatePlan = mutation({
-  args: { goalId: v.id("goals"), fullResponse: v.string() },
+  args: { goalId: v.id("goals"), userId: v.string(), fullResponse: v.string() },
   handler: async (ctx, args) => {
     const habitPlan = await ctx.db
       .query("habitPlans")
-      .filter((q) => q.eq(q.field("goalId"), args.goalId))
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("goalId"), args.goalId),
+          q.eq(q.field("userId"), args.userId)
+        )
+      )
       .first();
 
     if (!habitPlan) {
