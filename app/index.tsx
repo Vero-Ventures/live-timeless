@@ -1,3 +1,5 @@
+import { type JWTDecoded, jwtDecoder } from "@kinde/jwt-decoder";
+
 import { Redirect } from "expo-router";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -6,26 +8,38 @@ import { Text } from "~/components/ui/text";
 import { useKindeAuth } from "@kinde/expo";
 import { api } from "~/convex/_generated/api";
 import { useMutation } from "convex/react";
+import { useUserProfile } from "~/providers/kindeUserProfileProvider";
 
 export default function HomePage() {
-  const { isAuthenticated, register, login, getUserProfile } = useKindeAuth();
+  const { isAuthenticated, register, login } = useKindeAuth();
+  const { user: userProfile } = useUserProfile();
   const createUser = useMutation(api.users.createUser);
 
-  if (isAuthenticated) {
+  if (isAuthenticated && userProfile) {
     return <Redirect href="/home" />;
   }
 
   const handleSignUp = async () => {
     const token = await register({ redirectURL: "/home" });
     if (token.success) {
-      const userProfile = await getUserProfile();
-      if (!userProfile) return;
+      const decodedToken = jwtDecoder<
+        JWTDecoded & {
+          sub: string;
+          email: string;
+          family_name: string;
+          given_name: string;
+        }
+      >(token.idToken);
+      if (!decodedToken) {
+        console.error("Failed to decode token");
+        return;
+      }
 
       await createUser({
-        kindeId: userProfile.id,
-        firstName: userProfile.givenName,
-        lastName: userProfile.familyName,
-        email: userProfile.email,
+        kindeId: decodedToken.sub,
+        firstName: decodedToken.given_name,
+        lastName: decodedToken.family_name,
+        email: decodedToken.email,
       });
     }
   };
