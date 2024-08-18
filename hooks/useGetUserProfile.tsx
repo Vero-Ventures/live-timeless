@@ -16,5 +16,5 @@ export function useGetUserProfile() {
     fetchUser();
   }, [getUserProfile]);
 
-  return { user };
+  return { user, setUser };
 }
