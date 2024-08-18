@@ -1,3 +1,6 @@
+import { useKindeAuth } from "@kinde/expo";
+import { UserProfile } from "@kinde/expo/dist/types";
+
 import { useQuery } from "convex/react";
 import type { FunctionReturnType } from "convex/server";
 import { FlatList, Pressable, View } from "react-native";
@@ -12,9 +15,22 @@ import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
 import { Button } from "~/components/ui/button";
 import { Link } from "expo-router";
+import { useEffect, useState } from "react";
 
 export default function GoalsPage() {
-  const goals = useQuery(api.goals.list);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const { getUserProfile } = useKindeAuth();
+  const goals = useQuery(api.goals.list, { userId: user?.id ?? "" });
+
+  useEffect(() => {
+    async function fetchUser() {
+      const userProfile = await getUserProfile();
+      if (!userProfile) return;
+      setUser(userProfile);
+    }
+    fetchUser();
+  }, [getUserProfile]);
+
   return (
     <SafeAreaView
       style={{

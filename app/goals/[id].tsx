@@ -1,3 +1,6 @@
+import { useKindeAuth } from "@kinde/expo";
+import { UserProfile } from "@kinde/expo/dist/types";
+
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
@@ -5,7 +8,7 @@ import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import type { Id } from "~/convex/_generated/dataModel";
 import FormSubmitButton from "~/components/form-submit-button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import Markdown from "react-native-markdown-display";
 
@@ -86,8 +89,19 @@ const markdownStyles = StyleSheet.create({
 
 export default function SingleGoalsPage() {
   const { id } = useLocalSearchParams<{ id: Id<"goals"> }>();
-  const goal = useQuery(api.goals.get, { goalId: id });
   const generateHabitPlan = useAction(api.ai.generateHabitPlan);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const { getUserProfile } = useKindeAuth();
+  const goal = useQuery(api.goals.get, { goalId: id, userId: user?.id ?? "" });
+
+  useEffect(() => {
+    async function fetchUser() {
+      const userProfile = await getUserProfile();
+      if (!userProfile) return;
+      setUser(userProfile);
+    }
+    fetchUser();
+  }, [getUserProfile]);
 
   if (!goal) {
     return null;
@@ -106,7 +120,15 @@ export default function SingleGoalsPage() {
         <Text className="text-3xl font-bold">{goal.description}</Text>
         <Button
           onPress={async () => {
-            await generateHabitPlan({ goalId: goal._id });
+            const userProfile = await getUserProfile();
+            if (!userProfile) {
+              throw new Error("User not found");
+            }
+
+            await generateHabitPlan({
+              goalId: goal._id,
+              userId: userProfile.id,
+            });
           }}
           size="lg"
         >
@@ -127,6 +149,8 @@ function DeleteGoalButton({ id }: { id: Id<"goals"> }) {
   const [isPending, setIsPending] = useState(false);
   const deleteGoal = useMutation(api.goals.remove);
   const router = useRouter();
+  const { getUserProfile } = useKindeAuth();
+
   return (
     <FormSubmitButton
       variant="destructive"
@@ -134,7 +158,12 @@ function DeleteGoalButton({ id }: { id: Id<"goals"> }) {
       onPress={async () => {
         try {
           setIsPending(true);
-          await deleteGoal({ id });
+          const userProfile = await getUserProfile();
+          if (!userProfile) {
+            throw new Error("User not found");
+          }
+
+          await deleteGoal({ id, userId: userProfile.id });
           router.replace("/goals");
         } catch (error) {
           if (error instanceof Error) {
