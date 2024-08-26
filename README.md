@@ -1,8 +1,7 @@
-# Welcome to Live Timeless 👋
-
+# Live Timeless
 This is an [Expo](https://expo.dev) project for the Live Timeless app, a goal-setting and habit-tracking application.
 
-## About the App
+## About
 
 Live Timeless helps users set meaningful goals and develop habits to achieve them. Key features include:
 
@@ -28,7 +27,7 @@ Live Timeless helps users set meaningful goals and develop habits to achieve the
    ```
 
 2. Set up environment variables
-   
+
    Create a `.env` file in the root directory with the following variables:
 
    ```
@@ -63,6 +62,23 @@ You can start developing by editing the files inside the **app** directory. This
 - `convex/`: Convex backend functions and schema
 - `lib/`: Utility functions and constants
 - `providers/`: React context providers
+
+### Workflow
+
+1. Create a new branch for each feature or bug fix
+2. Write clean, well-commented code
+3. Test your changes thoroughly
+4. Create a pull request for code review before merging
+
+### Testing
+
+- We use Jest for unit testing. Run tests with `npm test`
+- For manual testing, use Expo Go on your physical device or emulators/simulators
+
+### Deployment
+
+- We use EAS (Expo Application Services) for building and deploying the app
+- Familiarize yourself with the `eas.json` configuration file
 
 ## Learn more
 
