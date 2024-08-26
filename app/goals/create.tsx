@@ -14,9 +14,12 @@ import { api } from "~/convex/_generated/api";
 
 export default function CreateGoalPage() {
   return (
-    <View className="gap-4 p-4">
+    <View className="gap-4 p-4 bg-background h-full">
       <Stack.Screen
-        options={{ title: "Create Goal", headerBackTitleVisible: false }}
+        options={{
+          title: "Create Goal",
+          headerBackTitleVisible: false,
+        }}
       />
       <CreateGoalForm />
     </View>

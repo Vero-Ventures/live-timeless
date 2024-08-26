@@ -69,11 +69,11 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+    <ThemeProvider value={DARK_THEME}>
       <KindeAuthProvider>
         <KindeUserProfileProvider>
           <ConvexProvider client={convex}>
-            <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
+            <StatusBar backgroundColor="#082139" style={"light"} />
             <Stack>
               <Stack.Screen name="index" options={{ headerShown: false }} />
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

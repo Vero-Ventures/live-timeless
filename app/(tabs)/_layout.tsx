@@ -11,9 +11,11 @@ export default function TabLayout() {
       <Tabs
         screenOptions={{
           tabBarShowLabel: true,
+
           tabBarStyle: {
             height: 80,
             paddingTop: 14,
+            backgroundColor: "#082139",
           },
         }}
       >
