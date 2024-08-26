@@ -1,6 +1,22 @@
-# Welcome to your Expo app 👋
+# Live Timeless
+This is an [Expo](https://expo.dev) project for the Live Timeless app, a goal-setting and habit-tracking application.
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## About
+
+Live Timeless helps users set meaningful goals and develop habits to achieve them. Key features include:
+
+- User authentication with Kinde
+- Goal creation and management
+- AI-powered habit plan generation
+- Cross-platform compatibility (iOS, Android, and Web)
+
+## Tech Stack
+
+- [Expo](https://expo.dev): React Native framework
+- [Convex](https://www.convex.dev/): Backend-as-a-Service
+- [Kinde](https://kinde.com/): Authentication provider
+- [NativeWind](https://www.nativewind.dev/): Tailwind CSS for React Native
+- [Expo Router](https://docs.expo.dev/router/introduction/): File-based routing
 
 ## Get started
 
@@ -10,30 +26,59 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Start the app
+2. Set up environment variables
 
-   ```bash
-    npx expo start
+   Create a `.env` file in the root directory with the following variables:
+
+   ```
+   EXPO_PUBLIC_KINDE_ISSUER_URL=your_kinde_issuer_url
+   EXPO_PUBLIC_KINDE_CLIENT_ID=your_kinde_client_id
+   EXPO_PUBLIC_KINDE_REDIRECT_URI=your_kinde_redirect_uri
+   EXPO_PUBLIC_KINDE_POST_LOGOUT_REDIRECT_URI=your_kinde_post_logout_redirect_uri
+   EXPO_PUBLIC_CONVEX_URL=your_convex_deployment_url
    ```
 
-In the output, you'll find options to open the app in a
+   Replace the placeholder values with your actual Kinde and Convex credentials.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
+3. Start the app
+
+   ```bash
+    npm start
+   ```
+
+In the output, you'll find options to open the app in a:
+
+- [Development build](https://docs.expo.dev/develop/development-builds/introduction/)
 - [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
 - [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- [Expo Go](https://expo.dev/go)
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
+## Project Structure
 
-When you're ready, run:
+- `app/`: Main application code
+- `components/`: Reusable React components
+- `convex/`: Convex backend functions and schema
+- `lib/`: Utility functions and constants
+- `providers/`: React context providers
 
-```bash
-npm run reset-project
-```
+### Workflow
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+1. Create a new branch for each feature or bug fix
+2. Write clean, well-commented code
+3. Test your changes thoroughly
+4. Create a pull request for code review before merging
+
+### Testing
+
+- We use Jest for unit testing. Run tests with `npm test`
+- For manual testing, use Expo Go on your physical device or emulators/simulators
+
+### Deployment
+
+- We use EAS (Expo Application Services) for building and deploying the app
+- Familiarize yourself with the `eas.json` configuration file
 
 ## Learn more
 
