@@ -25,7 +25,7 @@ export default function GoalsPage() {
         backgroundColor: "#082139",
       }}
     >
-      <View className="gap-4 h-full px-4">
+      <View className="h-full gap-4 px-4">
         <FlatList
           className="create-goal-form"
           data={goals}

@@ -14,7 +14,7 @@ import { api } from "~/convex/_generated/api";
 
 export default function CreateGoalPage() {
   return (
-    <View className="gap-4 p-4 bg-background h-full">
+    <View className="h-full gap-4 bg-background p-4">
       <Stack.Screen
         options={{
           title: "Create Goal",
