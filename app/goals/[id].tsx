@@ -105,7 +105,11 @@ export default function SingleGoalsPage() {
           headerBackTitleVisible: false,
         }}
       />
+<<<<<<< HEAD
       <View className="gap-4 p-4 h-full bg-background">
+=======
+      <View className="h-full gap-4 p-4">
+>>>>>>> main
         <Text className="text-4xl font-bold">{goal.name}</Text>
         <Text className="text-3xl font-bold">{goal.description}</Text>
         <Button

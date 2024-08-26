@@ -38,7 +38,7 @@ export default function Profile() {
               />
             </Avatar>
           </View>
-          <Text className="font-bold text-xl text-center">
+          <Text className="text-center text-xl font-bold">
             {user?.givenName} {user?.familyName}
           </Text>
           <Text className="text-center">{user?.email}</Text>
