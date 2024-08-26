@@ -25,7 +25,7 @@ export default function Profile() {
 
   return (
     <SafeAreaView className="h-full">
-      <View className="p-4 gap-8">
+      <View className="gap-8 p-4">
         <View className="gap-4">
           <View className="mx-auto">
             <Avatar className="h-32 w-32" alt={`${user?.givenName}'s Avatar`}>
@@ -38,7 +38,7 @@ export default function Profile() {
               />
             </Avatar>
           </View>
-          <Text className="font-bold text-xl text-center">
+          <Text className="text-center text-xl font-bold">
             {user?.givenName} {user?.familyName}
           </Text>
           <Text className="text-center">{user?.email}</Text>
