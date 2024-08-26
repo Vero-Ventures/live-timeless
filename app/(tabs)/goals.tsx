@@ -26,7 +26,7 @@ export default function GoalsPage() {
     >
       <View className="gap-4">
         <FlatList
-          className="p-4 create-goal-form"
+          className="create-goal-form p-4"
           data={goals}
           ItemSeparatorComponent={() => <View className="p-2" />}
           renderItem={({ item }) => <GoalItem goal={item} />}

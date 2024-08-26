@@ -50,7 +50,7 @@ export default function HomePage() {
 
   return (
     <SafeAreaView className="h-full">
-      <View className="h-full p-4 gap-4">
+      <View className="h-full gap-4 p-4">
         <View className="h-80">
           <Text className="text-xl font-bold">Live Timeless</Text>
         </View>
