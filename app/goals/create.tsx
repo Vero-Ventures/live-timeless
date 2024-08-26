@@ -1,3 +1,5 @@
+import { useKindeAuth } from "@kinde/expo";
+
 import { useMutation } from "convex/react";
 import { Stack, useRouter } from "expo-router";
 import { AlertCircle } from "lucide-react-native";
@@ -28,6 +30,8 @@ function CreateGoalForm() {
   const [error, setError] = useState("");
   const createGoal = useMutation(api.goals.create);
   const router = useRouter();
+  const { getUserProfile } = useKindeAuth();
+
   return (
     <View className="gap-4">
       {error && (
@@ -55,8 +59,13 @@ function CreateGoalForm() {
             if (name.trim().length <= 3) {
               throw new Error("Name of the goal must be over 3 characters");
             }
+            const userProfile = await getUserProfile();
+            if (!userProfile) {
+              throw new Error("User not found");
+            }
+
             const newGoal = { name, description };
-            await createGoal(newGoal);
+            await createGoal({ ...newGoal, userId: userProfile.id });
             router.replace("/goals");
           } catch (error) {
             if (error instanceof Error) {

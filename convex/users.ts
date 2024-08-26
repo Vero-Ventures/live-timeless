@@ -1,17 +1,7 @@
 import { v } from "convex/values";
-import { internalMutation, query } from "./_generated/server";
+import { mutation } from "./_generated/server";
 
-export const getUser = query({
-  args: { userId: v.string() },
-  handler: async (ctx, args) => {
-    const user = await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("kindeId"), args.userId));
-    return user;
-  },
-});
-
-export const createUser = internalMutation({
+export const createUser = mutation({
   args: {
     kindeId: v.string(),
     firstName: v.string(),
@@ -19,6 +9,15 @@ export const createUser = internalMutation({
     email: v.string(),
   },
   async handler(ctx, args) {
+    // Check if the user already exists
+    const user = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("kindeId"), args.kindeId))
+      .first();
+    if (user) {
+      return user._id;
+    }
+
     const userId = await ctx.db.insert("users", args);
     return userId;
   },
