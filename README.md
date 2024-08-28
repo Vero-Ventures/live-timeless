@@ -10,6 +10,12 @@ Live Timeless helps users set meaningful goals and develop habits to achieve the
 - AI-powered habit plan generation
 - Cross-platform compatibility (iOS, Android, and Web)
 
+## Design and Documentation
+
+- [Figma Design](https://www.figma.com/design/Uo8lKmyyGjQzIUty6RH89t/Live-Timeless---Raul-Version?node-id=5-13450&t=F6wqbjoMY7NHUa7W-0)
+- [Concept Document](https://docs.google.com/document/d/1OxHxL4G9lwTwSLeegsMo6ROS_LrOjwFMnz12L6zyV5E/edit#heading=h.yx6bzclsmjey)
+- [Design Document](https://docs.google.com/document/d/1HXuIfBiUZFNLrclgBFoOvKhhSuzqUeZw0Kejc0UloGI/edit#heading=h.l55oku9vy9nf)
+
 ## Tech Stack
 
 - [Expo](https://expo.dev): React Native framework
