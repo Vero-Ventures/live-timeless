@@ -60,13 +60,13 @@ export default function HomePage() {
           <Text className="text-xl font-bold">Live Timeless</Text>
         </View>
         <View className="">
-          <Button variant="default" onPress={handleSignIn}>
-            <Text>Sign In</Text>
+          <Button variant="default" size="lg" onPress={handleSignIn}>
+            <Text>Login</Text>
           </Button>
         </View>
         <View>
-          <Button variant="secondary" onPress={handleSignUp}>
-            <Text>Sign Up</Text>
+          <Button variant="secondary" size="lg" onPress={handleSignUp}>
+            <Text>Register</Text>
           </Button>
         </View>
       </View>
