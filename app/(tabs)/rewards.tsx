@@ -29,7 +29,7 @@ export default function RewardsPage() {
       </View>
       <View>
         <FlatList
-          contentContainerStyle={{ paddingBottom: 65 }}
+          contentContainerStyle={{ paddingBottom: 60 }}
           className="rewards-list"
           data={rewardData}
           ItemSeparatorComponent={() => <View className="p-2" />}
