@@ -1,7 +1,8 @@
-import { FlatList, View } from "react-native";
+import { FlatList, Pressable, View } from "react-native";
 import type { LucideIcon } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { Link } from "expo-router";
 import { Text } from "~/components/ui/text";
 import SearchInput from "~/components/search-input";
 import { Coins } from "~/lib/icons/Coins";
@@ -35,6 +36,7 @@ export default function RewardsPage() {
           ItemSeparatorComponent={() => <View className="p-2" />}
           renderItem={({ item }) => (
             <RewardItem
+              id={item.id}
               Icon={item.icon}
               type={item.type}
               token={item.token}
@@ -49,7 +51,7 @@ export default function RewardsPage() {
   );
 }
 
-const rewardData = [
+export const rewardData = [
   {
     id: "0",
     icon: HandHeart,
@@ -93,12 +95,14 @@ const rewardData = [
 ];
 
 function RewardItem({
+  id,
   Icon,
   type,
   token,
   name,
   description,
 }: {
+  id: string;
   Icon: LucideIcon;
   type: string;
   token: number;
@@ -106,20 +110,32 @@ function RewardItem({
   description: string;
 }) {
   return (
-    <View className="h-52 justify-between bg-slate-200 px-6 py-5">
-      <View className="flex flex-row justify-between">
-        <View className="flex flex-row items-center gap-2">
-          <View className="rounded-lg bg-white/30 p-1 backdrop-blur-sm">
-            <Icon className="text-primary" />
+    <Link
+      href={{
+        pathname: "/rewards/[id]",
+        params: { id },
+      }}
+      asChild
+    >
+      <Pressable>
+        <View className="h-52 justify-between bg-slate-200 px-6 py-5">
+          <View className="flex flex-row justify-between">
+            <View className="flex flex-row items-center gap-2">
+              <View className="rounded-lg bg-white/30 p-1 backdrop-blur-sm">
+                <Icon className="text-primary" />
+              </View>
+              <Text>{type}</Text>
+            </View>
+            <Text className="font-medium">{token} tokens</Text>
           </View>
-          <Text>{type}</Text>
+          <View className="gap-1">
+            <Text className="text-xl font-semibold">{name}</Text>
+            <Text className="line-clamp-2 overflow-ellipsis">
+              {description}
+            </Text>
+          </View>
         </View>
-        <Text className="font-medium">{token} tokens</Text>
-      </View>
-      <View className="gap-1">
-        <Text className="text-xl font-semibold">{name}</Text>
-        <Text className="line-clamp-2 overflow-ellipsis">{description}</Text>
-      </View>
-    </View>
+      </Pressable>
+    </Link>
   );
 }
