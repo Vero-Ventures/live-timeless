@@ -25,14 +25,7 @@ export default function GoalsPage() {
         backgroundColor: "#082139",
       }}
     >
-      <View className="h-full gap-4 px-4">
-        <View>
-          <Link href="/goals/create" asChild>
-            <Button size="lg">
-              <Text>Set Goal</Text>
-            </Button>
-          </Link>
-        </View>
+      <View className="h-full gap-4 px-4 pb-20">
         <FlatList
           className="create-goal-form"
           data={goals}
@@ -40,6 +33,13 @@ export default function GoalsPage() {
           renderItem={({ item }) => <GoalItem goal={item} />}
           keyExtractor={(g) => g._id}
         />
+        <View>
+          <Link href="/goals/create" asChild>
+            <Button size="lg">
+              <Text>Set Goal</Text>
+            </Button>
+          </Link>
+        </View>
       </View>
     </SafeAreaView>
   );
