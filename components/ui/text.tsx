@@ -1,7 +1,7 @@
 import * as Slot from "@rn-primitives/slot";
 import { SlottableTextProps, TextRef } from "@rn-primitives/types";
 import * as React from "react";
-import { Text as RNText } from "react-native";
+import { Platform, Text as RNText } from "react-native";
 import { cn } from "~/lib/utils";
 
 const TextClassContext = React.createContext<string | undefined>(undefined);
@@ -13,12 +13,18 @@ const Text = React.forwardRef<TextRef, SlottableTextProps>(
     return (
       <Component
         className={cn(
-          "text-base text-foreground web:select-text",
+          "text-base text-foreground antialiased web:select-text",
           textClass,
           className
         )}
         ref={ref}
         {...props}
+        style={{
+          fontFamily: Platform.select({
+            android: "OpenSans_400Regular",
+            ios: "OpenSans-Regular",
+          }),
+        }}
       />
     );
   }
