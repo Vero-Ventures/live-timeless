@@ -26,13 +26,6 @@ export default function GoalsPage() {
       }}
     >
       <View className="h-full gap-4 px-4">
-        <FlatList
-          className="create-goal-form"
-          data={goals}
-          ItemSeparatorComponent={() => <View className="p-2" />}
-          renderItem={({ item }) => <GoalItem goal={item} />}
-          keyExtractor={(g) => g._id}
-        />
         <View>
           <Link href="/goals/create" asChild>
             <Button size="lg">
@@ -40,6 +33,13 @@ export default function GoalsPage() {
             </Button>
           </Link>
         </View>
+        <FlatList
+          className="create-goal-form"
+          data={goals}
+          ItemSeparatorComponent={() => <View className="p-2" />}
+          renderItem={({ item }) => <GoalItem goal={item} />}
+          keyExtractor={(g) => g._id}
+        />
       </View>
     </SafeAreaView>
   );
