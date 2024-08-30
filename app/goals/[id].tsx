@@ -11,6 +11,7 @@ import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import Markdown from "react-native-markdown-display";
 import { useUserProfile } from "~/providers/kindeUserProfileProvider";
+import { fontFamily } from "~/lib/font";
 
 const markdownStyles = StyleSheet.create({
   text: {
@@ -101,7 +102,15 @@ export default function SingleGoalsPage() {
     <>
       <Stack.Screen
         options={{
-          headerTitle: goal.name,
+          headerStyle: {
+            backgroundColor: "#0b1a28",
+          },
+          headerTintColor: "#fff",
+          headerTitle: () => (
+            <Text style={{ fontFamily: fontFamily.openSans.bold }}>
+              {goal.name}
+            </Text>
+          ),
           headerBackTitleVisible: false,
         }}
       />

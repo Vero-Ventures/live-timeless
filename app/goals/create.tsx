@@ -11,13 +11,22 @@ import { Input } from "~/components/ui/input";
 import { Text } from "~/components/ui/text";
 import { Textarea } from "~/components/ui/textarea";
 import { api } from "~/convex/_generated/api";
+import { fontFamily } from "~/lib/font";
 
 export default function CreateGoalPage() {
   return (
     <View className="h-full gap-4 bg-background p-4">
       <Stack.Screen
         options={{
-          title: "Create Goal",
+          headerStyle: {
+            backgroundColor: "#0b1a28",
+          },
+          headerTintColor: "#fff",
+          headerTitle: () => (
+            <Text style={{ fontFamily: fontFamily.openSans.bold }}>
+              Create Goal
+            </Text>
+          ),
           headerBackTitleVisible: false,
         }}
       />
