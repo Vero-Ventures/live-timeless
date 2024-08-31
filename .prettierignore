@@ -43,3 +43,5 @@ next-env.d.ts
 /drizzle
 
 *.md
+
+expo-env.d.ts
