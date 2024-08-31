@@ -14,10 +14,22 @@ import { PortalHost } from "@rn-primitives/portal";
 import { KindeAuthProvider } from "@kinde/expo";
 import KindeUserProfileProvider from "~/providers/kindeUserProfileProvider";
 
-const LIGHT_THEME: Theme = {
-  dark: false,
-  colors: NAV_THEME.light,
-};
+import {
+  useFonts,
+  OpenSans_300Light,
+  OpenSans_400Regular,
+  OpenSans_500Medium,
+  OpenSans_600SemiBold,
+  OpenSans_700Bold,
+  OpenSans_800ExtraBold,
+  OpenSans_300Light_Italic,
+  OpenSans_400Regular_Italic,
+  OpenSans_500Medium_Italic,
+  OpenSans_600SemiBold_Italic,
+  OpenSans_700Bold_Italic,
+  OpenSans_800ExtraBold_Italic,
+} from "@expo-google-fonts/open-sans";
+
 const DARK_THEME: Theme = {
   dark: true,
   colors: NAV_THEME.dark,
@@ -36,8 +48,22 @@ const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
 });
 
 export default function RootLayout() {
-  const { colorScheme, setColorScheme, isDarkColorScheme } = useColorScheme();
+  const { colorScheme, setColorScheme } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
+  let [fontsLoaded] = useFonts({
+    OpenSans_300Light,
+    OpenSans_400Regular,
+    OpenSans_500Medium,
+    OpenSans_600SemiBold,
+    OpenSans_700Bold,
+    OpenSans_800ExtraBold,
+    OpenSans_300Light_Italic,
+    OpenSans_400Regular_Italic,
+    OpenSans_500Medium_Italic,
+    OpenSans_600SemiBold_Italic,
+    OpenSans_700Bold_Italic,
+    OpenSans_800ExtraBold_Italic,
+  });
 
   React.useEffect(() => {
     (async () => {
@@ -68,12 +94,16 @@ export default function RootLayout() {
     return null;
   }
 
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
-    <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+    <ThemeProvider value={DARK_THEME}>
       <KindeAuthProvider>
         <KindeUserProfileProvider>
           <ConvexProvider client={convex}>
-            <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
+            <StatusBar backgroundColor="#082139" style={"light"} />
             <Stack>
               <Stack.Screen name="index" options={{ headerShown: false }} />
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

@@ -49,19 +49,24 @@ export default function HomePage() {
   };
 
   return (
-    <SafeAreaView className="h-full">
+    <SafeAreaView
+      style={{
+        height: "100%",
+        backgroundColor: "#082139",
+      }}
+    >
       <View className="h-full gap-4 p-4">
         <View className="h-80">
           <Text className="text-xl font-bold">Live Timeless</Text>
         </View>
         <View className="">
-          <Button onPress={handleSignIn}>
-            <Text>Sign In</Text>
+          <Button variant="default" size="lg" onPress={handleSignIn}>
+            <Text>Login</Text>
           </Button>
         </View>
         <View>
-          <Button variant="secondary" onPress={handleSignUp}>
-            <Text>Sign Up</Text>
+          <Button variant="secondary" size="lg" onPress={handleSignUp}>
+            <Text>Register</Text>
           </Button>
         </View>
       </View>
