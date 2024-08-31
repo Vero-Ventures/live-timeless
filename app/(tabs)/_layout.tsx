@@ -4,6 +4,7 @@ import { User } from "~/lib/icons/User";
 import { Home } from "~/lib/icons/Home";
 import { Goal } from "lucide-react-native";
 import { fontFamily } from "~/lib/font";
+import { Star } from "~/lib/icons/Star";
 
 export default function TabLayout() {
   return (
@@ -66,6 +67,18 @@ export default function TabLayout() {
               <View style={{ alignItems: "center" }}>
                 <Goal color={color} />
               </View>
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="rewards"
+          options={{
+            title: "Rewards",
+            headerShown: false,
+            tabBarIcon: ({ color }) => (
+              <Text>
+                <Star color={color} />
+              </Text>
             ),
           }}
         />
