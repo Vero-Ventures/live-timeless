@@ -4,6 +4,7 @@ import { Tabs } from "expo-router";
 import { User } from "~/lib/icons/User";
 import { Home } from "~/lib/icons/Home";
 import { Goal } from "lucide-react-native";
+import { Star } from "~/lib/icons/Star";
 
 export default function TabLayout() {
   return (
@@ -37,6 +38,18 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => (
               <Text>
                 <Goal color={color} />
+              </Text>
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="rewards"
+          options={{
+            title: "Rewards",
+            headerShown: false,
+            tabBarIcon: ({ color }) => (
+              <Text>
+                <Star color={color} />
               </Text>
             ),
           }}
