@@ -24,8 +24,8 @@ export default function Profile() {
   };
 
   return (
-    <SafeAreaView className="h-full">
-      <View className="gap-8 p-4">
+    <SafeAreaView style={{ height: "100%", backgroundColor: "#082139" }}>
+      <View className="h-full gap-8 p-4">
         <View className="gap-4">
           <View className="mx-auto">
             <Avatar className="h-32 w-32" alt={`${user?.givenName}'s Avatar`}>

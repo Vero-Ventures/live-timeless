@@ -5,7 +5,7 @@ import { Text } from "~/components/ui/text";
 
 export default function HomePage() {
   return (
-    <SafeAreaView className="h-full">
+    <SafeAreaView style={{ height: "100%", backgroundColor: "#082139" }}>
       <View className="h-full gap-4 p-4">
         <Text>Home Page</Text>
       </View>

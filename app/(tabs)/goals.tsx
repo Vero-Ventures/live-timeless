@@ -22,11 +22,12 @@ export default function GoalsPage() {
     <SafeAreaView
       style={{
         height: "100%",
+        backgroundColor: "#082139",
       }}
     >
-      <View className="gap-4">
+      <View className="h-full gap-4 px-4 pb-20">
         <FlatList
-          className="create-goal-form p-4"
+          className="create-goal-form"
           data={goals}
           ItemSeparatorComponent={() => <View className="p-2" />}
           renderItem={({ item }) => <GoalItem goal={item} />}
