@@ -1,0 +1,28 @@
+# https://docs.expo.dev/develop/tools/#expo-doctor
+
+name: Weekly Expo Doctor Check
+on:
+  schedule:
+    # Runs at 9:00 AM UTC every Monday
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+jobs:
+  expo-doctor:
+    name: npx expo-doctor
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run Expo Doctor
+        run: npx expo-doctor
