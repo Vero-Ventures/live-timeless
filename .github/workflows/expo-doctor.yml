@@ -17,12 +17,9 @@ jobs:
 
       - name: Setup Node
         uses: actions/setup-node@v3
-        with:
-          node-version: 18.x
-          cache: yarn
 
       - name: Install dependencies
-        run: yarn install
+        run: npm ci
 
       - name: Run Expo Doctor
         run: npx expo-doctor
