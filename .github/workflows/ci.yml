@@ -3,6 +3,7 @@ name: CI
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  workflow_dispatch:
 
 jobs:
   lint:
@@ -36,3 +37,19 @@ jobs:
 
       - name: Format All Files with Prettier
         run: npm run format:check
+
+  expo-doctor:
+    name: npx expo-doctor
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Expo Doctor
+        run: npx expo-doctor
