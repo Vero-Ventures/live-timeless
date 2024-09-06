@@ -5,9 +5,17 @@ import { Pressable, View } from "react-native";
 import { Text } from "../../components/ui/text";
 import { CalendarDays } from "~/lib/icons/CalendarDays";
 import { fontFamily } from "~/lib/font";
+import { formatDate, isToday, isTomorrow, isYesterday } from "~/lib/date";
+
+const dateConditions = [
+  { condition: isYesterday, label: "Yesterday" },
+  { condition: isToday, label: "Today" },
+  { condition: isTomorrow, label: "Tomorrow" },
+];
 
 export default function ScheduleStartDate() {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [startDate, setStartDate] = useState("Today");
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -18,7 +26,10 @@ export default function ScheduleStartDate() {
   };
 
   const handleConfirm = (date: Date) => {
-    console.warn("A date has been picked: ", date);
+    const matchedCondition = dateConditions.find(({ condition }) =>
+      condition(date)
+    );
+    setStartDate(matchedCondition ? matchedCondition.label : formatDate(date));
     hideDatePicker();
   };
 
@@ -42,7 +53,7 @@ export default function ScheduleStartDate() {
                 fontFamily: fontFamily.openSans.semiBold,
               }}
             >
-              Today
+              {startDate}
             </Text>
           </View>
         </View>
