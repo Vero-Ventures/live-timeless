@@ -12,7 +12,7 @@ import { TentTree } from "~/lib/icons/TentTree";
 
 export default function RewardsPage() {
   return (
-    <SafeAreaView className="h-full">
+    <SafeAreaView style={{ height: "100%", backgroundColor: "#082139" }}>
       <View className="gap-10 p-4">
         <View className="flex flex-row items-center gap-4">
           <Text>
@@ -28,25 +28,24 @@ export default function RewardsPage() {
           <SearchInput />
         </View>
       </View>
-      <View>
-        <FlatList
-          contentContainerStyle={{ paddingBottom: 60 }}
-          className="rewards-list"
-          data={rewardData}
-          ItemSeparatorComponent={() => <View className="p-2" />}
-          renderItem={({ item }) => (
-            <RewardItem
-              id={item.id}
-              Icon={item.icon}
-              type={item.type}
-              token={item.token}
-              name={item.name}
-              description={item.description}
-            />
-          )}
-          keyExtractor={(item) => item.id}
-        />
-      </View>
+      <FlatList
+        data={rewardData}
+        contentContainerStyle={{
+          paddingBottom: 100,
+        }}
+        ItemSeparatorComponent={() => <View className="py-2" />}
+        renderItem={({ item }) => (
+          <RewardItem
+            id={item.id}
+            Icon={item.icon}
+            type={item.type}
+            token={item.token}
+            name={item.name}
+            description={item.description}
+          />
+        )}
+        keyExtractor={(item) => item.id}
+      />
     </SafeAreaView>
   );
 }
@@ -118,11 +117,11 @@ function RewardItem({
       asChild
     >
       <Pressable>
-        <View className="h-52 justify-between bg-slate-200 px-6 py-5">
+        <View className="h-52 justify-between bg-[#0e2942] px-6 py-5">
           <View className="flex flex-row justify-between">
             <View className="flex flex-row items-center gap-2">
-              <View className="rounded-lg bg-white/30 p-1 backdrop-blur-sm">
-                <Icon className="text-primary" />
+              <View className="rounded-lg bg-white/20 p-1 backdrop-blur-sm">
+                <Icon className="text-foreground" />
               </View>
               <Text>{type}</Text>
             </View>
