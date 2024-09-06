@@ -48,12 +48,6 @@
   }
 }
 
-@layer base {
-  .create-goal-form {
-    height: calc(100% - 5%);
-  }
-
-  .rewards-list {
-    height: calc(100% - 30%);
-  }
+.create-goal-form {
+  height: calc(100% - 5%);
 }

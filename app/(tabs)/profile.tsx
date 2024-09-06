@@ -1,6 +1,6 @@
 import { useKindeAuth } from "@kinde/expo";
 
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
@@ -46,6 +46,11 @@ export default function Profile() {
         <Button size="lg" onPress={handleLogout}>
           <Text>Logout</Text>
         </Button>
+        <View>
+          <Link href="/privacy-policy">
+            <Text>Privacy Policy</Text>
+          </Link>
+        </View>
       </View>
     </SafeAreaView>
   );
