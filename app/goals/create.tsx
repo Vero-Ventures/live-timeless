@@ -2,7 +2,7 @@ import { useKindeAuth } from "@kinde/expo";
 
 import { useMutation } from "convex/react";
 import { Stack, useRouter } from "expo-router";
-import { AlertCircle } from "lucide-react-native";
+import { AlertCircle, type LucideIcon } from "lucide-react-native";
 import { useState } from "react";
 import { View } from "react-native";
 import FormSubmitButton from "~/components/form-submit-button";
@@ -12,6 +12,12 @@ import { Text } from "~/components/ui/text";
 import { Textarea } from "~/components/ui/textarea";
 import { api } from "~/convex/_generated/api";
 import { fontFamily } from "~/lib/font";
+import { Repeat } from "~/lib/icons/Repeat";
+import { Crosshair } from "~/lib/icons/Crosshair";
+import { Sun } from "~/lib/icons/Sun";
+import { Bell } from "~/lib/icons/Bell";
+import { CalendarDays } from "~/lib/icons/CalendarDays";
+import { ChevronRight } from "~/lib/icons/ChevronRight";
 
 export default function CreateGoalPage() {
   return (
@@ -52,15 +58,43 @@ function CreateGoalForm() {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      <Text>Name</Text>
-      <Input placeholder="Name of Goal" value={name} onChangeText={setName} />
-      <Text>Description (optional)</Text>
-      <Textarea
-        placeholder="Describe your goal..."
-        value={description}
-        onChangeText={setDescription}
-        aria-labelledby="textareaLabel"
+      <Input
+        className="native:h-16 rounded-xl border-0 bg-muted placeholder:text-primary"
+        placeholder="Name of Goal"
+        value={name}
+        onChangeText={setName}
       />
+      <View className="rounded-xl bg-muted">
+        <ScheduleItem Icon={Repeat} title="REPEAT" value="Everyday" />
+        <ScheduleItem Icon={Crosshair} title="GOAL" value="3 times per week" />
+        <ScheduleItem Icon={Sun} title="TIME OF DAY" value="Any Time" />
+      </View>
+      <View className="rounded-xl bg-muted">
+        <ScheduleItem Icon={Bell} title="REMINDERS" value="9:00 AM" />
+      </View>
+      <View className="rounded-xl bg-muted">
+        <View className="flex flex-row items-center gap-4 p-5">
+          <CalendarDays className="text-primary" />
+          <View>
+            <Text
+              className="text-xs"
+              style={{
+                fontFamily: "OpenSans_600SemiBold",
+                letterSpacing: 0.5,
+              }}
+            >
+              START DATE
+            </Text>
+            <Text
+              style={{
+                fontFamily: "OpenSans_600SemiBold",
+              }}
+            >
+              Today
+            </Text>
+          </View>
+        </View>
+      </View>
       <FormSubmitButton
         size="lg"
         isPending={isPending}
@@ -92,5 +126,44 @@ function CreateGoalForm() {
         Set Goal
       </FormSubmitButton>
     </View>
+  );
+}
+
+function ScheduleItem({
+  Icon,
+  title,
+  value,
+}: {
+  Icon: LucideIcon;
+  title: string;
+  value: string;
+}) {
+  return (
+    <>
+      <View className="flex flex-row items-center gap-4 p-5">
+        <Icon className="text-primary" />
+        <View className="flex flex-1 flex-row items-center justify-between">
+          <View>
+            <Text
+              className="text-xs"
+              style={{
+                fontFamily: "OpenSans_600SemiBold",
+                letterSpacing: 0.5,
+              }}
+            >
+              {title}
+            </Text>
+            <Text
+              style={{
+                fontFamily: "OpenSans_600SemiBold",
+              }}
+            >
+              {value}
+            </Text>
+          </View>
+          <ChevronRight className="text-primary" />
+        </View>
+      </View>
+    </>
   );
 }
