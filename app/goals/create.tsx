@@ -9,7 +9,6 @@ import FormSubmitButton from "~/components/form-submit-button";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Input } from "~/components/ui/input";
 import { Text } from "~/components/ui/text";
-import { Textarea } from "~/components/ui/textarea";
 import { api } from "~/convex/_generated/api";
 import { fontFamily } from "~/lib/font";
 import { Repeat } from "~/lib/icons/Repeat";
@@ -79,7 +78,7 @@ function CreateGoalForm() {
             <Text
               className="text-xs"
               style={{
-                fontFamily: "OpenSans_600SemiBold",
+                fontFamily: fontFamily.openSans.semiBold,
                 letterSpacing: 0.5,
               }}
             >
@@ -87,7 +86,7 @@ function CreateGoalForm() {
             </Text>
             <Text
               style={{
-                fontFamily: "OpenSans_600SemiBold",
+                fontFamily: fontFamily.openSans.semiBold,
               }}
             >
               Today
@@ -147,7 +146,7 @@ function ScheduleItem({
             <Text
               className="text-xs"
               style={{
-                fontFamily: "OpenSans_600SemiBold",
+                fontFamily: fontFamily.openSans.semiBold,
                 letterSpacing: 0.5,
               }}
             >
@@ -155,7 +154,7 @@ function ScheduleItem({
             </Text>
             <Text
               style={{
-                fontFamily: "OpenSans_600SemiBold",
+                fontFamily: fontFamily.openSans.semiBold,
               }}
             >
               {value}
