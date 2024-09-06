@@ -22,7 +22,7 @@ export default function SingleRewardsPage() {
         }}
       />
       <View className="h-full">
-        <View className="h-1/3 justify-between bg-slate-200 px-6 pb-10 pt-[112px]">
+        <View className="h-1/3 justify-between bg-[#082139] px-6 pb-10 pt-[112px]">
           <View className="flex flex-row justify-between">
             <Text>{reward.type}</Text>
             <Text className="font-medium">{reward.token} tokens</Text>
@@ -36,10 +36,13 @@ export default function SingleRewardsPage() {
         </View>
         <View className="flex-1">
           <ScrollView
-            className="px-4 py-8"
-            contentContainerStyle={{ paddingBottom: 150 }}
+            className=""
+            contentContainerStyle={{
+              paddingBottom: 150,
+              backgroundColor: "#0e2942",
+            }}
           >
-            <View className="gap-12">
+            <View className="gap-12 px-4 py-8">
               <View className="gap-4">
                 <Text className="text-2xl font-semibold">
                   About this reward
