@@ -15,8 +15,8 @@ import { Repeat } from "~/lib/icons/Repeat";
 import { Crosshair } from "~/lib/icons/Crosshair";
 import { Sun } from "~/lib/icons/Sun";
 import { Bell } from "~/lib/icons/Bell";
-import { CalendarDays } from "~/lib/icons/CalendarDays";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
+import ScheduleStartDate from "./schedule-start-date";
 
 export default function CreateGoalPage() {
   return (
@@ -71,29 +71,7 @@ function CreateGoalForm() {
       <View className="rounded-xl bg-muted">
         <ScheduleItem Icon={Bell} title="REMINDERS" value="9:00 AM" />
       </View>
-      <View className="rounded-xl bg-muted">
-        <View className="flex flex-row items-center gap-4 p-5">
-          <CalendarDays className="text-primary" />
-          <View>
-            <Text
-              className="text-xs"
-              style={{
-                fontFamily: fontFamily.openSans.semiBold,
-                letterSpacing: 0.5,
-              }}
-            >
-              START DATE
-            </Text>
-            <Text
-              style={{
-                fontFamily: fontFamily.openSans.semiBold,
-              }}
-            >
-              Today
-            </Text>
-          </View>
-        </View>
-      </View>
+      <ScheduleStartDate />
       <FormSubmitButton
         size="lg"
         isPending={isPending}
