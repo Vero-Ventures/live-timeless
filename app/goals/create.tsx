@@ -58,7 +58,7 @@ function CreateGoalForm() {
         </Alert>
       )}
       <Input
-        className="native:h-16 rounded-xl border-0 bg-muted placeholder:text-primary"
+        className="native:h-16 rounded-xl border-0 bg-muted placeholder:text-secondary-foreground placeholder:opacity-100"
         placeholder="Name of Goal"
         value={name}
         onChangeText={setName}
@@ -122,7 +122,7 @@ function ScheduleItem({
         <View className="flex flex-1 flex-row items-center justify-between">
           <View>
             <Text
-              className="text-xs"
+              className="text-xs text-muted-foreground"
               style={{
                 fontFamily: fontFamily.openSans.semiBold,
                 letterSpacing: 0.5,

@@ -40,7 +40,7 @@ export default function ScheduleStartDate() {
           <CalendarDays className="text-primary" />
           <View>
             <Text
-              className="text-xs"
+              className="text-xs text-muted-foreground"
               style={{
                 fontFamily: fontFamily.openSans.semiBold,
                 letterSpacing: 0.5,
