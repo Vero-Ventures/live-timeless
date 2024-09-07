@@ -2,14 +2,11 @@ import "~/global.css";
 
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Theme, ThemeProvider } from "@react-navigation/native";
 import { SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
-import { Platform } from "react-native";
 import { NAV_THEME } from "~/lib/constants";
-import { useColorScheme } from "~/hooks/useColorScheme";
 import { PortalHost } from "@rn-primitives/portal";
 import { KindeAuthProvider } from "@kinde/expo";
 import KindeUserProfileProvider from "~/providers/kindeUserProfileProvider";
@@ -48,8 +45,6 @@ const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
 });
 
 export default function RootLayout() {
-  const { colorScheme, setColorScheme } = useColorScheme();
-  const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
   let [fontsLoaded] = useFonts({
     OpenSans_300Light,
     OpenSans_400Regular,
@@ -64,35 +59,6 @@ export default function RootLayout() {
     OpenSans_700Bold_Italic,
     OpenSans_800ExtraBold_Italic,
   });
-
-  React.useEffect(() => {
-    (async () => {
-      const theme = await AsyncStorage.getItem("theme");
-      if (Platform.OS === "web") {
-        // Adds the background color to the html element to prevent white background on overscroll.
-        document.documentElement.classList.add("bg-background");
-      }
-      if (!theme) {
-        AsyncStorage.setItem("theme", colorScheme);
-        setIsColorSchemeLoaded(true);
-        return;
-      }
-      const colorTheme = theme === "dark" ? "dark" : "light";
-      if (colorTheme !== colorScheme) {
-        setColorScheme(colorTheme);
-
-        setIsColorSchemeLoaded(true);
-        return;
-      }
-      setIsColorSchemeLoaded(true);
-    })().finally(() => {
-      SplashScreen.hideAsync();
-    });
-  }, [colorScheme, setColorScheme]);
-
-  if (!isColorSchemeLoaded) {
-    return null;
-  }
 
   if (!fontsLoaded) {
     return null;
