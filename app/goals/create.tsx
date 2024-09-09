@@ -58,17 +58,17 @@ function CreateGoalForm() {
         </Alert>
       )}
       <Input
-        className="native:h-16 rounded-xl border-0 bg-muted placeholder:text-secondary-foreground placeholder:opacity-100"
+        className="native:h-16 rounded-xl border-0 bg-[#0e2942] placeholder:text-secondary-foreground placeholder:opacity-100"
         placeholder="Name of Goal"
         value={name}
         onChangeText={setName}
       />
-      <View className="rounded-xl bg-muted">
+      <View className="rounded-xl bg-[#0e2942]">
         <ScheduleItem Icon={Repeat} title="REPEAT" value="Everyday" />
         <ScheduleItem Icon={Crosshair} title="GOAL" value="3 times per week" />
         <ScheduleItem Icon={Sun} title="TIME OF DAY" value="Any Time" />
       </View>
-      <View className="rounded-xl bg-muted">
+      <View className="rounded-xl bg-[#0e2942]">
         <ScheduleItem Icon={Bell} title="REMINDERS" value="9:00 AM" />
       </View>
       <ScheduleStartDate />
