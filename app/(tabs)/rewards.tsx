@@ -30,9 +30,6 @@ export default function RewardsPage() {
       </View>
       <FlatList
         data={rewardData}
-        contentContainerStyle={{
-          paddingBottom: 100,
-        }}
         ItemSeparatorComponent={() => <View className="py-2" />}
         renderItem={({ item }) => (
           <RewardItem
@@ -117,7 +114,7 @@ function RewardItem({
       asChild
     >
       <Pressable>
-        <View className="h-52 justify-between bg-[#0e2942] px-6 py-5">
+        <View className="justify-between bg-[#0e2942] px-6 py-5">
           <View className="flex flex-row justify-between">
             <View className="flex flex-row items-center gap-2">
               <View className="rounded-lg bg-white/20 p-1 backdrop-blur-sm">

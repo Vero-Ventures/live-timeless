@@ -23,6 +23,7 @@ import {
 import { fontFamily } from "~/lib/font";
 import { Plus } from "lucide-react-native";
 import { Separator } from "~/components/ui/separator";
+import { cn } from "~/lib/utils";
 
 export default function GoalsPage() {
   const { user: userProfile } = useUserProfile();
@@ -31,49 +32,55 @@ export default function GoalsPage() {
   const [selectedDate, setSelectedDate] = useState(today);
 
   return (
-    <SafeAreaView style={{ height: "100%", backgroundColor: "#082139" }}>
-      <View className="flex h-full justify-between">
-        <View className="flex-1 px-4">
-          <Text className="mb-2 text-sm uppercase text-gray-500">
-            {selectedDate.toDateString() === today.toDateString()
-              ? "Today"
-              : selectedDate.toDateString() === yesterday.toDateString()
-                ? "Yesterday"
-                : selectedDate.toDateString() === tomorrow.toDateString()
-                  ? "Tomorrow"
-                  : selectedDate.toLocaleDateString("en-US", {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-          </Text>
-          <Text
-            className="text-2xl"
-            style={{
-              fontFamily: fontFamily.openSans.bold,
-            }}
-          >
-            Goals
-          </Text>
-          <FlatList
-            data={goals}
-            ItemSeparatorComponent={() => <View className="p-2" />}
-            renderItem={({ item }) => <GoalItem goal={item} />}
-            keyExtractor={(g) => g._id}
-          />
-        </View>
-        <View className="mb-20 flex-row items-center gap-2 bg-[#0b1a28] px-4">
-          <CalendarStrip
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-          />
-          <Separator orientation="vertical" className="mx-2" />
-          <Link href="/goals/create" asChild>
-            <Button size="icon" className="h-14 w-14 rounded-full">
-              <Plus color="#fff" size={30} />
-            </Button>
-          </Link>
-        </View>
+    <SafeAreaView
+      style={{
+        height: "100%",
+        backgroundColor: "#082139",
+        flexDirection: "column",
+        justifyContent: "space-between",
+      }}
+    >
+      <View className="goals-container px-4">
+        <Text className="mb-2 text-sm uppercase text-gray-500">
+          {selectedDate.toDateString() === today.toDateString()
+            ? "Today"
+            : selectedDate.toDateString() === yesterday.toDateString()
+              ? "Yesterday"
+              : selectedDate.toDateString() === tomorrow.toDateString()
+                ? "Tomorrow"
+                : selectedDate.toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+        </Text>
+        <Text
+          className="text-2xl"
+          style={{
+            fontFamily: fontFamily.openSans.bold,
+          }}
+        >
+          Goals
+        </Text>
+        <FlatList
+          className="mt-4 border-t border-t-[#fff]/10"
+          data={goals}
+          ItemSeparatorComponent={() => <View className="p-2" />}
+          renderItem={({ item }) => <GoalItem goal={item} />}
+          keyExtractor={(g) => g._id}
+        />
+      </View>
+      <View className="flex-row items-center gap-2 bg-[#0f2336] px-4">
+        <CalendarStrip
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+        />
+        <Separator orientation="vertical" className="mx-2" />
+        <Link href="/goals/create" asChild>
+          <Button size="icon" className="h-14 w-14 rounded-full">
+            <Plus color="#fff" size={30} />
+          </Button>
+        </Link>
       </View>
     </SafeAreaView>
   );
@@ -139,18 +146,36 @@ function CalendarStrip({
       {dates.map((date, index) => (
         <Pressable
           key={index}
-          className={`mx-2 items-center ${
-            date.toDateString() === selectedDate.toDateString()
-              ? "rounded-md bg-primary p-2"
-              : "p-2"
-          }`}
+          className={cn("mx-2 items-center", {
+            "rounded-md bg-primary/50 p-2":
+              date.toDateString() === selectedDate.toDateString(),
+            "p-2": date.toDateString() !== selectedDate.toDateString(),
+          })}
           onPress={() => setSelectedDate(date)}
         >
-          <Text className="text-sm">
+          <Text
+            style={{
+              fontFamily: fontFamily.openSans.bold,
+            }}
+            className={cn("text-sm uppercase", {
+              "text-[#fff]/50":
+                date.toDateString() !== selectedDate.toDateString(),
+            })}
+          >
             {date.toLocaleDateString("en-US", { weekday: "short" })}
           </Text>
           <View className="w-14 items-center justify-center">
-            <Text className="text-sm font-bold">{date.getDate()}</Text>
+            <Text
+              style={{
+                fontFamily: fontFamily.openSans.bold,
+              }}
+              className={cn("text-sm", {
+                "text-[#fff]/50":
+                  date.toDateString() !== selectedDate.toDateString(),
+              })}
+            >
+              {date.getDate()}
+            </Text>
           </View>
         </Pressable>
       ))}
