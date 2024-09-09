@@ -1,10 +1,10 @@
 import { useKindeAuth } from "@kinde/expo";
 
 import { useMutation } from "convex/react";
-import { Stack, useRouter } from "expo-router";
+import { Stack, useRouter, Link } from "expo-router";
 import { AlertCircle, type LucideIcon } from "lucide-react-native";
 import { useState } from "react";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
 import FormSubmitButton from "~/components/form-submit-button";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Input } from "~/components/ui/input";
@@ -64,7 +64,11 @@ function CreateGoalForm() {
         onChangeText={setName}
       />
       <View className="rounded-xl bg-[#0e2942]">
-        <ScheduleItem Icon={Repeat} title="REPEAT" value="Everyday" />
+        <Link href="/goals/create/repeat" asChild>
+          <Pressable>
+            <ScheduleItem Icon={Repeat} title="REPEAT" value="Everyday" />
+          </Pressable>
+        </Link>
         <ScheduleItem Icon={Crosshair} title="GOAL" value="3 times per week" />
         <ScheduleItem Icon={Sun} title="TIME OF DAY" value="Any Time" />
       </View>
