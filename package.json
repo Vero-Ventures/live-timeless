@@ -32,6 +32,7 @@
     "@rn-primitives/label": "^1.0.3",
     "@rn-primitives/select": "^1.0.4",
     "@rn-primitives/slot": "^1.0.3",
+    "@rn-primitives/tabs": "^1.0.3",
     "@rn-primitives/types": "^1.0.3",
     "ai": "^3.3.8",
     "class-variance-authority": "^0.7.0",
