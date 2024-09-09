@@ -88,7 +88,11 @@ function CreateGoalForm() {
       </View>
 
       <View className="rounded-xl bg-[#0e2942]">
-        <ScheduleItem Icon={Bell} title="REMINDERS" value="9:00 AM" />
+        <Link href="/goals/create/reminders" asChild>
+          <Pressable>
+            <ScheduleItem Icon={Bell} title="REMINDERS" value="9:00 AM" />
+          </Pressable>
+        </Link>
       </View>
 
       <ScheduleStartDate />
