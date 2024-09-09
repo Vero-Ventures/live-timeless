@@ -69,7 +69,15 @@ function CreateGoalForm() {
             <ScheduleItem Icon={Repeat} title="REPEAT" value="Everyday" />
           </Pressable>
         </Link>
-        <ScheduleItem Icon={Crosshair} title="GOAL" value="3 times per week" />
+        <Link href="/goals/create/frequency" asChild>
+          <Pressable>
+            <ScheduleItem
+              Icon={Crosshair}
+              title="FREQUENCY"
+              value="3 times per week"
+            />
+          </Pressable>
+        </Link>
         <ScheduleItem Icon={Sun} title="TIME OF DAY" value="Any Time" />
       </View>
       <View className="rounded-xl bg-[#0e2942]">
