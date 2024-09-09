@@ -16,7 +16,7 @@ import { Crosshair } from "~/lib/icons/Crosshair";
 import { Sun } from "~/lib/icons/Sun";
 import { Bell } from "~/lib/icons/Bell";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
-import ScheduleStartDate from "./schedule-start-date";
+import ScheduleStartDate from "../schedule-start-date";
 
 export default function CreateGoalPage() {
   return (
