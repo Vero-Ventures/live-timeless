@@ -57,12 +57,14 @@ function CreateGoalForm() {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
+
       <Input
         className="native:h-16 rounded-xl border-0 bg-[#0e2942] placeholder:text-secondary-foreground placeholder:opacity-100"
         placeholder="Name of Goal"
         value={name}
         onChangeText={setName}
       />
+
       <View className="rounded-xl bg-[#0e2942]">
         <Link href="/goals/create/repeat" asChild>
           <Pressable>
@@ -78,12 +80,19 @@ function CreateGoalForm() {
             />
           </Pressable>
         </Link>
-        <ScheduleItem Icon={Sun} title="TIME OF DAY" value="Any Time" />
+        <Link href="/goals/create/time-of-day" asChild>
+          <Pressable>
+            <ScheduleItem Icon={Sun} title="TIME OF DAY" value="Any Time" />
+          </Pressable>
+        </Link>
       </View>
+
       <View className="rounded-xl bg-[#0e2942]">
         <ScheduleItem Icon={Bell} title="REMINDERS" value="9:00 AM" />
       </View>
+
       <ScheduleStartDate />
+
       <FormSubmitButton
         size="lg"
         isPending={isPending}
