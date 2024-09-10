@@ -143,7 +143,7 @@ function ScheduleItem({
   return (
     <>
       <View className="flex flex-row items-center gap-4 p-5">
-        <Icon className="text-primary" />
+        <Icon />
         <View className="flex flex-1 flex-row items-center justify-between">
           <View>
             <Text
