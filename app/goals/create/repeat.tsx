@@ -44,7 +44,7 @@ export default function Repeat() {
           </TabsList>
           <TabsContent value="daily">
             <ScrollView
-              className="mt-10"
+              className="pt-10"
               contentContainerStyle={{
                 paddingBottom: 300,
               }}
@@ -66,7 +66,7 @@ export default function Repeat() {
           </TabsContent>
           <TabsContent value="interval">
             <ScrollView
-              className="mt-10"
+              className="pt-10"
               contentContainerStyle={{
                 paddingBottom: 300,
               }}
