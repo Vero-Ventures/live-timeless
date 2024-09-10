@@ -62,7 +62,7 @@ export default function Repeat() {
             </ScrollView>
           </TabsContent>
           <TabsContent value="monthly">
-            <Text>Tab Content 2</Text>
+            <MonthlyRepeat />
           </TabsContent>
           <TabsContent value="interval">
             <ScrollView
@@ -104,6 +104,32 @@ function DailyRepeat({
         {dayOfWeek}
       </Text>
       {isChecked && <Check />}
+    </View>
+  );
+}
+
+function MonthlyRepeat() {
+  const numbers = Array.from({ length: 31 }, (_, index) => index + 1);
+
+  return (
+    <View className="flex flex-row flex-wrap">
+      {numbers.map((number) => (
+        <View
+          key={number}
+          className="flex items-center justify-center"
+          style={{
+            width: 60,
+            height: 60,
+          }}
+        >
+          <Text
+            className="text-center"
+            style={{ fontFamily: fontFamily.openSans.semiBold }}
+          >
+            {number}
+          </Text>
+        </View>
+      ))}
     </View>
   );
 }
