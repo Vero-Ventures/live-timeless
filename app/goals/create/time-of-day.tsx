@@ -1,7 +1,8 @@
 import { Stack } from "expo-router";
-import { View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
+import { Check } from "~/lib/icons/Check";
 
 export default function TimeOfDay() {
   return (
@@ -20,9 +21,42 @@ export default function TimeOfDay() {
           headerBackTitleVisible: false,
         }}
       />
-      <View>
-        <Text>Time of Day</Text>
-      </View>
+      <ScrollView
+        className="pt-10"
+        contentContainerStyle={{
+          paddingBottom: 300,
+        }}
+        style={{ height: "100%" }}
+      >
+        <View className="gap-12">
+          <TimePeriodOption period="Morning" isChecked />
+          <TimePeriodOption period="Afternoon" isChecked />
+          <TimePeriodOption period="Evening" isChecked />
+        </View>
+      </ScrollView>
     </>
+  );
+}
+
+function TimePeriodOption({
+  period,
+  isChecked = false,
+}: {
+  period: string;
+  isChecked?: boolean;
+}) {
+  return (
+    <View className="flex flex-row justify-between px-5">
+      <Text
+        className="text-lg"
+        style={{
+          fontFamily: fontFamily.openSans.bold,
+          letterSpacing: 0.5,
+        }}
+      >
+        {period}
+      </Text>
+      {isChecked && <Check />}
+    </View>
   );
 }
