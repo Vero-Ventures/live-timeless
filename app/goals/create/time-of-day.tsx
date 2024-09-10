@@ -1,10 +1,13 @@
 import { Stack } from "expo-router";
-import { ScrollView, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
 import { Check } from "~/lib/icons/Check";
+import { useCreateGoalFormStore } from "./create-goal-store";
+import { cn } from "~/lib/utils";
 
 export default function TimeOfDay() {
+  const { timeOfDay, setTimeOfDay } = useCreateGoalFormStore();
   return (
     <>
       <Stack.Screen
@@ -22,16 +25,48 @@ export default function TimeOfDay() {
         }}
       />
       <ScrollView
-        className="pt-10"
         contentContainerStyle={{
           paddingBottom: 250,
+          height: "100%",
+          backgroundColor: "#082139",
         }}
-        style={{ height: "100%" }}
       >
-        <View className="gap-12">
-          <TimePeriodOption period="Morning" isChecked />
-          <TimePeriodOption period="Afternoon" isChecked />
-          <TimePeriodOption period="Evening" isChecked />
+        <View className="h-full pt-10">
+          <TimePeriodOption
+            period="Morning"
+            className="border-b border-[#9cc5ff13]"
+            isChecked={timeOfDay.includes("Morning")}
+            onPress={() => {
+              if (timeOfDay.includes("Morning")) {
+                setTimeOfDay(timeOfDay.filter((t) => t !== "Morning"));
+              } else {
+                setTimeOfDay([...timeOfDay, "Morning"]);
+              }
+            }}
+          />
+          <TimePeriodOption
+            className="border-b border-[#9cc5ff13]"
+            period="Afternoon"
+            isChecked={timeOfDay.includes("Afternoon")}
+            onPress={() => {
+              if (timeOfDay.includes("Afternoon")) {
+                setTimeOfDay(timeOfDay.filter((t) => t !== "Afternoon"));
+              } else {
+                setTimeOfDay([...timeOfDay, "Afternoon"]);
+              }
+            }}
+          />
+          <TimePeriodOption
+            period="Evening"
+            isChecked={timeOfDay.includes("Evening")}
+            onPress={() => {
+              if (timeOfDay.includes("Evening")) {
+                setTimeOfDay(timeOfDay.filter((t) => t !== "Evening"));
+              } else {
+                setTimeOfDay([...timeOfDay, "Evening"]);
+              }
+            }}
+          />
         </View>
       </ScrollView>
     </>
@@ -41,12 +76,22 @@ export default function TimeOfDay() {
 function TimePeriodOption({
   period,
   isChecked = false,
+  onPress,
+  className,
 }: {
   period: string;
   isChecked?: boolean;
+  onPress: () => void;
+  className?: string;
 }) {
   return (
-    <View className="flex flex-row justify-between px-5">
+    <Pressable
+      className={cn(
+        "flex flex-row justify-between bg-[#0e2942] px-5 py-4",
+        className
+      )}
+      onPress={onPress}
+    >
       <Text
         className="text-lg"
         style={{
@@ -57,6 +102,6 @@ function TimePeriodOption({
         {period}
       </Text>
       {isChecked && <Check />}
-    </View>
+    </Pressable>
   );
 }

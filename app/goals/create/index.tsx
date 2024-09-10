@@ -43,12 +43,15 @@ export default function CreateGoalPage() {
 
 function CreateGoalForm() {
   const { name, setName } = useCreateGoalFormStore();
+  const { timeOfDay } = useCreateGoalFormStore();
   const [description, setDescription] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
   const createGoal = useMutation(api.goals.create);
   const router = useRouter();
   const { getUserProfile } = useKindeAuth();
+
+  const isAnyTime = timeOfDay.length === 3;
 
   return (
     <View className="gap-4">
@@ -83,7 +86,11 @@ function CreateGoalForm() {
         </Link>
         <Link href="/goals/create/time-of-day" asChild>
           <Pressable>
-            <ScheduleItem Icon={Sun} title="TIME OF DAY" value="Any Time" />
+            <ScheduleItem
+              Icon={Sun}
+              title="TIME OF DAY"
+              value={isAnyTime ? "Any Time" : timeOfDay.join(" and ")}
+            />
           </Pressable>
         </Link>
       </View>
