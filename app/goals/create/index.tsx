@@ -17,6 +17,7 @@ import { Sun } from "~/lib/icons/Sun";
 import { Bell } from "~/lib/icons/Bell";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
 import ScheduleStartDate from "../schedule-start-date";
+import { useCreateGoalFormStore } from "./create-goal-store";
 
 export default function CreateGoalPage() {
   return (
@@ -41,7 +42,7 @@ export default function CreateGoalPage() {
 }
 
 function CreateGoalForm() {
-  const [name, setName] = useState("");
+  const { name, setName } = useCreateGoalFormStore();
   const [description, setDescription] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
@@ -59,7 +60,7 @@ function CreateGoalForm() {
       )}
 
       <Input
-        className="native:h-16 rounded-xl border-0 bg-[#0e2942] placeholder:text-secondary-foreground placeholder:opacity-100"
+        className="native:h-16 rounded-xl border-0 bg-[#0e2942]"
         placeholder="Name of Goal"
         value={name}
         onChangeText={setName}
