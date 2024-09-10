@@ -14,36 +14,14 @@ export default function TabLayout() {
         screenOptions={{
           tabBarShowLabel: true,
           tabBarStyle: {
-            height: 60,
-            paddingTop: 10,
-            paddingBottom: 2,
+            height: 80,
+            paddingTop: 6,
             backgroundColor: "#0b1a28",
             borderTopColor: "#0b1a28",
-            position: "absolute",
-            bottom: 30,
-            left: 20,
-            right: 20,
-            borderRadius: 30,
-            shadowColor: "#000",
-            shadowOffset: {
-              width: 0,
-              height: 4,
-            },
-            shadowOpacity: 0.3,
-            shadowRadius: 4.65,
-            elevation: 8,
-            justifyContent: "center",
-            alignItems: "center",
           },
           tabBarLabelStyle: {
             fontFamily: fontFamily.openSans.medium,
             fontSize: 10,
-            marginTop: 4,
-          },
-          tabBarItemStyle: {
-            paddingVertical: 5,
-            alignItems: "center",
-            justifyContent: "center",
           },
         }}
       >
