@@ -24,7 +24,7 @@ export default function TimeOfDay() {
       <ScrollView
         className="pt-10"
         contentContainerStyle={{
-          paddingBottom: 300,
+          paddingBottom: 250,
         }}
         style={{ height: "100%" }}
       >
