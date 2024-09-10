@@ -9,6 +9,7 @@ import { Check } from "~/lib/icons/Check";
 
 export default function Repeat() {
   const [value, setValue] = useState("daily");
+  const numbers = Array.from({ length: 29 }, (_, index) => index + 2);
 
   return (
     <>
@@ -63,7 +64,21 @@ export default function Repeat() {
           <TabsContent value="monthly">
             <Text>Tab Content 2</Text>
           </TabsContent>
-          <TabsContent value="interval"></TabsContent>
+          <TabsContent value="interval">
+            <ScrollView
+              className="mt-10"
+              contentContainerStyle={{
+                paddingBottom: 300,
+              }}
+              style={{ height: "100%" }}
+            >
+              <View className="gap-12">
+                {numbers.map((number) => (
+                  <IntervalRepeat key={number} interval={number} />
+                ))}
+              </View>
+            </ScrollView>
+          </TabsContent>
         </Tabs>
       </View>
     </>
@@ -87,6 +102,29 @@ function DailyRepeat({
         }}
       >
         {dayOfWeek}
+      </Text>
+      {isChecked && <Check />}
+    </View>
+  );
+}
+
+function IntervalRepeat({
+  interval,
+  isChecked = false,
+}: {
+  interval: number;
+  isChecked?: boolean;
+}) {
+  return (
+    <View className="flex flex-row justify-between px-5">
+      <Text
+        className="text-lg"
+        style={{
+          fontFamily: fontFamily.openSans.bold,
+          letterSpacing: 0.5,
+        }}
+      >
+        Every {interval} days
       </Text>
       {isChecked && <Check />}
     </View>
