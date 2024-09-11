@@ -18,6 +18,7 @@ import { Bell } from "~/lib/icons/Bell";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
 import ScheduleStartDate from "../schedule-start-date";
 import { useCreateGoalFormStore } from "./create-goal-store";
+import { formatTime } from "~/lib/date";
 
 export default function CreateGoalPage() {
   return (
@@ -42,7 +43,8 @@ export default function CreateGoalPage() {
 }
 
 function CreateGoalForm() {
-  const { name, setName, timeOfDay, dailyRepeat } = useCreateGoalFormStore();
+  const { name, setName, timeOfDay, dailyRepeat, timeReminder } =
+    useCreateGoalFormStore();
   const [description, setDescription] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
@@ -106,7 +108,11 @@ function CreateGoalForm() {
       <View className="rounded-xl bg-[#0e2942]">
         <Link href="/goals/create/reminders" asChild>
           <Pressable>
-            <ScheduleItem Icon={Bell} title="REMINDERS" value="9:00 AM" />
+            <ScheduleItem
+              Icon={Bell}
+              title="REMINDERS"
+              value={formatTime(timeReminder)}
+            />
           </Pressable>
         </Link>
       </View>
