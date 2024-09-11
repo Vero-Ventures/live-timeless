@@ -19,6 +19,8 @@ interface CreateGoalFormState {
   setDailyRepeat: (dailyRepeat: DailyRepeat[]) => void;
   monthlyRepeat: number[];
   setMonthlyRepeat: (monthlyRepeat: number[]) => void;
+  timeReminder: Date;
+  setTimeReminder: (timeReminder: Date) => void;
 }
 
 export const useCreateGoalFormStore = create<CreateGoalFormState>()((set) => ({
@@ -38,4 +40,6 @@ export const useCreateGoalFormStore = create<CreateGoalFormState>()((set) => ({
   setDailyRepeat: (dailyRepeat) => set({ dailyRepeat }),
   monthlyRepeat: Array.from({ length: 31 }, (_, index) => index + 1),
   setMonthlyRepeat: (monthlyRepeat) => set({ monthlyRepeat }),
+  timeReminder: new Date(),
+  setTimeReminder: (timeReminder) => set({ timeReminder }),
 }));
