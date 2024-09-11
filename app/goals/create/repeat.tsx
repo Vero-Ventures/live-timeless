@@ -27,13 +27,13 @@ export default function Repeat() {
           headerBackTitleVisible: false,
         }}
       />
-      <View>
+      <View className="h-full bg-[#082139]">
         <Tabs
           value={value}
           onValueChange={setValue}
-          className="mx-auto w-full max-w-[400px] flex-col gap-1.5"
+          className="w-full flex-col gap-2"
         >
-          <TabsList className="w-full flex-row">
+          <TabsList className="mb-6 w-full flex-row justify-center rounded-none bg-[#172e4b]">
             <TabsTrigger value="daily" className="flex-1">
               <Text>Daily</Text>
             </TabsTrigger>
@@ -46,7 +46,6 @@ export default function Repeat() {
           </TabsList>
           <TabsContent value="daily">
             <ScrollView
-              className="pt-10"
               contentContainerStyle={{
                 paddingBottom: 250,
               }}
@@ -146,7 +145,6 @@ export default function Repeat() {
           </TabsContent>
           <TabsContent value="interval">
             <ScrollView
-              className="pt-10"
               contentContainerStyle={{
                 paddingBottom: 250,
               }}
@@ -191,25 +189,44 @@ function DailyRepeat({
 }
 
 function MonthlyRepeat() {
-  const numbers = Array.from({ length: 31 }, (_, index) => index + 1);
+  const rows = [
+    [1, 2, 3, 4, 5, 6, 7],
+    [8, 9, 10, 11, 12, 13, 14],
+    [15, 16, 17, 18, 19, 20, 21],
+    [22, 23, 24, 25, 26, 27, 28],
+    [29, 30, 31],
+  ];
+  const [selectedDays, setSelectedDays] = useState<number[]>([]);
 
   return (
-    <View className="flex flex-row flex-wrap">
-      {numbers.map((number) => (
+    <View>
+      {rows.map((row, index) => (
         <View
-          key={number}
-          className="flex items-center justify-center"
-          style={{
-            width: 60,
-            height: 60,
-          }}
+          key={index}
+          className="flex w-full flex-row flex-wrap justify-start"
         >
-          <Text
-            className="text-center"
-            style={{ fontFamily: fontFamily.openSans.semiBold }}
-          >
-            {number}
-          </Text>
+          {row.map((num) => (
+            <Pressable
+              onPress={() => {
+                if (selectedDays.includes(num)) {
+                  setSelectedDays(selectedDays.filter((day) => day !== num));
+                } else {
+                  setSelectedDays([...selectedDays, num]);
+                }
+              }}
+              key={num}
+              className={`h-16 w-[14.28%] items-center justify-center bg-[#172e4b] ${
+                selectedDays.includes(num) ? "bg-[#007bff8c]" : ""
+              }`}
+            >
+              <Text
+                className="text-center text-lg"
+                style={{ fontFamily: fontFamily.openSans.semiBold }}
+              >
+                {num}
+              </Text>
+            </Pressable>
+          ))}
         </View>
       ))}
     </View>
