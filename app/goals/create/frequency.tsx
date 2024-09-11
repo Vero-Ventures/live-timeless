@@ -20,9 +20,7 @@ export default function Frequency() {
           headerBackTitleVisible: false,
         }}
       />
-      <View>
-        <Text>Frequency</Text>
-      </View>
+      <View className="h-full bg-[#082139] p-5"></View>
     </>
   );
 }

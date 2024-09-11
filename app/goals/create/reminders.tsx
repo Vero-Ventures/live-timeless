@@ -29,7 +29,7 @@ export default function Reminders() {
           headerBackTitleVisible: false,
         }}
       />
-      <View className="p-5">
+      <View className="h-full bg-[#082139] p-5">
         <View className="gap-3">
           <Text
             className="text-sm text-muted-foreground"
