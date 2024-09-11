@@ -42,8 +42,7 @@ export default function CreateGoalPage() {
 }
 
 function CreateGoalForm() {
-  const { name, setName } = useCreateGoalFormStore();
-  const { timeOfDay } = useCreateGoalFormStore();
+  const { name, setName, timeOfDay, dailyRepeat } = useCreateGoalFormStore();
   const [description, setDescription] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
@@ -51,6 +50,7 @@ function CreateGoalForm() {
   const router = useRouter();
   const { getUserProfile } = useKindeAuth();
 
+  const isEveryday = dailyRepeat.length === 7;
   const isAnyTime = timeOfDay.length === 3;
 
   return (
@@ -72,7 +72,15 @@ function CreateGoalForm() {
       <View className="rounded-xl bg-[#0e2942]">
         <Link href="/goals/create/repeat" asChild>
           <Pressable>
-            <ScheduleItem Icon={Repeat} title="REPEAT" value="Everyday" />
+            <ScheduleItem
+              Icon={Repeat}
+              title="REPEAT"
+              value={
+                isEveryday
+                  ? "Everyday"
+                  : dailyRepeat.map((day) => day.slice(0, 3)).join(", ")
+              }
+            />
           </Pressable>
         </Link>
         <Link href="/goals/create/frequency" asChild>

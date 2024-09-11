@@ -1,14 +1,16 @@
 import { Stack } from "expo-router";
-import { ScrollView, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { useState } from "react";
 
 import { Text } from "~/components/ui/text";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { fontFamily } from "~/lib/font";
 import { Check } from "~/lib/icons/Check";
+import { useCreateGoalFormStore } from "./create-goal-store";
 
 export default function Repeat() {
   const [value, setValue] = useState("daily");
+  const { dailyRepeat, setDailyRepeat } = useCreateGoalFormStore();
   const numbers = Array.from({ length: 29 }, (_, index) => index + 2);
 
   return (
@@ -51,13 +53,91 @@ export default function Repeat() {
               style={{ height: "100%" }}
             >
               <View className="gap-12">
-                <DailyRepeat dayOfWeek="Sunday" isChecked />
-                <DailyRepeat dayOfWeek="Monday" isChecked />
-                <DailyRepeat dayOfWeek="Tuesday" isChecked />
-                <DailyRepeat dayOfWeek="Wednesday" isChecked />
-                <DailyRepeat dayOfWeek="Thursday" isChecked />
-                <DailyRepeat dayOfWeek="Friday" isChecked />
-                <DailyRepeat dayOfWeek="Saturday" isChecked />
+                <DailyRepeat
+                  dayOfWeek="Sunday"
+                  isChecked={dailyRepeat.includes("Sunday")}
+                  onPress={() => {
+                    if (dailyRepeat.includes("Sunday")) {
+                      setDailyRepeat(dailyRepeat.filter((t) => t !== "Sunday"));
+                    } else {
+                      setDailyRepeat([...dailyRepeat, "Sunday"]);
+                    }
+                  }}
+                />
+                <DailyRepeat
+                  dayOfWeek="Monday"
+                  isChecked={dailyRepeat.includes("Monday")}
+                  onPress={() => {
+                    if (dailyRepeat.includes("Monday")) {
+                      setDailyRepeat(dailyRepeat.filter((t) => t !== "Monday"));
+                    } else {
+                      setDailyRepeat([...dailyRepeat, "Monday"]);
+                    }
+                  }}
+                />
+                <DailyRepeat
+                  dayOfWeek="Tuesday"
+                  isChecked={dailyRepeat.includes("Tuesday")}
+                  onPress={() => {
+                    if (dailyRepeat.includes("Tuesday")) {
+                      setDailyRepeat(
+                        dailyRepeat.filter((t) => t !== "Tuesday")
+                      );
+                    } else {
+                      setDailyRepeat([...dailyRepeat, "Tuesday"]);
+                    }
+                  }}
+                />
+                <DailyRepeat
+                  dayOfWeek="Wednesday"
+                  isChecked={dailyRepeat.includes("Wednesday")}
+                  onPress={() => {
+                    if (dailyRepeat.includes("Wednesday")) {
+                      setDailyRepeat(
+                        dailyRepeat.filter((t) => t !== "Wednesday")
+                      );
+                    } else {
+                      setDailyRepeat([...dailyRepeat, "Wednesday"]);
+                    }
+                  }}
+                />
+                <DailyRepeat
+                  dayOfWeek="Thursday"
+                  isChecked={dailyRepeat.includes("Thursday")}
+                  onPress={() => {
+                    if (dailyRepeat.includes("Thursday")) {
+                      setDailyRepeat(
+                        dailyRepeat.filter((t) => t !== "Thursday")
+                      );
+                    } else {
+                      setDailyRepeat([...dailyRepeat, "Thursday"]);
+                    }
+                  }}
+                />
+                <DailyRepeat
+                  dayOfWeek="Friday"
+                  isChecked={dailyRepeat.includes("Friday")}
+                  onPress={() => {
+                    if (dailyRepeat.includes("Friday")) {
+                      setDailyRepeat(dailyRepeat.filter((t) => t !== "Friday"));
+                    } else {
+                      setDailyRepeat([...dailyRepeat, "Friday"]);
+                    }
+                  }}
+                />
+                <DailyRepeat
+                  dayOfWeek="Saturday"
+                  isChecked={dailyRepeat.includes("Saturday")}
+                  onPress={() => {
+                    if (dailyRepeat.includes("Saturday")) {
+                      setDailyRepeat(
+                        dailyRepeat.filter((t) => t !== "Saturday")
+                      );
+                    } else {
+                      setDailyRepeat([...dailyRepeat, "Saturday"]);
+                    }
+                  }}
+                />
               </View>
             </ScrollView>
           </TabsContent>
@@ -88,12 +168,14 @@ export default function Repeat() {
 function DailyRepeat({
   dayOfWeek,
   isChecked = false,
+  onPress,
 }: {
   dayOfWeek: string;
   isChecked?: boolean;
+  onPress: () => void;
 }) {
   return (
-    <View className="flex flex-row justify-between px-5">
+    <Pressable className="flex flex-row justify-between px-5" onPress={onPress}>
       <Text
         className="text-lg"
         style={{
@@ -104,7 +186,7 @@ function DailyRepeat({
         {dayOfWeek}
       </Text>
       {isChecked && <Check />}
-    </View>
+    </Pressable>
   );
 }
 
