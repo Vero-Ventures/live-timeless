@@ -6,6 +6,10 @@ import { Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
+import { StyleSheet } from "react-native";
+
+import WheelPickerExpo from "react-native-wheel-picker-expo";
+import { cn } from "~/lib/utils";
 
 export default function Frequency() {
   return (
@@ -31,50 +35,125 @@ export default function Frequency() {
     </>
   );
 }
-
+const styles = StyleSheet.create({
+  picker: {
+    width: "30%",
+    overflow: "hidden",
+  },
+  pickerItem: {
+    fontSize: 14,
+    fontFamily: fontFamily.openSans.medium,
+    color: "#ffffff",
+  },
+});
 function UnitPicker() {
-  const [number, setNumber] = useState("1");
-  const [unit, setUnit] = useState("hour");
+  const [number, setNumber] = useState("20");
+  const [unit, setUnit] = useState("min");
   const [frequency, setFrequency] = useState("per day");
 
   return (
-    <View className="flex flex-row">
-      <Picker
-        selectedValue={number}
-        style={{
-          flex: 1,
+    <View className="relative flex-row overflow-hidden rounded-xl bg-[#0e2942] p-2">
+      <View className="absolute left-2 top-[45%] z-10 h-[35px] w-full rounded-full bg-[#2b465f3b]" />
+      <WheelPickerExpo
+        width="30%"
+        backgroundColor="#0e2942"
+        onChange={({ item }) => setNumber(item.label)}
+        items={Array.from({ length: 60 }, (_, index) => {
+          return {
+            label: (index + 1).toString(),
+            value: (index + 1).toString(),
+          };
+        })}
+        renderItem={(item) => {
+          return (
+            <Text
+              style={{
+                fontFamily: fontFamily.openSans.semiBold,
+              }}
+            >
+              {item.label}
+            </Text>
+          );
         }}
+      />
+      <WheelPickerExpo
+        width="30%"
+        backgroundColor="#0e2942"
+        onChange={({ item }) => setUnit(item.label)}
+        items={["min", "hours"].map((item) => ({
+          label: item,
+          value: item,
+        }))}
+        renderItem={(item) => {
+          return (
+            <Text
+              style={{
+                fontFamily: fontFamily.openSans.semiBold,
+              }}
+            >
+              {item.label}
+            </Text>
+          );
+        }}
+      />
+      <WheelPickerExpo
+        width="40%"
+        backgroundColor="#0e2942"
+        onChange={({ item }) => setFrequency(item.label)}
+        items={["per day", "per week", "per month"].map((item) => ({
+          label: item,
+          value: item,
+        }))}
+        renderItem={(item) => {
+          return (
+            <Text
+              style={{
+                fontFamily: fontFamily.openSans.semiBold,
+              }}
+            >
+              {item.label}
+            </Text>
+          );
+        }}
+      />
+      {/* <Picker
+        selectedValue={number}
+        style={styles.picker}
+        itemStyle={{ ...styles.pickerItem }}
         onValueChange={(itemValue) => setNumber(itemValue)}
       >
-        {[1, 2, 3, 4, 5].map((num) => (
+        {[...Array(60).keys()].map((num) => (
           <Picker.Item
-            key={num}
-            label={num.toString()}
-            value={num.toString()}
-            color="#fafafa"
+            key={num + 1}
+            label={(num + 1).toString()}
+            value={(num + 1).toString()}
           />
         ))}
       </Picker>
 
       <Picker
         selectedValue={unit}
-        style={{ flex: 1 }}
+        style={styles.picker}
+        itemStyle={styles.pickerItem}
         onValueChange={(itemValue) => setUnit(itemValue)}
       >
-        <Picker.Item label="hour" value="hour" color="#fafafa" />
-        <Picker.Item label="day" value="day" color="#fafafa" />
-        <Picker.Item label="week" value="week" color="#fafafa" />
+        <Picker.Item label="min" value="min" />
+        <Picker.Item label="hours" value="hours" />
       </Picker>
 
       <Picker
         selectedValue={frequency}
-        style={{ flex: 1 }}
-        onValueChange={(itemValue) => setFrequency(itemValue)}
+        style={{
+          ...styles.picker,
+          width: "40%",
+        }}
+        itemStyle={styles.pickerItem}
+        onValueChange={(itemValue: string) => setFrequency(itemValue)}
       >
-        <Picker.Item label="per day" value="per day" color="#fafafa" />
-        <Picker.Item label="per week" value="per week" color="#fafafa" />
-        <Picker.Item label="per month" value="per month" color="#fafafa" />
-      </Picker>
+        <Picker.Item label="per day" value="per day" />
+        <Picker.Item label="per week" value="per week" />
+        <Picker.Item label="per month" value="per month" />
+      </Picker> */}
     </View>
   );
 }
@@ -82,7 +161,7 @@ function UnitPicker() {
 function SelectUnitType() {
   return (
     <Link href="/goals/create/frequency/unit-type" asChild>
-      <Pressable className="flex flex-row items-center justify-between rounded-xl bg-[#0e2942] p-5">
+      <Pressable className="mt-4 flex flex-row items-center justify-between rounded-xl bg-[#0e2942] p-5">
         <Text
           style={{
             fontFamily: fontFamily.openSans.semiBold,
