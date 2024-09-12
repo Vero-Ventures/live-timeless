@@ -19,6 +19,7 @@ import { ChevronRight } from "~/lib/icons/ChevronRight";
 import ScheduleStartDate from "../schedule-start-date";
 import { useCreateGoalFormStore } from "./create-goal-store";
 import { formatTime } from "~/lib/date";
+import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 
 export default function CreateGoalPage() {
   return (
@@ -43,8 +44,16 @@ export default function CreateGoalPage() {
 }
 
 function CreateGoalForm() {
-  const { name, setName, timeOfDay, dailyRepeat, timeReminder } =
-    useCreateGoalFormStore();
+  const {
+    name,
+    setName,
+    timeOfDay,
+    timeReminder,
+    repeatType,
+    dailyRepeat,
+    monthlyRepeat,
+    intervalRepeat,
+  } = useCreateGoalFormStore();
   const [description, setDescription] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
@@ -52,8 +61,22 @@ function CreateGoalForm() {
   const router = useRouter();
   const { getUserProfile } = useKindeAuth();
 
-  const isEveryday = dailyRepeat.length === 7;
   const isAnyTime = timeOfDay.length === 3;
+
+  const getRepeatValue = () => {
+    switch (repeatType) {
+      case "daily":
+        return dailyRepeat.length === 7
+          ? "Everyday"
+          : dailyRepeat.map((day) => day.slice(0, 3)).join(", ");
+      case "monthly":
+        return `Every month on ${monthlyRepeat.map(addOrdinalSuffix).join(", ")}`;
+      case "interval":
+        return `Every ${intervalRepeat} days`;
+      default:
+        return "Not set";
+    }
+  };
 
   return (
     <View className="gap-4">
@@ -63,25 +86,19 @@ function CreateGoalForm() {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-
       <Input
         className="native:h-16 rounded-xl border-0 bg-[#0e2942]"
         placeholder="Name of Goal"
         value={name}
         onChangeText={setName}
       />
-
       <View className="rounded-xl bg-[#0e2942]">
         <Link href="/goals/create/repeat" asChild>
           <Pressable>
             <ScheduleItem
               Icon={Repeat}
               title="REPEAT"
-              value={
-                isEveryday
-                  ? "Everyday"
-                  : dailyRepeat.map((day) => day.slice(0, 3)).join(", ")
-              }
+              value={getRepeatValue()}
             />
           </Pressable>
         </Link>
@@ -104,7 +121,6 @@ function CreateGoalForm() {
           </Pressable>
         </Link>
       </View>
-
       <View className="rounded-xl bg-[#0e2942]">
         <Link href="/goals/create/reminders" asChild>
           <Pressable>
