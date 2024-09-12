@@ -1,16 +1,28 @@
 import { Stack } from "expo-router";
 import { Pressable, ScrollView, View } from "react-native";
-import { useState } from "react";
 
 import { Text } from "~/components/ui/text";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { fontFamily } from "~/lib/font";
 import { Check } from "~/lib/icons/Check";
-import { useCreateGoalFormStore } from "./create-goal-store";
+import {
+  initialDailyRepeat,
+  useCreateGoalFormStore,
+} from "./create-goal-store";
+import { cn } from "~/lib/utils";
+import { Separator } from "~/components/ui/separator";
 
 export default function Repeat() {
-  const [value, setValue] = useState("daily");
-  const { dailyRepeat, setDailyRepeat } = useCreateGoalFormStore();
+  const {
+    repeatType,
+    setRepeatType,
+    dailyRepeat,
+    setDailyRepeat,
+    resetDailyRepeat,
+    resetMonthlyRepeat,
+    intervalRepeat,
+    resetIntervalRepeat,
+  } = useCreateGoalFormStore();
   const numbers = Array.from({ length: 29 }, (_, index) => index + 2);
 
   return (
@@ -25,120 +37,66 @@ export default function Repeat() {
             <Text style={{ fontFamily: fontFamily.openSans.bold }}>Repeat</Text>
           ),
           headerBackTitleVisible: false,
+          headerShadowVisible: false,
         }}
       />
-      <View className="h-full bg-[#082139]">
+      <View className="h-full bg-[#0b1a28]">
         <Tabs
-          value={value}
-          onValueChange={setValue}
-          className="w-full flex-col gap-2"
+          value={repeatType}
+          onValueChange={(value) => {
+            const isRepeatType =
+              value === "daily" || value === "monthly" || value === "interval";
+
+            if (!isRepeatType) {
+              return;
+            }
+
+            switch (value) {
+              case "daily":
+                resetDailyRepeat();
+                break;
+              case "monthly":
+                resetMonthlyRepeat();
+                break;
+              case "interval":
+                resetIntervalRepeat();
+                break;
+            }
+
+            setRepeatType(value);
+          }}
+          className="w-full flex-col"
         >
-          <TabsList className="mb-6 w-full flex-row justify-center rounded-none bg-[#172e4b]">
-            <TabsTrigger value="daily" className="flex-1">
+          <TabsList className="m-4 mb-4 flex-row justify-center rounded-md bg-[#172e4b]">
+            <TabsTrigger value="daily" className="flex-1 rounded-md">
               <Text>Daily</Text>
             </TabsTrigger>
-            <TabsTrigger value="monthly" className="flex-1">
+            <Separator orientation="vertical" className="h-[30px]" />
+            <TabsTrigger value="monthly" className="flex-1 rounded-md">
               <Text>Monthly</Text>
             </TabsTrigger>
-            <TabsTrigger value="interval" className="flex-1">
+            <Separator orientation="vertical" className="h-[30px]" />
+            <TabsTrigger value="interval" className="flex-1 rounded-md">
               <Text>Interval</Text>
             </TabsTrigger>
           </TabsList>
           <TabsContent value="daily">
-            <ScrollView
-              contentContainerStyle={{
-                paddingBottom: 250,
-              }}
-              style={{ height: "100%" }}
-            >
-              <View className="gap-12">
+            <View>
+              {initialDailyRepeat.map((day) => (
                 <DailyRepeat
-                  dayOfWeek="Sunday"
-                  isChecked={dailyRepeat.includes("Sunday")}
+                  key={day}
+                  dayOfWeek={day}
+                  isChecked={dailyRepeat.includes(day)}
                   onPress={() => {
-                    if (dailyRepeat.includes("Sunday")) {
-                      setDailyRepeat(dailyRepeat.filter((t) => t !== "Sunday"));
-                    } else {
-                      setDailyRepeat([...dailyRepeat, "Sunday"]);
-                    }
+                    setDailyRepeat(
+                      dailyRepeat.includes(day)
+                        ? dailyRepeat.filter((t) => t !== day)
+                        : [...dailyRepeat, day]
+                    );
                   }}
                 />
-                <DailyRepeat
-                  dayOfWeek="Monday"
-                  isChecked={dailyRepeat.includes("Monday")}
-                  onPress={() => {
-                    if (dailyRepeat.includes("Monday")) {
-                      setDailyRepeat(dailyRepeat.filter((t) => t !== "Monday"));
-                    } else {
-                      setDailyRepeat([...dailyRepeat, "Monday"]);
-                    }
-                  }}
-                />
-                <DailyRepeat
-                  dayOfWeek="Tuesday"
-                  isChecked={dailyRepeat.includes("Tuesday")}
-                  onPress={() => {
-                    if (dailyRepeat.includes("Tuesday")) {
-                      setDailyRepeat(
-                        dailyRepeat.filter((t) => t !== "Tuesday")
-                      );
-                    } else {
-                      setDailyRepeat([...dailyRepeat, "Tuesday"]);
-                    }
-                  }}
-                />
-                <DailyRepeat
-                  dayOfWeek="Wednesday"
-                  isChecked={dailyRepeat.includes("Wednesday")}
-                  onPress={() => {
-                    if (dailyRepeat.includes("Wednesday")) {
-                      setDailyRepeat(
-                        dailyRepeat.filter((t) => t !== "Wednesday")
-                      );
-                    } else {
-                      setDailyRepeat([...dailyRepeat, "Wednesday"]);
-                    }
-                  }}
-                />
-                <DailyRepeat
-                  dayOfWeek="Thursday"
-                  isChecked={dailyRepeat.includes("Thursday")}
-                  onPress={() => {
-                    if (dailyRepeat.includes("Thursday")) {
-                      setDailyRepeat(
-                        dailyRepeat.filter((t) => t !== "Thursday")
-                      );
-                    } else {
-                      setDailyRepeat([...dailyRepeat, "Thursday"]);
-                    }
-                  }}
-                />
-                <DailyRepeat
-                  dayOfWeek="Friday"
-                  isChecked={dailyRepeat.includes("Friday")}
-                  onPress={() => {
-                    if (dailyRepeat.includes("Friday")) {
-                      setDailyRepeat(dailyRepeat.filter((t) => t !== "Friday"));
-                    } else {
-                      setDailyRepeat([...dailyRepeat, "Friday"]);
-                    }
-                  }}
-                />
-                <DailyRepeat
-                  dayOfWeek="Saturday"
-                  isChecked={dailyRepeat.includes("Saturday")}
-                  onPress={() => {
-                    if (dailyRepeat.includes("Saturday")) {
-                      setDailyRepeat(
-                        dailyRepeat.filter((t) => t !== "Saturday")
-                      );
-                    } else {
-                      setDailyRepeat([...dailyRepeat, "Saturday"]);
-                    }
-                  }}
-                />
-              </View>
-            </ScrollView>
+              ))}
+            </View>
           </TabsContent>
           <TabsContent value="monthly">
             <MonthlyRepeat />
@@ -146,13 +104,17 @@ export default function Repeat() {
           <TabsContent value="interval">
             <ScrollView
               contentContainerStyle={{
-                paddingBottom: 250,
+                paddingBottom: 150,
               }}
               style={{ height: "100%" }}
             >
-              <View className="gap-12">
+              <View>
                 {numbers.map((number) => (
-                  <IntervalRepeat key={number} interval={number} />
+                  <IntervalRepeat
+                    key={number}
+                    interval={number}
+                    isChecked={intervalRepeat === number}
+                  />
                 ))}
               </View>
             </ScrollView>
@@ -173,7 +135,10 @@ function DailyRepeat({
   onPress: () => void;
 }) {
   return (
-    <Pressable className="flex flex-row justify-between px-5" onPress={onPress}>
+    <Pressable
+      className="flex flex-row justify-between border-b border-[#172e4b] bg-[#082139] px-5 py-4"
+      onPress={onPress}
+    >
       <Text
         className="text-lg"
         style={{
@@ -189,46 +154,36 @@ function DailyRepeat({
 }
 
 function MonthlyRepeat() {
-  const rows = [
-    [1, 2, 3, 4, 5, 6, 7],
-    [8, 9, 10, 11, 12, 13, 14],
-    [15, 16, 17, 18, 19, 20, 21],
-    [22, 23, 24, 25, 26, 27, 28],
-    [29, 30, 31],
-  ];
-  const [selectedDays, setSelectedDays] = useState<number[]>([]);
+  const days = Array.from({ length: 31 }, (_, index) => index + 1);
+  const { monthlyRepeat, setMonthlyRepeat } = useCreateGoalFormStore();
 
   return (
     <View>
-      {rows.map((row, index) => (
-        <View
-          key={index}
-          className="flex w-full flex-row flex-wrap justify-start"
-        >
-          {row.map((num) => (
-            <Pressable
-              onPress={() => {
-                if (selectedDays.includes(num)) {
-                  setSelectedDays(selectedDays.filter((day) => day !== num));
-                } else {
-                  setSelectedDays([...selectedDays, num]);
-                }
-              }}
-              key={num}
-              className={`h-16 w-[14.28%] items-center justify-center bg-[#172e4b] ${
-                selectedDays.includes(num) ? "bg-[#007bff8c]" : ""
-              }`}
+      <View className="flex w-full flex-row flex-wrap justify-start">
+        {days.map((day) => (
+          <Pressable
+            onPress={() => {
+              if (monthlyRepeat.includes(day)) {
+                setMonthlyRepeat(monthlyRepeat.filter((day) => day !== day));
+              } else {
+                setMonthlyRepeat([...monthlyRepeat, day]);
+              }
+            }}
+            key={day}
+            className={cn(
+              "h-16 w-[14.28%] items-center justify-center bg-[#172e4b]",
+              monthlyRepeat.includes(day) && "bg-[#007bff8c]"
+            )}
+          >
+            <Text
+              className="text-center text-lg"
+              style={{ fontFamily: fontFamily.openSans.semiBold }}
             >
-              <Text
-                className="text-center text-lg"
-                style={{ fontFamily: fontFamily.openSans.semiBold }}
-              >
-                {num}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-      ))}
+              {day}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
     </View>
   );
 }
@@ -240,8 +195,15 @@ function IntervalRepeat({
   interval: number;
   isChecked?: boolean;
 }) {
+  const { setIntervalRepeat } = useCreateGoalFormStore();
+
   return (
-    <View className="flex flex-row justify-between px-5">
+    <Pressable
+      onPress={() => {
+        setIntervalRepeat(interval);
+      }}
+      className="flex flex-row justify-between border-b border-[#172e4b] bg-[#082139] px-5 py-4"
+    >
       <Text
         className="text-lg"
         style={{
@@ -252,6 +214,6 @@ function IntervalRepeat({
         Every {interval} days
       </Text>
       {isChecked && <Check />}
-    </View>
+    </Pressable>
   );
 }
