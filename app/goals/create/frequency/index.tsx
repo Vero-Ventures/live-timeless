@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
   },
   pickerItem: {
     fontSize: 14,
-    fontFamily: fontFamily.openSans.medium,
+    fontFamily: fontFamily.openSans.semiBold,
     color: "#ffffff",
   },
 });
