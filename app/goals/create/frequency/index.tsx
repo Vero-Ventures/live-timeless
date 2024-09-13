@@ -8,8 +8,6 @@ import { fontFamily } from "~/lib/font";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
 import { StyleSheet } from "react-native";
 
-import { cn } from "~/lib/utils";
-
 export default function Frequency() {
   return (
     <>
