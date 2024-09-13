@@ -1,3 +1,5 @@
+import type MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import type { ComponentProps } from "react";
 import { create } from "zustand";
 
 type TimeOfDay = "Morning" | "Afternoon" | "Evening";
@@ -11,6 +13,10 @@ export type DailyRepeat =
   | "Thursday"
   | "Friday"
   | "Saturday";
+
+export type MaterialCommunityIcon = ComponentProps<
+  typeof MaterialCommunityIcons
+>["name"];
 
 interface CreateGoalFormState {
   name: string;
@@ -30,6 +36,10 @@ interface CreateGoalFormState {
   resetIntervalRepeat: () => void;
   timeReminder: Date;
   setTimeReminder: (timeReminder: Date) => void;
+  selectedIconColor: string;
+  setSelectedIconColor: (selectedIconColor: string) => void;
+  selectedIcon: MaterialCommunityIcon | null;
+  setSelectedIcon: (selectedIcon: MaterialCommunityIcon) => void;
 }
 
 export const initialDailyRepeat: DailyRepeat[] = [
@@ -64,4 +74,8 @@ export const useCreateGoalFormStore = create<CreateGoalFormState>()((set) => ({
   resetIntervalRepeat: () => set({ intervalRepeat: initialIntervalRepeat }),
   timeReminder: new Date(),
   setTimeReminder: (timeReminder) => set({ timeReminder }),
+  selectedIconColor: "#2AA8CF",
+  setSelectedIconColor: (selectedIconColor) => set({ selectedIconColor }),
+  selectedIcon: null,
+  setSelectedIcon: (selectedIcon) => set({ selectedIcon }),
 }));

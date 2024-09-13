@@ -22,6 +22,7 @@ import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 import Fa6Icons from "@expo/vector-icons/FontAwesome6";
 import { cn } from "~/lib/utils";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 export default function CreateGoalPage() {
   return (
@@ -55,6 +56,8 @@ function CreateGoalForm() {
     dailyRepeat,
     monthlyRepeat,
     intervalRepeat,
+    selectedIcon,
+    selectedIconColor,
   } = useCreateGoalFormStore();
   const [description, setDescription] = useState("");
   const [isPending, setIsPending] = useState(false);
@@ -91,7 +94,15 @@ function CreateGoalForm() {
       <View className="flex flex-row items-center gap-2">
         <Link href="/goals/create/icon" asChild>
           <Pressable className="rounded-xl bg-[#0e2942] p-4 px-6">
-            <Fa6Icons name="question" size={24} color="white" />
+            {selectedIcon ? (
+              <MaterialCommunityIcons
+                name={selectedIcon}
+                size={32}
+                color={selectedIconColor}
+              />
+            ) : (
+              <Fa6Icons name="question" size={32} color={selectedIconColor} />
+            )}
           </Pressable>
         </Link>
         <Input
