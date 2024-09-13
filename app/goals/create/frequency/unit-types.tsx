@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 import { View } from "react-native";
 import { Text } from "~/components/ui/text";
 
-export default function Reminders() {
+export default function UnitTypes() {
   return (
     <>
       <Stack.Screen

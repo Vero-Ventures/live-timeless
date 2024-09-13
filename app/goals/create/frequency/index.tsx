@@ -92,7 +92,7 @@ function UnitPicker() {
 
 function SelectUnitType() {
   return (
-    <Link href="/goals/create/frequency/unit-type" asChild>
+    <Link href="/goals/create/frequency/unit-types" asChild>
       <Pressable className="mt-4 flex flex-row items-center justify-between rounded-xl bg-[#0e2942] p-5">
         <Text
           style={{
