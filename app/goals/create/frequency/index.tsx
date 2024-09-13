@@ -8,7 +8,6 @@ import { fontFamily } from "~/lib/font";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
 import { StyleSheet } from "react-native";
 
-import WheelPickerExpo from "react-native-wheel-picker-expo";
 import { cn } from "~/lib/utils";
 
 export default function Frequency() {
@@ -53,70 +52,7 @@ function UnitPicker() {
 
   return (
     <View className="relative flex-row overflow-hidden rounded-xl bg-[#0e2942] p-2">
-      <View className="absolute left-2 top-[45%] z-10 h-[35px] w-full rounded-full bg-[#2b465f3b]" />
-      <WheelPickerExpo
-        width="30%"
-        backgroundColor="#0e2942"
-        onChange={({ item }) => setNumber(item.label)}
-        items={Array.from({ length: 60 }, (_, index) => {
-          return {
-            label: (index + 1).toString(),
-            value: (index + 1).toString(),
-          };
-        })}
-        renderItem={(item) => {
-          return (
-            <Text
-              style={{
-                fontFamily: fontFamily.openSans.semiBold,
-              }}
-            >
-              {item.label}
-            </Text>
-          );
-        }}
-      />
-      <WheelPickerExpo
-        width="30%"
-        backgroundColor="#0e2942"
-        onChange={({ item }) => setUnit(item.label)}
-        items={["min", "hours"].map((item) => ({
-          label: item,
-          value: item,
-        }))}
-        renderItem={(item) => {
-          return (
-            <Text
-              style={{
-                fontFamily: fontFamily.openSans.semiBold,
-              }}
-            >
-              {item.label}
-            </Text>
-          );
-        }}
-      />
-      <WheelPickerExpo
-        width="40%"
-        backgroundColor="#0e2942"
-        onChange={({ item }) => setFrequency(item.label)}
-        items={["per day", "per week", "per month"].map((item) => ({
-          label: item,
-          value: item,
-        }))}
-        renderItem={(item) => {
-          return (
-            <Text
-              style={{
-                fontFamily: fontFamily.openSans.semiBold,
-              }}
-            >
-              {item.label}
-            </Text>
-          );
-        }}
-      />
-      {/* <Picker
+      <Picker
         selectedValue={number}
         style={styles.picker}
         itemStyle={{ ...styles.pickerItem }}
@@ -130,7 +66,6 @@ function UnitPicker() {
           />
         ))}
       </Picker>
-
       <Picker
         selectedValue={unit}
         style={styles.picker}
@@ -140,7 +75,6 @@ function UnitPicker() {
         <Picker.Item label="min" value="min" />
         <Picker.Item label="hours" value="hours" />
       </Picker>
-
       <Picker
         selectedValue={frequency}
         style={{
@@ -153,7 +87,7 @@ function UnitPicker() {
         <Picker.Item label="per day" value="per day" />
         <Picker.Item label="per week" value="per week" />
         <Picker.Item label="per month" value="per month" />
-      </Picker> */}
+      </Picker>
     </View>
   );
 }
