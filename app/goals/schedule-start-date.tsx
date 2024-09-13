@@ -37,7 +37,9 @@ export default function ScheduleStartDate() {
     <Pressable onPress={showDatePicker}>
       <View className="rounded-xl bg-[#0e2942]">
         <View className="flex flex-row items-center gap-4 p-5">
-          <CalendarDays className="text-primary" />
+          <View className="rounded-xl bg-[#1E00FE] p-2">
+            <CalendarDays color="#fff" />
+          </View>
           <View>
             <Text
               className="text-xs text-muted-foreground"
