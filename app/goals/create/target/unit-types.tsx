@@ -65,7 +65,7 @@ export default function UnitTypes() {
           onPress={() => {
             setUnitType("Mass");
             setUnitValue(1);
-            setUnit("kilograms");
+            setUnit("kg");
             setRecurrence("per day");
           }}
         />
@@ -87,7 +87,7 @@ export default function UnitTypes() {
           onPress={() => {
             setUnitType("Duration");
             setUnitValue(1);
-            setUnit("minutes");
+            setUnit("min");
             setRecurrence("per day");
           }}
         />
@@ -97,7 +97,7 @@ export default function UnitTypes() {
           className="border-b border-[#9cc5ff13]"
           onPress={() => {
             setUnitType("Energy");
-            setUnitValue(1);
+            setUnitValue(1000);
             setUnit("joules");
             setRecurrence("per day");
           }}
@@ -107,7 +107,7 @@ export default function UnitTypes() {
           units={["metres", "kilometers", "miles", "feet", "yards"]}
           onPress={() => {
             setUnitType("Length");
-            setUnitValue(1);
+            setUnitValue(10);
             setUnit("metres");
             setRecurrence("per day");
           }}
@@ -129,7 +129,7 @@ function GoalUnitType({
   className?: string;
 }) {
   return (
-    <Link href="/goals/create/frequency" asChild>
+    <Link href="/goals/create/target" asChild>
       <Pressable
         className={cn(
           "flex flex-row items-center justify-between bg-[#0e2942] p-4",

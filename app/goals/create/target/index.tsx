@@ -8,9 +8,9 @@ import { ChevronRight } from "~/lib/icons/ChevronRight";
 import { useCreateGoalFormStore } from "../create-goal-store";
 import type { UnitType } from "../create-goal-store";
 import { StyleSheet } from "react-native";
-import { arrayRange } from "~/lib/utils";
 import { RECURRENCE } from "./constants";
 import { useShallow } from "zustand/react/shallow";
+import { useMemo } from "react";
 export default function Frequency() {
   const unitType = useCreateGoalFormStore((s) => s.unitType);
 
@@ -31,7 +31,7 @@ export default function Frequency() {
         }}
       />
       <View className="h-full bg-[#082139] p-4">
-        {unitType === "General" && (
+        {unitType === "General" ? (
           <GoalPicker
             units={["times", "minutes"]}
             ranges={{
@@ -47,8 +47,7 @@ export default function Frequency() {
               },
             }}
           />
-        )}
-        {unitType === "Scalar" && (
+        ) : unitType === "Scalar" ? (
           <GoalPicker
             units={["times", "steps"]}
             ranges={{
@@ -64,8 +63,7 @@ export default function Frequency() {
               },
             }}
           />
-        )}
-        {unitType === "Mass" && (
+        ) : unitType === "Mass" ? (
           <GoalPicker
             units={["kg", "grams", "mg", "oz", "pounds", "µg"]}
             ranges={{
@@ -101,8 +99,7 @@ export default function Frequency() {
               },
             }}
           />
-        )}
-        {unitType === "Volume" && (
+        ) : unitType === "Volume" ? (
           <GoalPicker
             units={["litres", "mL", "US fl oz", "cups"]}
             ranges={{
@@ -128,8 +125,7 @@ export default function Frequency() {
               },
             }}
           />
-        )}
-        {unitType === "Duration" && (
+        ) : unitType === "Duration" ? (
           <GoalPicker
             units={["min", "hours"]}
             ranges={{
@@ -145,8 +141,7 @@ export default function Frequency() {
               },
             }}
           />
-        )}
-        {unitType === "Energy" && (
+        ) : unitType === "Energy" ? (
           <GoalPicker
             units={["kilojoules", "cal", "kcal", "joules"]}
             ranges={{
@@ -172,8 +167,7 @@ export default function Frequency() {
               },
             }}
           />
-        )}
-        {unitType === "Length" && (
+        ) : unitType === "Length" ? (
           <GoalPicker
             units={["km", "metres", "feet", "yards", "miles"]}
             ranges={{
@@ -204,7 +198,7 @@ export default function Frequency() {
               },
             }}
           />
-        )}
+        ) : null}
         <SelectUnitType unitType={unitType} />
       </View>
     </>
@@ -244,9 +238,20 @@ function GoalPicker<TUnit extends string>({
       ])
     );
 
-  const minValue = ranges[unit].min;
-  const maxValue = ranges[unit].max;
-  const step = ranges[unit].step;
+  const { minValue, maxValue, step } = useMemo(() => {
+    return {
+      minValue: ranges[unit].min,
+      maxValue: ranges[unit].max,
+      step: ranges[unit].step,
+    };
+  }, [unit, ranges]);
+
+  const unitValueRange = useMemo(() => {
+    return Array.from(
+      { length: (maxValue - minValue) / step + 1 },
+      (_, index) => minValue + index * step
+    );
+  }, [minValue, maxValue, step]);
 
   return (
     <View className="relative flex-row overflow-hidden rounded-xl bg-[#0e2942] p-2">
@@ -258,19 +263,18 @@ function GoalPicker<TUnit extends string>({
           setUnitValue(value);
         }}
       >
-        {arrayRange(minValue, maxValue, step).map((num) => (
-          <Picker.Item
-            key={num}
-            label={num.toString()}
-            value={num.toString()}
-          />
+        {unitValueRange.map((value) => (
+          <Picker.Item key={value} label={value.toString()} value={value} />
         ))}
       </Picker>
       <Picker
         selectedValue={unit}
         onValueChange={(itemValue) => {
           setUnit(itemValue);
-          setUnitValue(ranges[itemValue as TUnit].min);
+          if (itemValue !== unit) {
+            const newMin = ranges[itemValue].min;
+            setUnitValue(newMin);
+          }
         }}
         style={{
           width: "34%",
@@ -301,7 +305,7 @@ function GoalPicker<TUnit extends string>({
 
 function SelectUnitType({ unitType }: { unitType: UnitType }) {
   return (
-    <Link href="/goals/create/frequency/unit-types" asChild>
+    <Link href="/goals/create/target/unit-types" asChild>
       <Pressable className="mt-4 flex flex-row items-center justify-between rounded-xl bg-[#0e2942] p-5">
         <Text
           style={{

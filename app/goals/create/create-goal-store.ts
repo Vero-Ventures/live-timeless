@@ -1,7 +1,7 @@
 import type MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import type { ComponentProps } from "react";
 import { create } from "zustand";
-import type { RECURRENCE } from "./frequency/constants";
+import type { RECURRENCE } from "./target/constants";
 
 type TimeOfDay = "Morning" | "Afternoon" | "Evening";
 
@@ -52,7 +52,7 @@ interface CreateGoalFormState {
   unitType: UnitType;
   setUnitType: (unitType: UnitType) => void;
   unitValue: number;
-  setUnitValue: (value: number) => void;
+  setUnitValue: (unitValue: number) => void;
   unit: string;
   setUnit: (unit: string) => void;
   recurrence: Recurrence;
