@@ -10,7 +10,3 @@ export const arrayRange = (start: number, stop: number, step: number) =>
     { length: (stop - start) / step + 1 },
     (value, index) => start + index * step
   );
-
-export const capitalize = (word: string) => {
-  return word.charAt(0).toUpperCase() + word.slice(1);
-};

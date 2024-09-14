@@ -1,7 +1,7 @@
 import type MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import type { ComponentProps } from "react";
 import { create } from "zustand";
-import { FREQUENCY } from "./frequency/constants";
+import type { RECURRENCE } from "./frequency/constants";
 
 type TimeOfDay = "Morning" | "Afternoon" | "Evening";
 
@@ -15,11 +15,17 @@ export type DailyRepeat =
   | "Friday"
   | "Saturday";
 
-export type UnitType = keyof typeof FREQUENCY;
-export type Unit = {
-  [K in UnitType]: keyof (typeof FREQUENCY)[K]["units"];
-}[UnitType];
-export type Recurrence = (typeof FREQUENCY)[UnitType]["recurrence"][number];
+export type UnitType =
+  | "General"
+  | "Scalar"
+  | "Mass"
+  | "Volume"
+  | "Duration"
+  | "Energy"
+  | "Length";
+
+export type Recurrence = (typeof RECURRENCE)[number];
+
 export type MaterialCommunityIcon = ComponentProps<
   typeof MaterialCommunityIcons
 >["name"];
@@ -43,13 +49,12 @@ interface CreateGoalFormState {
   timeReminder: Date;
   setTimeReminder: (timeReminder: Date) => void;
 
-  // Updated goal-related fields
   unitType: UnitType;
   setUnitType: (unitType: UnitType) => void;
   unitValue: number;
   setUnitValue: (value: number) => void;
-  unit: Unit;
-  setUnit: (unit: Unit) => void;
+  unit: string;
+  setUnit: (unit: string) => void;
   recurrence: Recurrence;
   setRecurrence: (recurrence: Recurrence) => void;
   selectedIconColor: string;
@@ -72,11 +77,6 @@ const initialMonthlyRepeat: number[] = [1];
 
 const initialIntervalRepeat = 2;
 
-const initialUnitType: UnitType = "general";
-const initialUnitValue = 1;
-const initialUnit: Unit = "times";
-const initialRecurrence: Recurrence = "per day";
-
 export const useCreateGoalFormStore = create<CreateGoalFormState>()((set) => ({
   name: "",
   setName: (name) => set({ name }),
@@ -95,15 +95,13 @@ export const useCreateGoalFormStore = create<CreateGoalFormState>()((set) => ({
   resetIntervalRepeat: () => set({ intervalRepeat: initialIntervalRepeat }),
   timeReminder: new Date(),
   setTimeReminder: (timeReminder) => set({ timeReminder }),
-
-  // Updated goal-related fields
-  unitType: initialUnitType,
+  unitType: "General",
   setUnitType: (unitType) => set({ unitType }),
-  unitValue: initialUnitValue,
+  unitValue: 1,
   setUnitValue: (unitValue) => set({ unitValue }),
-  unit: initialUnit,
+  unit: "times",
   setUnit: (unit) => set({ unit }),
-  recurrence: initialRecurrence,
+  recurrence: "per day",
   setRecurrence: (recurrence) => set({ recurrence }),
   selectedIconColor: "#2AA8CF",
   setSelectedIconColor: (selectedIconColor) => set({ selectedIconColor }),

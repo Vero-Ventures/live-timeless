@@ -59,6 +59,9 @@ function CreateGoalForm() {
     selectedIcon,
     selectedIconColor,
   } = useCreateGoalFormStore();
+  const unitValue = useCreateGoalFormStore((s) => s.unitValue);
+  const unit = useCreateGoalFormStore((s) => s.unit);
+  const recurrence = useCreateGoalFormStore((s) => s.recurrence);
   const [description, setDescription] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
@@ -129,7 +132,7 @@ function CreateGoalForm() {
               Icon={Crosshair}
               iconBgColor="bg-[#0EAF0A]"
               title="FREQUENCY"
-              value="3 times per week"
+              value={`${unitValue} ${unit} ${recurrence}`}
             />
           </Pressable>
         </Link>

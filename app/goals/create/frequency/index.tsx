@@ -5,14 +5,13 @@ import { Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
-import { StyleSheet } from "react-native";
-import { FREQUENCY } from "./constants";
 import { useCreateGoalFormStore } from "../create-goal-store";
-import type { Recurrence, Unit, UnitType } from "../create-goal-store";
-import { arrayRange, capitalize } from "~/lib/utils";
-
+import type { UnitType } from "../create-goal-store";
+import { StyleSheet } from "react-native";
+import { arrayRange } from "~/lib/utils";
+import { RECURRENCE } from "./constants";
 export default function Frequency() {
-  const { unitType } = useCreateGoalFormStore();
+  const unitType = useCreateGoalFormStore((s) => s.unitType);
 
   return (
     <>
@@ -31,212 +30,228 @@ export default function Frequency() {
         }}
       />
       <View className="h-full bg-[#082139] p-4">
-        <GoalPicker />
+        {unitType === "General" && (
+          <GoalPicker
+            units={["times", "minutes"]}
+            ranges={{
+              times: {
+                min: 1,
+                max: 1000,
+                step: 1,
+              },
+              minutes: {
+                min: 1,
+                max: 1200,
+                step: 1,
+              },
+            }}
+          />
+        )}
+        {unitType === "Scalar" && (
+          <GoalPicker
+            units={["times", "steps"]}
+            ranges={{
+              times: {
+                min: 1,
+                max: 1000,
+                step: 1,
+              },
+              steps: {
+                min: 1000,
+                max: 9900,
+                step: 1000,
+              },
+            }}
+          />
+        )}
+        {unitType === "Mass" && (
+          <GoalPicker
+            units={["kg", "grams", "mg", "oz", "pounds", "µg"]}
+            ranges={{
+              kg: {
+                min: 1,
+                max: 1000,
+                step: 1,
+              },
+              grams: {
+                min: 5,
+                max: 4995,
+                step: 5,
+              },
+              mg: {
+                min: 1,
+                max: 10000,
+                step: 1,
+              },
+              oz: {
+                min: 1,
+                max: 1000,
+                step: 1,
+              },
+              pounds: {
+                min: 1,
+                max: 1000,
+                step: 1,
+              },
+              µg: {
+                min: 5,
+                max: 4995,
+                step: 5,
+              },
+            }}
+          />
+        )}
+        {unitType === "Volume" && (
+          <GoalPicker
+            units={["litres", "mL", "US fl oz", "cups"]}
+            ranges={{
+              litres: {
+                min: 1,
+                max: 1000,
+                step: 1,
+              },
+              mL: {
+                min: 100,
+                max: 29900,
+                step: 100,
+              },
+              "US fl oz": {
+                min: 5,
+                max: 995,
+                step: 5,
+              },
+              cups: {
+                min: 1,
+                max: 1000,
+                step: 1,
+              },
+            }}
+          />
+        )}
+        {unitType === "Duration" && (
+          <GoalPicker
+            units={["min", "hours"]}
+            ranges={{
+              min: {
+                min: 1,
+                max: 1200,
+                step: 1,
+              },
+              hours: {
+                min: 1,
+                max: 1000,
+                step: 1,
+              },
+            }}
+          />
+        )}
+        {unitType === "Energy" && (
+          <GoalPicker
+            units={["kilojoules", "cal", "kcal", "joules"]}
+            ranges={{
+              joules: {
+                min: 1000,
+                max: 99000,
+                step: 1000,
+              },
+              kilojoules: {
+                min: 50,
+                max: 41950,
+                step: 50,
+              },
+              cal: {
+                min: 500,
+                max: 1999500,
+                step: 500,
+              },
+              kcal: {
+                min: 100,
+                max: 9900,
+                step: 100,
+              },
+            }}
+          />
+        )}
+        {unitType === "Length" && (
+          <GoalPicker
+            units={["km", "metres", "feet", "yards", "miles"]}
+            ranges={{
+              metres: {
+                min: 10,
+                max: 49990,
+                step: 10,
+              },
+              km: {
+                min: 1,
+                max: 1000,
+                step: 1,
+              },
+              miles: {
+                min: 1,
+                max: 1000,
+                step: 1,
+              },
+              feet: {
+                min: 100,
+                max: 99900,
+                step: 100,
+              },
+              yards: {
+                min: 50,
+                max: 49950,
+                step: 50,
+              },
+            }}
+          />
+        )}
         <SelectUnitType unitType={unitType} />
       </View>
     </>
   );
 }
+
 const styles = StyleSheet.create({
-  picker: {
-    width: "30%",
-    overflow: "hidden",
-  },
   pickerItem: {
     fontSize: 14,
     fontFamily: fontFamily.openSans.semiBold,
     color: "#ffffff",
   },
 });
-function GoalPicker() {
-  const {
-    unitType,
-    unitValue,
-    setUnitValue,
-    unit,
-    setUnit,
-    recurrence,
-    setRecurrence,
-  } = useCreateGoalFormStore();
 
-  switch (unitType) {
-    case "general":
-      const generalUnits = FREQUENCY.general.units;
-      return (
-        <Goal
-          unitType="general"
-          valueRange={arrayRange(
-            generalUnits[unit].min,
-            generalUnits[unit].max,
-            generalUnits[unit].step
-          )}
-          unitRange={Object.keys(generalUnits)}
-          recurrenceRange={FREQUENCY.general.recurrence}
-          unitValue={unitValue}
-          setUnitValue={setUnitValue}
-          unit={unit}
-          setUnit={setUnit}
-          recurrence={recurrence}
-          setRecurrence={setRecurrence}
-        />
-      );
-    case "scalar":
-      const scalarUnits = FREQUENCY.scalar.units;
-      return (
-        <Goal
-          unitType="scalar"
-          valueRange={arrayRange(
-            scalarUnits[unit].min,
-            scalarUnits[unit].max,
-            scalarUnits[unit].step
-          )}
-          unitRange={Object.keys(scalarUnits)}
-          recurrenceRange={FREQUENCY.scalar.recurrence}
-          unitValue={unitValue}
-          setUnitValue={setUnitValue}
-          unit={unit}
-          setUnit={setUnit}
-          recurrence={recurrence}
-          setRecurrence={setRecurrence}
-        />
-      );
-    case "mass":
-      const massUnits = FREQUENCY.mass.units;
-      return (
-        <Goal
-          unitType="mass"
-          valueRange={arrayRange(
-            massUnits[unit].min,
-            massUnits[unit].max,
-            massUnits[unit].step
-          )}
-          unitRange={Object.keys(massUnits)}
-          recurrenceRange={FREQUENCY.mass.recurrence}
-          unitValue={unitValue}
-          setUnitValue={setUnitValue}
-          unit={unit}
-          setUnit={setUnit}
-          recurrence={recurrence}
-          setRecurrence={setRecurrence}
-        />
-      );
-    case "volume":
-      const volumeUnits = FREQUENCY.volume.units;
-      return (
-        <Goal
-          unitType="volume"
-          valueRange={arrayRange(
-            volumeUnits[unit].min,
-            volumeUnits[unit].max,
-            volumeUnits[unit].step
-          )}
-          unitRange={Object.keys(volumeUnits)}
-          recurrenceRange={FREQUENCY.volume.recurrence}
-          unitValue={unitValue}
-          setUnitValue={setUnitValue}
-          unit={unit}
-          setUnit={setUnit}
-          recurrence={recurrence}
-          setRecurrence={setRecurrence}
-        />
-      );
-    case "duration":
-      const durationUnits = FREQUENCY.duration.units;
-      return (
-        <Goal
-          unitType="duration"
-          valueRange={arrayRange(
-            durationUnits[unit].min,
-            durationUnits[unit].max,
-            durationUnits[unit].step
-          )}
-          unitRange={Object.keys(durationUnits)}
-          recurrenceRange={FREQUENCY.duration.recurrence}
-          unitValue={unitValue}
-          setUnitValue={setUnitValue}
-          unit={unit}
-          setUnit={setUnit}
-          recurrence={recurrence}
-          setRecurrence={setRecurrence}
-        />
-      );
-    case "energy":
-      const energyUnits = FREQUENCY.energy.units;
-      return (
-        <Goal
-          unitType="energy"
-          valueRange={arrayRange(
-            energyUnits[unit].min,
-            energyUnits[unit].max,
-            energyUnits[unit].step
-          )}
-          unitRange={Object.keys(energyUnits)}
-          recurrenceRange={FREQUENCY.energy.recurrence}
-          unitValue={unitValue}
-          setUnitValue={setUnitValue}
-          unit={unit}
-          setUnit={setUnit}
-          recurrence={recurrence}
-          setRecurrence={setRecurrence}
-        />
-      );
-    case "length":
-      const lengthUnits = FREQUENCY.length.units;
-      return (
-        <Goal
-          unitType="length"
-          valueRange={arrayRange(
-            lengthUnits[unit].min,
-            lengthUnits[unit].max,
-            lengthUnits[unit].step
-          )}
-          unitRange={Object.keys(lengthUnits)}
-          recurrenceRange={FREQUENCY.length.recurrence}
-          unitValue={unitValue}
-          setUnitValue={setUnitValue}
-          unit={unit}
-          setUnit={setUnit}
-          recurrence={recurrence}
-          setRecurrence={setRecurrence}
-        />
-      );
-    default:
-      return;
-  }
-}
-
-function Goal({
-  unitType,
-  valueRange,
-  unitRange,
-  recurrenceRange,
-  unitValue,
-  setUnitValue,
-  unit,
-  setUnit,
-  recurrence,
-  setRecurrence,
+function GoalPicker<TUnit extends string>({
+  ranges,
+  units,
 }: {
-  unitType: UnitType;
-  valueRange: number[];
-  unitRange: string[];
-  recurrenceRange: readonly string[];
-  unitValue: number;
-  setUnitValue: (unitValue: number) => void;
-  unit: Unit;
-  setUnit: (unit: Unit) => void;
-  recurrence: Recurrence;
-  setRecurrence: (recurrence: Recurrence) => void;
+  units: TUnit[];
+  ranges: {
+    [key in TUnit]: {
+      min: number;
+      max: number;
+      step: number;
+    };
+  };
 }) {
+  const unitValue = useCreateGoalFormStore((s) => s.unitValue);
+  const unit = useCreateGoalFormStore((s) => s.unit as TUnit);
+  const recurrence = useCreateGoalFormStore((s) => s.recurrence);
+  const setUnitValue = useCreateGoalFormStore((s) => s.setUnitValue);
+  const setUnit = useCreateGoalFormStore((s) => s.setUnit);
+  const setRecurrence = useCreateGoalFormStore((s) => s.setRecurrence);
+  const minValue = ranges[unit].min;
+  const maxValue = ranges[unit].max;
+  const step = ranges[unit].step;
+
   return (
     <View className="relative flex-row overflow-hidden rounded-xl bg-[#0e2942] p-2">
       <Picker
         selectedValue={unitValue}
-        style={styles.picker}
-        itemStyle={{ ...styles.pickerItem }}
-        onValueChange={(itemValue) => setUnitValue(itemValue)}
+        style={{ width: "26%" }}
+        itemStyle={styles.pickerItem}
+        onValueChange={(value) => {
+          setUnitValue(value);
+        }}
       >
-        {valueRange.map((num) => (
+        {arrayRange(minValue, maxValue, step).map((num) => (
           <Picker.Item
             key={num}
             label={num.toString()}
@@ -246,37 +261,31 @@ function Goal({
       </Picker>
       <Picker
         selectedValue={unit}
-        style={styles.picker}
-        itemStyle={styles.pickerItem}
         onValueChange={(itemValue) => {
           setUnit(itemValue);
-          const firstUnitValue = FREQUENCY[unitType].units[itemValue].min;
-          setUnitValue(firstUnitValue);
+          setUnitValue(ranges[itemValue as TUnit].min);
         }}
+        style={{
+          width: "34%",
+        }}
+        itemStyle={styles.pickerItem}
       >
-        {unitRange.map((unit) => (
-          <Picker.Item
-            key={unit}
-            label={unit.toString()}
-            value={unit.toString()}
-          />
+        {units.map((unit) => (
+          <Picker.Item key={unit} label={unit} value={unit} />
         ))}
       </Picker>
       <Picker
-        selectedValue={recurrence}
         style={{
-          ...styles.picker,
           width: "40%",
         }}
         itemStyle={styles.pickerItem}
-        onValueChange={(itemValue) => setRecurrence(itemValue)}
+        selectedValue={recurrence}
+        onValueChange={(itemValue) => {
+          setRecurrence(itemValue);
+        }}
       >
-        {recurrenceRange.map((item) => (
-          <Picker.Item
-            key={item}
-            label={item.toString()}
-            value={item.toString()}
-          />
+        {RECURRENCE.map((item) => (
+          <Picker.Item key={item} label={item} value={item} />
         ))}
       </Picker>
     </View>
@@ -295,16 +304,10 @@ function SelectUnitType({ unitType }: { unitType: UnitType }) {
           Unit Type
         </Text>
         <View className="flex flex-row items-center justify-center gap-1">
-          <Text className="text-muted-foreground">{capitalize(unitType)}</Text>
+          <Text className="text-muted-foreground">{unitType}</Text>
           <ChevronRight />
         </View>
       </Pressable>
     </Link>
   );
-}
-
-// Type helper function
-function getUnits(unitType: UnitType): Unit[] {
-  const units = Object.keys(FREQUENCY[unitType].units) as Unit[];
-  return units;
 }

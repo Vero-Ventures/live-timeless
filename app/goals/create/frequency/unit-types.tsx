@@ -4,12 +4,11 @@ import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
 import { cn } from "~/lib/utils";
 import { useCreateGoalFormStore } from "../create-goal-store";
-import type { Unit, UnitType } from "../create-goal-store";
-import { FREQUENCY } from "./constants";
-
 export default function UnitTypes() {
-  const { setUnitType, setUnitValue, setUnit, setRecurrence } =
-    useCreateGoalFormStore();
+  const setUnitType = useCreateGoalFormStore((s) => s.setUnitType);
+  const setUnitValue = useCreateGoalFormStore((s) => s.setUnitValue);
+  const setUnit = useCreateGoalFormStore((s) => s.setUnit);
+  const setRecurrence = useCreateGoalFormStore((s) => s.setRecurrence);
 
   return (
     <>
@@ -29,11 +28,10 @@ export default function UnitTypes() {
           units={["times", "minutes"]}
           className="border-b border-[#9cc5ff13]"
           onPress={() => {
-            setUnitType("general");
-            const minimumValueOfFirstUnit = FREQUENCY.general.units.times.min;
-            setUnitValue(minimumValueOfFirstUnit);
-            setUnit(getFirstUnit("general"));
-            setRecurrence(FREQUENCY.general.recurrence[0]);
+            setUnitType("General");
+            setUnitValue(1);
+            setUnit("times");
+            setRecurrence("per day");
           }}
         />
         <GoalUnitType
@@ -41,11 +39,10 @@ export default function UnitTypes() {
           units={["times", "steps"]}
           className="border-b border-[#9cc5ff13]"
           onPress={() => {
-            setUnitType("scalar");
-            const minimumValueOfFirstUnit = FREQUENCY.scalar.units.times.min;
-            setUnitValue(minimumValueOfFirstUnit);
-            setUnit(getFirstUnit("scalar"));
-            setRecurrence(FREQUENCY.scalar.recurrence[0]);
+            setUnitType("Scalar");
+            setUnitValue(1);
+            setUnit("times");
+            setRecurrence("per day");
           }}
         />
         <GoalUnitType
@@ -60,11 +57,10 @@ export default function UnitTypes() {
           ]}
           className="border-b border-[#9cc5ff13]"
           onPress={() => {
-            setUnitType("mass");
-            const minimumValueOfFirstUnit = FREQUENCY.mass.units.kg.min;
-            setUnitValue(minimumValueOfFirstUnit);
-            setUnit(getFirstUnit("mass"));
-            setRecurrence(FREQUENCY.mass.recurrence[0]);
+            setUnitType("Mass");
+            setUnitValue(1);
+            setUnit("kilograms");
+            setRecurrence("per day");
           }}
         />
         <GoalUnitType
@@ -72,11 +68,10 @@ export default function UnitTypes() {
           units={["litres", "milliliters", "fluid ounce", "cups"]}
           className="border-b border-[#9cc5ff13]"
           onPress={() => {
-            setUnitType("volume");
-            const minimumValueOfFirstUnit = FREQUENCY.volume.units.litres.min;
-            setUnitValue(minimumValueOfFirstUnit);
-            setUnit(getFirstUnit("volume"));
-            setRecurrence(FREQUENCY.volume.recurrence[0]);
+            setUnitType("Volume");
+            setUnitValue(1);
+            setUnit("litres");
+            setRecurrence("per day");
           }}
         />
         <GoalUnitType
@@ -84,11 +79,10 @@ export default function UnitTypes() {
           units={["minutes", "hours"]}
           className="border-b border-[#9cc5ff13]"
           onPress={() => {
-            setUnitType("duration");
-            const minimumValueOfFirstUnit = FREQUENCY.duration.units.mins.min;
-            setUnitValue(minimumValueOfFirstUnit);
-            setUnit(getFirstUnit("duration"));
-            setRecurrence(FREQUENCY.duration.recurrence[0]);
+            setUnitType("Duration");
+            setUnitValue(1);
+            setUnit("minutes");
+            setRecurrence("per day");
           }}
         />
         <GoalUnitType
@@ -96,23 +90,20 @@ export default function UnitTypes() {
           units={["joules", "kilojoules", "calories", "kilocalories"]}
           className="border-b border-[#9cc5ff13]"
           onPress={() => {
-            setUnitType("energy");
-            const minimumValueOfFirstUnit =
-              FREQUENCY.energy.units.kilojoules.min;
-            setUnitValue(minimumValueOfFirstUnit);
-            setUnit(getFirstUnit("energy"));
-            setRecurrence(FREQUENCY.energy.recurrence[0]);
+            setUnitType("Energy");
+            setUnitValue(1);
+            setUnit("joules");
+            setRecurrence("per day");
           }}
         />
         <GoalUnitType
           type="Length"
           units={["metres", "kilometers", "miles", "feet", "yards"]}
           onPress={() => {
-            setUnitType("length");
-            const minimumValueOfFirstUnit = FREQUENCY.length.units.metres.min;
-            setUnitValue(minimumValueOfFirstUnit);
-            setUnit(getFirstUnit("length"));
-            setRecurrence(FREQUENCY.length.recurrence[0]);
+            setUnitType("Length");
+            setUnitValue(1);
+            setUnit("metres");
+            setRecurrence("per day");
           }}
         />
       </View>
@@ -163,10 +154,4 @@ function GoalUnitType({
       </Pressable>
     </Link>
   );
-}
-
-// Type helper function
-function getFirstUnit(unitType: UnitType): Unit {
-  const units = Object.keys(FREQUENCY[unitType].units) as Unit[];
-  return units[0];
 }
