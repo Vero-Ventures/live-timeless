@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { FREQUENCY } from "./frequency/constants";
 
 type TimeOfDay = "Morning" | "Afternoon" | "Evening";
 
@@ -11,6 +12,12 @@ export type DailyRepeat =
   | "Thursday"
   | "Friday"
   | "Saturday";
+
+export type UnitType = keyof typeof FREQUENCY;
+export type Unit = {
+  [K in UnitType]: keyof (typeof FREQUENCY)[K]["units"];
+}[UnitType];
+export type Recurrence = (typeof FREQUENCY)[UnitType]["recurrence"][number];
 
 interface CreateGoalFormState {
   name: string;
@@ -30,6 +37,16 @@ interface CreateGoalFormState {
   resetIntervalRepeat: () => void;
   timeReminder: Date;
   setTimeReminder: (timeReminder: Date) => void;
+
+  // Updated goal-related fields
+  unitType: UnitType;
+  setUnitType: (unitType: UnitType) => void;
+  unitValue: number;
+  setUnitValue: (value: number) => void;
+  unit: Unit;
+  setUnit: (unit: Unit) => void;
+  recurrence: Recurrence;
+  setRecurrence: (recurrence: Recurrence) => void;
 }
 
 export const initialDailyRepeat: DailyRepeat[] = [
@@ -45,6 +62,11 @@ export const initialDailyRepeat: DailyRepeat[] = [
 const initialMonthlyRepeat: number[] = [1];
 
 const initialIntervalRepeat = 2;
+
+const initialUnitType: UnitType = "general";
+const initialUnitValue = 1;
+const initialUnit: Unit = "times";
+const initialRecurrence: Recurrence = "per day";
 
 export const useCreateGoalFormStore = create<CreateGoalFormState>()((set) => ({
   name: "",
@@ -64,4 +86,14 @@ export const useCreateGoalFormStore = create<CreateGoalFormState>()((set) => ({
   resetIntervalRepeat: () => set({ intervalRepeat: initialIntervalRepeat }),
   timeReminder: new Date(),
   setTimeReminder: (timeReminder) => set({ timeReminder }),
+
+  // Updated goal-related fields
+  unitType: initialUnitType,
+  setUnitType: (unitType) => set({ unitType }),
+  unitValue: initialUnitValue,
+  setUnitValue: (unitValue) => set({ unitValue }),
+  unit: initialUnit,
+  setUnit: (unit) => set({ unit }),
+  recurrence: initialRecurrence,
+  setRecurrence: (recurrence) => set({ recurrence }),
 }));
