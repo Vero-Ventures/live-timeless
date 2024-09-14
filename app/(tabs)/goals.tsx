@@ -24,6 +24,7 @@ import { fontFamily } from "~/lib/font";
 import { Plus } from "lucide-react-native";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 export default function GoalsPage() {
   const { user: userProfile } = useUserProfile();
@@ -63,11 +64,16 @@ export default function GoalsPage() {
           Goals
         </Text>
         <FlatList
-          className="mt-4 border-t border-t-[#fff]/10"
-          data={goals}
-          ItemSeparatorComponent={() => <View className="p-2" />}
-          renderItem={({ item }) => <GoalItem goal={item} />}
-          keyExtractor={(g) => g._id}
+          contentContainerStyle={{
+            paddingBottom: 60,
+          }}
+          className="mt-6 border-t border-t-[#fff]/10 pt-6"
+          data={Array.from({ length: 10 }, (_, i) => i)}
+          ItemSeparatorComponent={() => (
+            <View className="my-4 ml-14 mr-6 h-0.5 bg-[#fff]/10" />
+          )}
+          renderItem={({ item }) => <GoalItem />}
+          keyExtractor={(g) => g.toString()}
         />
       </View>
       <View className="flex-row items-center gap-2 bg-[#0f2336] px-4">
@@ -86,29 +92,29 @@ export default function GoalsPage() {
   );
 }
 
-function GoalItem({
-  goal,
-}: {
-  goal: FunctionReturnType<typeof api.goals.list>[number];
-}) {
+function GoalItem() {
   return (
-    <Link
-      href={{
-        pathname: "/goals/[id]",
-        params: { id: goal._id },
-      }}
-      asChild
-    >
-      <Pressable>
-        <Card>
-          <CardHeader />
-          <CardContent>
-            <Text className="text-lg font-bold">{goal.name}</Text>
-          </CardContent>
-          <CardFooter />
-        </Card>
-      </Pressable>
-    </Link>
+    <Pressable>
+      <View className="flex-row items-center gap-4">
+        <View
+          className={cn(
+            "items-center justify-center rounded-full bg-[#299240]/20 p-1"
+          )}
+        >
+          <MaterialCommunityIcons
+            name={"meditation"}
+            size={32}
+            color="#299240"
+          />
+        </View>
+        <View className="w-full gap-2">
+          <Text style={{ fontFamily: fontFamily.openSans.medium }}>
+            Meditation
+          </Text>
+          <Text className="text-xs text-muted-foreground">0 / 10 minutes</Text>
+        </View>
+      </View>
+    </Pressable>
   );
 }
 
