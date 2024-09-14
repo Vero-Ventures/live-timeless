@@ -4,11 +4,17 @@ import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
 import { cn } from "~/lib/utils";
 import { useCreateGoalFormStore } from "../create-goal-store";
+import { useShallow } from "zustand/react/shallow";
 export default function UnitTypes() {
-  const setUnitType = useCreateGoalFormStore((s) => s.setUnitType);
-  const setUnitValue = useCreateGoalFormStore((s) => s.setUnitValue);
-  const setUnit = useCreateGoalFormStore((s) => s.setUnit);
-  const setRecurrence = useCreateGoalFormStore((s) => s.setRecurrence);
+  const [setUnitType, setUnitValue, setUnit, setRecurrence] =
+    useCreateGoalFormStore(
+      useShallow((s) => [
+        s.setUnitType,
+        s.setUnitValue,
+        s.setUnit,
+        s.setRecurrence,
+      ])
+    );
 
   return (
     <>

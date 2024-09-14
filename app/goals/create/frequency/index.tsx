@@ -10,6 +10,7 @@ import type { UnitType } from "../create-goal-store";
 import { StyleSheet } from "react-native";
 import { arrayRange } from "~/lib/utils";
 import { RECURRENCE } from "./constants";
+import { useShallow } from "zustand/react/shallow";
 export default function Frequency() {
   const unitType = useCreateGoalFormStore((s) => s.unitType);
 
@@ -231,12 +232,18 @@ function GoalPicker<TUnit extends string>({
     };
   };
 }) {
-  const unitValue = useCreateGoalFormStore((s) => s.unitValue);
-  const unit = useCreateGoalFormStore((s) => s.unit as TUnit);
-  const recurrence = useCreateGoalFormStore((s) => s.recurrence);
-  const setUnitValue = useCreateGoalFormStore((s) => s.setUnitValue);
-  const setUnit = useCreateGoalFormStore((s) => s.setUnit);
-  const setRecurrence = useCreateGoalFormStore((s) => s.setRecurrence);
+  const [unitValue, setUnitValue, unit, setUnit, recurrence, setRecurrence] =
+    useCreateGoalFormStore(
+      useShallow((s) => [
+        s.unitValue,
+        s.setUnitValue,
+        s.unit as TUnit,
+        s.setUnit,
+        s.recurrence,
+        s.setRecurrence,
+      ])
+    );
+
   const minValue = ranges[unit].min;
   const maxValue = ranges[unit].max;
   const step = ranges[unit].step;

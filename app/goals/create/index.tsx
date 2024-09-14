@@ -23,6 +23,7 @@ import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 import Fa6Icons from "@expo/vector-icons/FontAwesome6";
 import { cn } from "~/lib/utils";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useShallow } from "zustand/react/shallow";
 
 export default function CreateGoalPage() {
   return (
@@ -47,7 +48,7 @@ export default function CreateGoalPage() {
 }
 
 function CreateGoalForm() {
-  const {
+  const [
     name,
     setName,
     timeOfDay,
@@ -58,10 +59,26 @@ function CreateGoalForm() {
     intervalRepeat,
     selectedIcon,
     selectedIconColor,
-  } = useCreateGoalFormStore();
-  const unitValue = useCreateGoalFormStore((s) => s.unitValue);
-  const unit = useCreateGoalFormStore((s) => s.unit);
-  const recurrence = useCreateGoalFormStore((s) => s.recurrence);
+    unitValue,
+    unit,
+    recurrence,
+  ] = useCreateGoalFormStore(
+    useShallow((s) => [
+      s.name,
+      s.setName,
+      s.timeOfDay,
+      s.timeReminder,
+      s.repeatType,
+      s.dailyRepeat,
+      s.monthlyRepeat,
+      s.intervalRepeat,
+      s.selectedIcon,
+      s.selectedIconColor,
+      s.unitValue,
+      s.unit,
+      s.recurrence,
+    ])
+  );
   const [description, setDescription] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");

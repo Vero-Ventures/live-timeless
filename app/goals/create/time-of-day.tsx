@@ -5,9 +5,12 @@ import { fontFamily } from "~/lib/font";
 import { Check } from "~/lib/icons/Check";
 import { useCreateGoalFormStore } from "./create-goal-store";
 import { cn } from "~/lib/utils";
+import { useShallow } from "zustand/react/shallow";
 
 export default function TimeOfDay() {
-  const { timeOfDay, setTimeOfDay } = useCreateGoalFormStore();
+  const [timeOfDay, setTimeOfDay] = useCreateGoalFormStore(
+    useShallow((s) => [s.timeOfDay, s.setTimeOfDay])
+  );
   return (
     <>
       <Stack.Screen
