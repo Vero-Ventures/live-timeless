@@ -1,3 +1,5 @@
+import type MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import type { ComponentProps } from "react";
 import { create } from "zustand";
 import { FREQUENCY } from "./frequency/constants";
 
@@ -18,6 +20,9 @@ export type Unit = {
   [K in UnitType]: keyof (typeof FREQUENCY)[K]["units"];
 }[UnitType];
 export type Recurrence = (typeof FREQUENCY)[UnitType]["recurrence"][number];
+export type MaterialCommunityIcon = ComponentProps<
+  typeof MaterialCommunityIcons
+>["name"];
 
 interface CreateGoalFormState {
   name: string;
@@ -47,6 +52,10 @@ interface CreateGoalFormState {
   setUnit: (unit: Unit) => void;
   recurrence: Recurrence;
   setRecurrence: (recurrence: Recurrence) => void;
+  selectedIconColor: string;
+  setSelectedIconColor: (selectedIconColor: string) => void;
+  selectedIcon: MaterialCommunityIcon | null;
+  setSelectedIcon: (selectedIcon: MaterialCommunityIcon) => void;
 }
 
 export const initialDailyRepeat: DailyRepeat[] = [
@@ -96,4 +105,8 @@ export const useCreateGoalFormStore = create<CreateGoalFormState>()((set) => ({
   setUnit: (unit) => set({ unit }),
   recurrence: initialRecurrence,
   setRecurrence: (recurrence) => set({ recurrence }),
+  selectedIconColor: "#2AA8CF",
+  setSelectedIconColor: (selectedIconColor) => set({ selectedIconColor }),
+  selectedIcon: null,
+  setSelectedIcon: (selectedIcon) => set({ selectedIcon }),
 }));

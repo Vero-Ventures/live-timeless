@@ -20,6 +20,9 @@ import ScheduleStartDate from "../schedule-start-date";
 import { useCreateGoalFormStore } from "./create-goal-store";
 import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
+import Fa6Icons from "@expo/vector-icons/FontAwesome6";
+import { cn } from "~/lib/utils";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 export default function CreateGoalPage() {
   return (
@@ -53,6 +56,8 @@ function CreateGoalForm() {
     dailyRepeat,
     monthlyRepeat,
     intervalRepeat,
+    selectedIcon,
+    selectedIconColor,
   } = useCreateGoalFormStore();
   const [description, setDescription] = useState("");
   const [isPending, setIsPending] = useState(false);
@@ -86,17 +91,33 @@ function CreateGoalForm() {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      <Input
-        className="native:h-16 rounded-xl border-0 bg-[#0e2942]"
-        placeholder="Name of Goal"
-        value={name}
-        onChangeText={setName}
-      />
+      <View className="flex flex-row items-center gap-2">
+        <Link href="/goals/create/icon" asChild>
+          <Pressable className="rounded-xl bg-[#0e2942] p-4 px-6">
+            {selectedIcon ? (
+              <MaterialCommunityIcons
+                name={selectedIcon}
+                size={32}
+                color={selectedIconColor}
+              />
+            ) : (
+              <Fa6Icons name="question" size={32} color={selectedIconColor} />
+            )}
+          </Pressable>
+        </Link>
+        <Input
+          className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+          placeholder="Name of Goal"
+          value={name}
+          onChangeText={setName}
+        />
+      </View>
       <View className="rounded-xl bg-[#0e2942]">
         <Link href="/goals/create/repeat" asChild>
           <Pressable>
             <ScheduleItem
               Icon={Repeat}
+              iconBgColor="bg-[#2A67F5]"
               title="REPEAT"
               value={getRepeatValue()}
             />
@@ -106,6 +127,7 @@ function CreateGoalForm() {
           <Pressable>
             <ScheduleItem
               Icon={Crosshair}
+              iconBgColor="bg-[#0EAF0A]"
               title="FREQUENCY"
               value="3 times per week"
             />
@@ -115,6 +137,7 @@ function CreateGoalForm() {
           <Pressable>
             <ScheduleItem
               Icon={Sun}
+              iconBgColor="bg-[#F0A122]"
               title="TIME OF DAY"
               value={isAnyTime ? "Any Time" : timeOfDay.join(" and ")}
             />
@@ -126,6 +149,7 @@ function CreateGoalForm() {
           <Pressable>
             <ScheduleItem
               Icon={Bell}
+              iconBgColor="bg-[#9037D1]"
               title="REMINDERS"
               value={formatTime(timeReminder)}
             />
@@ -171,17 +195,21 @@ function CreateGoalForm() {
 
 function ScheduleItem({
   Icon,
+  iconBgColor,
   title,
   value,
 }: {
   Icon: LucideIcon;
+  iconBgColor: string;
   title: string;
   value: string;
 }) {
   return (
     <>
       <View className="flex flex-row items-center gap-4 p-5">
-        <Icon />
+        <View className={cn("rounded-xl p-2", iconBgColor)}>
+          <Icon color="#fff" />
+        </View>
         <View className="flex flex-1 flex-row items-center justify-between">
           <View>
             <Text
