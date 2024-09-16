@@ -1,6 +1,6 @@
 import { useKindeAuth } from "@kinde/expo";
 
-import { Link, useRouter } from "expo-router";
+import { Link, router } from "expo-router";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
@@ -11,7 +11,6 @@ import { useUserProfile } from "~/providers/kindeUserProfileProvider";
 export default function Profile() {
   const { logout } = useKindeAuth();
   const { user, setUser } = useUserProfile();
-  const router = useRouter();
 
   const handleLogout = async () => {
     const result = await logout({ revokeToken: true });

@@ -11,9 +11,10 @@ import {
 } from "./create-goal-store";
 import { cn } from "~/lib/utils";
 import { Separator } from "~/components/ui/separator";
+import { useShallow } from "zustand/react/shallow";
 
 export default function Repeat() {
-  const {
+  const [
     repeatType,
     setRepeatType,
     dailyRepeat,
@@ -22,7 +23,18 @@ export default function Repeat() {
     resetMonthlyRepeat,
     intervalRepeat,
     resetIntervalRepeat,
-  } = useCreateGoalFormStore();
+  ] = useCreateGoalFormStore(
+    useShallow((s) => [
+      s.repeatType,
+      s.setRepeatType,
+      s.dailyRepeat,
+      s.setDailyRepeat,
+      s.resetDailyRepeat,
+      s.resetMonthlyRepeat,
+      s.intervalRepeat,
+      s.resetIntervalRepeat,
+    ])
+  );
   const numbers = Array.from({ length: 29 }, (_, index) => index + 2);
 
   return (
@@ -155,7 +167,9 @@ function DailyRepeat({
 
 function MonthlyRepeat() {
   const days = Array.from({ length: 31 }, (_, index) => index + 1);
-  const { monthlyRepeat, setMonthlyRepeat } = useCreateGoalFormStore();
+  const [monthlyRepeat, setMonthlyRepeat] = useCreateGoalFormStore(
+    useShallow((s) => [s.monthlyRepeat, s.setMonthlyRepeat])
+  );
 
   return (
     <View>
@@ -195,7 +209,7 @@ function IntervalRepeat({
   interval: number;
   isChecked?: boolean;
 }) {
-  const { setIntervalRepeat } = useCreateGoalFormStore();
+  const setIntervalRepeat = useCreateGoalFormStore((s) => s.setIntervalRepeat);
 
   return (
     <Pressable

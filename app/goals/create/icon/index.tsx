@@ -10,6 +10,7 @@ import {
 } from "../create-goal-store";
 import { cn } from "~/lib/utils";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useShallow } from "zustand/react/shallow";
 
 export default function IconScreen() {
   return (
@@ -111,7 +112,9 @@ export default function IconScreen() {
 }
 
 function ColorPicker({ color }: { color: string }) {
-  const { selectedIconColor, setSelectedIconColor } = useCreateGoalFormStore();
+  const [selectedIconColor, setSelectedIconColor] = useCreateGoalFormStore(
+    useShallow((s) => [s.selectedIconColor, s.setSelectedIconColor])
+  );
   const isSelected = selectedIconColor === color;
 
   return (
@@ -119,10 +122,27 @@ function ColorPicker({ color }: { color: string }) {
       <View
         className={cn(
           "h-12 w-12 items-center justify-center rounded-full bg-transparent",
-          isSelected && `border-[${color}] border-2`
+          {
+            "border-2": isSelected,
+            "border-[#2AA8CF]": selectedIconColor === "#2AA8CF",
+            "border-[#2A67F5]": selectedIconColor === "#2A67F5",
+            "border-[#299240]": selectedIconColor === "#299240",
+            "border-[#E1861D]": selectedIconColor === "#E1861D",
+            "border-[#D42C2C]": selectedIconColor === "#D42C2C",
+            "border-[#982ABF]": selectedIconColor === "#982ABF",
+          }
         )}
       >
-        <View className={cn("h-10 w-10 rounded-full", `bg-[${color}]`)}>
+        <View
+          className={cn("h-10 w-10 rounded-full", {
+            "bg-[#2AA8CF]": color === "#2AA8CF",
+            "bg-[#2A67F5]": color === "#2A67F5",
+            "bg-[#299240]": color === "#299240",
+            "bg-[#E1861D]": color === "#E1861D",
+            "bg-[#D42C2C]": color === "#D42C2C",
+            "bg-[#982ABF]": color === "#982ABF",
+          })}
+        >
           {isSelected && <Check color="#fff" className="m-auto" />}
         </View>
       </View>
@@ -130,8 +150,14 @@ function ColorPicker({ color }: { color: string }) {
   );
 }
 function IconPicker({ icon }: { icon: MaterialCommunityIcon }) {
-  const { selectedIcon, setSelectedIcon, selectedIconColor } =
-    useCreateGoalFormStore();
+  const [selectedIcon, setSelectedIcon, selectedIconColor] =
+    useCreateGoalFormStore(
+      useShallow((s) => [
+        s.selectedIcon,
+        s.setSelectedIcon,
+        s.selectedIconColor,
+      ])
+    );
   const isSelected = selectedIcon === icon;
 
   return (

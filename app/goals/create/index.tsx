@@ -1,7 +1,4 @@
-import { useKindeAuth } from "@kinde/expo";
-
-import { useMutation } from "convex/react";
-import { Stack, useRouter, Link } from "expo-router";
+import { Stack, Link, router } from "expo-router";
 import { AlertCircle, type LucideIcon } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, View } from "react-native";
@@ -9,7 +6,6 @@ import FormSubmitButton from "~/components/form-submit-button";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Input } from "~/components/ui/input";
 import { Text } from "~/components/ui/text";
-import { api } from "~/convex/_generated/api";
 import { fontFamily } from "~/lib/font";
 import { Repeat } from "~/lib/icons/Repeat";
 import { Crosshair } from "~/lib/icons/Crosshair";
@@ -23,6 +19,7 @@ import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 import Fa6Icons from "@expo/vector-icons/FontAwesome6";
 import { cn } from "~/lib/utils";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useShallow } from "zustand/react/shallow";
 
 export default function CreateGoalPage() {
   return (
@@ -47,7 +44,7 @@ export default function CreateGoalPage() {
 }
 
 function CreateGoalForm() {
-  const {
+  const [
     name,
     setName,
     timeOfDay,
@@ -58,15 +55,29 @@ function CreateGoalForm() {
     intervalRepeat,
     selectedIcon,
     selectedIconColor,
-  } = useCreateGoalFormStore();
-  const [description, setDescription] = useState("");
+    unitValue,
+    unit,
+    recurrence,
+  ] = useCreateGoalFormStore(
+    useShallow((s) => [
+      s.name,
+      s.setName,
+      s.timeOfDay,
+      s.timeReminder,
+      s.repeatType,
+      s.dailyRepeat,
+      s.monthlyRepeat,
+      s.intervalRepeat,
+      s.selectedIcon,
+      s.selectedIconColor,
+      s.unitValue,
+      s.unit,
+      s.recurrence,
+    ])
+  );
+
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
-  const createGoal = useMutation(api.goals.create);
-  const router = useRouter();
-  const { getUserProfile } = useKindeAuth();
-
-  const isAnyTime = timeOfDay.length === 3;
 
   const getRepeatValue = () => {
     switch (repeatType) {
@@ -123,13 +134,13 @@ function CreateGoalForm() {
             />
           </Pressable>
         </Link>
-        <Link href="/goals/create/frequency" asChild>
+        <Link href="/goals/create/target" asChild>
           <Pressable>
             <ScheduleItem
               Icon={Crosshair}
               iconBgColor="bg-[#0EAF0A]"
-              title="FREQUENCY"
-              value="3 times per week"
+              title="TARGET"
+              value={`${unitValue} ${unit} ${recurrence}`}
             />
           </Pressable>
         </Link>
@@ -139,7 +150,9 @@ function CreateGoalForm() {
               Icon={Sun}
               iconBgColor="bg-[#F0A122]"
               title="TIME OF DAY"
-              value={isAnyTime ? "Any Time" : timeOfDay.join(" and ")}
+              value={
+                timeOfDay.length === 3 ? "Any Time" : timeOfDay.join(" and ")
+              }
             />
           </Pressable>
         </Link>
@@ -169,13 +182,9 @@ function CreateGoalForm() {
             if (name.trim().length <= 3) {
               throw new Error("Name of the goal must be over 3 characters");
             }
-            const userProfile = await getUserProfile();
-            if (!userProfile) {
-              throw new Error("User not found");
-            }
 
-            const newGoal = { name, description };
-            await createGoal({ ...newGoal, userId: userProfile.id });
+            const newGoal = { name };
+            console.log(newGoal);
             router.replace("/goals");
           } catch (error) {
             if (error instanceof Error) {
@@ -184,7 +193,6 @@ function CreateGoalForm() {
           } finally {
             setIsPending(false);
           }
-          setDescription("");
         }}
       >
         Set Goal

@@ -11,6 +11,7 @@ import { Plus } from "~/lib/icons/Plus";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import { useCreateGoalFormStore } from "./create-goal-store";
 import { formatTime } from "~/lib/date";
+import { useShallow } from "zustand/react/shallow";
 
 export default function Reminders() {
   return (
@@ -52,7 +53,9 @@ export default function Reminders() {
 
 function TimeItem({ Icon }: { Icon: LucideIcon }) {
   const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
-  const { timeReminder, setTimeReminder } = useCreateGoalFormStore();
+  const [timeReminder, setTimeReminder] = useCreateGoalFormStore(
+    useShallow((s) => [s.timeReminder, s.setTimeReminder])
+  );
 
   const showTimePicker = () => {
     setTimePickerVisibility(true);
