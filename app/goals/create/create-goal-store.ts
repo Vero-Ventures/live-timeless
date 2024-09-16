@@ -30,81 +30,99 @@ export type MaterialCommunityIcon = ComponentProps<
   typeof MaterialCommunityIcons
 >["name"];
 
-interface CreateGoalFormState {
+interface FormState {
   name: string;
-  setName: (name: string) => void;
   timeOfDay: TimeOfDay[];
-  setTimeOfDay: (timeOfDay: TimeOfDay[]) => void;
   repeatType: RepeatType;
-  setRepeatType: (repeatType: RepeatType) => void;
   dailyRepeat: DailyRepeat[];
-  setDailyRepeat: (dailyRepeat: DailyRepeat[]) => void;
-  resetDailyRepeat: () => void;
   monthlyRepeat: number[];
-  setMonthlyRepeat: (monthlyRepeat: number[]) => void;
-  resetMonthlyRepeat: () => void;
   intervalRepeat: number;
-  setIntervalRepeat: (intervalRepeat: number) => void;
-  resetIntervalRepeat: () => void;
   timeReminder: Date;
-  setTimeReminder: (timeReminder: Date) => void;
-
   unitType: UnitType;
-  setUnitType: (unitType: UnitType) => void;
   unitValue: number;
-  setUnitValue: (unitValue: number) => void;
   unit: string;
-  setUnit: (unit: string) => void;
   recurrence: Recurrence;
-  setRecurrence: (recurrence: Recurrence) => void;
   selectedIconColor: string;
-  setSelectedIconColor: (selectedIconColor: string) => void;
   selectedIcon: MaterialCommunityIcon | null;
-  setSelectedIcon: (selectedIcon: MaterialCommunityIcon) => void;
 }
 
-export const initialDailyRepeat: DailyRepeat[] = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
+interface FormActions {
+  setName: (name: string) => void;
+  setTimeOfDay: (timeOfDay: TimeOfDay[]) => void;
+  setRepeatType: (repeatType: RepeatType) => void;
+  setDailyRepeat: (dailyRepeat: DailyRepeat[]) => void;
+  resetDailyRepeat: () => void;
+  setMonthlyRepeat: (monthlyRepeat: number[]) => void;
+  resetMonthlyRepeat: () => void;
+  setIntervalRepeat: (intervalRepeat: number) => void;
+  resetIntervalRepeat: () => void;
+  setTimeReminder: (timeReminder: Date) => void;
+  setUnitType: (unitType: UnitType) => void;
+  setUnitValue: (unitValue: number) => void;
+  setUnit: (unit: string) => void;
+  setRecurrence: (recurrence: Recurrence) => void;
+  setSelectedIconColor: (selectedIconColor: string) => void;
+  setSelectedIcon: (selectedIcon: MaterialCommunityIcon) => void;
+  resetForm: () => void;
+}
 
-const initialMonthlyRepeat: number[] = [1];
-
-const initialIntervalRepeat = 2;
-
-export const useCreateGoalFormStore = create<CreateGoalFormState>()((set) => ({
+const initialFormState: FormState = {
   name: "",
-  setName: (name) => set({ name }),
   timeOfDay: ["Morning", "Afternoon", "Evening"],
-  setTimeOfDay: (timeOfDay) => set({ timeOfDay }),
   repeatType: "daily",
-  setRepeatType: (repeatType) => set({ repeatType }),
-  dailyRepeat: initialDailyRepeat,
-  setDailyRepeat: (dailyRepeat) => set({ dailyRepeat }),
-  resetDailyRepeat: () => set({ dailyRepeat: initialDailyRepeat }),
-  monthlyRepeat: initialMonthlyRepeat,
-  setMonthlyRepeat: (monthlyRepeat) => set({ monthlyRepeat }),
-  resetMonthlyRepeat: () => set({ monthlyRepeat: initialMonthlyRepeat }),
-  intervalRepeat: initialIntervalRepeat,
-  setIntervalRepeat: (intervalRepeat) => set({ intervalRepeat }),
-  resetIntervalRepeat: () => set({ intervalRepeat: initialIntervalRepeat }),
+  dailyRepeat: [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ],
+  monthlyRepeat: [1],
+  intervalRepeat: 2,
   timeReminder: new Date(),
-  setTimeReminder: (timeReminder) => set({ timeReminder }),
   unitType: "General",
-  setUnitType: (unitType) => set({ unitType }),
   unitValue: 1,
-  setUnitValue: (unitValue) => set({ unitValue }),
   unit: "times",
-  setUnit: (unit) => set({ unit }),
   recurrence: "per day",
-  setRecurrence: (recurrence) => set({ recurrence }),
   selectedIconColor: "#2AA8CF",
-  setSelectedIconColor: (selectedIconColor) => set({ selectedIconColor }),
   selectedIcon: null,
-  setSelectedIcon: (selectedIcon) => set({ selectedIcon }),
-}));
+};
+
+export const useCreateGoalFormStore = create<FormState & FormActions>()(
+  (set) => ({
+    name: initialFormState.name,
+    setName: (name) => set({ name }),
+    timeOfDay: initialFormState.timeOfDay,
+    setTimeOfDay: (timeOfDay) => set({ timeOfDay }),
+    repeatType: initialFormState.repeatType,
+    setRepeatType: (repeatType) => set({ repeatType }),
+    dailyRepeat: initialFormState.dailyRepeat,
+    setDailyRepeat: (dailyRepeat) => set({ dailyRepeat }),
+    resetDailyRepeat: () => set({ dailyRepeat: initialFormState.dailyRepeat }),
+    monthlyRepeat: initialFormState.monthlyRepeat,
+    setMonthlyRepeat: (monthlyRepeat) => set({ monthlyRepeat }),
+    resetMonthlyRepeat: () =>
+      set({ monthlyRepeat: initialFormState.monthlyRepeat }),
+    intervalRepeat: initialFormState.intervalRepeat,
+    setIntervalRepeat: (intervalRepeat) => set({ intervalRepeat }),
+    resetIntervalRepeat: () =>
+      set({ intervalRepeat: initialFormState.intervalRepeat }),
+    timeReminder: new Date(),
+    setTimeReminder: (timeReminder) => set({ timeReminder }),
+    unitType: initialFormState.unitType,
+    setUnitType: (unitType) => set({ unitType }),
+    unitValue: initialFormState.unitValue,
+    setUnitValue: (unitValue) => set({ unitValue }),
+    unit: initialFormState.unit,
+    setUnit: (unit) => set({ unit }),
+    recurrence: initialFormState.recurrence,
+    setRecurrence: (recurrence) => set({ recurrence }),
+    selectedIconColor: initialFormState.selectedIconColor,
+    setSelectedIconColor: (selectedIconColor) => set({ selectedIconColor }),
+    selectedIcon: initialFormState.selectedIcon,
+    setSelectedIcon: (selectedIcon) => set({ selectedIcon }),
+    resetForm: () => set(initialFormState),
+  })
+);

@@ -28,7 +28,6 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 export default function GoalsPage() {
   const { user: userProfile } = useUserProfile();
-  const goals = useQuery(api.goals.list, { userId: userProfile?.id ?? "" });
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
 
