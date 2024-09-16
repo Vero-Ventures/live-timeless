@@ -2,7 +2,7 @@ import { useKindeAuth } from "@kinde/expo";
 
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Text } from "~/components/ui/text";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import type { Id } from "~/convex/_generated/dataModel";
@@ -142,7 +142,6 @@ export default function SingleGoalsPage() {
 function DeleteGoalButton({ id }: { id: Id<"goals"> }) {
   const [isPending, setIsPending] = useState(false);
   const deleteGoal = useMutation(api.goals.remove);
-  const router = useRouter();
   const { getUserProfile } = useKindeAuth();
 
   return (
