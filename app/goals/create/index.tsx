@@ -58,6 +58,7 @@ function CreateGoalForm() {
     unitValue,
     unit,
     recurrence,
+    resetForm,
   ] = useCreateGoalFormStore(
     useShallow((s) => [
       s.name,
@@ -73,6 +74,7 @@ function CreateGoalForm() {
       s.unitValue,
       s.unit,
       s.recurrence,
+      s.resetForm,
     ])
   );
 
@@ -183,9 +185,21 @@ function CreateGoalForm() {
               throw new Error("Name of the goal must be over 3 characters");
             }
 
-            const newGoal = { name };
+            const newGoal = {
+              name,
+              selectedIcon,
+              selectedIconColor,
+              timeOfDay,
+              timeReminder,
+              repeatType,
+              dailyRepeat,
+              monthlyRepeat,
+              intervalRepeat,
+            };
+            console.log("Creating new goal:");
             console.log(newGoal);
             router.replace("/goals");
+            resetForm();
           } catch (error) {
             if (error instanceof Error) {
               setError(error.message);
