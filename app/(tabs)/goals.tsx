@@ -1,15 +1,7 @@
-import { useQuery } from "convex/react";
-import type { FunctionReturnType } from "convex/server";
 import { FlatList, Pressable, View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "~/components/ui/card";
+
 import { Text } from "~/components/ui/text";
-import { api } from "~/convex/_generated/api";
 import { Button } from "~/components/ui/button";
 import { Link } from "expo-router";
 import { useUserProfile } from "~/providers/kindeUserProfileProvider";
