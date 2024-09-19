@@ -11,8 +11,6 @@ import { Platform } from "react-native";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/hooks/useColorScheme";
 import { PortalHost } from "@rn-primitives/portal";
-import { KindeAuthProvider } from "@kinde/expo";
-import KindeUserProfileProvider from "~/providers/kindeUserProfileProvider";
 
 import {
   useFonts,
@@ -100,18 +98,14 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={DARK_THEME}>
-      <KindeAuthProvider>
-        <KindeUserProfileProvider>
-          <ConvexProvider client={convex}>
-            <StatusBar backgroundColor="#082139" style={"light"} />
-            <Stack>
-              <Stack.Screen name="index" options={{ headerShown: false }} />
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            </Stack>
-            <PortalHost />
-          </ConvexProvider>
-        </KindeUserProfileProvider>
-      </KindeAuthProvider>
+      <ConvexProvider client={convex}>
+        <StatusBar backgroundColor="#082139" style={"light"} />
+        <Stack>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        </Stack>
+        <PortalHost />
+      </ConvexProvider>
     </ThemeProvider>
   );
 }

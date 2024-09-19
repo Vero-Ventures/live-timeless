@@ -4,7 +4,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Link } from "expo-router";
-import { useUserProfile } from "~/providers/kindeUserProfileProvider";
 import {
   useEffect,
   useRef,
@@ -19,7 +18,6 @@ import { cn } from "~/lib/utils";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 export default function GoalsPage() {
-  const { user: userProfile } = useUserProfile();
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
 
