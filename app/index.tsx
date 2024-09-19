@@ -1,52 +1,20 @@
-import { type JWTDecoded, jwtDecoder } from "@kinde/jwt-decoder";
-
-import { Link, Redirect } from "expo-router";
+import { Link, Redirect, router } from "expo-router";
 import { Image, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
-import { useKindeAuth } from "@kinde/expo";
-import { api } from "~/convex/_generated/api";
-import { useMutation } from "convex/react";
-import { useUserProfile } from "~/providers/kindeUserProfileProvider";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { useState } from "react";
+import { fontFamily } from "~/lib/font";
+import { Input } from "~/components/ui/input";
+import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
+import { Loader2 } from "~/lib/icons/Loader2";
 
-export default function HomePage() {
-  const { isAuthenticated, register, login } = useKindeAuth();
-  const { user: userProfile } = useUserProfile();
-  const createUser = useMutation(api.users.createUser);
-
-  if (isAuthenticated && userProfile) {
-    return <Redirect href="/home" />;
-  }
-
-  const handleSignUp = async () => {
-    const token = await register({ redirectURL: "/home" });
-    if (token.success) {
-      const decodedToken = jwtDecoder<
-        JWTDecoded & {
-          sub: string;
-          email: string;
-          family_name: string;
-          given_name: string;
-        }
-      >(token.idToken);
-      if (!decodedToken) {
-        console.error("Failed to decode token");
-        return;
-      }
-
-      await createUser({
-        kindeId: decodedToken.sub,
-        firstName: decodedToken.given_name,
-        lastName: decodedToken.family_name,
-        email: decodedToken.email,
-      });
-    }
-  };
-
-  const handleSignIn = async () => {
-    await login({ redirectURL: "/home" });
-  };
+export default function SignInPage() {
+  const { signIn } = useAuthActions();
+  const [step, setStep] = useState<"signIn" | { email: string }>("signIn");
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
 
   return (
     <SafeAreaView
@@ -55,29 +23,101 @@ export default function HomePage() {
         backgroundColor: "#082139",
       }}
     >
-      <View className="h-full gap-4 p-4">
-        <View className="h-80">
-          <Image
-            source={require("~/assets/images/logo.png")}
-            className="mx-auto h-fit w-fit"
-          />
+      <AuthLoading>
+        <View className="h-full items-center justify-center">
+          <Loader2 className="size-32 animate-spin" />
         </View>
-        <View className="">
-          <Button variant="default" size="lg" onPress={handleSignIn}>
-            <Text>Login</Text>
-          </Button>
+      </AuthLoading>
+      <Unauthenticated>
+        <View className="h-full gap-4 p-4">
+          <View className="h-80">
+            <Image
+              source={require("~/assets/images/logo.png")}
+              className="mx-auto h-fit w-fit"
+            />
+          </View>
+          <View className="gap-4">
+            {step === "signIn" ? (
+              <>
+                <Text
+                  className="text-center text-2xl"
+                  style={{ fontFamily: fontFamily.openSans.bold }}
+                >
+                  Sign In with Email
+                </Text>
+                <Input
+                  placeholder="Email"
+                  value={email}
+                  onChangeText={setEmail}
+                  autoComplete="email"
+                />
+                <Button
+                  variant="default"
+                  size="lg"
+                  onPress={async () => {
+                    try {
+                      await signIn("resend-otp", { email });
+                      setStep({ email });
+                    } catch (error) {
+                      console.log(error);
+                    }
+                  }}
+                >
+                  <Text>Send Code</Text>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Text
+                  className="text-center text-2xl"
+                  style={{ fontFamily: fontFamily.openSans.bold }}
+                >
+                  Verify Code
+                </Text>
+                <Input
+                  placeholder="Code"
+                  value={code}
+                  onChangeText={setCode}
+                  autoComplete="one-time-code"
+                />
+                <Button
+                  variant="default"
+                  size="lg"
+                  onPress={async () => {
+                    try {
+                      await signIn("resend-otp", { email, code });
+                      router.replace("/home");
+                    } catch (error) {
+                      console.log(error);
+                    }
+                  }}
+                >
+                  <Text>Continue</Text>
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  onPress={() => {
+                    setStep("signIn");
+                    setEmail("");
+                    setCode("");
+                  }}
+                >
+                  <Text>Cancel</Text>
+                </Button>
+              </>
+            )}
+          </View>
+          <View className="absolute bottom-4 left-1/2 flex -translate-x-1/2 flex-row gap-4">
+            <Link href="/privacy-policy">
+              <Text className="text-sm text-gray-500">Privacy Policy</Text>
+            </Link>
+          </View>
         </View>
-        <View>
-          <Button variant="secondary" size="lg" onPress={handleSignUp}>
-            <Text>Register</Text>
-          </Button>
-        </View>
-        <View className="absolute bottom-4 left-1/2 flex -translate-x-1/2 flex-row gap-4">
-          <Link href="/privacy-policy">
-            <Text className="text-sm text-gray-500">Privacy Policy</Text>
-          </Link>
-        </View>
-      </View>
+      </Unauthenticated>
+      <Authenticated>
+        <Redirect href="/home" />
+      </Authenticated>
     </SafeAreaView>
   );
 }

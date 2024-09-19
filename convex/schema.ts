@@ -1,11 +1,6 @@
-import { defineSchema, defineTable } from "convex/server";
-import { v } from "convex/values";
+import { defineSchema } from "convex/server";
+import { authTables } from "@convex-dev/auth/server";
 
 export default defineSchema({
-  users: defineTable({
-    kindeId: v.string(),
-    firstName: v.string(),
-    lastName: v.string(),
-    email: v.string(),
-  }).index("by_kinde_id", ["kindeId"]),
+  ...authTables,
 });
