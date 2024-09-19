@@ -1,6 +1,8 @@
 import "~/global.css";
 
-import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { ConvexAuthProvider } from "@convex-dev/auth/react";
+import { ConvexReactClient } from "convex/react";
+import * as SecureStore from "expo-secure-store";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Theme, ThemeProvider } from "@react-navigation/native";
@@ -44,6 +46,12 @@ SplashScreen.preventAutoHideAsync();
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
   unsavedChangesWarning: false,
 });
+
+const secureStorage = {
+  getItem: SecureStore.getItemAsync,
+  setItem: SecureStore.setItemAsync,
+  removeItem: SecureStore.deleteItemAsync,
+};
 
 export default function RootLayout() {
   const { colorScheme, setColorScheme } = useColorScheme();
@@ -98,14 +106,14 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={DARK_THEME}>
-      <ConvexProvider client={convex}>
+      <ConvexAuthProvider client={convex} storage={secureStorage}>
         <StatusBar backgroundColor="#082139" style={"light"} />
         <Stack>
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         </Stack>
         <PortalHost />
-      </ConvexProvider>
+      </ConvexAuthProvider>
     </ThemeProvider>
   );
 }
