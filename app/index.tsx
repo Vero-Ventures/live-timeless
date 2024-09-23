@@ -46,6 +46,7 @@ export default function SignInPage() {
                   Sign In with Email
                 </Text>
                 <Input
+                  keyboardType="email-address"
                   placeholder="Email"
                   value={email}
                   onChangeText={setEmail}
@@ -75,6 +76,7 @@ export default function SignInPage() {
                   Verify Code
                 </Text>
                 <Input
+                  keyboardType="number-pad"
                   placeholder="Code"
                   value={code}
                   onChangeText={setCode}
