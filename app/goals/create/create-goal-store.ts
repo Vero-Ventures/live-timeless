@@ -66,7 +66,7 @@ interface FormActions {
   resetForm: () => void;
 }
 
-const initialFormState: FormState = {
+export const initialFormState: FormState = {
   name: "",
   timeOfDay: ["Morning", "Afternoon", "Evening"],
   repeatType: "daily",

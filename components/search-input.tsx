@@ -20,6 +20,7 @@ export default function SearchInput({
           value={query}
           placeholder="Search..."
           placeholderTextColor="#CDCDE0"
+          keyboardType="web-search"
           onChangeText={(e) => setQuery(e)}
         />
         <Pressable

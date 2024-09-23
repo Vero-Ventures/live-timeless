@@ -198,7 +198,7 @@ function CreateGoalForm() {
             };
             console.log("Creating new goal:");
             console.log(newGoal);
-            router.replace("/goals");
+            router.navigate("/goals");
             resetForm();
           } catch (error) {
             if (error instanceof Error) {

@@ -5,10 +5,7 @@ import { Text } from "~/components/ui/text";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { fontFamily } from "~/lib/font";
 import { Check } from "~/lib/icons/Check";
-import {
-  initialDailyRepeat,
-  useCreateGoalFormStore,
-} from "./create-goal-store";
+import { initialFormState, useCreateGoalFormStore } from "./create-goal-store";
 import { cn } from "~/lib/utils";
 import { Separator } from "~/components/ui/separator";
 import { useShallow } from "zustand/react/shallow";
@@ -94,7 +91,7 @@ export default function Repeat() {
           </TabsList>
           <TabsContent value="daily">
             <View>
-              {initialDailyRepeat.map((day) => (
+              {initialFormState.dailyRepeat.map((day) => (
                 <DailyRepeat
                   key={day}
                   dayOfWeek={day}
