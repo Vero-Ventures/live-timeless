@@ -12,7 +12,7 @@ import { TentTree } from "~/lib/icons/TentTree";
 
 export default function RewardsPage() {
   return (
-    <SafeAreaView style={{ height: "100%", backgroundColor: "#082139" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#082139" }}>
       <View className="gap-10 p-4">
         <View className="flex flex-row items-center gap-4">
           <Text>
@@ -41,7 +41,6 @@ export default function RewardsPage() {
             description={item.description}
           />
         )}
-        keyExtractor={(item) => item.id}
       />
     </SafeAreaView>
   );
