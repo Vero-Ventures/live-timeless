@@ -1,5 +1,5 @@
 import { Link, Redirect, router } from "expo-router";
-import { Image, View } from "react-native";
+import { ActivityIndicator, Image, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
@@ -24,8 +24,12 @@ export default function SignInPage() {
       }}
     >
       <AuthLoading>
-        <View className="h-full items-center justify-center">
-          <Loader2 className="size-32 animate-spin" />
+        <View className="flex-1 items-center justify-center gap-6">
+          <Image
+            source={require("~/assets/images/logo.png")}
+            className="h-fit w-fit"
+          />
+          <ActivityIndicator size="large" />
         </View>
       </AuthLoading>
       <Unauthenticated>
