@@ -8,7 +8,6 @@ import { useState } from "react";
 import { fontFamily } from "~/lib/font";
 import { Input } from "~/components/ui/input";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
-import { Loader2 } from "~/lib/icons/Loader2";
 
 export default function SignInPage() {
   const { signIn } = useAuthActions();
