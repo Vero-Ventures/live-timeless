@@ -26,8 +26,8 @@ export default function IconScreen() {
             <View className="h-48 bg-[#0b1a28] pt-20">
               <View className="relative flex flex-row items-center justify-center gap-2">
                 <Link href="/goals/create" asChild>
-                  <Pressable className="absolute left-0.5 w-[64px]">
-                    <ChevronLeft color="#fff" size={44} />
+                  <Pressable className="absolute left-0.5" hitSlop={20}>
+                    <ChevronLeft color="#fff" size={35} />
                   </Pressable>
                 </Link>
                 <Text style={{ fontFamily: fontFamily.openSans.bold }}>
