@@ -99,6 +99,7 @@ const validIcons = [
   "meditation", "home", "account", "bell", "calendar", "check-circle", // Add more valid icon names here
 ];
 
+// TODO: Find better way to distribute icons to the goal item
 // Utility function to validate and return a valid icon name
 function getValidIcon(icon: string | undefined): keyof typeof MaterialCommunityIcons.glyphMap {
   // Check if the icon is valid, otherwise return a default
