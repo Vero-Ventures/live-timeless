@@ -16,10 +16,24 @@ import { Plus } from "lucide-react-native";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useQuery } from "convex/react"; 
+import { api } from "~/convex/_generated/api";
+import { Doc } from "~/convex/_generated/dataModel";
 
 export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
+
+  // Fetch goals using the generated API object
+  const goals = useQuery(api.goals.listGoals);
+
+  if (!goals) {
+    return <Text>Loading...</Text>;  // Display loading state while fetching
+  }
+
+  if (goals.length === 0) {
+    return <Text>No goals found</Text>;  // Display if no goals exist
+  }
 
   return (
     <SafeAreaView
@@ -57,12 +71,12 @@ export default function GoalsPage() {
             paddingBottom: 60,
           }}
           className="mt-6 border-t border-t-[#fff]/10 pt-6"
-          data={Array.from({ length: 10 }, (_, i) => i)}
+          data={goals}  // Use fetched goals here
           ItemSeparatorComponent={() => (
             <View className="my-4 ml-14 mr-6 h-0.5 bg-[#fff]/10" />
           )}
-          renderItem={({ item }) => <GoalItem />}
-          keyExtractor={(g) => g.toString()}
+          renderItem={({ item }) => <GoalItem goal={item} />}  // Render dynamic goals
+          keyExtractor={(goal) => goal._id.toString()}  // Use _id as key
         />
       </View>
       <View className="flex-row items-center gap-2 bg-[#0f2336] px-4">
@@ -81,26 +95,37 @@ export default function GoalsPage() {
   );
 }
 
-function GoalItem() {
+const validIcons = [
+  "meditation", "home", "account", "bell", "calendar", "check-circle", // Add more valid icon names here
+];
+
+// Utility function to validate and return a valid icon name
+function getValidIcon(icon: string | undefined): keyof typeof MaterialCommunityIcons.glyphMap {
+  // Check if the icon is valid, otherwise return a default
+  return validIcons.includes(icon || "") ? icon as keyof typeof MaterialCommunityIcons.glyphMap : "meditation";
+}
+
+function GoalItem({ goal }: { goal: Doc<"goals"> }) {
   return (
     <Pressable>
       <View className="flex-row items-center gap-4">
         <View
-          className={cn(
-            "items-center justify-center rounded-full bg-[#299240]/20 p-1"
-          )}
+          className={cn("items-center justify-center rounded-full bg-[#299240]/20 p-1")}
         >
+          {/* Use the utility function to get a valid icon */}
           <MaterialCommunityIcons
-            name={"meditation"}
+            name={getValidIcon(goal.selectedIcon)}
             size={32}
-            color="#299240"
+            color={goal.selectedIconColor || "#299240"}
           />
         </View>
         <View className="w-full gap-2">
           <Text style={{ fontFamily: fontFamily.openSans.medium }}>
-            Meditation
+            {goal.name}
           </Text>
-          <Text className="text-xs text-muted-foreground">0 / 10 minutes</Text>
+          <Text className="text-xs text-muted-foreground">
+            {goal.timeOfDay?.join(", ") || "No time specified"}
+          </Text>
         </View>
       </View>
     </Pressable>
