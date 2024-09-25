@@ -21,7 +21,7 @@ export const useUserStore = create(
       },
     }),
     {
-      name: "plantly-user-store",
+      name: "live-timeless-user-store",
       storage: createJSONStorage(() => AsyncStorage),
     }
   )
