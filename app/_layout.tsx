@@ -110,7 +110,17 @@ export default function RootLayout() {
         <StatusBar backgroundColor="#082139" style={"light"} />
         <Stack>
           <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="(tabs)"
+            options={{ headerShown: false, animation: "fade" }}
+          />
+          <Stack.Screen
+            name="onboarding"
+            options={{
+              headerShown: false,
+              animation: "fade",
+            }}
+          />
         </Stack>
         <PortalHost />
       </ConvexAuthProvider>
