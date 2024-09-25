@@ -25,8 +25,8 @@ export default function SignInPage() {
       <AuthLoading>
         <View className="flex-1 items-center justify-center gap-6">
           <Image
+            className="h-[40px] w-[168px]"
             source={require("~/assets/images/logo.png")}
-            className="h-fit w-fit"
           />
           <ActivityIndicator size="large" />
         </View>
@@ -36,7 +36,7 @@ export default function SignInPage() {
           <View className="h-80">
             <Image
               source={require("~/assets/images/logo.png")}
-              className="mx-auto h-fit w-fit"
+              className="mx-auto h-[40px] w-[168px]"
             />
           </View>
           <View className="gap-4">

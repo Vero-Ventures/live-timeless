@@ -30,7 +30,7 @@ export default function Onboarding() {
       >
         <Image
           source={require("~/assets/images/logo.png")}
-          className="mx-auto mt-6 h-fit w-fit"
+          className="mx-auto mt-6 h-[40px] w-[168px]"
         />
 
         <View className="gap-10">
