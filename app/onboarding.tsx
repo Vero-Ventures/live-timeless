@@ -17,7 +17,7 @@ export default function Onboarding() {
 
   return (
     <ImageBackground
-      source={require("~/assets/images/onboarding.jpg")}
+      source={{ uri: "onboarding" }}
       className="flex-1 justify-between gap-10"
       resizeMode="cover"
     >
