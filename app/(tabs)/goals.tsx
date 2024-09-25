@@ -95,18 +95,8 @@ export default function GoalsPage() {
   );
 }
 
-const validIcons = [
-  "meditation", "home", "account", "bell", "calendar", "check-circle", // Add more valid icon names here
-];
-
-// TODO: Find better way to distribute icons to the goal item
-// Utility function to validate and return a valid icon name
-function getValidIcon(icon: string | undefined): keyof typeof MaterialCommunityIcons.glyphMap {
-  // Check if the icon is valid, otherwise return a default
-  return validIcons.includes(icon || "") ? icon as keyof typeof MaterialCommunityIcons.glyphMap : "meditation";
-}
-
 function GoalItem({ goal }: { goal: Doc<"goals"> }) {
+
   return (
     <Pressable>
       <View className="flex-row items-center gap-4">
@@ -115,8 +105,7 @@ function GoalItem({ goal }: { goal: Doc<"goals"> }) {
         >
           {/* Use the utility function to get a valid icon */}
           <MaterialCommunityIcons
-            name={getValidIcon(goal.selectedIcon)}
-            size={32}
+            name={(goal.selectedIcon || "meditation") as  keyof typeof MaterialCommunityIcons.glyphMap}
             color={goal.selectedIconColor || "#299240"}
           />
         </View>
