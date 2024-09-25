@@ -44,6 +44,12 @@
             "node_modules/@expo-google-fonts/open-sans/OpenSans_800ExtraBold.ttf"
           ]
         }
+      ],
+      [
+        "expo-asset",
+        {
+          "assets": ["./assets/images/onboarding.jpg"]
+        }
       ]
     ],
     "experiments": {
