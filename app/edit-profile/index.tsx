@@ -9,7 +9,8 @@ import { View } from "react-native";
 import { Input } from "~/components/ui/input";
 import { Loader2 } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { updateTask } from "~/convex/users";
+import { updateUserProfile } from "~/convex/users";
+import { useMutation } from 'convex/react';
 
 
 export default function EditProfile() {
@@ -18,7 +19,7 @@ export default function EditProfile() {
     
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
-    const [dob, setDob] = useState("");
+    // const [dob, setDob] = useState("");
     // const [gender, setGender] = useState("");
     // const [height, setHeight] = useState("");
     // const [weight, setWeight] = useState("");
@@ -34,11 +35,17 @@ export default function EditProfile() {
         }
     } , [user]);
 
-    useEffect(() => {
-        if (user && user._id) {
-            updateTask({ id: user._id }); // Call updateTask with the correct arguments
+    const updateUserProfileMutation = useMutation(updateUserProfile);
+
+    const handleUpdateProfile = async () => {
+        if (user) {
+            await updateUserProfileMutation({
+                id: user._id,
+                name,
+                email,
+            })
         }
-    }, [user]);
+    }
 
     return (
         <SafeAreaView>
@@ -64,25 +71,7 @@ export default function EditProfile() {
                     value={email}
                     onChangeText={setEmail}
                 />
-                <Input 
-                    className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
-                    placeholder="Date of Birth"
-                    value={Dob}
-                    onChangeText={setDob}
-                />
-                <Input 
-                    className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
-                    placeholder="Email"
-                    value={email}
-                    onChangeText={setEmail}
-                />
-                <Input 
-                    className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
-                    placeholder="Email"
-                    value={email}
-                    onChangeText={setEmail}
-                />
-                <Button><Text>Save</Text></Button>
+                <Button onPress={handleUpdateProfile}><Text>Save</Text></Button>
                 </View>
             </Authenticated>
         </SafeAreaView>
