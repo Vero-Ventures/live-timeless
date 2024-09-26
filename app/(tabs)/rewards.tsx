@@ -35,6 +35,9 @@ export default function RewardsPage() {
           }}
           data={rewardData}
           ItemSeparatorComponent={() => <View className="py-2" />}
+          ListFooterComponent={() => (
+            <Text className="my-5 text-center text-sm">End of Rewards</Text>
+          )}
           renderItem={({ item }) => (
             <RewardItem
               id={item.id}
