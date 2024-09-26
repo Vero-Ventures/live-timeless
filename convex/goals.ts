@@ -24,3 +24,12 @@ export const createGoal = mutation({
     await ctx.db.insert("goals", args);
   },
 });
+
+export const deleteGoal = mutation({
+  args: {
+    goalId: v.id("goals"),
+  },
+  handler: async (ctx, { goalId }) => {
+    await ctx.db.delete(goalId);
+  },
+});

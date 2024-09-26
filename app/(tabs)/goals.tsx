@@ -16,9 +16,10 @@ import { Plus } from "lucide-react-native";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { useQuery } from "convex/react"; 
+import { useQuery, useMutation } from "convex/react"; 
 import { api } from "~/convex/_generated/api";
 import { Doc } from "~/convex/_generated/dataModel";
+import { Trash2 } from "lucide-react-native"; // Import any icon, or just use text "X"
 
 export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
@@ -95,6 +96,15 @@ export default function GoalsPage() {
 }
 
 function GoalItem({ goal }: { goal: Doc<"goals"> }) {
+  const deleteGoal = useMutation(api.goals.deleteGoal); // Mutation for deleting goal
+
+  const handleDelete = async () => {
+    try {
+      await deleteGoal({ goalId: goal._id }); // Trigger delete mutation
+    } catch (error) {
+      console.error("Error deleting goal:", error);
+    }
+  };
 
   return (
     <Pressable>
@@ -102,19 +112,24 @@ function GoalItem({ goal }: { goal: Doc<"goals"> }) {
         <View
           className={cn("items-center justify-center rounded-full bg-[#299240]/20 p-1")}
         >
-          {/* Use the utility function to get a valid icon */}
           <MaterialCommunityIcons
-            name={(goal.selectedIcon || "meditation") as  keyof typeof MaterialCommunityIcons.glyphMap}
+            name={(goal.selectedIcon || "meditation") as keyof typeof MaterialCommunityIcons.glyphMap}
             color={goal.selectedIconColor || "#299240"}
           />
         </View>
-        <View className="w-full gap-2">
-          <Text style={{ fontFamily: fontFamily.openSans.medium }}>
-            {goal.name}
-          </Text>
-          <Text className="text-xs text-muted-foreground">
-            {goal.timeOfDay?.join(", ") || "No time specified"}
-          </Text>
+        <View className="flex-1 flex-row items-center justify-between">
+          <View className="gap-2">
+            <Text style={{ fontFamily: fontFamily.openSans.medium }}>
+              {goal.name}
+            </Text>
+            <Text className="text-xs text-muted-foreground">
+              {goal.timeOfDay?.join(", ") || "No time specified"}
+            </Text>
+          </View>
+          {/* Delete Button */}
+          <Pressable onPress={handleDelete}>
+            <Trash2 color="#f00" size={18} />
+          </Pressable>
         </View>
       </View>
     </Pressable>
