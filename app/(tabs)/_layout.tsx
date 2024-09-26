@@ -1,21 +1,13 @@
 import { View } from "react-native";
-import { Redirect, Tabs } from "expo-router";
+import { Tabs } from "expo-router";
 import { User } from "~/lib/icons/User";
 import { Home } from "~/lib/icons/Home";
 import { Goal } from "lucide-react-native";
 import { fontFamily } from "~/lib/font";
 import { Star } from "~/lib/icons/Star";
 import { Text } from "~/components/ui/text";
-import { useUserStore } from "~/stores/user-store";
 
 export default function TabLayout() {
-  const hasFinishedOnboarding = useUserStore(
-    (state) => state.hasFinishedOnboarding
-  );
-  if (!hasFinishedOnboarding) {
-    return <Redirect href="/onboarding" />;
-  }
-
   return (
     <>
       <Tabs

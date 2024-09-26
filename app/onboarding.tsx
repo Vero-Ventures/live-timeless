@@ -4,16 +4,9 @@ import { View, ImageBackground, Image } from "react-native";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
-import { useUserStore } from "~/stores/user-store";
 
 export default function Onboarding() {
   const router = useRouter();
-  const toggleHasOnboarded = useUserStore((state) => state.toggleHasOnboarded);
-
-  const handlePress = () => {
-    toggleHasOnboarded();
-    router.replace("/home");
-  };
 
   return (
     <ImageBackground
@@ -52,7 +45,11 @@ export default function Onboarding() {
               within your organization
             </Text>
           </View>
-          <Button className="mx-5 mb-7" size="lg" onPress={handlePress}>
+          <Button
+            className="mx-5 mb-7"
+            size="lg"
+            onPress={() => router.replace("/sign-in")}
+          >
             <Text>Continue</Text>
           </Button>
         </View>

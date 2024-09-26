@@ -121,6 +121,13 @@ export default function RootLayout() {
               animation: "fade",
             }}
           />
+          <Stack.Screen
+            name="sign-in"
+            options={{
+              headerShown: false,
+              animation: "fade",
+            }}
+          />
         </Stack>
         <PortalHost />
       </ConvexAuthProvider>
