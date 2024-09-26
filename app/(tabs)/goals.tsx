@@ -24,15 +24,14 @@ export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
 
-  // Fetch goals using the generated API object
   const goals = useQuery(api.goals.listGoals);
 
   if (!goals) {
-    return <Text>Loading...</Text>;  // Display loading state while fetching
+    return <Text>Loading...</Text>; 
   }
 
   if (goals.length === 0) {
-    return <Text>No goals found</Text>;  // Display if no goals exist
+    return <Text>No goals found</Text>;
   }
 
   return (
