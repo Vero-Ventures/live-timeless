@@ -20,6 +20,8 @@ import Fa6Icons from "@expo/vector-icons/FontAwesome6";
 import { cn } from "~/lib/utils";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useShallow } from "zustand/react/shallow";
+import { api } from "~/convex/_generated/api";
+import { useMutation, useQuery } from "convex/react";
 
 export default function CreateGoalPage() {
   return (
@@ -80,6 +82,11 @@ function CreateGoalForm() {
 
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
+  const createGoal = useMutation(api.goals.createGoal);
+  const user = useQuery(api.users.currentUser);
+  if (user === undefined) {
+    return null;
+  }
 
   const getRepeatValue = () => {
     switch (repeatType) {
@@ -186,11 +193,15 @@ function CreateGoalForm() {
             }
 
             const newGoal = {
+              accountId: user?._id,
+              createdAt: Date.now(),
               name,
-              selectedIcon,
+              selectedIcon:
+                selectedIcon ??
+                ("meditation" as keyof typeof MaterialCommunityIcons.glyphMap),
               selectedIconColor,
               timeOfDay,
-              timeReminder,
+              timeReminder: formatTime(timeReminder),
               repeatType,
               dailyRepeat,
               monthlyRepeat,
@@ -198,6 +209,11 @@ function CreateGoalForm() {
             };
             console.log("Creating new goal:");
             console.log(newGoal);
+            if (!user?._id) {
+              throw new Error("User ID is undefined");
+            }
+            await createGoal({ ...newGoal, accountId: user._id });
+
             router.navigate("/goals");
             resetForm();
           } catch (error) {
