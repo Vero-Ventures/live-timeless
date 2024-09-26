@@ -1,7 +1,8 @@
 import { useAuthActions } from "@convex-dev/auth/dist/react";
 import { Link, useRouter } from "expo-router";
 import { useState } from "react";
-import { View, Text, Image } from "react-native";
+import { View, Image } from "react-native";
+import { Text } from "~/components/ui/text";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
