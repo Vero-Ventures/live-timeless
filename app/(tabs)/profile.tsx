@@ -42,6 +42,11 @@ export default function Profile() {
             <Text className="text-center text-xl font-bold">{user?.name}</Text>
             <Text className="text-center">{user?.email}</Text>
           </View>
+          <View>
+            <Link href="/edit-profile">
+              <Text>Edit Profile</Text>
+            </Link>
+          </View>
           <Button
             size="lg"
             onPress={async () => {
