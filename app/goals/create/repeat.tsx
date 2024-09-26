@@ -157,7 +157,7 @@ function DailyRepeat({
       >
         {dayOfWeek}
       </Text>
-      {isChecked && <Check />}
+      {!!isChecked && <Check />}
     </Pressable>
   );
 }
@@ -224,7 +224,7 @@ function IntervalRepeat({
       >
         Every {interval} days
       </Text>
-      {isChecked && <Check />}
+      {!!isChecked && <Check />}
     </Pressable>
   );
 }

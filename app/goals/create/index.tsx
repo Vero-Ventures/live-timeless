@@ -98,7 +98,7 @@ function CreateGoalForm() {
 
   return (
     <View className="gap-4">
-      {error && (
+      {!!error && (
         <Alert icon={AlertCircle} variant="destructive" className="max-w-xl">
           <AlertTitle>Something went wrong!</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
