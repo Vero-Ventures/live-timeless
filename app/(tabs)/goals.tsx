@@ -107,32 +107,34 @@ function GoalItem({ goal }: { goal: Doc<"goals"> }) {
   };
 
   return (
-    <Pressable>
-      <View className="flex-row items-center gap-4">
-        <View
-          className={cn("items-center justify-center rounded-full bg-[#299240]/20 p-1")}
-        >
-          <MaterialCommunityIcons
-            name={(goal.selectedIcon || "meditation") as keyof typeof MaterialCommunityIcons.glyphMap}
-            color={goal.selectedIconColor || "#299240"}
-          />
-        </View>
-        <View className="flex-1 flex-row items-center justify-between">
-          <View className="gap-2">
-            <Text style={{ fontFamily: fontFamily.openSans.medium }}>
-              {goal.name}
-            </Text>
-            <Text className="text-xs text-muted-foreground">
-              {goal.timeOfDay?.join(", ") || "No time specified"}
-            </Text>
+    <Link href={`../goals/update-goal-page?goalId=${goal._id}`} asChild>
+      <Pressable>
+        <View className="flex-row items-center gap-4">
+          <View
+            className={cn("items-center justify-center rounded-full bg-[#299240]/20 p-1")}
+          >
+            <MaterialCommunityIcons
+              name={(goal.selectedIcon || "meditation") as keyof typeof MaterialCommunityIcons.glyphMap}
+              color={goal.selectedIconColor || "#299240"}
+            />
           </View>
-          {/* Delete Button */}
-          <Pressable onPress={handleDelete}>
-            <Trash2 color="#f00" size={18} />
-          </Pressable>
+          <View className="flex-1 flex-row items-center justify-between">
+            <View className="gap-2">
+              <Text style={{ fontFamily: fontFamily.openSans.medium }}>
+                {goal.name}
+              </Text>
+              <Text className="text-xs text-muted-foreground">
+                {goal.timeOfDay?.join(", ") || "No time specified"}
+              </Text>
+            </View>
+            {/* Delete Button */}
+            <Pressable onPress={handleDelete}>
+              <Trash2 color="#f00" size={18} />
+            </Pressable>
+          </View>
         </View>
-      </View>
-    </Pressable>
+      </Pressable>
+    </Link>
   );
 }
 

@@ -1,3 +1,4 @@
+// TODO: Add icon selection support for update goal form. Currently selecting an icon will always make new goal.
 import { Link, Stack } from "expo-router";
 import { Pressable, ScrollView, View } from "react-native";
 import { Text } from "~/components/ui/text";
@@ -5,7 +6,7 @@ import { fontFamily } from "~/lib/font";
 import { Check } from "~/lib/icons/Check";
 import { ChevronLeft } from "~/lib/icons/ChevronLeft";
 import {
-  useCreateGoalFormStore,
+  useCreateGoalFormStore, 
   type MaterialCommunityIcon,
 } from "../create-goal-store";
 import { cn } from "~/lib/utils";
