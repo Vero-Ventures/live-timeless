@@ -24,16 +24,25 @@ export const currentUser = query({
   },
 });
 
-export const updateTask = mutation({
-  args: { id: v.id("users") },
+export const updateUserProfile = mutation({
+  args: { 
+    id: v.id("users"),
+    name: v.optional(v.string()),
+    email: v.optional(v.string()), 
+  },
   handler: async (ctx, args) => {
-    const { id } = args;
+    const { id, name, email } = args;
+    const user = await ctx.db.get(id);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (email !== undefined) updateData.email = email;
+
+    await ctx.db.patch(id, updateData);
 
     console.log(await ctx.db.get(id));
-
-    // Add `tag` and overwrite `status`:
-    // await ctx.db.patch(id, { tag: "bar", status: { archived: true } });
-    // console.log(await ctx.db.get(id));
-    // { text: "foo", tag: "bar", status: { archived: true }, _id: ... }
-  },
+   },
 });
