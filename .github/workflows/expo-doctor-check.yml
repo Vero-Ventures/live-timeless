@@ -21,7 +21,7 @@ jobs:
       - name: Run Expo Doctor
         id: expo-doctor
         run: |
-          npx expo doctor --fix
+          npx expo-doctor --fix
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add .
