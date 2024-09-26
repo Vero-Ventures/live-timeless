@@ -1,0 +1,51 @@
+name: Expo Doctor Check
+
+on:
+  schedule:
+    - cron: "0 16 * * 1" # Run every Monday at 8:00 am PST
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  expo-doctor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Expo Doctor
+        id: expo-doctor
+        run: |
+          npx expo doctor --fix
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          if ! git diff --staged --quiet; then
+            git commit -m "Update dependencies with Expo Doctor"
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "PACKAGE_CHANGES<<EOF" >> $GITHUB_OUTPUT
+            git diff --staged package.json | grep '^[+-]' | grep -v '"version"' >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        if: steps.expo-doctor.outputs.changes == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          title: "Update dependencies with Expo Doctor"
+          body: |
+            This PR updates dependencies based on the recommendations from Expo Doctor.
+
+            ### Changed Packages:
+            ```diff
+            ${{ steps.expo-doctor.outputs.PACKAGE_CHANGES }}
+            ```
+          branch: expo-doctor-updates
+          base: main
