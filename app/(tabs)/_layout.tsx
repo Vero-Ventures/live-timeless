@@ -55,9 +55,9 @@ export default function TabLayout() {
             title: "Rewards",
             headerShown: false,
             tabBarIcon: ({ color }) => (
-              <Text>
+              <View style={{ alignItems: "center" }}>
                 <Star color={color} />
-              </Text>
+              </View>
             ),
           }}
         />
