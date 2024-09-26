@@ -143,7 +143,7 @@ function ColorPicker({ color }: { color: string }) {
             "bg-[#982ABF]": color === "#982ABF",
           })}
         >
-          {isSelected && <Check color="#fff" className="m-auto" />}
+          {!!isSelected && <Check color="#fff" className="m-auto" />}
         </View>
       </View>
     </Pressable>
