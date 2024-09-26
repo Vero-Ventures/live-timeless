@@ -13,35 +13,40 @@ import { TentTree } from "~/lib/icons/TentTree";
 export default function RewardsPage() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#082139" }}>
-      <View className="gap-10 p-4">
-        <View className="flex flex-row items-center gap-4">
-          <Text>
-            <Coins className="text-primary" size={40} />
-          </Text>
-          <View className="gap-2">
-            <Text className="text-2xl font-bold">100</Text>
-            <Text className="text-md">LT Token Balance</Text>
+      <View>
+        <View className="gap-10 p-4">
+          <View className="flex flex-row items-center gap-4">
+            <Text>
+              <Coins className="text-primary" size={40} />
+            </Text>
+            <View className="gap-2">
+              <Text className="text-2xl font-bold">100</Text>
+              <Text className="text-md">LT Token Balance</Text>
+            </View>
+          </View>
+          <View className="gap-3">
+            <Text className="text-2xl font-semibold">Available Rewards</Text>
+            <SearchInput />
           </View>
         </View>
-        <View className="gap-3">
-          <Text className="text-2xl font-semibold">Available Rewards</Text>
-          <SearchInput />
-        </View>
+        <FlatList
+          contentContainerStyle={{
+            paddingBottom: 208,
+          }}
+          data={rewardData}
+          ItemSeparatorComponent={() => <View className="py-2" />}
+          renderItem={({ item }) => (
+            <RewardItem
+              id={item.id}
+              Icon={item.icon}
+              type={item.type}
+              token={item.token}
+              name={item.name}
+              description={item.description}
+            />
+          )}
+        />
       </View>
-      <FlatList
-        data={rewardData}
-        ItemSeparatorComponent={() => <View className="py-2" />}
-        renderItem={({ item }) => (
-          <RewardItem
-            id={item.id}
-            Icon={item.icon}
-            type={item.type}
-            token={item.token}
-            name={item.name}
-            description={item.description}
-          />
-        )}
-      />
     </SafeAreaView>
   );
 }
