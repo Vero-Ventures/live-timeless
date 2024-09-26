@@ -104,7 +104,7 @@ function TimePeriodOption({
       >
         {period}
       </Text>
-      {isChecked && <Check />}
+      {!!isChecked && <Check />}
     </Pressable>
   );
 }
