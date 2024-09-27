@@ -35,17 +35,17 @@ export default function EditProfile() {
         }
     } , [user]);
 
-    const updateUserProfileMutation = useMutation(updateUserProfile);
+    // const updateUserProfileMutation = useMutation(updateUserProfile);
 
-    const handleUpdateProfile = async () => {
-        if (user) {
-            await updateUserProfileMutation({
-                id: user._id,
-                name,
-                email,
-            })
-        }
-    }
+    // const handleUpdateProfile = async () => {
+    //     if (user) {
+    //         await updateUserProfileMutation({
+    //             id: user._id,
+    //             name,
+    //             email,
+    //         })
+    //     }
+    // }
 
     return (
         <SafeAreaView>
@@ -71,7 +71,7 @@ export default function EditProfile() {
                     value={email}
                     onChangeText={setEmail}
                 />
-                <Button onPress={handleUpdateProfile}><Text>Save</Text></Button>
+                {/* <Button onPress={handleUpdateProfile}><Text>Save</Text></Button> */}
                 </View>
             </Authenticated>
         </SafeAreaView>

@@ -25,10 +25,10 @@ export const currentUser = query({
 });
 
 export const updateUserProfile = mutation({
-  args: { 
+  args: {
     id: v.id("users"),
     name: v.optional(v.string()),
-    email: v.optional(v.string()), 
+    email: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const { id, name, email } = args;
@@ -37,12 +37,12 @@ export const updateUserProfile = mutation({
       throw new Error("User not found");
     }
 
-    const updateData = {};
-    if (name !== undefined) updateData.name = name;
-    if (email !== undefined) updateData.email = email;
+    // const updateData = {};
+    // if (name !== undefined) updateData.name = name;
+    // if (email !== undefined) updateData.email = email;
 
-    await ctx.db.patch(id, updateData);
+    // await ctx.db.patch(id, updateData);
 
-    console.log(await ctx.db.get(id));
-   },
+    // console.log(await ctx.db.get(id));
+  },
 });
