@@ -21,8 +21,8 @@ export default function SingleRewardsPage() {
           headerTransparent: true,
         }}
       />
-      <View className="h-full">
-        <View className="h-1/3 justify-between bg-[#082139] px-6 pb-10 pt-[112px]">
+      <View className="h-full" style={{ backgroundColor: "#082139" }}>
+        <View className="h-1/3 justify-between px-6 pb-10 pt-[112px]">
           <View className="flex flex-row justify-between">
             <Text>{reward.type}</Text>
             <Text className="font-medium">{reward.token} tokens</Text>
@@ -34,12 +34,11 @@ export default function SingleRewardsPage() {
             </Text>
           </View>
         </View>
-        <View className="flex-1">
+        <View className="flex-1" style={{ backgroundColor: "#0e2942" }}>
           <ScrollView
             className=""
             contentContainerStyle={{
-              paddingBottom: 150,
-              backgroundColor: "#0e2942",
+              paddingBottom: 30,
             }}
           >
             <View className="gap-12 px-4 py-8">
@@ -75,12 +74,12 @@ export default function SingleRewardsPage() {
               </View>
             </View>
           </ScrollView>
+        </View>
 
-          <View className="absolute bottom-0 left-0 right-0 px-5 pb-10">
-            <Button size="lg">
-              <Text>Redeem for {reward.token} tokens</Text>
-            </Button>
-          </View>
+        <View className="px-5 pb-10 pt-5">
+          <Button size="lg">
+            <Text>Redeem for {reward.token} tokens</Text>
+          </Button>
         </View>
       </View>
     </>
