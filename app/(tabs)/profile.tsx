@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import { Link, Redirect } from "expo-router";
+import { Redirect } from "expo-router";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
@@ -9,10 +9,12 @@ import { api } from "~/convex/_generated/api";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
 import { Loader2 } from "lucide-react-native";
 import { useAuthActions } from "@convex-dev/auth/dist/react";
+import { useRouter } from "expo-router";
 
 export default function Profile() {
   const { signOut } = useAuthActions();
   const user = useQuery(api.users.currentUser);
+  const router = useRouter();
 
   return (
     <SafeAreaView style={{ height: "100%", backgroundColor: "#082139" }}>
@@ -43,9 +45,14 @@ export default function Profile() {
             <Text className="text-center">{user?.email}</Text>
           </View>
           <View>
-            <Link href="/edit-profile">
+            <Button
+              size="lg"
+              onPress={() => {
+                router.push("/edit-profile");
+              }}
+            >
               <Text>Edit Profile</Text>
-            </Link>
+            </Button>
           </View>
           <Button
             size="lg"
@@ -56,9 +63,14 @@ export default function Profile() {
             <Text>Logout</Text>
           </Button>
           <View>
-            <Link href="/privacy-policy">
+            <Button
+              size="lg"
+              onPress={() => {
+                router.push("/privacy-policy");
+              }}
+            >
               <Text>Privacy Policy</Text>
-            </Link>
+            </Button>
           </View>
         </View>
       </Authenticated>
