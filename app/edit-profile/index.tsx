@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import { Link, Redirect, useRouter } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import { api } from "~/convex/_generated/api";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
@@ -9,71 +9,104 @@ import { View } from "react-native";
 import { Input } from "~/components/ui/input";
 import { Loader2 } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { updateUserProfile } from "~/convex/users";
-import { useMutation } from 'convex/react';
-
+import { useMutation } from 'convex/react';  // Correct import
+import { updateUserProfile } from "~/convex/users";  // Import mutation
 
 export default function EditProfile() {
-    const router = useRouter();
-    const user = useQuery(api.users.currentUser);
-    
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    // const [dob, setDob] = useState("");
-    // const [gender, setGender] = useState("");
-    // const [height, setHeight] = useState("");
-    // const [weight, setWeight] = useState("");
+  const router = useRouter();
+  const user = useQuery(api.users.currentUser);
 
-    useEffect(() => {
-        if (user) {
-            setName(user.name || "");
-            setEmail(user.email || "");
-            // setDob(user.dob || "");
-            // setGender(user.gender || "");
-            // setHeight(user.height || "");
-            // setWeight(user.weight || "");
-        }
-    } , [user]);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [dob, setDob] = useState("");
+  const [gender, setGender] = useState("");
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
 
-    // const updateUserProfileMutation = useMutation(updateUserProfile);
+  // Use mutation hook with the correct mutation function
+  const updateUserProfileMutation = useMutation(api.users.updateUserProfile);
 
-    // const handleUpdateProfile = async () => {
-    //     if (user) {
-    //         await updateUserProfileMutation({
-    //             id: user._id,
-    //             name,
-    //             email,
-    //         })
-    //     }
-    // }
+  useEffect(() => {
+    if (user) {
+      setName(user.name || "");
+      setEmail(user.email || "");
+      setDob(user.dob || "");
+      setGender(user.gender || "");
+      setHeight(user.height ? user.height.toString() : "");
+      setWeight(user.weight ? user.weight.toString() : "");
+    }
+  }, [user]);
 
-    return (
-        <SafeAreaView>
-            <AuthLoading>
-                <View className="h-full items-center justify-center">
-                <Loader2 className="size-32 animate-spin" />
-                </View>
-            </AuthLoading>
-            <Unauthenticated>
-                <Redirect href="/" />
-            </Unauthenticated>
-            <Authenticated>
-                <View className="h-full gap-8 p-4">
-                <Input 
-                    className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
-                    placeholder="Name"
-                    value={name}
-                    onChangeText={setName}
-                />
-                <Input 
-                    className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
-                    placeholder="Email"
-                    value={email}
-                    onChangeText={setEmail}
-                />
-                {/* <Button onPress={handleUpdateProfile}><Text>Save</Text></Button> */}
-                </View>
-            </Authenticated>
-        </SafeAreaView>
-    );
+  const handleUpdateProfile = async () => {
+    if (user) {
+      await updateUserProfileMutation({
+        id: user._id,
+        name,
+        email,
+        dob,
+        gender,
+        height: parseFloat(height),
+        weight: parseFloat(weight),
+      });
+      router.push("/profile");
+    }
+  };
+
+  return (
+    <SafeAreaView>
+      <AuthLoading>
+        <View className="h-full items-center justify-center">
+          <Loader2 className="size-32 animate-spin" />
+        </View>
+      </AuthLoading>
+      <Unauthenticated>
+        <Redirect href="/" />
+      </Unauthenticated>
+      <Authenticated>
+        <View className="h-full gap-8 p-4">
+          <Input 
+            className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+            placeholder="Name"
+            value={name}
+            onChangeText={setName}
+          />
+          <Input 
+            className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+          />
+          <Input 
+            className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+            placeholder="Date of Birth"
+            value={dob}
+            onChangeText={setDob}
+          />
+          <Input 
+            className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+            placeholder="Gender"
+            value={gender}
+            onChangeText={setGender}
+          />
+          <Input 
+            className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+            placeholder="Height (cm)"
+            value={height}
+            onChangeText={setHeight}
+            keyboardType="numeric"
+          />
+          <Input 
+            className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+            placeholder="Weight (kg)"
+            value={weight}
+            onChangeText={setWeight}
+            keyboardType="numeric"
+          />
+          <Button onPress={handleUpdateProfile}>
+            <Text>Save</Text>
+          </Button>
+        </View>
+      </Authenticated>
+    </SafeAreaView>
+  );
 }
