@@ -18,4 +18,17 @@ export default defineSchema({
     phoneVerificationTime: v.optional(v.number()),
     isAnonymous: v.optional(v.boolean()),
   }).index("email", ["email"]),
+  goals: defineTable({
+    accountId: v.id("users"),
+    createdAt: v.float64(),
+    dailyRepeat: v.array(v.string()),
+    intervalRepeat: v.float64(),
+    monthlyRepeat: v.array(v.float64()),
+    name: v.string(),
+    repeatType: v.string(),
+    selectedIcon: v.string(),
+    selectedIconColor: v.string(),
+    timeOfDay: v.array(v.string()),
+    timeReminder: v.string(),
+  }),
 });
