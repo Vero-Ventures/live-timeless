@@ -16,19 +16,23 @@ import { Plus } from "lucide-react-native";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { useQuery, useMutation } from "convex/react"; 
+import { useQuery, useMutation } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import { Doc } from "~/convex/_generated/dataModel";
-import { Trash2 } from "lucide-react-native"; // Import any icon, or just use text "X"
+import { Trash2 } from "lucide-react-native";
 
 export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
+  const user = useQuery(api.users.currentUser);
+  const goals = useQuery(api.goals.listGoals, { userId: user?._id ?? null });
 
-  const goals = useQuery(api.goals.listGoals);
+  if (user === undefined) {
+    return null;
+  }
 
   if (!goals) {
-    return <Text>Loading...</Text>; 
+    return <Text>Loading...</Text>;
   }
 
   if (goals.length === 0) {
@@ -71,12 +75,12 @@ export default function GoalsPage() {
             paddingBottom: 60,
           }}
           className="mt-6 border-t border-t-[#fff]/10 pt-6"
-          data={goals}  // Use fetched goals here
+          data={goals}
           ItemSeparatorComponent={() => (
             <View className="my-4 ml-14 mr-6 h-0.5 bg-[#fff]/10" />
           )}
-          renderItem={({ item }) => <GoalItem goal={item} />}  // Render dynamic goals
-          keyExtractor={(goal) => goal._id.toString()}  // Use _id as key
+          renderItem={({ item }) => <GoalItem goal={item} />}
+          keyExtractor={(goal) => goal._id.toString()}
         />
       </View>
       <View className="flex-row items-center gap-2 bg-[#0f2336] px-4">
@@ -96,11 +100,11 @@ export default function GoalsPage() {
 }
 
 function GoalItem({ goal }: { goal: Doc<"goals"> }) {
-  const deleteGoal = useMutation(api.goals.deleteGoal); // Mutation for deleting goal
+  const deleteGoal = useMutation(api.goals.deleteGoal);
 
   const handleDelete = async () => {
     try {
-      await deleteGoal({ goalId: goal._id }); // Trigger delete mutation
+      await deleteGoal({ goalId: goal._id });
     } catch (error) {
       console.error("Error deleting goal:", error);
     }
@@ -111,10 +115,15 @@ function GoalItem({ goal }: { goal: Doc<"goals"> }) {
       <Pressable>
         <View className="flex-row items-center gap-4">
           <View
-            className={cn("items-center justify-center rounded-full bg-[#299240]/20 p-1")}
+            className={cn(
+              "items-center justify-center rounded-full bg-[#299240]/20 p-1"
+            )}
           >
             <MaterialCommunityIcons
-              name={(goal.selectedIcon || "meditation") as keyof typeof MaterialCommunityIcons.glyphMap}
+              name={
+                (goal.selectedIcon ||
+                  "meditation") as keyof typeof MaterialCommunityIcons.glyphMap
+              }
               color={goal.selectedIconColor || "#299240"}
             />
           </View>

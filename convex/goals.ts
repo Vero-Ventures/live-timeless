@@ -8,10 +8,18 @@ export const getGoalById = query({
   },
 });
 
-// TODO: Only retrieve goals for current user rather than all
-export const listGoals = query(async ({ db }) => {
-  const goals = await db.query("goals").collect();
-  return goals;
+export const listGoals = query({
+  args: { userId: v.union(v.id("users"), v.null()) },
+  handler: async ({ db }, { userId }) => {
+    if (!userId) {
+      return [];
+    }
+    const goals = await db
+      .query("goals")
+      .filter((q) => q.eq(q.field("accountId"), userId))
+      .collect();
+    return goals;
+  },
 });
 
 export const createGoal = mutation({
@@ -35,25 +43,48 @@ export const createGoal = mutation({
 
 export const updateGoal = mutation({
   args: {
-    goalId: v.id("goals"),  // ID of the goal to update
-    name: v.string(),       // Name of the goal
-    timeOfDay: v.array(v.string()),  // Array of times of day
-    selectedIcon: v.string(),  // Icon for the goal
-    selectedIconColor: v.string(),  // Color of the selected icon
-    repeatType: v.string(),  // Type of repetition (daily, monthly, etc.)
-    dailyRepeat: v.array(v.string()),  // Array of days for daily repetition
-    monthlyRepeat: v.array(v.float64()),  // Array of days for monthly repetition
-    intervalRepeat: v.float64(),  // Interval for repetition
-    timeReminder: v.string(),  // Time for reminders
-    createdAt: v.float64(),  // Creation time
+    goalId: v.id("goals"),
+    name: v.string(),
+    timeOfDay: v.array(v.string()),
+    selectedIcon: v.string(),
+    selectedIconColor: v.string(),
+    repeatType: v.string(),
+    dailyRepeat: v.array(v.string()),
+    monthlyRepeat: v.array(v.float64()),
+    intervalRepeat: v.float64(),
+    timeReminder: v.string(),
+    createdAt: v.float64(),
   },
-  handler: async (ctx, { goalId, name, timeOfDay, selectedIcon, selectedIconColor, repeatType, dailyRepeat, monthlyRepeat, intervalRepeat, timeReminder, createdAt }) => {
+  handler: async (
+    ctx,
+    {
+      goalId,
+      name,
+      timeOfDay,
+      selectedIcon,
+      selectedIconColor,
+      repeatType,
+      dailyRepeat,
+      monthlyRepeat,
+      intervalRepeat,
+      timeReminder,
+      createdAt,
+    }
+  ) => {
     await ctx.db.patch(goalId, {
-      name, timeOfDay, selectedIcon, selectedIconColor, repeatType, dailyRepeat, monthlyRepeat, intervalRepeat, timeReminder, createdAt
+      name,
+      timeOfDay,
+      selectedIcon,
+      selectedIconColor,
+      repeatType,
+      dailyRepeat,
+      monthlyRepeat,
+      intervalRepeat,
+      timeReminder,
+      createdAt,
     });
   },
 });
-
 
 export const deleteGoal = mutation({
   args: {

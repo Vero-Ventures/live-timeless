@@ -3,7 +3,7 @@
 import { Stack, useRouter, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { View, Pressable, StyleSheet } from "react-native";
-import { AlertCircle, type LucideIcon } from "lucide-react-native";
+import { type LucideIcon } from "lucide-react-native";
 import FormSubmitButton from "~/components/form-submit-button";
 import { Input } from "~/components/ui/input";
 import { Text } from "~/components/ui/text";
@@ -26,7 +26,7 @@ import ScheduleStartDate from "./schedule-start-date";
 export default function UpdateGoalPage() {
   const router = useRouter();
   const { goalId: goalIdParam } = useLocalSearchParams();
-  const goalId = goalIdParam as Id<"goals">; // Ensure the goalId is correctly set
+  const goalId = goalIdParam as Id<"goals">;
 
   const [
     name, setName,
@@ -71,12 +71,9 @@ export default function UpdateGoalPage() {
       if (name.trim().length <= 3) {
         throw new Error("Goal name must be at least 3 characters long.");
       }
-
-      console.log("Goal ID before update:", goalId);
-      console.log("Selected Icon before update:", selectedIcon); 
-  
+ 
       const updatedGoal = {
-        goalId, // Ensure goalId is passed to update the correct goal
+        goalId,
         name,
         timeOfDay,
         selectedIcon:
@@ -90,10 +87,8 @@ export default function UpdateGoalPage() {
         createdAt: Date.now(), // You could keep the original createdAt if needed
       };
   
-      // Debug log to check goalId and other values
       console.log("Updating Goal:", updatedGoal);
   
-      // Use Convex mutation to update the goal
       await updateGoal(updatedGoal);
       resetForm();
       router.push("/goals");
@@ -124,9 +119,7 @@ export default function UpdateGoalPage() {
     <View style={styles.container}>
       <Stack.Screen options={{ title: "Update Goal" }} />
 
-      {error && (
-        <Text style={styles.errorText}>{error}</Text>
-      )}
+      {!!error && <Text style={styles.errorText}>{error}</Text>}
 
       <View style={styles.row}>
         <Pressable onPress={() => router.push('/goals/create/icon')}>
