@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import { useLayoutEffect } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { useQuery } from "convex/react";
 import { Redirect, useRouter } from "expo-router";
 import { api } from "~/convex/_generated/api";
@@ -13,6 +13,7 @@ import { Loader2 } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { useMutation } from 'convex/react';  // Correct import
 import { updateUserProfile } from "~/convex/users";  // Import mutation
+import DropDownPicker from 'react-native-dropdown-picker';
 
 export default function EditProfile() {
   const navigation = useNavigation();
@@ -27,6 +28,13 @@ export default function EditProfile() {
   const [gender, setGender] = useState("");
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
+
+  const [open, setOpen] = useState(false);
+  const [genderOptions] = useState([
+    { label: 'Male', value: 'Male' },
+    { label: 'Female', value: 'Female' },
+    { label: 'Unspecified', value: 'Unspecified' }
+  ]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
