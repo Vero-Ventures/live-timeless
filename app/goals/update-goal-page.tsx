@@ -1,5 +1,4 @@
 // TODO: Make proper front-end for update goals, this is a placeholder
-
 import { Stack, useRouter, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { View, Pressable, StyleSheet } from "react-native";
