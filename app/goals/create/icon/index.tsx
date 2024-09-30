@@ -6,7 +6,7 @@ import { fontFamily } from "~/lib/font";
 import { Check } from "~/lib/icons/Check";
 import { ChevronLeft } from "~/lib/icons/ChevronLeft";
 import {
-  useCreateGoalFormStore, 
+  useCreateGoalFormStore,
   type MaterialCommunityIcon,
 } from "../create-goal-store";
 import { cn } from "~/lib/utils";

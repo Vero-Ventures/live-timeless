@@ -29,34 +29,60 @@ export default function UpdateGoalPage() {
   const goalId = goalIdParam as Id<"goals">;
 
   const [
-    name, setName,
-    timeOfDay, setTimeOfDay,
-    timeReminder, setTimeReminder,
-    repeatType, setRepeatType,
-    dailyRepeat, setDailyRepeat,
-    monthlyRepeat, setMonthlyRepeat,
-    intervalRepeat, setIntervalRepeat,
-    selectedIcon, setSelectedIcon,
-    selectedIconColor, setSelectedIconColor,
-    unitValue, setUnitValue,
-    unit, setUnit,
-    recurrence, setRecurrence,
-    resetForm
-  ] = useCreateGoalFormStore(useShallow((state) => [
-    state.name, state.setName,
-    state.timeOfDay, state.setTimeOfDay,
-    state.timeReminder, state.setTimeReminder,
-    state.repeatType, state.setRepeatType,
-    state.dailyRepeat, state.setDailyRepeat,
-    state.monthlyRepeat, state.setMonthlyRepeat,
-    state.intervalRepeat, state.setIntervalRepeat,
-    state.selectedIcon, state.setSelectedIcon,
-    state.selectedIconColor, state.setSelectedIconColor,
-    state.unitValue, state.setUnitValue,
-    state.unit, state.setUnit,
-    state.recurrence, state.setRecurrence,
-    state.resetForm
-  ]));
+    name,
+    setName,
+    timeOfDay,
+    setTimeOfDay,
+    timeReminder,
+    setTimeReminder,
+    repeatType,
+    setRepeatType,
+    dailyRepeat,
+    setDailyRepeat,
+    monthlyRepeat,
+    setMonthlyRepeat,
+    intervalRepeat,
+    setIntervalRepeat,
+    selectedIcon,
+    setSelectedIcon,
+    selectedIconColor,
+    setSelectedIconColor,
+    unitValue,
+    setUnitValue,
+    unit,
+    setUnit,
+    recurrence,
+    setRecurrence,
+    resetForm,
+  ] = useCreateGoalFormStore(
+    useShallow((state) => [
+      state.name,
+      state.setName,
+      state.timeOfDay,
+      state.setTimeOfDay,
+      state.timeReminder,
+      state.setTimeReminder,
+      state.repeatType,
+      state.setRepeatType,
+      state.dailyRepeat,
+      state.setDailyRepeat,
+      state.monthlyRepeat,
+      state.setMonthlyRepeat,
+      state.intervalRepeat,
+      state.setIntervalRepeat,
+      state.selectedIcon,
+      state.setSelectedIcon,
+      state.selectedIconColor,
+      state.setSelectedIconColor,
+      state.unitValue,
+      state.setUnitValue,
+      state.unit,
+      state.setUnit,
+      state.recurrence,
+      state.setRecurrence,
+      state.resetForm,
+    ])
+  );
 
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,18 +92,19 @@ export default function UpdateGoalPage() {
   const handleSubmit = async () => {
     setError(null);
     setIsPending(true);
-  
+
     try {
       if (name.trim().length <= 3) {
         throw new Error("Goal name must be at least 3 characters long.");
       }
- 
+
       const updatedGoal = {
         goalId,
         name,
         timeOfDay,
         selectedIcon:
-          selectedIcon ?? ("meditation" as keyof typeof MaterialCommunityIcons.glyphMap),
+          selectedIcon ??
+          ("meditation" as keyof typeof MaterialCommunityIcons.glyphMap),
         selectedIconColor,
         repeatType,
         dailyRepeat,
@@ -86,9 +113,9 @@ export default function UpdateGoalPage() {
         timeReminder: timeReminder.toString(), // Convert Date to string
         createdAt: Date.now(), // You could keep the original createdAt if needed
       };
-  
+
       console.log("Updating Goal:", updatedGoal);
-  
+
       await updateGoal(updatedGoal);
       resetForm();
       router.push("/goals");
@@ -98,7 +125,6 @@ export default function UpdateGoalPage() {
       setIsPending(false);
     }
   };
-  
 
   const getRepeatValue = () => {
     switch (repeatType) {
@@ -122,22 +148,22 @@ export default function UpdateGoalPage() {
       {!!error && <Text style={styles.errorText}>{error}</Text>}
 
       <View style={styles.row}>
-        <Pressable onPress={() => router.push('/goals/create/icon')}>
+        <Pressable onPress={() => router.push("/goals/create/icon")}>
           {selectedIcon ? (
-            <MaterialCommunityIcons name={selectedIcon} size={32} color={selectedIconColor} />
+            <MaterialCommunityIcons
+              name={selectedIcon}
+              size={32}
+              color={selectedIconColor}
+            />
           ) : (
             <Fa6Icons name="question" size={32} color={selectedIconColor} />
           )}
         </Pressable>
-        <Input
-          placeholder="Goal Name"
-          value={name}
-          onChangeText={setName}
-        />
+        <Input placeholder="Goal Name" value={name} onChangeText={setName} />
       </View>
 
       <View style={styles.roundedContainer}>
-        <Pressable onPress={() => router.push('/goals/create/repeat')}>
+        <Pressable onPress={() => router.push("/goals/create/repeat")}>
           <ScheduleItem
             Icon={Repeat}
             iconBgColor="#2A67F5"
@@ -146,7 +172,7 @@ export default function UpdateGoalPage() {
           />
         </Pressable>
 
-        <Pressable onPress={() => router.push('/goals/create/target')}>
+        <Pressable onPress={() => router.push("/goals/create/target")}>
           <ScheduleItem
             Icon={Crosshair}
             iconBgColor="#0EAF0A"
@@ -155,18 +181,20 @@ export default function UpdateGoalPage() {
           />
         </Pressable>
 
-        <Pressable onPress={() => router.push('/goals/create/time-of-day')}>
+        <Pressable onPress={() => router.push("/goals/create/time-of-day")}>
           <ScheduleItem
             Icon={Sun}
             iconBgColor="#F0A122"
             title="TIME OF DAY"
-            value={timeOfDay.length === 3 ? "Any Time" : timeOfDay.join(" and ")}
+            value={
+              timeOfDay.length === 3 ? "Any Time" : timeOfDay.join(" and ")
+            }
           />
         </Pressable>
       </View>
 
       <View style={styles.roundedContainer}>
-        <Pressable onPress={() => router.push('/goals/create/reminders')}>
+        <Pressable onPress={() => router.push("/goals/create/reminders")}>
           <ScheduleItem
             Icon={Bell}
             iconBgColor="#9037D1"
@@ -185,7 +213,17 @@ export default function UpdateGoalPage() {
   );
 }
 
-function ScheduleItem({ Icon, iconBgColor, title, value }: { Icon: LucideIcon; iconBgColor: string; title: string; value: string; }) {
+function ScheduleItem({
+  Icon,
+  iconBgColor,
+  title,
+  value,
+}: {
+  Icon: LucideIcon;
+  iconBgColor: string;
+  title: string;
+  value: string;
+}) {
   return (
     <View style={styles.scheduleItem}>
       <View style={[styles.iconContainer, { backgroundColor: iconBgColor }]}>
@@ -205,23 +243,23 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
   },
   roundedContainer: {
-    backgroundColor: '#0e2942',
+    backgroundColor: "#0e2942",
     borderRadius: 12,
     padding: 10,
     marginTop: 10,
   },
   errorText: {
-    color: 'red',
+    color: "red",
     marginBottom: 10,
   },
   scheduleItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
     padding: 10,
   },
@@ -234,6 +272,6 @@ const styles = StyleSheet.create({
   },
   scheduleTitle: {
     fontSize: 12,
-    color: '#bbb',
+    color: "#bbb",
   },
 });
