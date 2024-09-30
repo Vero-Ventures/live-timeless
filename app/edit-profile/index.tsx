@@ -29,7 +29,8 @@ export default function EditProfile() {
   useLayoutEffect(() => {
     navigation.setOptions({
       title: 'Edit Profile',
-      headerBackTitleVisible: false
+      headerStyle: { backgroundColor: '#082139' },
+      headerBackTitleVisible: false,
     });
   }, [navigation]);
 
@@ -63,7 +64,7 @@ export default function EditProfile() {
   };
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{backgroundColor: "#082139"}}>
       <AuthLoading>
         <View className="h-full items-center justify-center">
           <Loader2 className="size-32 animate-spin" />
@@ -77,30 +78,35 @@ export default function EditProfile() {
           <Input 
             className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
             placeholder="Name"
+            placeholderTextColor='#a6b1c3'
             value={name}
             onChangeText={setName}
           />
           <Input 
             className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
             placeholder="Email"
+            placeholderTextColor='#a6b1c3'
             value={email}
             onChangeText={setEmail}
           />
           <Input 
             className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
             placeholder="Date of Birth"
+            placeholderTextColor='#a6b1c3'
             value={dob}
             onChangeText={setDob}
           />
           <Input 
             className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
             placeholder="Gender"
+            placeholderTextColor='#a6b1c3'
             value={gender}
             onChangeText={setGender}
           />
           <Input 
             className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
             placeholder="Height (cm)"
+            placeholderTextColor='#a6b1c3'
             value={height}
             onChangeText={setHeight}
             keyboardType="numeric"
@@ -108,6 +114,7 @@ export default function EditProfile() {
           <Input 
             className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
             placeholder="Weight (kg)"
+            placeholderTextColor='#a6b1c3'
             value={weight}
             onChangeText={setWeight}
             keyboardType="numeric"
