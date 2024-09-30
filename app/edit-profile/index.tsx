@@ -1,3 +1,5 @@
+import { useNavigation } from '@react-navigation/native';
+import { useLayoutEffect } from 'react';
 import { useQuery } from "convex/react";
 import { Redirect, useRouter } from "expo-router";
 import { api } from "~/convex/_generated/api";
@@ -13,6 +15,7 @@ import { useMutation } from 'convex/react';  // Correct import
 import { updateUserProfile } from "~/convex/users";  // Import mutation
 
 export default function EditProfile() {
+  const navigation = useNavigation();
   const router = useRouter();
   const user = useQuery(api.users.currentUser);
 
@@ -22,6 +25,12 @@ export default function EditProfile() {
   const [gender, setGender] = useState("");
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: 'Edit Profile',
+    });
+  }, [navigation]);
 
   // Use mutation hook with the correct mutation function
   const updateUserProfileMutation = useMutation(api.users.updateUserProfile);
@@ -105,8 +114,8 @@ export default function EditProfile() {
           <Button onPress={handleUpdateProfile}>
             <Text>Save</Text>
           </Button>
-        </View>
-      </Authenticated>
+          </View>
+          </Authenticated>
     </SafeAreaView>
   );
 }
