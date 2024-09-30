@@ -34,14 +34,15 @@ export const updateUserProfile = mutation({
     height: v.optional(v.number()),
     weight: v.optional(v.number()),
   },
-  handler: async ({ db }, { id, name, email, dob, gender, height, weight }) => {
-    await db.update(id, {
-      name,
-      email,
-      dob,
-      gender,
-      height,
-      weight,
-    });
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, {
+      name: args.name,
+      email: args.email,
+      dob: args.dob,
+      gender: args. gender,
+      height: args.height,
+      weight: args.weight,
+    }
+    );
   },
 });
