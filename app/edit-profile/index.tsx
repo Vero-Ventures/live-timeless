@@ -7,7 +7,7 @@ import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
-import { View } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { Input } from "~/components/ui/input";
 import { Loader2 } from "lucide-react-native";
 import { useEffect, useState } from "react";
@@ -21,7 +21,9 @@ export default function EditProfile() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [dob, setDob] = useState("");
+  const [dobDay, setDobDay] = useState("");
+  const [dobMonth, setDobMonth] = useState("");
+  const [dobYear, setDobYear] = useState("");
   const [gender, setGender] = useState("");
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
@@ -39,9 +41,13 @@ export default function EditProfile() {
 
   useEffect(() => {
     if (user) {
+      const [year, month, day] = (user.dob ?? "").split('-');
+      setDobYear(year || "");
+      setDobMonth(month || "");
+      setDobDay(day || "");
+
       setName(user.name || "");
       setEmail(user.email || "");
-      setDob(user.dob || "");
       setGender(user.gender || "");
       setHeight(user.height ? user.height.toString() : "");
       setWeight(user.weight ? user.weight.toString() : "");
@@ -50,6 +56,8 @@ export default function EditProfile() {
 
   const handleUpdateProfile = async () => {
     if (user) {
+      const dob = `${dobYear}-${dobMonth}-${dobDay}`;
+      
       await updateUserProfileMutation({
         id: user._id,
         name,
@@ -89,13 +97,49 @@ export default function EditProfile() {
             value={email}
             onChangeText={setEmail}
           />
-          <Input 
-            className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
-            placeholder="Date of Birth"
-            placeholderTextColor='#a6b1c3'
-            value={dob}
-            onChangeText={setDob}
-          />
+          <View style={{ marginBottom: 0 }}>
+            <Text>Date of Birth</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
+              <Input 
+                className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+                placeholder="Month"
+                placeholderTextColor='#a6b1c3'
+                value={dobMonth}
+                onChangeText={(month) => {
+                  if(month === '' || (parseInt(month) >= 1 && parseInt(month) <= 12))
+                  setDobMonth(month);
+                }}
+                keyboardType="numeric"
+                maxLength={2}
+              />
+              <Input 
+                className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+                placeholder="Day"
+                placeholderTextColor='#a6b1c3'
+                value={dobDay}
+                onChangeText={(day) => {
+                  if(day === '' || (parseInt(day) >= 1 && parseInt(day) <= 31))
+                  setDobDay(day);
+                }}            
+                keyboardType="numeric"
+                maxLength={2}
+              />
+              <Input 
+                className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+                placeholder="Year"
+                placeholderTextColor='#a6b1c3'
+                value={dobYear}
+                onChangeText={(year) => {
+                  const currentYear = new Date().getFullYear();
+                  if(year === '' || (parseInt(year) >= 1 && parseInt(year) <= currentYear))
+                  setDobYear(year);
+                }}   
+                keyboardType="numeric"
+                maxLength={4}
+              />
+            </View>
+          </View>
+
           <Input 
             className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
             placeholder="Gender"
