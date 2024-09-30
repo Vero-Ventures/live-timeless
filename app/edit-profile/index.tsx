@@ -29,6 +29,7 @@ export default function EditProfile() {
   useLayoutEffect(() => {
     navigation.setOptions({
       title: 'Edit Profile',
+      headerBackTitleVisible: false
     });
   }, [navigation]);
 
