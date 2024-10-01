@@ -197,12 +197,13 @@ function CreateGoalForm() {
               throw new Error("Name of the goal must be over 3 characters");
             }
 
+            if (!selectedIcon) {
+              throw new Error("You haven't selected an icon for your goal.");
+            }
+
             const newGoal = {
-              createdAt: Date.now(),
               name,
-              selectedIcon:
-                selectedIcon ??
-                ("meditation" as keyof typeof MaterialCommunityIcons.glyphMap),
+              selectedIcon,
               selectedIconColor,
               timeOfDay,
               timeReminder: formatTime(timeReminder),
@@ -214,7 +215,7 @@ function CreateGoalForm() {
             console.log("Creating new goal:");
             console.log(newGoal);
 
-            await createGoal({ ...newGoal });
+            await createGoal(newGoal);
 
             router.navigate("/goals");
             resetForm();
