@@ -1,4 +1,10 @@
-import { FlatList, Pressable, View, ScrollView } from "react-native";
+import {
+  FlatList,
+  Pressable,
+  View,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Text } from "~/components/ui/text";
@@ -29,10 +35,6 @@ export default function GoalsPage() {
 
   if (user === undefined) {
     return null;
-  }
-
-  if (!goals) {
-    return <Text>Loading...</Text>;
   }
 
   return (
@@ -66,19 +68,26 @@ export default function GoalsPage() {
         >
           Goals
         </Text>
-        <FlatList
-          contentContainerStyle={{
-            paddingBottom: 60,
-          }}
-          className="mt-6 border-t border-t-[#fff]/10 pt-6"
-          data={goals}
-          ItemSeparatorComponent={() => (
-            <View className="my-4 ml-14 mr-6 h-0.5 bg-[#fff]/10" />
-          )}
-          ListEmptyComponent={() => <Text>No goals found.</Text>}
-          renderItem={({ item }) => <GoalItem goal={item} />}
-          keyExtractor={(goal) => goal._id.toString()}
-        />
+        {!goals ? (
+          <View className="mt-10 flex flex-row gap-2">
+            <Text>Loading goals</Text>
+            <ActivityIndicator />
+          </View>
+        ) : (
+          <FlatList
+            contentContainerStyle={{
+              paddingBottom: 60,
+            }}
+            className="mt-6 border-t border-t-[#fff]/10 pt-6"
+            data={goals}
+            ItemSeparatorComponent={() => (
+              <View className="my-4 ml-14 mr-6 h-0.5 bg-[#fff]/10" />
+            )}
+            ListEmptyComponent={() => <Text>No goals found.</Text>}
+            renderItem={({ item }) => <GoalItem goal={item} />}
+            keyExtractor={(goal) => goal._id.toString()}
+          />
+        )}
       </View>
       <View className="flex-row items-center gap-2 bg-[#0f2336] px-4">
         <CalendarStrip
