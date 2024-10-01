@@ -1,5 +1,3 @@
-import type MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import type { ComponentProps } from "react";
 import { create } from "zustand";
 import type { RECURRENCE } from "./target/constants";
 
