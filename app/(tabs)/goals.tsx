@@ -16,10 +16,28 @@ import { Plus } from "lucide-react-native";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "~/convex/_generated/api";
+import { Doc } from "~/convex/_generated/dataModel";
+import { Trash2 } from "lucide-react-native";
 
 export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
+  const user = useQuery(api.users.currentUser);
+  const goals = useQuery(api.goals.listGoals, { userId: user?._id ?? null });
+
+  if (user === undefined) {
+    return null;
+  }
+
+  if (!goals) {
+    return <Text>Loading...</Text>;
+  }
+
+  if (goals.length === 0) {
+    return <Text>No goals found</Text>;
+  }
 
   return (
     <SafeAreaView
@@ -57,12 +75,12 @@ export default function GoalsPage() {
             paddingBottom: 60,
           }}
           className="mt-6 border-t border-t-[#fff]/10 pt-6"
-          data={Array.from({ length: 10 }, (_, i) => i)}
+          data={goals}
           ItemSeparatorComponent={() => (
             <View className="my-4 ml-14 mr-6 h-0.5 bg-[#fff]/10" />
           )}
-          renderItem={({ item }) => <GoalItem />}
-          keyExtractor={(g) => g.toString()}
+          renderItem={({ item }) => <GoalItem goal={item} />}
+          keyExtractor={(goal) => goal._id.toString()}
         />
       </View>
       <View className="flex-row items-center gap-2 bg-[#0f2336] px-4">
@@ -81,29 +99,51 @@ export default function GoalsPage() {
   );
 }
 
-function GoalItem() {
+function GoalItem({ goal }: { goal: Doc<"goals"> }) {
+  const deleteGoal = useMutation(api.goals.deleteGoal);
+
+  const handleDelete = async () => {
+    try {
+      await deleteGoal({ goalId: goal._id });
+    } catch (error) {
+      console.error("Error deleting goal:", error);
+    }
+  };
+
   return (
-    <Pressable>
-      <View className="flex-row items-center gap-4">
-        <View
-          className={cn(
-            "items-center justify-center rounded-full bg-[#299240]/20 p-1"
-          )}
-        >
-          <MaterialCommunityIcons
-            name={"meditation"}
-            size={32}
-            color="#299240"
-          />
+    <Link href={`../goals/update-goal-page?goalId=${goal._id}`} asChild>
+      <Pressable>
+        <View className="flex-row items-center gap-4">
+          <View
+            className={cn(
+              "items-center justify-center rounded-full bg-[#299240]/20 p-1"
+            )}
+          >
+            <MaterialCommunityIcons
+              name={
+                (goal.selectedIcon ||
+                  "meditation") as keyof typeof MaterialCommunityIcons.glyphMap
+              }
+              color={goal.selectedIconColor || "#299240"}
+            />
+          </View>
+          <View className="flex-1 flex-row items-center justify-between">
+            <View className="gap-2">
+              <Text style={{ fontFamily: fontFamily.openSans.medium }}>
+                {goal.name}
+              </Text>
+              <Text className="text-xs text-muted-foreground">
+                {goal.timeOfDay?.join(", ") || "No time specified"}
+              </Text>
+            </View>
+            {/* Delete Button */}
+            <Pressable onPress={handleDelete}>
+              <Trash2 color="#f00" size={18} />
+            </Pressable>
+          </View>
         </View>
-        <View className="w-full gap-2">
-          <Text style={{ fontFamily: fontFamily.openSans.medium }}>
-            Meditation
-          </Text>
-          <Text className="text-xs text-muted-foreground">0 / 10 minutes</Text>
-        </View>
-      </View>
-    </Pressable>
+      </Pressable>
+    </Link>
   );
 }
 

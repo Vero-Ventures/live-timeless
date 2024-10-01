@@ -1,3 +1,4 @@
+// TODO: Add icon selection support for update goal form. Currently selecting an icon will always make new goal.
 import { Link, Stack } from "expo-router";
 import { Pressable, ScrollView, View } from "react-native";
 import { Text } from "~/components/ui/text";
@@ -53,58 +54,7 @@ export default function IconScreen() {
         }}
       >
         <View className="flex flex-row flex-wrap gap-4">
-          <IconPicker icon="smoking-off" />
-          <IconPicker icon="lipstick" />
-          <IconPicker icon="sofa" />
-          <IconPicker icon="shower" />
-          <IconPicker icon="swim" />
-          <IconPicker icon="run" />
-          <IconPicker icon="run-fast" />
-          <IconPicker icon="jump-rope" />
-          <IconPicker icon="meditation" />
-          <IconPicker icon="hands-pray" />
-          <IconPicker icon="bicycle" />
-          <IconPicker icon="bottle-tonic-plus" />
-          <IconPicker icon="pill" />
-          <IconPicker icon="clipboard" />
-          <IconPicker icon="cup-water" />
-          <IconPicker icon="paper-roll" />
-          <IconPicker icon="bandage" />
-          <IconPicker icon="toothbrush" />
-          <IconPicker icon="food" />
-          <IconPicker icon="food-variant" />
-          <IconPicker icon="food-fork-drink" />
-          <IconPicker icon="food-apple" />
-          <IconPicker icon="food-drumstick" />
-          <IconPicker icon="food-hot-dog" />
-          <IconPicker icon="food-takeout-box" />
-          <IconPicker icon="pine-tree" />
-          <IconPicker icon="flower" />
-          <IconPicker icon="flower-tulip" />
-          <IconPicker icon="format-list-checkbox" />
-          <IconPicker icon="star" />
-          <IconPicker icon="trophy" />
-          <IconPicker icon="trophy-variant" />
-          <IconPicker icon="trophy-award" />
-          <IconPicker icon="crown" />
-          <IconPicker icon="shopping" />
-          <IconPicker icon="cart" />
-          <IconPicker icon="book-education" />
-          <IconPicker icon="gamepad" />
-          <IconPicker icon="gamepad-variant" />
-          <IconPicker icon="car" />
-          <IconPicker icon="airplane" />
-          <IconPicker icon="bus" />
-          <IconPicker icon="alarm" />
-          <IconPicker icon="battery" />
-          <IconPicker icon="baby-bottle" />
-          <IconPicker icon="weather-night" />
-          <IconPicker icon="fire" />
-          <IconPicker icon="party-popper" />
-          <IconPicker icon="monitor" />
-          <IconPicker icon="cellphone" />
-          <IconPicker icon="phone" />
-          <IconPicker icon="keyboard" />
+          <IconPickerList />
         </View>
       </ScrollView>
     </>
@@ -177,3 +127,66 @@ function IconPicker({ icon }: { icon: MaterialCommunityIcon }) {
     </Pressable>
   );
 }
+
+export const GoalIconsList: MaterialCommunityIcon[] = [
+  "smoking-off",
+  "lipstick",
+  "sofa",
+  "shower",
+  "swim",
+  "run",
+  "run-fast",
+  "jump-rope",
+  "meditation",
+  "hands-pray",
+  "bicycle",
+  "bottle-tonic-plus",
+  "pill",
+  "clipboard",
+  "cup-water",
+  "paper-roll",
+  "bandage",
+  "toothbrush",
+  "food",
+  "food-variant",
+  "food-fork-drink",
+  "food-apple",
+  "food-drumstick",
+  "food-hot-dog",
+  "food-takeout-box",
+  "pine-tree",
+  "flower",
+  "flower-tulip",
+  "format-list-checkbox",
+  "star",
+  "trophy",
+  "trophy-variant",
+  "trophy-award",
+  "crown",
+  "shopping",
+  "cart",
+  "book-education",
+  "gamepad",
+  "gamepad-variant",
+  "car",
+  "airplane",
+  "bus",
+  "alarm",
+  "battery",
+  "baby-bottle",
+  "weather-night",
+  "fire",
+  "party-popper",
+  "monitor",
+  "cellphone",
+  "phone",
+  "keyboard",
+];
+
+export const IconPickerList = () => (
+  <>
+    {GoalIconsList.map((icon) => (
+      <IconPicker key={icon} icon={icon} />
+    ))}
+  </>
+);
