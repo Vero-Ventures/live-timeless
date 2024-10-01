@@ -83,9 +83,9 @@ export default function IconScreen() {
       />
       <FlatList
         contentContainerStyle={{
-          paddingBottom: 100,
+          paddingBottom: 80,
         }}
-        contentContainerClassName="flex flex-row flex-wrap gap-4"
+        contentContainerClassName="flex flex-row flex-wrap gap-4 min-h-full bg-[#082139] p-4"
         data={GOAL_ICONS}
         renderItem={({ item }) => (
           <IconPicker
