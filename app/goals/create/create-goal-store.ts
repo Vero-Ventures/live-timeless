@@ -26,10 +26,6 @@ export type UnitType =
 
 export type Recurrence = (typeof RECURRENCE)[number];
 
-export type MaterialCommunityIcon = ComponentProps<
-  typeof MaterialCommunityIcons
->["name"];
-
 interface FormState {
   name: string;
   timeOfDay: TimeOfDay[];
@@ -43,7 +39,7 @@ interface FormState {
   unit: string;
   recurrence: Recurrence;
   selectedIconColor: string;
-  selectedIcon: MaterialCommunityIcon | null;
+  selectedIcon: string | null;
 }
 
 interface FormActions {
@@ -62,7 +58,7 @@ interface FormActions {
   setUnit: (unit: string) => void;
   setRecurrence: (recurrence: Recurrence) => void;
   setSelectedIconColor: (selectedIconColor: string) => void;
-  setSelectedIcon: (selectedIcon: MaterialCommunityIcon) => void;
+  setSelectedIcon: (selectedIcon: string) => void;
   resetForm: () => void;
 }
 

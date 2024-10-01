@@ -16,12 +16,13 @@ import ScheduleStartDate from "../schedule-start-date";
 import { useCreateGoalFormStore } from "./create-goal-store";
 import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
-import Fa6Icons from "@expo/vector-icons/FontAwesome6";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { cn } from "~/lib/utils";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useShallow } from "zustand/react/shallow";
 import { api } from "~/convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
+import { GOAL_ICONS } from "~/constants/goal-icons";
 
 export default function CreateGoalPage() {
   return (
@@ -103,6 +104,10 @@ function CreateGoalForm() {
     }
   };
 
+  const IconComp = GOAL_ICONS.find(
+    (item) => item.name === selectedIcon
+  )?.component;
+
   return (
     <View className="gap-4">
       {!!error && (
@@ -115,13 +120,17 @@ function CreateGoalForm() {
         <Link href="/goals/create/icon" asChild>
           <Pressable className="rounded-xl bg-[#0e2942] p-4 px-6">
             {selectedIcon ? (
-              <MaterialCommunityIcons
+              <IconComp
                 name={selectedIcon}
                 size={32}
                 color={selectedIconColor}
               />
             ) : (
-              <Fa6Icons name="question" size={32} color={selectedIconColor} />
+              <FontAwesome6
+                name="question"
+                size={32}
+                color={selectedIconColor}
+              />
             )}
           </Pressable>
         </Link>
