@@ -21,7 +21,7 @@ import { cn } from "~/lib/utils";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useShallow } from "zustand/react/shallow";
 import { api } from "~/convex/_generated/api";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { GOAL_ICONS } from "~/constants/goal-icons";
 
 export default function CreateGoalPage() {
@@ -84,10 +84,6 @@ function CreateGoalForm() {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
   const createGoal = useMutation(api.goals.createGoal);
-  const user = useQuery(api.users.currentUser);
-  if (user === undefined) {
-    return null;
-  }
 
   const getRepeatValue = () => {
     switch (repeatType) {
@@ -202,7 +198,6 @@ function CreateGoalForm() {
             }
 
             const newGoal = {
-              accountId: user?._id,
               createdAt: Date.now(),
               name,
               selectedIcon:
@@ -218,10 +213,8 @@ function CreateGoalForm() {
             };
             console.log("Creating new goal:");
             console.log(newGoal);
-            if (!user?._id) {
-              throw new Error("User ID is undefined");
-            }
-            await createGoal({ ...newGoal, accountId: user._id });
+
+            await createGoal({ ...newGoal });
 
             router.navigate("/goals");
             resetForm();

@@ -8,6 +8,16 @@ export const currentUser = query({
     if (userId === null) {
       return null;
     }
-    return await ctx.db.get(userId);
+    const user = await ctx.db.get(userId);
+    return {
+      name: user?.name,
+      phone: user?.phone,
+      email: user?.email,
+      dob: user?.dob,
+      image: user?.image,
+      gender: user?.gender,
+      height: user?.height,
+      weight: user?.weight,
+    };
   },
 });

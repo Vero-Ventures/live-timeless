@@ -1,31 +1,31 @@
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
 export const getGoalById = query({
   args: { goalId: v.id("goals") },
   handler: async (ctx, { goalId }) => {
-    return await ctx.db.get(goalId); // Fetch the goal by ID
+    return await ctx.db.get(goalId);
   },
 });
 
 export const listGoals = query({
-  args: { userId: v.union(v.id("users"), v.null()) },
-  handler: async ({ db }, { userId }) => {
-    if (!userId) {
-      return [];
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
     }
-    const goals = await db
+    const goals = await ctx.db
       .query("goals")
-      .filter((q) => q.eq(q.field("accountId"), userId))
+      .filter((q) => q.eq(q.field("userId"), userId))
       .collect();
+
     return goals;
   },
 });
 
 export const createGoal = mutation({
   args: {
-    accountId: v.id("users"),
-    createdAt: v.float64(),
     dailyRepeat: v.array(v.string()),
     intervalRepeat: v.float64(),
     monthlyRepeat: v.array(v.float64()),
@@ -37,7 +37,14 @@ export const createGoal = mutation({
     timeReminder: v.string(),
   },
   handler: async (ctx, args) => {
-    await ctx.db.insert("goals", args);
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
+    await ctx.db.insert("goals", {
+      ...args,
+      userId,
+    });
   },
 });
 
@@ -55,34 +62,8 @@ export const updateGoal = mutation({
     timeReminder: v.string(),
     createdAt: v.float64(),
   },
-  handler: async (
-    ctx,
-    {
-      goalId,
-      name,
-      timeOfDay,
-      selectedIcon,
-      selectedIconColor,
-      repeatType,
-      dailyRepeat,
-      monthlyRepeat,
-      intervalRepeat,
-      timeReminder,
-      createdAt,
-    }
-  ) => {
-    await ctx.db.patch(goalId, {
-      name,
-      timeOfDay,
-      selectedIcon,
-      selectedIconColor,
-      repeatType,
-      dailyRepeat,
-      monthlyRepeat,
-      intervalRepeat,
-      timeReminder,
-      createdAt,
-    });
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.goalId, args);
   },
 });
 

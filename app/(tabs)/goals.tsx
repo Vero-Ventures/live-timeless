@@ -30,12 +30,7 @@ import { Trash2 } from "lucide-react-native";
 export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
-  const user = useQuery(api.users.currentUser);
-  const goals = useQuery(api.goals.listGoals, { userId: user?._id ?? null });
-
-  if (user === undefined) {
-    return null;
-  }
+  const goals = useQuery(api.goals.listGoals);
 
   return (
     <SafeAreaView
@@ -69,8 +64,8 @@ export default function GoalsPage() {
           Goals
         </Text>
         {!goals ? (
-          <View className="mt-10 flex flex-row gap-2">
-            <Text>Loading goals</Text>
+          <View className="mt-10 flex flex-row justify-center gap-2">
+            <Text>Loading goals...</Text>
             <ActivityIndicator />
           </View>
         ) : (
@@ -83,7 +78,9 @@ export default function GoalsPage() {
             ItemSeparatorComponent={() => (
               <View className="my-4 ml-14 mr-6 h-0.5 bg-[#fff]/10" />
             )}
-            ListEmptyComponent={() => <Text>No goals found.</Text>}
+            ListEmptyComponent={() => (
+              <Text className="text-center">No goals found.</Text>
+            )}
             renderItem={({ item }) => <GoalItem goal={item} />}
             keyExtractor={(goal) => goal._id.toString()}
           />
