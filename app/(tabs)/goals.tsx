@@ -35,10 +35,6 @@ export default function GoalsPage() {
     return <Text>Loading...</Text>;
   }
 
-  if (goals.length === 0) {
-    return <Text>No goals found</Text>;
-  }
-
   return (
     <SafeAreaView
       style={{
@@ -79,6 +75,7 @@ export default function GoalsPage() {
           ItemSeparatorComponent={() => (
             <View className="my-4 ml-14 mr-6 h-0.5 bg-[#fff]/10" />
           )}
+          ListEmptyComponent={() => <Text>No goals found.</Text>}
           renderItem={({ item }) => <GoalItem goal={item} />}
           keyExtractor={(goal) => goal._id.toString()}
         />
