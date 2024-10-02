@@ -34,7 +34,10 @@ export const createGoal = mutation({
     selectedIcon: v.string(),
     selectedIconColor: v.string(),
     timeOfDay: v.array(v.string()),
-    timeReminder: v.string(),
+    timeReminder: v.number(),
+    unitValue: v.number(),
+    unit: v.string(),
+    recurrence: v.string(),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -59,11 +62,14 @@ export const updateGoal = mutation({
     dailyRepeat: v.array(v.string()),
     monthlyRepeat: v.array(v.float64()),
     intervalRepeat: v.float64(),
-    timeReminder: v.string(),
-    createdAt: v.float64(),
+    timeReminder: v.number(),
+    unitValue: v.float64(),
+    unit: v.string(),
+    recurrence: v.string(),
   },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.goalId, args);
+    const { goalId, ...updateData } = args;
+    await ctx.db.patch(args.goalId, updateData);
   },
 });
 
