@@ -130,6 +130,8 @@ function CreateGoalForm() {
       setUnit(goal.unit);
       setRecurrence(goal.recurrence as Recurrence);
     }
+
+    return () => resetForm();
   }, [
     goal,
     setName,
@@ -144,6 +146,7 @@ function CreateGoalForm() {
     setUnitValue,
     setUnit,
     setRecurrence,
+    resetForm,
   ]);
 
   const getRepeatValue = () => {
