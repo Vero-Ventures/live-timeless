@@ -206,14 +206,15 @@ function CreateGoalForm() {
               selectedIcon,
               selectedIconColor,
               timeOfDay,
-              timeReminder: formatTime(timeReminder),
+              timeReminder: timeReminder.getTime(), // store as timestamp
               repeatType,
               dailyRepeat,
               monthlyRepeat,
               intervalRepeat,
+              unitValue,
+              unit,
+              recurrence,
             };
-            console.log("Creating new goal:");
-            console.log(newGoal);
 
             await createGoal(newGoal);
 
