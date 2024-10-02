@@ -29,6 +29,7 @@ import { api } from "~/convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
 import { GOAL_ICONS } from "~/constants/goal-icons";
 import type { Id } from "~/convex/_generated/dataModel";
+import { Button } from "~/components/ui/button";
 
 export default function EditGoalPage() {
   return (
@@ -114,6 +115,15 @@ function EditGoalForm() {
   const updateGoal = useMutation(api.goals.updateGoal);
   const { goalId } = useLocalSearchParams<{ goalId: Id<"goals"> }>();
   const goal = useQuery(api.goals.getGoalById, { goalId });
+  const deleteGoal = useMutation(api.goals.deleteGoal);
+
+  const handleDelete = async (goalId: Id<"goals">) => {
+    try {
+      await deleteGoal({ goalId });
+    } catch (error) {
+      console.error("Error deleting goal:", error);
+    }
+  };
 
   useEffect(() => {
     if (goal) {
@@ -296,6 +306,16 @@ function EditGoalForm() {
       >
         Edit Goal
       </FormSubmitButton>
+      <Button
+        size="lg"
+        variant="destructive"
+        onPress={async () => {
+          await handleDelete(goalId);
+          router.navigate("/goals");
+        }}
+      >
+        <Text>Delete</Text>
+      </Button>
     </View>
   );
 }
