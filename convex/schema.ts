@@ -29,6 +29,9 @@ export default defineSchema({
     selectedIcon: v.string(),
     selectedIconColor: v.string(),
     timeOfDay: v.array(v.string()),
-    timeReminder: v.string(),
+    timeReminder: v.number(),
+    unitValue: v.number(),
+    unit: v.string(),
+    recurrence: v.string(),
   }).index("by_user_id", ["userId"]),
 });

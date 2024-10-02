@@ -1,6 +1,6 @@
-import { Stack, Link, router } from "expo-router";
+import { Stack, Link, router, useLocalSearchParams } from "expo-router";
 import { AlertCircle, type LucideIcon } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 import FormSubmitButton from "~/components/form-submit-button";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
@@ -12,18 +12,25 @@ import { Crosshair } from "~/lib/icons/Crosshair";
 import { Sun } from "~/lib/icons/Sun";
 import { Bell } from "~/lib/icons/Bell";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
-import ScheduleStartDate from "../schedule-start-date";
-import { useCreateGoalFormStore } from "./create-goal-store";
+import ScheduleStartDate from "./schedule-start-date";
+import {
+  type DailyRepeat,
+  type Recurrence,
+  type RepeatType,
+  type TimeOfDay,
+  useCreateGoalFormStore,
+} from "./create/create-goal-store";
 import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { cn } from "~/lib/utils";
 import { useShallow } from "zustand/react/shallow";
 import { api } from "~/convex/_generated/api";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { GOAL_ICONS } from "~/constants/goal-icons";
+import type { Id } from "~/convex/_generated/dataModel";
 
-export default function CreateGoalPage() {
+export default function EditGoalPage() {
   return (
     <View className="h-full gap-4 bg-background p-4">
       <Stack.Screen
@@ -34,55 +41,113 @@ export default function CreateGoalPage() {
           headerTintColor: "#fff",
           headerTitle: () => (
             <Text style={{ fontFamily: fontFamily.openSans.bold }}>
-              Create Goal
+              Edit Goal
             </Text>
           ),
           headerBackTitleVisible: false,
         }}
       />
-      <CreateGoalForm />
+      <EditGoalForm />
     </View>
   );
 }
 
-function CreateGoalForm() {
+function EditGoalForm() {
   const [
     name,
     setName,
     timeOfDay,
+    setTimeOfDay,
     timeReminder,
+    setTimeReminder,
     repeatType,
+    setRepeatType,
     dailyRepeat,
+    setDailyRepeat,
     monthlyRepeat,
+    setMonthlyRepeat,
     intervalRepeat,
+    setIntervalRepeat,
     selectedIcon,
+    setSelectedIcon,
     selectedIconColor,
+    setSelectedIconColor,
     unitValue,
+    setUnitValue,
     unit,
+    setUnit,
     recurrence,
+    setRecurrence,
     resetForm,
   ] = useCreateGoalFormStore(
     useShallow((s) => [
       s.name,
       s.setName,
       s.timeOfDay,
+      s.setTimeOfDay,
       s.timeReminder,
+      s.setTimeReminder,
       s.repeatType,
+      s.setRepeatType,
       s.dailyRepeat,
+      s.setDailyRepeat,
       s.monthlyRepeat,
+      s.setMonthlyRepeat,
       s.intervalRepeat,
+      s.setIntervalRepeat,
       s.selectedIcon,
+      s.setSelectedIcon,
       s.selectedIconColor,
+      s.setSelectedIconColor,
       s.unitValue,
+      s.setUnitValue,
       s.unit,
+      s.setUnit,
       s.recurrence,
+      s.setRecurrence,
       s.resetForm,
     ])
   );
 
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
-  const createGoal = useMutation(api.goals.createGoal);
+  const updateGoal = useMutation(api.goals.updateGoal);
+  const { goalId } = useLocalSearchParams<{ goalId: Id<"goals"> }>();
+  const goal = useQuery(api.goals.getGoalById, { goalId });
+
+  useEffect(() => {
+    if (goal) {
+      setName(goal.name);
+      setTimeOfDay(goal.timeOfDay as TimeOfDay[]);
+      setTimeReminder(new Date(goal.timeReminder));
+      setRepeatType(goal.repeatType as RepeatType);
+      setDailyRepeat(goal.dailyRepeat as DailyRepeat[]);
+      setMonthlyRepeat(goal.monthlyRepeat);
+      setIntervalRepeat(goal.intervalRepeat);
+      setSelectedIcon(goal.selectedIcon);
+      setSelectedIconColor(goal.selectedIconColor);
+      setUnitValue(goal.unitValue);
+      setUnit(goal.unit);
+      setRecurrence(goal.recurrence as Recurrence);
+    }
+
+    return () => resetForm();
+  }, [
+    goal,
+    setName,
+    setTimeOfDay,
+    setTimeReminder,
+    setRepeatType,
+    setDailyRepeat,
+    setMonthlyRepeat,
+    setIntervalRepeat,
+    setSelectedIcon,
+    setSelectedIconColor,
+    setUnitValue,
+    setUnit,
+    setRecurrence,
+    resetForm,
+  ]);
 
   const getRepeatValue = () => {
     switch (repeatType) {
@@ -200,7 +265,8 @@ function CreateGoalForm() {
               throw new Error("You haven't selected an icon for your goal.");
             }
 
-            const newGoal = {
+            const updatedGoal = {
+              goalId,
               name,
               selectedIcon,
               selectedIconColor,
@@ -215,7 +281,7 @@ function CreateGoalForm() {
               recurrence,
             };
 
-            await createGoal(newGoal);
+            await updateGoal(updatedGoal);
 
             router.navigate("/goals");
             resetForm();
@@ -228,7 +294,7 @@ function CreateGoalForm() {
           }
         }}
       >
-        Set Goal
+        Edit Goal
       </FormSubmitButton>
     </View>
   );

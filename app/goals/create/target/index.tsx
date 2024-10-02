@@ -260,7 +260,7 @@ function GoalPicker<TUnit extends string>({
         style={{ width: "26%" }}
         itemStyle={styles.pickerItem}
         onValueChange={(value) => {
-          setUnitValue(value);
+          setUnitValue(+value);
         }}
       >
         {unitValueRange.map((value) => (
