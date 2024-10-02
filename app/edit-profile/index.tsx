@@ -9,31 +9,34 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
 import { ScrollView, View } from "react-native";
 import { Loader2 } from "lucide-react-native";
-import { useEffect, useState } from "react";
-import { useMutation } from "convex/react";
 import DropDownPicker from "react-native-dropdown-picker";
 import InputField from "~/components/profile/input-field";
+import { useEditProfile } from "~/hooks/useEditProfile";
 
 export default function EditProfile() {
   const navigation = useNavigation();
-  const router = useRouter();
-  const user = useQuery(api.users.currentUser);
-
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [dobDay, setDobDay] = useState("");
-  const [dobMonth, setDobMonth] = useState("");
-  const [dobYear, setDobYear] = useState("");
-  const [gender, setGender] = useState("");
-  const [height, setHeight] = useState("");
-  const [weight, setWeight] = useState("");
-
-  const [open, setOpen] = useState(false);
-  const [genderOptions] = useState([
-    { label: "Male", value: "Male" },
-    { label: "Female", value: "Female" },
-    { label: "Unspecified", value: "Unspecified" },
-  ]);
+  const {
+    name,
+    setName,
+    email,
+    setEmail,
+    dobDay,
+    setDobDay,
+    dobMonth,
+    setDobMonth,
+    dobYear,
+    setDobYear,
+    gender,
+    setGender,
+    height,
+    setHeight,
+    weight,
+    setWeight,
+    open,
+    setOpen,
+    genderOptions,
+    handleUpdateProfile,
+  } = useEditProfile();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -42,40 +45,6 @@ export default function EditProfile() {
       headerBackTitleVisible: false,
     });
   }, [navigation]);
-
-  const updateUserProfileMutation = useMutation(api.users.updateUserProfile);
-
-  useEffect(() => {
-    if (user) {
-      const [year, month, day] = (user.dob ?? "").split("-");
-      setDobYear(year || "");
-      setDobMonth(month || "");
-      setDobDay(day || "");
-
-      setName(user.name || "");
-      setEmail(user.email || "");
-      setGender(user.gender || "");
-      setHeight(user.height ? user.height.toString() : "");
-      setWeight(user.weight ? user.weight.toString() : "");
-    }
-  }, [user]);
-
-  const handleUpdateProfile = async () => {
-    if (user) {
-      const dob = `${dobYear}-${dobMonth}-${dobDay}`;
-
-      await updateUserProfileMutation({
-        id: user._id,
-        name,
-        email,
-        dob,
-        gender,
-        height: parseFloat(height),
-        weight: parseFloat(weight),
-      });
-      router.push("/profile");
-    }
-  };
 
   return (
     <SafeAreaView style={{ backgroundColor: "#082139", flex: 1 }}>
@@ -93,23 +62,22 @@ export default function EditProfile() {
           keyboardShouldPersistTaps="handled"
         />
           <View style={{ padding: 16 }}>
-
             <InputField
               label="Name"
               placeholder="Name"
               value={name}
               setValue={setName}
-              style={{ marginBottom: 16 }} 
+              style={{ marginBottom: 16 }}
             />
             <InputField
               label="Email"
               placeholder="Email"
               value={email}
               setValue={setEmail}
-              style={{ marginBottom: 24 }} 
+              style={{ marginBottom: 24 }}
             />
             {/* DOB */}
-            <View style={{ marginBottom: 24 }}> 
+            <View style={{ marginBottom: 24 }}>
               <Text style={{ color: "#a6b1c3", marginBottom: 12 }}>
                 Date of Birth
               </Text>
@@ -133,7 +101,12 @@ export default function EditProfile() {
                   }}
                   keyboardType="numeric"
                   maxLength={2}
-                  style={{ flex: 0, width: 60, marginRight: 16, textAlign: "center"}}
+                  style={{
+                    flex: 0,
+                    width: 60,
+                    marginRight: 16,
+                    textAlign: "center",
+                  }}
                 />
                 <InputField
                   placeholder="Day"
@@ -147,7 +120,12 @@ export default function EditProfile() {
                   }}
                   keyboardType="numeric"
                   maxLength={2}
-                  style={{ flex: 0, width: 60, marginRight: 16,   textAlign: "center",}}
+                  style={{
+                    flex: 0,
+                    width: 60,
+                    marginRight: 16,
+                    textAlign: "center",
+                  }}
                 />
                 <InputField
                   placeholder="Year"
@@ -162,37 +140,64 @@ export default function EditProfile() {
                   }}
                   keyboardType="numeric"
                   maxLength={4}
-                  style={{ flex: 0, width: 100, marginRight: 16,   textAlign: "center",}}
+                  style={{
+                    flex: 0,
+                    width: 100,
+                    marginRight: 16,
+                    textAlign: "center",
+                  }}
                 />
               </View>
             </View>
 
-          <Input 
-            className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
-            placeholder="Gender"
-            placeholderTextColor='#a6b1c3'
-            value={gender}
-            onChangeText={setGender}
-          />
-          <Input 
-            className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
-            placeholder="Height (cm)"
-            value={height}
-            setValue={setHeight}
-            keyboardType="numeric"
-          />
-          <InputField
-            label="Weight (kg)"
-            placeholder="Weight (kg)"
-            value={weight}
-            setValue={setWeight}
-            keyboardType="numeric"
-          />
-          {/* Save Button */}
-          <Button onPress={handleUpdateProfile}>
-            <Text style={{ color: '#fff' }}>Save</Text>
-          </Button>
-        </View>
+            {/* Gender */}
+            <DropDownPicker
+              open={open}
+              value={gender}
+              items={genderOptions}
+              setOpen={setOpen}
+              setValue={setGender}
+              style={{
+                backgroundColor: "#0e2942",
+                borderColor: "#0e2942",
+                height: 58,
+                marginBottom: 16,
+              }}
+              textStyle={{
+                color: "#ffffff",
+              }}
+              dropDownContainerStyle={{
+                backgroundColor: "#0e2942",
+                borderColor: "#0e2942",
+              }}
+              placeholder="Gender"
+              placeholderStyle={{ color: "#a6b1c3" }}
+            />
+
+            {/* Height */}
+            <InputField
+              label="Height (cm)"
+              placeholder="Height (cm)"
+              value={height}
+              setValue={setHeight}
+              keyboardType="numeric"
+              style={{ marginBottom: 16 }}
+            />
+            {/* Weight */}
+            <InputField
+              label="Weight (kg)"
+              placeholder="Weight (kg)"
+              value={weight}
+              setValue={setWeight}
+              keyboardType="numeric"
+              style={{ marginBottom: 24 }}
+            />
+            {/* Submit */}
+            <Button onPress={handleUpdateProfile} style={{ marginTop: 16 }}>
+              <Text style={{ color: "#fff" }}>Save</Text>
+            </Button>
+          </View>
+        </ScrollView>
       </Authenticated>
     </SafeAreaView>
   );
