@@ -18,7 +18,6 @@ import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { cn } from "~/lib/utils";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useShallow } from "zustand/react/shallow";
 import { api } from "~/convex/_generated/api";
 import { useMutation } from "convex/react";
