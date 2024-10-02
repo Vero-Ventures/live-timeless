@@ -7,7 +7,7 @@ import { Input } from "~/components/ui/input";
 type InputFieldProps = {
     label?: string;
     value?: string; //maybe not nullable?
-    setValue?: (value: string) => null; //maybe void?
+    setValue: (value: string) => void; //maybe void?
     placeholder?: string; //maybe nullable?
 } & TextInputProps;
 

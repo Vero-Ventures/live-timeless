@@ -15,6 +15,8 @@ import { useMutation } from 'convex/react';  // Correct import
 import { updateUserProfile } from "~/convex/users";  // Import mutation
 import DropDownPicker from 'react-native-dropdown-picker';
 
+import InputField from "~/components/profile/input-field"; // Import InputField
+
 export default function EditProfile() {
   const navigation = useNavigation();
   const router = useRouter();
@@ -44,7 +46,7 @@ export default function EditProfile() {
     });
   }, [navigation]);
 
-  // Use mutation hook with the correct mutation function
+ // Use mutation hook with the correct mutation function
   const updateUserProfileMutation = useMutation(api.users.updateUserProfile);
 
   useEffect(() => {
@@ -82,68 +84,64 @@ export default function EditProfile() {
   return (
     <SafeAreaView style={{backgroundColor: "#082139"}}>
       <AuthLoading>
-        <View className="h-full items-center justify-center">
-          <Loader2 className="size-32 animate-spin" />
+      <View className="h-full items-center justify-center">
+      <Loader2 className="size-32 animate-spin" />
         </View>
       </AuthLoading>
       <Unauthenticated>
         <Redirect href="/" />
       </Unauthenticated>
       <Authenticated>
-        <View className="h-full gap-8 p-4">
-          <Input 
-            className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+        <View style={{ flex: 1, gap: 8, padding: 16 }}>
+          <InputField
+            label="Name"
             placeholder="Name"
-            placeholderTextColor='#a6b1c3'
             value={name}
-            onChangeText={setName}
+            setValue={setName}
           />
-          <Input 
-            className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+          <InputField
+            label="Email"
             placeholder="Email"
-            placeholderTextColor='#a6b1c3'
             value={email}
-            onChangeText={setEmail}
+            setValue={setEmail}
           />
-          <View style={{ marginBottom: 0 }}>
-            <Text>Date of Birth</Text>
+          
+          <View style={{ marginBottom: 16 }}>
+            <Text style={{ color: "#a6b1c3", marginBottom: 8 }}>Date of Birth</Text>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
-              <Input 
-                className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+              <InputField
                 placeholder="Month"
-                placeholderTextColor='#a6b1c3'
                 value={dobMonth}
-                onChangeText={(month) => {
+                setValue={(month) => {
                   if(month === '' || (parseInt(month) >= 1 && parseInt(month) <= 12))
                   setDobMonth(month);
                 }}
                 keyboardType="numeric"
                 maxLength={2}
+                style={{ flex: 1 }}
               />
-              <Input 
-                className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+              <InputField
                 placeholder="Day"
-                placeholderTextColor='#a6b1c3'
                 value={dobDay}
-                onChangeText={(day) => {
+                setValue={(day) => {
                   if(day === '' || (parseInt(day) >= 1 && parseInt(day) <= 31))
                   setDobDay(day);
                 }}            
                 keyboardType="numeric"
                 maxLength={2}
+                style={{ flex: 1 }}
               />
-              <Input 
-                className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+              <InputField
                 placeholder="Year"
-                placeholderTextColor='#a6b1c3'
                 value={dobYear}
-                onChangeText={(year) => {
+                setValue={(year) => {
                   const currentYear = new Date().getFullYear();
                   if(year === '' || (parseInt(year) >= 1 && parseInt(year) <= currentYear))
                   setDobYear(year);
                 }}   
                 keyboardType="numeric"
                 maxLength={4}
+                style={{ flex: 1 }}
               />
             </View>
           </View>
@@ -158,24 +156,22 @@ export default function EditProfile() {
           <Input 
             className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
             placeholder="Height (cm)"
-            placeholderTextColor='#a6b1c3'
             value={height}
-            onChangeText={setHeight}
+            setValue={setHeight}
             keyboardType="numeric"
           />
-          <Input 
-            className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+          <InputField
+            label="Weight (kg)"
             placeholder="Weight (kg)"
-            placeholderTextColor='#a6b1c3'
             value={weight}
-            onChangeText={setWeight}
+            setValue={setWeight}
             keyboardType="numeric"
           />
           <Button onPress={handleUpdateProfile}>
-            <Text>Save</Text>
+            <Text style={{ color: '#fff' }}>Save</Text>
           </Button>
-          </View>
-          </Authenticated>
+        </View>
+      </Authenticated>
     </SafeAreaView>
   );
 }
