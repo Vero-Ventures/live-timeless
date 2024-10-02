@@ -78,75 +78,59 @@ export default function EditProfile() {
             />
             {/* DOB */}
             <View style={{ marginBottom: 24 }}>
-              <Text style={{ color: "#a6b1c3", marginBottom: 12 }}>
+              <Text style={{ color: "#a6b1c3", marginBottom: 0 }}>
                 Date of Birth
               </Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "flex-start",
-                  alignItems: "center",
-                  gap: 8,
-                }}
-              >
+              <View style={{ 
+                  flexDirection: 'row', 
+                  justifyContent: 'space-between', 
+                }}>
+                <View style={{ width: '30%' }}>
                 <InputField
-                  placeholder="Month"
-                  value={dobMonth}
-                  setValue={(month) => {
-                    if (
-                      month === "" ||
-                      (parseInt(month) >= 1 && parseInt(month) <= 12)
-                    )
-                      setDobMonth(month);
-                  }}
-                  keyboardType="numeric"
-                  maxLength={2}
-                  style={{
-                    flex: 0,
-                    width: 60,
-                    marginRight: 16,
-                    textAlign: "center",
-                  }}
-                />
-                <InputField
-                  placeholder="Day"
-                  value={dobDay}
-                  setValue={(day) => {
-                    if (
-                      day === "" ||
-                      (parseInt(day) >= 1 && parseInt(day) <= 31)
-                    )
-                      setDobDay(day);
-                  }}
-                  keyboardType="numeric"
-                  maxLength={2}
-                  style={{
-                    flex: 0,
-                    width: 60,
-                    marginRight: 16,
-                    textAlign: "center",
-                  }}
-                />
-                <InputField
-                  placeholder="Year"
-                  value={dobYear}
-                  setValue={(year) => {
-                    const currentYear = new Date().getFullYear();
-                    if (
-                      year === "" ||
-                      (parseInt(year) >= 1 && parseInt(year) <= currentYear)
-                    )
-                      setDobYear(year);
-                  }}
-                  keyboardType="numeric"
-                  maxLength={4}
-                  style={{
-                    flex: 0,
-                    width: 100,
-                    marginRight: 16,
-                    textAlign: "center",
-                  }}
-                />
+                    placeholder="Month"
+                    value={dobMonth}
+                    setValue={(month) => {
+                      if (
+                        month === "" ||
+                        (parseInt(month) >= 1 && parseInt(month) <= 12)
+                      )
+                        setDobMonth(month);
+                    }}
+                    keyboardType="numeric"
+                    maxLength={2}
+                  />
+                </View>
+                <View style={{ width: '30%' }}>
+                  <InputField
+                    placeholder="Day"
+                    value={dobDay}
+                    setValue={(day) => {
+                      if (
+                        day === "" ||
+                        (parseInt(day) >= 1 && parseInt(day) <= 31)
+                      )
+                        setDobDay(day);
+                    }}
+                    keyboardType="numeric"
+                    maxLength={2}
+                  />
+                </View>
+                <View style={{ width: '30%' }}>
+                  <InputField
+                    placeholder="Year"
+                    value={dobYear}
+                    setValue={(year) => {
+                      const currentYear = new Date().getFullYear();
+                      if (
+                        year === "" ||
+                        (parseInt(year) >= 1 && parseInt(year) <= currentYear)
+                      )
+                        setDobYear(year);
+                    }}
+                    keyboardType="numeric"
+                    maxLength={4}
+                  />
+                </View>
               </View>
             </View>
 
