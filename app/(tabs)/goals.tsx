@@ -21,25 +21,15 @@ import { fontFamily } from "~/lib/font";
 import { Plus } from "lucide-react-native";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
-import { Doc, type Id } from "~/convex/_generated/dataModel";
-import { Trash2 } from "lucide-react-native";
+import { Doc } from "~/convex/_generated/dataModel";
 import { GOAL_ICONS } from "~/constants/goal-icons";
 
 export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
   const goals = useQuery(api.goals.listGoals);
-  const deleteGoal = useMutation(api.goals.deleteGoal);
-
-  const handleDelete = async (goalId: Id<"goals">) => {
-    try {
-      await deleteGoal({ goalId });
-    } catch (error) {
-      console.error("Error deleting goal:", error);
-    }
-  };
 
   return (
     <SafeAreaView
@@ -90,12 +80,7 @@ export default function GoalsPage() {
             ListEmptyComponent={() => (
               <Text className="text-center">No goals found.</Text>
             )}
-            renderItem={({ item }) => (
-              <GoalItem
-                goal={item}
-                onDelete={async () => await handleDelete(item._id)}
-              />
-            )}
+            renderItem={({ item }) => <GoalItem goal={item} />}
             keyExtractor={(goal) => goal._id.toString()}
           />
         )}
@@ -118,10 +103,9 @@ export default function GoalsPage() {
 
 interface GoalItemProps {
   goal: Doc<"goals">;
-  onDelete: () => Promise<void>;
 }
 
-function GoalItem({ goal, onDelete }: GoalItemProps) {
+function GoalItem({ goal }: GoalItemProps) {
   const IconComp = GOAL_ICONS.find(
     (item) => item.name === goal.selectedIcon
   )?.component;
@@ -135,21 +119,20 @@ function GoalItem({ goal, onDelete }: GoalItemProps) {
               "items-center justify-center rounded-full bg-[#299240]/20 p-1"
             )}
           >
-            <IconComp name={goal.selectedIcon} color={goal.selectedIconColor} />
+            <IconComp
+              name={goal.selectedIcon}
+              color={goal.selectedIconColor}
+              size={32}
+            />
           </View>
-          <View className="flex-1 flex-row items-center justify-between">
-            <View className="gap-2">
-              <Text style={{ fontFamily: fontFamily.openSans.medium }}>
-                {goal.name}
-              </Text>
-              <Text className="text-xs text-muted-foreground">
-                {goal.timeOfDay?.join(", ") || "No time specified"}
-              </Text>
-            </View>
 
-            <Pressable onPress={onDelete}>
-              <Trash2 color="#f00" size={18} />
-            </Pressable>
+          <View className="w-full gap-2">
+            <Text style={{ fontFamily: fontFamily.openSans.medium }}>
+              {goal.name}
+            </Text>
+            <Text className="text-xs text-muted-foreground">
+              {`0 / ${goal.unitValue} ${goal.unit}`}
+            </Text>
           </View>
         </View>
       </Pressable>
