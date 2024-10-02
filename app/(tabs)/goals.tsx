@@ -111,7 +111,7 @@ function GoalItem({ goal }: GoalItemProps) {
   )?.component;
 
   return (
-    <Link href={`../goals/edit-goal-page?goalId=${goal._id}`} asChild>
+    <Link href={`/goals/${goal._id}`} asChild>
       <Pressable>
         <View className="flex-row items-center gap-4">
           <View
