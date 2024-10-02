@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useLayoutEffect } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import { useQuery } from "convex/react";
 import { Redirect, useRouter } from "expo-router";
 import { api } from "~/convex/_generated/api";
@@ -7,14 +7,16 @@ import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
-import { ScrollView, View } from "react-native";
+import { FlatList, Modal, ScrollView, TouchableOpacity, View } from "react-native";
 import { Loader2 } from "lucide-react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import InputField from "~/components/profile/input-field";
 import { useEditProfile } from "~/hooks/useEditProfile";
+import { Picker } from "@react-native-picker/picker";
 
 export default function EditProfile() {
   const navigation = useNavigation();
+  const [isGenderModalVisible, setGenderModalVisible] = useState(false);
   const {
     name,
     setName,
@@ -135,28 +137,80 @@ export default function EditProfile() {
             </View>
 
             {/* Gender */}
-            <DropDownPicker
-              open={open}
-              value={gender}
-              items={genderOptions}
-              setOpen={setOpen}
-              setValue={setGender}
+            <View style={{ marginBottom: 24 }}>
+            <Text style={{ color: "#a6b1c3", marginBottom: 8 }}>Gender</Text>
+            <TouchableOpacity
+              onPress={() => setGenderModalVisible(true)} // Show modal when pressed
               style={{
                 backgroundColor: "#0e2942",
+                borderRadius: 8,
+                padding: 16,
                 borderColor: "#0e2942",
-                height: 58,
-                marginBottom: 16,
+                borderWidth: 1,
+                marginBottom: 8,
               }}
-              textStyle={{
-                color: "#ffffff",
+            >
+              <Text style={{ color: "#ffffff"}}>
+                {gender ? gender : "Select Gender"} {
+
+                }
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Gender Modal */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={isGenderModalVisible}
+            onRequestClose={() => setGenderModalVisible(false)} // Hide modal when back button is pressed
+          >
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: "rgba(0,0,0,0.5)", // Semi-transparent background
               }}
-              dropDownContainerStyle={{
-                backgroundColor: "#0e2942",
-                borderColor: "#0e2942",
-              }}
-              placeholder="Gender"
-              placeholderStyle={{ color: "#a6b1c3" }}
-            />
+            >
+              <View
+                style={{
+                  width: "80%",
+                  backgroundColor: "#0e2942",
+                  borderRadius: 8,
+                  padding: 16,
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ color: "#ffffff", fontSize: 18, marginBottom: 16, textAlign:"center"}}>
+                  Select Gender
+                </Text>
+                <FlatList
+                  data={genderOptions}
+                  keyExtractor={(item) => item.value}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setGender(item.value);
+                        setGenderModalVisible(false);
+                      }}
+                      style={{
+                        paddingVertical: 12,
+                        paddingHorizontal: 8,
+                        borderBottomWidth: 1,
+                        borderBottomColor: "#a6b1c3",
+                      }}
+                    >
+                      <Text style={{ color: "#ffffff", fontSize: 16, textAlign: "center" }}>{item.label}</Text>
+                    </TouchableOpacity>
+                  )}
+                />
+                <TouchableOpacity onPress={() => setGenderModalVisible(false)}>
+                  <Text style={{ color: "#ffffff", fontSize: 12, marginTop: 16 }}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
 
             {/* Height */}
             <InputField
