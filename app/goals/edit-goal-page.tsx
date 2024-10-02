@@ -47,12 +47,12 @@ export default function EditGoalPage() {
           headerBackTitleVisible: false,
         }}
       />
-      <CreateGoalForm />
+      <EditGoalForm />
     </View>
   );
 }
 
-function CreateGoalForm() {
+function EditGoalForm() {
   const [
     name,
     setName,
