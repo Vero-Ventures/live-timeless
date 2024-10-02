@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import type { RECURRENCE } from "./target/constants";
 
-type TimeOfDay = "Morning" | "Afternoon" | "Evening";
+export type TimeOfDay = "Morning" | "Afternoon" | "Evening";
 
 export type RepeatType = "daily" | "monthly" | "interval";
 export type DailyRepeat =
