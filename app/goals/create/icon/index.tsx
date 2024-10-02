@@ -1,5 +1,5 @@
 // TODO: Add icon selection support for update goal form. Currently selecting an icon will always make new goal.
-import { Link, Stack, useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { FlatList, Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
