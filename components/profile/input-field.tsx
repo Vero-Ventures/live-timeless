@@ -9,6 +9,7 @@ type InputFieldProps = {
     value?: string; //maybe not nullable?
     setValue: (value: string) => void; //maybe void?
     placeholder?: string; //maybe nullable?
+    height?: number;
 } & TextInputProps;
 
 // InputField component
@@ -17,14 +18,15 @@ const InputField: React.FC<InputFieldProps> = ({
     value,
     setValue,
     placeholder,
+    height=56
 }) => (
     <View style={{ marginVertical: 8 }}>
-    {label && <Text style={{ color: "#a6b1c3", marginBottom: 4, fontSize: 16 }}>{label}</Text>}
+    {label && <Text style={{ color: "#a6b1c3", marginBottom: 3, fontSize: 16 }}>{label}</Text>}
     <Input
         style={{
-        height: 56,
+        height: height,
         flex: 1,
-        borderRadius: 12,
+        borderRadius: 10,
         borderWidth: 0,
         backgroundColor: "#0e2942",
         padding: 16,

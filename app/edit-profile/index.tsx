@@ -1,5 +1,5 @@
-import { useNavigation } from '@react-navigation/native';
-import React, { useLayoutEffect } from 'react';
+import { useNavigation } from "@react-navigation/native";
+import React, { useLayoutEffect } from "react";
 import { useQuery } from "convex/react";
 import { Redirect, useRouter } from "expo-router";
 import { api } from "~/convex/_generated/api";
@@ -7,15 +7,13 @@ import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
-import { View, StyleSheet } from "react-native";
-import { Input } from "~/components/ui/input";
+import { ScrollView, View } from "react-native";
 import { Loader2 } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { useMutation } from 'convex/react';  // Correct import
-import { updateUserProfile } from "~/convex/users";  // Import mutation
-import DropDownPicker from 'react-native-dropdown-picker';
-
+import { useMutation } from "convex/react";
+import DropDownPicker from "react-native-dropdown-picker";
 import InputField from "~/components/profile/input-field";
+
 export default function EditProfile() {
   const navigation = useNavigation();
   const router = useRouter();
@@ -32,15 +30,15 @@ export default function EditProfile() {
 
   const [open, setOpen] = useState(false);
   const [genderOptions] = useState([
-    { label: 'Male', value: 'Male' },
-    { label: 'Female', value: 'Female' },
-    { label: 'Unspecified', value: 'Unspecified' }
+    { label: "Male", value: "Male" },
+    { label: "Female", value: "Female" },
+    { label: "Unspecified", value: "Unspecified" },
   ]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: 'Edit Profile',
-      headerStyle: { backgroundColor: '#082139' },
+      title: "Edit Profile",
+      headerStyle: { backgroundColor: "#082139" },
       headerBackTitleVisible: false,
     });
   }, [navigation]);
@@ -49,7 +47,7 @@ export default function EditProfile() {
 
   useEffect(() => {
     if (user) {
-      const [year, month, day] = (user.dob ?? "").split('-');
+      const [year, month, day] = (user.dob ?? "").split("-");
       setDobYear(year || "");
       setDobMonth(month || "");
       setDobDay(day || "");
@@ -65,7 +63,7 @@ export default function EditProfile() {
   const handleUpdateProfile = async () => {
     if (user) {
       const dob = `${dobYear}-${dobMonth}-${dobDay}`;
-      
+
       await updateUserProfileMutation({
         id: user._id,
         name,
@@ -80,70 +78,94 @@ export default function EditProfile() {
   };
 
   return (
-    <SafeAreaView style={{backgroundColor: "#082139"}}>
+    <SafeAreaView style={{ backgroundColor: "#082139", flex: 1 }}>
       <AuthLoading>
-        <View style={{ height: '100%', justifyContent: 'center', alignItems: 'center' }}>
-          <Loader2 size={32} color="#fff" />
+        <View className="h-full items-center justify-center">
+          <Loader2 className="size-32 animate-spin" />
         </View>
       </AuthLoading>
       <Unauthenticated>
         <Redirect href="/" />
       </Unauthenticated>
       <Authenticated>
-        <View style={{ flex: 1, gap: 8, padding: 16 }}>
-          {/* Replace Input with InputField and pass required props */}
-          <InputField
-            label="Name"
-            placeholder="Name"
-            value={name}
-            setValue={setName}
-          />
-          <InputField
-            label="Email"
-            placeholder="Email"
-            value={email}
-            setValue={setEmail}
-          />
-          
-          <View style={{ marginBottom: 16 }}>
-            <Text style={{ color: "#a6b1c3", marginBottom: 8 }}>Date of Birth</Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
-              <InputField
-                placeholder="Month"
-                value={dobMonth}
-                setValue={(month) => {
-                  if(month === '' || (parseInt(month) >= 1 && parseInt(month) <= 12))
-                  setDobMonth(month);
+        <ScrollView
+          contentContainerStyle={{ padding: 3, flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+        />
+          <View style={{ padding: 16 }}>
+
+            <InputField
+              label="Name"
+              placeholder="Name"
+              value={name}
+              setValue={setName}
+              style={{ marginBottom: 16 }} 
+            />
+            <InputField
+              label="Email"
+              placeholder="Email"
+              value={email}
+              setValue={setEmail}
+              style={{ marginBottom: 24 }} 
+            />
+            {/* DOB */}
+            <View style={{ marginBottom: 24 }}> 
+              <Text style={{ color: "#a6b1c3", marginBottom: 12 }}>
+                Date of Birth
+              </Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "flex-start",
+                  alignItems: "center",
+                  gap: 8,
                 }}
-                keyboardType="numeric"
-                maxLength={2}
-                style={{ flex: 1 }}
-              />
-              <InputField
-                placeholder="Day"
-                value={dobDay}
-                setValue={(day) => {
-                  if(day === '' || (parseInt(day) >= 1 && parseInt(day) <= 31))
-                  setDobDay(day);
-                }}            
-                keyboardType="numeric"
-                maxLength={2}
-                style={{ flex: 1 }}
-              />
-              <InputField
-                placeholder="Year"
-                value={dobYear}
-                setValue={(year) => {
-                  const currentYear = new Date().getFullYear();
-                  if(year === '' || (parseInt(year) >= 1 && parseInt(year) <= currentYear))
-                  setDobYear(year);
-                }}   
-                keyboardType="numeric"
-                maxLength={4}
-                style={{ flex: 1 }}
-              />
+              >
+                <InputField
+                  placeholder="Month"
+                  value={dobMonth}
+                  setValue={(month) => {
+                    if (
+                      month === "" ||
+                      (parseInt(month) >= 1 && parseInt(month) <= 12)
+                    )
+                      setDobMonth(month);
+                  }}
+                  keyboardType="numeric"
+                  maxLength={2}
+                  style={{ flex: 0, width: 60, marginRight: 16, textAlign: "center"}}
+                />
+                <InputField
+                  placeholder="Day"
+                  value={dobDay}
+                  setValue={(day) => {
+                    if (
+                      day === "" ||
+                      (parseInt(day) >= 1 && parseInt(day) <= 31)
+                    )
+                      setDobDay(day);
+                  }}
+                  keyboardType="numeric"
+                  maxLength={2}
+                  style={{ flex: 0, width: 60, marginRight: 16,   textAlign: "center",}}
+                />
+                <InputField
+                  placeholder="Year"
+                  value={dobYear}
+                  setValue={(year) => {
+                    const currentYear = new Date().getFullYear();
+                    if (
+                      year === "" ||
+                      (parseInt(year) >= 1 && parseInt(year) <= currentYear)
+                    )
+                      setDobYear(year);
+                  }}
+                  keyboardType="numeric"
+                  maxLength={4}
+                  style={{ flex: 0, width: 100, marginRight: 16,   textAlign: "center",}}
+                />
+              </View>
             </View>
-          </View>
 
           <Input 
             className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
