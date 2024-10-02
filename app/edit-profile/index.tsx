@@ -15,8 +15,7 @@ import { useMutation } from 'convex/react';  // Correct import
 import { updateUserProfile } from "~/convex/users";  // Import mutation
 import DropDownPicker from 'react-native-dropdown-picker';
 
-import InputField from "~/components/profile/input-field"; // Import InputField
-
+import InputField from "~/components/profile/input-field";
 export default function EditProfile() {
   const navigation = useNavigation();
   const router = useRouter();
@@ -46,7 +45,6 @@ export default function EditProfile() {
     });
   }, [navigation]);
 
- // Use mutation hook with the correct mutation function
   const updateUserProfileMutation = useMutation(api.users.updateUserProfile);
 
   useEffect(() => {
@@ -84,8 +82,8 @@ export default function EditProfile() {
   return (
     <SafeAreaView style={{backgroundColor: "#082139"}}>
       <AuthLoading>
-      <View className="h-full items-center justify-center">
-      <Loader2 className="size-32 animate-spin" />
+        <View style={{ height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+          <Loader2 size={32} color="#fff" />
         </View>
       </AuthLoading>
       <Unauthenticated>
@@ -93,6 +91,7 @@ export default function EditProfile() {
       </Unauthenticated>
       <Authenticated>
         <View style={{ flex: 1, gap: 8, padding: 16 }}>
+          {/* Replace Input with InputField and pass required props */}
           <InputField
             label="Name"
             placeholder="Name"
@@ -167,6 +166,7 @@ export default function EditProfile() {
             setValue={setWeight}
             keyboardType="numeric"
           />
+          {/* Save Button */}
           <Button onPress={handleUpdateProfile}>
             <Text style={{ color: '#fff' }}>Save</Text>
           </Button>
