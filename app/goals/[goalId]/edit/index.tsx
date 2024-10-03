@@ -12,14 +12,14 @@ import { Crosshair } from "~/lib/icons/Crosshair";
 import { Sun } from "~/lib/icons/Sun";
 import { Bell } from "~/lib/icons/Bell";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
-import ScheduleStartDate from "./schedule-start-date";
+import ScheduleStartDate from "../../schedule-start-date";
 import {
   type DailyRepeat,
   type Recurrence,
   type RepeatType,
   type TimeOfDay,
-  useCreateGoalFormStore,
-} from "./create/create-goal-store";
+  useGoalFormStore,
+} from "../../create/create-goal-store";
 import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -80,7 +80,7 @@ function EditGoalForm() {
     recurrence,
     setRecurrence,
     resetForm,
-  ] = useCreateGoalFormStore(
+  ] = useGoalFormStore(
     useShallow((s) => [
       s.name,
       s.setName,
