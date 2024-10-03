@@ -1,7 +1,7 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useMutation, useQuery } from "convex/react";
 import { Stack, useLocalSearchParams, router } from "expo-router";
-import { Pressable, View } from "react-native";
+import { Alert, Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
 import { Id } from "~/convex/_generated/dataModel";
@@ -14,12 +14,21 @@ export default function GoalScreen() {
   const deleteGoal = useMutation(api.goals.deleteGoal);
 
   const handleDelete = async () => {
-    try {
-      await deleteGoal({ goalId });
-      router.dismiss();
-    } catch (error) {
-      console.error("Error deleting goal:", error);
-    }
+    Alert.alert(
+      `Are you sure you want to delete ${goal?.name}?`,
+      "This action cannot be undone.",
+      [
+        {
+          text: "Yes",
+          onPress: async () => {
+            await deleteGoal({ goalId });
+            router.dismiss();
+          },
+          style: "destructive",
+        },
+        { text: "Cancel", style: "cancel" },
+      ]
+    );
   };
 
   return (

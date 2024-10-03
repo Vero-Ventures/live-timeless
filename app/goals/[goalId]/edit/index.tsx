@@ -1,7 +1,7 @@
 import { Stack, Link, router, useLocalSearchParams } from "expo-router";
 import { AlertCircle, type LucideIcon } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable, View, Alert as NativeAlert } from "react-native";
 import FormSubmitButton from "~/components/form-submit-button";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Input } from "~/components/ui/input";
@@ -122,12 +122,22 @@ function EditGoalForm() {
   const goal = useQuery(api.goals.getGoalById, { goalId });
   const deleteGoal = useMutation(api.goals.deleteGoal);
 
-  const handleDelete = async (goalId: Id<"goals">) => {
-    try {
-      await deleteGoal({ goalId });
-    } catch (error) {
-      console.error("Error deleting goal:", error);
-    }
+  const handleDelete = () => {
+    NativeAlert.alert(
+      `Are you sure you want to delete ${goal?.name}?`,
+      "This action cannot be undone.",
+      [
+        {
+          text: "Yes",
+          onPress: async () => {
+            await deleteGoal({ goalId });
+            router.navigate("/goals");
+          },
+          style: "destructive",
+        },
+        { text: "Cancel", style: "cancel" },
+      ]
+    );
   };
 
   useEffect(() => {
@@ -314,14 +324,7 @@ function EditGoalForm() {
       >
         Edit Goal
       </FormSubmitButton>
-      <Button
-        size="lg"
-        variant="destructive"
-        onPress={async () => {
-          await handleDelete(goalId);
-          router.navigate("/goals");
-        }}
-      >
+      <Button size="lg" variant="destructive" onPress={handleDelete}>
         <Text>Delete</Text>
       </Button>
     </View>
