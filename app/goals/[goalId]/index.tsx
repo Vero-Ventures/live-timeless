@@ -55,7 +55,12 @@ export default function GoalScreen() {
                   <FontAwesome5 name="ellipsis-h" size={20} color="#fff" />
                 </Pressable>
               </DropdownMenu.Trigger>
-              <DropdownMenu.Content key="actions">
+              <DropdownMenu.Content
+                key="actions"
+                placeholder=""
+                onPointerEnterCapture={() => {}}
+                onPointerLeaveCapture={() => {}}
+              >
                 <DropdownMenu.Item
                   onSelect={() =>
                     router.navigate({
@@ -65,6 +70,9 @@ export default function GoalScreen() {
                   }
                   key="edit-goal"
                   textValue="Edit Goal"
+                  placeholder=""
+                  onPointerEnterCapture={() => {}}
+                  onPointerLeaveCapture={() => {}}
                 >
                   <DropdownMenu.ItemIcon
                     ios={{
@@ -78,6 +86,9 @@ export default function GoalScreen() {
                   destructive
                   key="delete-goal"
                   textValue="Delete Goal"
+                  placeholder=""
+                  onPointerEnterCapture={() => {}}
+                  onPointerLeaveCapture={() => {}}
                 >
                   <DropdownMenu.ItemIcon
                     ios={{
