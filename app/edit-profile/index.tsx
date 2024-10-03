@@ -6,8 +6,6 @@ import { Text } from "~/components/ui/text";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
 import {
-  FlatList,
-  Modal,
   ScrollView,
   TouchableOpacity,
   View,
@@ -37,8 +35,6 @@ export default function EditProfile() {
     setHeight,
     weight,
     setWeight,
-    open,
-    setOpen,
     genderOptions,
     handleUpdateProfile,
   } = useEditProfile();

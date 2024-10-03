@@ -1,18 +1,16 @@
 import React from "react";
-import { View, StyleSheet, TextInputProps } from "react-native";
+import { View, TextInputProps } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Input } from "~/components/ui/input";
 
-// Defining types for the component props
 type InputFieldProps = {
     label?: string;
-    value?: string; //maybe not nullable?
-    setValue: (value: string) => void; //maybe void?
-    placeholder?: string; //maybe nullable?
+    value?: string;
+    setValue: (value: string) => void;
+    placeholder?: string;
     height?: number;
 } & TextInputProps;
 
-// InputField component
 const InputField: React.FC<InputFieldProps> = ({
     label,
     value,
