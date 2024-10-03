@@ -55,26 +55,26 @@ export default function GoalScreen() {
                     })
                   }
                   key="edit-goal"
+                  textValue="Edit Goal"
                 >
                   <DropdownMenu.ItemIcon
                     ios={{
                       name: "pencil.line",
                     }}
                   />
-                  <DropdownMenu.ItemTitle>Edit Goal</DropdownMenu.ItemTitle>
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator />
                 <DropdownMenu.Item
                   onSelect={handleDelete}
                   destructive
                   key="delete-goal"
+                  textValue="Delete Goal"
                 >
                   <DropdownMenu.ItemIcon
                     ios={{
                       name: "trash",
                     }}
                   />
-                  <DropdownMenu.ItemTitle>Delete Goal</DropdownMenu.ItemTitle>
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Root>
