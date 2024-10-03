@@ -1,7 +1,7 @@
 import { Stack, Link, router, useLocalSearchParams } from "expo-router";
 import { AlertCircle, type LucideIcon } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable, View, Alert as NativeAlert } from "react-native";
 import FormSubmitButton from "~/components/form-submit-button";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Input } from "~/components/ui/input";
@@ -12,14 +12,15 @@ import { Crosshair } from "~/lib/icons/Crosshair";
 import { Sun } from "~/lib/icons/Sun";
 import { Bell } from "~/lib/icons/Bell";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
-import ScheduleStartDate from "./schedule-start-date";
+import ScheduleStartDate from "../../schedule-start-date";
 import {
   type DailyRepeat,
   type Recurrence,
   type RepeatType,
   type TimeOfDay,
-  useCreateGoalFormStore,
-} from "./create/create-goal-store";
+  UnitType,
+  useGoalFormStore,
+} from "../../create/create-goal-store";
 import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -29,6 +30,7 @@ import { api } from "~/convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
 import { GOAL_ICONS } from "~/constants/goal-icons";
 import type { Id } from "~/convex/_generated/dataModel";
+import { Button } from "~/components/ui/button";
 
 export default function EditGoalPage() {
   return (
@@ -72,6 +74,8 @@ function EditGoalForm() {
     setSelectedIcon,
     selectedIconColor,
     setSelectedIconColor,
+    unitType,
+    setUnitType,
     unitValue,
     setUnitValue,
     unit,
@@ -79,7 +83,7 @@ function EditGoalForm() {
     recurrence,
     setRecurrence,
     resetForm,
-  ] = useCreateGoalFormStore(
+  ] = useGoalFormStore(
     useShallow((s) => [
       s.name,
       s.setName,
@@ -99,6 +103,8 @@ function EditGoalForm() {
       s.setSelectedIcon,
       s.selectedIconColor,
       s.setSelectedIconColor,
+      s.unitType,
+      s.setUnitType,
       s.unitValue,
       s.setUnitValue,
       s.unit,
@@ -114,6 +120,25 @@ function EditGoalForm() {
   const updateGoal = useMutation(api.goals.updateGoal);
   const { goalId } = useLocalSearchParams<{ goalId: Id<"goals"> }>();
   const goal = useQuery(api.goals.getGoalById, { goalId });
+  const deleteGoal = useMutation(api.goals.deleteGoal);
+
+  const handleDelete = () => {
+    NativeAlert.alert(
+      `Are you sure you want to delete ${goal?.name}?`,
+      "This action cannot be undone.",
+      [
+        {
+          text: "Yes",
+          onPress: async () => {
+            await deleteGoal({ goalId });
+            router.navigate("/goals");
+          },
+          style: "destructive",
+        },
+        { text: "Cancel", style: "cancel" },
+      ]
+    );
+  };
 
   useEffect(() => {
     if (goal) {
@@ -126,6 +151,7 @@ function EditGoalForm() {
       setIntervalRepeat(goal.intervalRepeat);
       setSelectedIcon(goal.selectedIcon);
       setSelectedIconColor(goal.selectedIconColor);
+      setUnitType(goal.unitType as UnitType);
       setUnitValue(goal.unitValue);
       setUnit(goal.unit);
       setRecurrence(goal.recurrence as Recurrence);
@@ -143,6 +169,7 @@ function EditGoalForm() {
     setIntervalRepeat,
     setSelectedIcon,
     setSelectedIconColor,
+    setUnitType,
     setUnitValue,
     setUnit,
     setRecurrence,
@@ -276,6 +303,7 @@ function EditGoalForm() {
               dailyRepeat,
               monthlyRepeat,
               intervalRepeat,
+              unitType,
               unitValue,
               unit,
               recurrence,
@@ -296,6 +324,9 @@ function EditGoalForm() {
       >
         Edit Goal
       </FormSubmitButton>
+      <Button size="lg" variant="destructive" onPress={handleDelete}>
+        <Text>Delete</Text>
+      </Button>
     </View>
   );
 }

@@ -1,6 +1,6 @@
 import { Stack, Link, router } from "expo-router";
 import { AlertCircle, type LucideIcon } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 import FormSubmitButton from "~/components/form-submit-button";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
@@ -13,7 +13,7 @@ import { Sun } from "~/lib/icons/Sun";
 import { Bell } from "~/lib/icons/Bell";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
 import ScheduleStartDate from "../schedule-start-date";
-import { useCreateGoalFormStore } from "./create-goal-store";
+import { useGoalFormStore } from "./create-goal-store";
 import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -57,11 +57,12 @@ function CreateGoalForm() {
     intervalRepeat,
     selectedIcon,
     selectedIconColor,
+    unitType,
     unitValue,
     unit,
     recurrence,
     resetForm,
-  ] = useCreateGoalFormStore(
+  ] = useGoalFormStore(
     useShallow((s) => [
       s.name,
       s.setName,
@@ -73,6 +74,7 @@ function CreateGoalForm() {
       s.intervalRepeat,
       s.selectedIcon,
       s.selectedIconColor,
+      s.unitType,
       s.unitValue,
       s.unit,
       s.recurrence,
@@ -83,6 +85,10 @@ function CreateGoalForm() {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
   const createGoal = useMutation(api.goals.createGoal);
+
+  useEffect(() => {
+    return () => resetForm();
+  }, [resetForm]);
 
   const getRepeatValue = () => {
     switch (repeatType) {
@@ -210,6 +216,7 @@ function CreateGoalForm() {
               dailyRepeat,
               monthlyRepeat,
               intervalRepeat,
+              unitType,
               unitValue,
               unit,
               recurrence,

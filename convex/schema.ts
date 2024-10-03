@@ -30,6 +30,7 @@ export default defineSchema({
     selectedIconColor: v.string(),
     timeOfDay: v.array(v.string()),
     timeReminder: v.number(),
+    unitType: v.string(),
     unitValue: v.number(),
     unit: v.string(),
     recurrence: v.string(),
