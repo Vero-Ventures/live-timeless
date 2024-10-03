@@ -18,6 +18,7 @@ import {
   type Recurrence,
   type RepeatType,
   type TimeOfDay,
+  UnitType,
   useGoalFormStore,
 } from "../../create/create-goal-store";
 import { formatTime } from "~/lib/date";
@@ -73,6 +74,8 @@ function EditGoalForm() {
     setSelectedIcon,
     selectedIconColor,
     setSelectedIconColor,
+    unitType,
+    setUnitType,
     unitValue,
     setUnitValue,
     unit,
@@ -100,6 +103,8 @@ function EditGoalForm() {
       s.setSelectedIcon,
       s.selectedIconColor,
       s.setSelectedIconColor,
+      s.unitType,
+      s.setUnitType,
       s.unitValue,
       s.setUnitValue,
       s.unit,
@@ -136,6 +141,7 @@ function EditGoalForm() {
       setIntervalRepeat(goal.intervalRepeat);
       setSelectedIcon(goal.selectedIcon);
       setSelectedIconColor(goal.selectedIconColor);
+      setUnitType(goal.unitType as UnitType);
       setUnitValue(goal.unitValue);
       setUnit(goal.unit);
       setRecurrence(goal.recurrence as Recurrence);
@@ -153,6 +159,7 @@ function EditGoalForm() {
     setIntervalRepeat,
     setSelectedIcon,
     setSelectedIconColor,
+    setUnitType,
     setUnitValue,
     setUnit,
     setRecurrence,
@@ -286,6 +293,7 @@ function EditGoalForm() {
               dailyRepeat,
               monthlyRepeat,
               intervalRepeat,
+              unitType,
               unitValue,
               unit,
               recurrence,
