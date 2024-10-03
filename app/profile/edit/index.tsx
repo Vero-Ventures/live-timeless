@@ -99,12 +99,11 @@ function EditProfileForm() {
     try {
       setIsPending(true);
       const profile = { name, email, dob, weight, height };
-      console.log("Saving Profile....");
-      console.log({ profile });
       updateProfile({
         ...profile,
-        weight: Number(weight),
-        height: Number(height),
+        dob: dob.getTime(), // store as timestamp
+        weight: parseFloat(weight),
+        height: parseFloat(height),
       });
     } catch (error) {
       if (error instanceof Error) {

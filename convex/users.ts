@@ -19,7 +19,7 @@ export const updateProfile = mutation({
   args: {
     name: v.string(),
     email: v.string(),
-    dob: v.optional(v.string()),
+    dob: v.optional(v.number()),
     height: v.optional(v.number()),
     weight: v.optional(v.number()),
   },

@@ -8,7 +8,7 @@ export default defineSchema({
     _id: v.id("users"),
     email: v.string(),
     name: v.optional(v.string()),
-    dob: v.optional(v.string()),
+    dob: v.optional(v.number()),
     image: v.optional(v.string()),
     height: v.optional(v.number()),
     weight: v.optional(v.number()),
