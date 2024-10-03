@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import { Redirect } from "expo-router";
+import { Link, Redirect } from "expo-router";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
@@ -44,16 +44,11 @@ export default function Profile() {
             <Text className="text-center text-xl font-bold">{user?.name}</Text>
             <Text className="text-center">{user?.email}</Text>
           </View>
-          <View>
-            <Button
-              size="lg"
-              onPress={() => {
-                router.push("/edit-profile");
-              }}
-            >
+          <Link href="/profile/edit" asChild>
+            <Button size="lg">
               <Text>Edit Profile</Text>
             </Button>
-          </View>
+          </Link>
           <Button
             size="lg"
             onPress={async () => {

@@ -10,7 +10,6 @@ export default defineSchema({
     name: v.optional(v.string()),
     dob: v.optional(v.string()),
     image: v.optional(v.string()),
-    gender: v.optional(v.string()),
     height: v.optional(v.number()),
     weight: v.optional(v.number()),
     emailVerificationTime: v.optional(v.number()),

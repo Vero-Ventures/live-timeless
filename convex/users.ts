@@ -15,25 +15,25 @@ export const currentUser = query({
   },
 });
 
-export const updateUserProfile = mutation({
+export const updateProfile = mutation({
   args: {
-    id: v.id("users"),
     name: v.string(),
     email: v.string(),
     dob: v.optional(v.string()),
-    gender: v.optional(v.string()),
     height: v.optional(v.number()),
     weight: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.id, {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
+    await ctx.db.patch(userId, {
       name: args.name,
       email: args.email,
       dob: args.dob,
-      gender: args. gender,
       height: args.height,
       weight: args.weight,
-    }
-    );
+    });
   },
 });
