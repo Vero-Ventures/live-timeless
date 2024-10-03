@@ -18,9 +18,9 @@ import {
   type Recurrence,
   type RepeatType,
   type TimeOfDay,
-  UnitType,
+  type UnitType,
   useGoalFormStore,
-} from "../../create/create-goal-store";
+} from "../../create/goal-store";
 import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";

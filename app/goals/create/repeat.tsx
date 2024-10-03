@@ -5,7 +5,7 @@ import { Text } from "~/components/ui/text";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { fontFamily } from "~/lib/font";
 import { Check } from "~/lib/icons/Check";
-import { initialFormState, useGoalFormStore } from "./create-goal-store";
+import { initialFormState, useGoalFormStore } from "./goal-store";
 import { cn } from "~/lib/utils";
 import { Separator } from "~/components/ui/separator";
 import { useShallow } from "zustand/react/shallow";

@@ -4,7 +4,7 @@ import { FlatList, Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
 import { ChevronLeft } from "~/lib/icons/ChevronLeft";
-import { useGoalFormStore } from "../create-goal-store";
+import { useGoalFormStore } from "../goal-store";
 import { useShallow } from "zustand/react/shallow";
 import { GOAL_ICONS } from "~/constants/goal-icons";
 import { IconPicker } from "~/components/icon-picker";

@@ -3,7 +3,7 @@ import { Pressable, ScrollView, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
 import { Check } from "~/lib/icons/Check";
-import { useGoalFormStore } from "./create-goal-store";
+import { useGoalFormStore } from "./goal-store";
 import { cn } from "~/lib/utils";
 import { useShallow } from "zustand/react/shallow";
 

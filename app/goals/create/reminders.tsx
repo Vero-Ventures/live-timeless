@@ -9,7 +9,7 @@ import { X } from "~/lib/icons/X";
 import { Clock } from "~/lib/icons/Clock";
 import { Plus } from "~/lib/icons/Plus";
 import DateTimePicker from "react-native-modal-datetime-picker";
-import { useGoalFormStore } from "./create-goal-store";
+import { useGoalFormStore } from "./goal-store";
 import { formatTime } from "~/lib/date";
 import { useShallow } from "zustand/react/shallow";
 
