@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Redirect, Stack } from "expo-router";
+import { useEffect, useState } from "react";
+import { Redirect, Stack, router } from "expo-router";
 import { Text } from "~/components/ui/text";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -7,6 +7,7 @@ import {
   Unauthenticated,
   AuthLoading,
   useMutation,
+  useQuery,
 } from "convex/react";
 import { Pressable, View } from "react-native";
 import { AlertCircle, CalendarDays, Loader2 } from "lucide-react-native";
@@ -53,6 +54,7 @@ export default function EditProfileScreen() {
   );
 }
 function EditProfileForm() {
+  const user = useQuery(api.users.currentUser);
   const updateProfile = useMutation(api.users.updateProfile);
   const [
     name,
@@ -83,6 +85,16 @@ function EditProfileForm() {
   const [error, setError] = useState("");
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
+  useEffect(() => {
+    if (user) {
+      setName(user.name ?? "");
+      setEmail(user.email ?? "");
+      setDob(user.dob ? new Date(user.dob) : new Date());
+      setWeight(user.weight?.toString() ?? "");
+      setHeight(user.height?.toString() ?? "");
+    }
+  }, [user, setName, setEmail, setDob, setWeight, setHeight]);
+
   const showDatePicker = () => {
     setDatePickerVisibility(true);
   };
@@ -92,6 +104,7 @@ function EditProfileForm() {
   };
 
   const handleConfirm = (date: Date) => {
+    setDob(date);
     hideDatePicker();
   };
 
@@ -102,9 +115,10 @@ function EditProfileForm() {
       updateProfile({
         ...profile,
         dob: dob.getTime(), // store as timestamp
-        weight: parseFloat(weight),
-        height: parseFloat(height),
+        weight: weight ? parseFloat(weight) : undefined,
+        height: height ? parseFloat(height) : undefined,
       });
+      router.navigate("/profile");
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -168,6 +182,8 @@ function EditProfileForm() {
             display="inline"
             isVisible={isDatePickerVisible}
             mode="date"
+            date={dob}
+            maximumDate={new Date()}
             onConfirm={handleConfirm}
             onCancel={hideDatePicker}
           />
