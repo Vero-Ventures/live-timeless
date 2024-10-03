@@ -1,6 +1,6 @@
 import { Stack, Link, router } from "expo-router";
 import { AlertCircle, type LucideIcon } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 import FormSubmitButton from "~/components/form-submit-button";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
@@ -57,6 +57,7 @@ function CreateGoalForm() {
     intervalRepeat,
     selectedIcon,
     selectedIconColor,
+    unitType,
     unitValue,
     unit,
     recurrence,
@@ -73,6 +74,7 @@ function CreateGoalForm() {
       s.intervalRepeat,
       s.selectedIcon,
       s.selectedIconColor,
+      s.unitType,
       s.unitValue,
       s.unit,
       s.recurrence,
@@ -83,6 +85,10 @@ function CreateGoalForm() {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
   const createGoal = useMutation(api.goals.createGoal);
+
+  useEffect(() => {
+    return () => resetForm();
+  }, [resetForm]);
 
   const getRepeatValue = () => {
     switch (repeatType) {
@@ -210,6 +216,7 @@ function CreateGoalForm() {
               dailyRepeat,
               monthlyRepeat,
               intervalRepeat,
+              unitType,
               unitValue,
               unit,
               recurrence,
