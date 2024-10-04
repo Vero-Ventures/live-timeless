@@ -32,6 +32,7 @@ interface FormState {
   monthlyRepeat: number[];
   intervalRepeat: number;
   timeReminder: Date;
+  startDate: Date;
   unitType: UnitType;
   unitValue: number;
   unit: string;
@@ -51,6 +52,7 @@ interface FormActions {
   setIntervalRepeat: (intervalRepeat: number) => void;
   resetIntervalRepeat: () => void;
   setTimeReminder: (timeReminder: Date) => void;
+  setStartDate: (startDate: Date) => void;
   setUnitType: (unitType: UnitType) => void;
   setUnitValue: (unitValue: number) => void;
   setUnit: (unit: string) => void;
@@ -76,6 +78,7 @@ export const initialFormState: FormState = {
   monthlyRepeat: [1],
   intervalRepeat: 2,
   timeReminder: new Date(),
+  startDate: new Date(),
   unitType: "General",
   unitValue: 1,
   unit: "times",
@@ -104,6 +107,8 @@ export const useGoalFormStore = create<FormState & FormActions>()((set) => ({
     set({ intervalRepeat: initialFormState.intervalRepeat }),
   timeReminder: new Date(),
   setTimeReminder: (timeReminder) => set({ timeReminder }),
+  startDate: new Date(),
+  setStartDate: (startDate) => set({ startDate }),
   unitType: initialFormState.unitType,
   setUnitType: (unitType) => set({ unitType }),
   unitValue: initialFormState.unitValue,
