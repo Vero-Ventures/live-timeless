@@ -31,6 +31,7 @@ import { useMutation, useQuery } from "convex/react";
 import { GOAL_ICONS } from "~/constants/goal-icons";
 import type { Id } from "~/convex/_generated/dataModel";
 import { Button } from "~/components/ui/button";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export default function EditGoalPage() {
   return (
@@ -196,138 +197,140 @@ function EditGoalForm() {
   )?.component;
 
   return (
-    <View className="gap-4">
-      {!!error && (
-        <Alert icon={AlertCircle} variant="destructive" className="max-w-xl">
-          <AlertTitle>Something went wrong!</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-      <View className="flex flex-row items-center gap-2">
-        <Link href="/goals/create/icon" asChild>
-          <Pressable className="rounded-xl bg-[#0e2942] p-4 px-6">
-            {selectedIcon ? (
-              <IconComp
-                name={selectedIcon}
-                size={32}
-                color={selectedIconColor}
+    <KeyboardAwareScrollView>
+      <View className="gap-4">
+        {!!error && (
+          <Alert icon={AlertCircle} variant="destructive" className="max-w-xl">
+            <AlertTitle>Something went wrong!</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        <View className="flex flex-row items-center gap-2">
+          <Link href="/goals/create/icon" asChild>
+            <Pressable className="rounded-xl bg-[#0e2942] p-4 px-6">
+              {selectedIcon ? (
+                <IconComp
+                  name={selectedIcon}
+                  size={32}
+                  color={selectedIconColor}
+                />
+              ) : (
+                <FontAwesome6
+                  name="question"
+                  size={32}
+                  color={selectedIconColor}
+                />
+              )}
+            </Pressable>
+          </Link>
+          <Input
+            className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+            placeholder="Name of Goal"
+            value={name}
+            onChangeText={setName}
+          />
+        </View>
+        <View className="rounded-xl bg-[#0e2942]">
+          <Link href="/goals/create/repeat" asChild>
+            <Pressable>
+              <ScheduleItem
+                Icon={Repeat}
+                iconBgColor="bg-[#2A67F5]"
+                title="REPEAT"
+                value={getRepeatValue()}
               />
-            ) : (
-              <FontAwesome6
-                name="question"
-                size={32}
-                color={selectedIconColor}
+            </Pressable>
+          </Link>
+          <Link href="/goals/create/target" asChild>
+            <Pressable>
+              <ScheduleItem
+                Icon={Crosshair}
+                iconBgColor="bg-[#0EAF0A]"
+                title="TARGET"
+                value={`${unitValue} ${unit} ${recurrence}`}
               />
-            )}
-          </Pressable>
-        </Link>
-        <Input
-          className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
-          placeholder="Name of Goal"
-          value={name}
-          onChangeText={setName}
-        />
-      </View>
-      <View className="rounded-xl bg-[#0e2942]">
-        <Link href="/goals/create/repeat" asChild>
-          <Pressable>
-            <ScheduleItem
-              Icon={Repeat}
-              iconBgColor="bg-[#2A67F5]"
-              title="REPEAT"
-              value={getRepeatValue()}
-            />
-          </Pressable>
-        </Link>
-        <Link href="/goals/create/target" asChild>
-          <Pressable>
-            <ScheduleItem
-              Icon={Crosshair}
-              iconBgColor="bg-[#0EAF0A]"
-              title="TARGET"
-              value={`${unitValue} ${unit} ${recurrence}`}
-            />
-          </Pressable>
-        </Link>
-        <Link href="/goals/create/time-of-day" asChild>
-          <Pressable>
-            <ScheduleItem
-              Icon={Sun}
-              iconBgColor="bg-[#F0A122]"
-              title="TIME OF DAY"
-              value={
-                timeOfDay.length === 3 ? "Any Time" : timeOfDay.join(" and ")
+            </Pressable>
+          </Link>
+          <Link href="/goals/create/time-of-day" asChild>
+            <Pressable>
+              <ScheduleItem
+                Icon={Sun}
+                iconBgColor="bg-[#F0A122]"
+                title="TIME OF DAY"
+                value={
+                  timeOfDay.length === 3 ? "Any Time" : timeOfDay.join(" and ")
+                }
+              />
+            </Pressable>
+          </Link>
+        </View>
+        <View className="rounded-xl bg-[#0e2942]">
+          <Link href="/goals/create/reminders" asChild>
+            <Pressable>
+              <ScheduleItem
+                Icon={Bell}
+                iconBgColor="bg-[#9037D1]"
+                title="REMINDERS"
+                value={formatTime(timeReminder)}
+              />
+            </Pressable>
+          </Link>
+        </View>
+
+        <ScheduleStartDate />
+
+        <FormSubmitButton
+          size="lg"
+          isPending={isPending}
+          onPress={async () => {
+            setError("");
+            setIsPending(true);
+            try {
+              if (name.trim().length <= 3) {
+                throw new Error("Name of the goal must be over 3 characters");
               }
-            />
-          </Pressable>
-        </Link>
+
+              if (!selectedIcon) {
+                throw new Error("You haven't selected an icon for your goal.");
+              }
+
+              const updatedGoal = {
+                goalId,
+                name,
+                selectedIcon,
+                selectedIconColor,
+                timeOfDay,
+                timeReminder: timeReminder.getTime(), // store as timestamp
+                repeatType,
+                dailyRepeat,
+                monthlyRepeat,
+                intervalRepeat,
+                unitType,
+                unitValue,
+                unit,
+                recurrence,
+              };
+
+              await updateGoal(updatedGoal);
+
+              router.navigate("/goals");
+              resetForm();
+            } catch (error) {
+              if (error instanceof Error) {
+                setError(error.message);
+              }
+            } finally {
+              setIsPending(false);
+            }
+          }}
+        >
+          Edit Goal
+        </FormSubmitButton>
+        <Button size="lg" variant="destructive" onPress={handleDelete}>
+          <Text>Delete</Text>
+        </Button>
       </View>
-      <View className="rounded-xl bg-[#0e2942]">
-        <Link href="/goals/create/reminders" asChild>
-          <Pressable>
-            <ScheduleItem
-              Icon={Bell}
-              iconBgColor="bg-[#9037D1]"
-              title="REMINDERS"
-              value={formatTime(timeReminder)}
-            />
-          </Pressable>
-        </Link>
-      </View>
-
-      <ScheduleStartDate />
-
-      <FormSubmitButton
-        size="lg"
-        isPending={isPending}
-        onPress={async () => {
-          setError("");
-          setIsPending(true);
-          try {
-            if (name.trim().length <= 3) {
-              throw new Error("Name of the goal must be over 3 characters");
-            }
-
-            if (!selectedIcon) {
-              throw new Error("You haven't selected an icon for your goal.");
-            }
-
-            const updatedGoal = {
-              goalId,
-              name,
-              selectedIcon,
-              selectedIconColor,
-              timeOfDay,
-              timeReminder: timeReminder.getTime(), // store as timestamp
-              repeatType,
-              dailyRepeat,
-              monthlyRepeat,
-              intervalRepeat,
-              unitType,
-              unitValue,
-              unit,
-              recurrence,
-            };
-
-            await updateGoal(updatedGoal);
-
-            router.navigate("/goals");
-            resetForm();
-          } catch (error) {
-            if (error instanceof Error) {
-              setError(error.message);
-            }
-          } finally {
-            setIsPending(false);
-          }
-        }}
-      >
-        Edit Goal
-      </FormSubmitButton>
-      <Button size="lg" variant="destructive" onPress={handleDelete}>
-        <Text>Delete</Text>
-      </Button>
-    </View>
+    </KeyboardAwareScrollView>
   );
 }
 

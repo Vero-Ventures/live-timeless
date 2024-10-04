@@ -1,5 +1,4 @@
-// TODO: Add icon selection support for update goal form. Currently selecting an icon will always make new goal.
-import { Stack, useRouter } from "expo-router";
+import { router, Stack } from "expo-router";
 import { FlatList, Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
@@ -24,7 +23,6 @@ export default function IconScreen() {
       s.setSelectedIcon,
     ])
   );
-  const router = useRouter();
 
   return (
     <>
@@ -41,7 +39,7 @@ export default function IconScreen() {
                 <Pressable
                   className="absolute left-0.5"
                   hitSlop={20}
-                  onPress={() => router.dismiss(1)}
+                  onPress={() => router.dismiss()}
                 >
                   <ChevronLeft color="#fff" size={35} />
                 </Pressable>
