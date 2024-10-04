@@ -30,3 +30,15 @@ export const formatTime = (date: Date) =>
     minute: "2-digit",
     hour12: true,
   });
+
+export function getRelativeDateLabel(date: Date) {
+  const dateConditions = [
+    { condition: isYesterday, label: "Yesterday" },
+    { condition: isToday, label: "Today" },
+    { condition: isTomorrow, label: "Tomorrow" },
+  ];
+  const matchedCondition = dateConditions.find(({ condition }) =>
+    condition(date)
+  );
+  return matchedCondition ? matchedCondition.label : formatDate(date);
+}
