@@ -17,14 +17,6 @@ body:
     validations:
       required: true
   - type: textarea
-    id: task-details
-    attributes:
-      label: Task Details
-      description: Specify the details and steps needed to accomplish this task.
-      placeholder: Describe the specific actions required, any prerequisites, and expected outcomes [...]
-    validations:
-      required: true
-  - type: textarea
     id: acceptance-criteria
     attributes:
       label: Acceptance Criteria
