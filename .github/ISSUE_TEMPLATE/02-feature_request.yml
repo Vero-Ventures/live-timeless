@@ -1,7 +1,8 @@
 name: Feature Request
 description: Suggest an idea for this project
-title: "[Feature]: "
-labels: ["enhancement"]
+title: "[feat]: "
+type: "Enhancement"
+projects: "Vero-Ventures/4"
 body:
   - type: markdown
     attributes:

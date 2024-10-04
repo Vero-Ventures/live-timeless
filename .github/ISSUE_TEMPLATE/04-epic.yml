@@ -1,0 +1,48 @@
+name: Epic
+description: Outline a large body of work or project that is broken down into smaller tasks.
+title: "[epic]: "
+type: "Epic"
+projects: "Vero-Ventures/4"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for outlining this Epic! Please provide comprehensive details of the proposed work. Be sure to add sub issues in the issues later when the Epic is created.
+  - type: textarea
+    id: epic-description
+    attributes:
+      label: Describe the Epic
+      description: A clear and concise description of the Epic and its objectives.
+      placeholder: This Epic will [...]
+    validations:
+      required: true
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: Problem Statement
+      description: A clear and concise description of the problem this Epic addresses.
+      placeholder: The main issue is [...]
+    validations:
+      required: true
+  - type: textarea
+    id: success-criteria
+    attributes:
+      label: Success Criteria
+      description: Define what success looks like for this Epic.
+      placeholder: Success will be when [...]
+    validations:
+      required: true
+  - type: textarea
+    id: additional-resources
+    attributes:
+      label: Additional Resources
+      description: Include links to related documentation, files, or tools needed to complete the task.
+    validations:
+      required: false
+  - type: textarea
+    id: additional-notes
+    attributes:
+      label: Additional Notes
+      description: Add any other notes or comments about this task here.
+    validations:
+      required: false
