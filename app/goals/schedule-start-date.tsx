@@ -5,17 +5,15 @@ import { Pressable, View } from "react-native";
 import { Text } from "../../components/ui/text";
 import { CalendarDays } from "~/lib/icons/CalendarDays";
 import { fontFamily } from "~/lib/font";
-import { formatDate, isToday, isTomorrow, isYesterday } from "~/lib/date";
-
-const dateConditions = [
-  { condition: isYesterday, label: "Yesterday" },
-  { condition: isToday, label: "Today" },
-  { condition: isTomorrow, label: "Tomorrow" },
-];
+import { getRelativeDateLabel } from "~/lib/date";
+import { useGoalFormStore } from "./create/goal-store";
+import { useShallow } from "zustand/react/shallow";
 
 export default function ScheduleStartDate() {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [startDate, setStartDate] = useState("Today");
+  const [startDate, setStartDate] = useGoalFormStore(
+    useShallow((s) => [s.startDate, s.setStartDate])
+  );
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -26,10 +24,7 @@ export default function ScheduleStartDate() {
   };
 
   const handleConfirm = (date: Date) => {
-    const matchedCondition = dateConditions.find(({ condition }) =>
-      condition(date)
-    );
-    setStartDate(matchedCondition ? matchedCondition.label : formatDate(date));
+    setStartDate(date);
     hideDatePicker();
   };
 
@@ -55,7 +50,7 @@ export default function ScheduleStartDate() {
                 fontFamily: fontFamily.openSans.semiBold,
               }}
             >
-              {startDate}
+              {getRelativeDateLabel(startDate)}
             </Text>
           </View>
         </View>
@@ -63,6 +58,7 @@ export default function ScheduleStartDate() {
           display="inline"
           isVisible={isDatePickerVisible}
           mode="date"
+          date={startDate}
           onConfirm={handleConfirm}
           onCancel={hideDatePicker}
         />

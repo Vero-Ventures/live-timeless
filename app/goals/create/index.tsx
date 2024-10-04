@@ -58,6 +58,7 @@ function CreateGoalForm() {
     intervalRepeat,
     selectedIcon,
     selectedIconColor,
+    startDate,
     unitType,
     unitValue,
     unit,
@@ -75,6 +76,7 @@ function CreateGoalForm() {
       s.intervalRepeat,
       s.selectedIcon,
       s.selectedIconColor,
+      s.startDate,
       s.unitType,
       s.unitValue,
       s.unit,
@@ -218,6 +220,7 @@ function CreateGoalForm() {
                 dailyRepeat,
                 monthlyRepeat,
                 intervalRepeat,
+                startDate: startDate.getTime(), // store as timestamp
                 unitType,
                 unitValue,
                 unit,

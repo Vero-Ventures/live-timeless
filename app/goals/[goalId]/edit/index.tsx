@@ -75,6 +75,8 @@ function EditGoalForm() {
     setSelectedIcon,
     selectedIconColor,
     setSelectedIconColor,
+    startDate,
+    setStartDate,
     unitType,
     setUnitType,
     unitValue,
@@ -104,6 +106,8 @@ function EditGoalForm() {
       s.setSelectedIcon,
       s.selectedIconColor,
       s.setSelectedIconColor,
+      s.startDate,
+      s.setStartDate,
       s.unitType,
       s.setUnitType,
       s.unitValue,
@@ -152,6 +156,7 @@ function EditGoalForm() {
       setIntervalRepeat(goal.intervalRepeat);
       setSelectedIcon(goal.selectedIcon);
       setSelectedIconColor(goal.selectedIconColor);
+      setStartDate(new Date(goal.startDate));
       setUnitType(goal.unitType as UnitType);
       setUnitValue(goal.unitValue);
       setUnit(goal.unit);
@@ -170,6 +175,7 @@ function EditGoalForm() {
     setIntervalRepeat,
     setSelectedIcon,
     setSelectedIconColor,
+    setStartDate,
     setUnitType,
     setUnitValue,
     setUnit,
@@ -305,6 +311,7 @@ function EditGoalForm() {
                 dailyRepeat,
                 monthlyRepeat,
                 intervalRepeat,
+                startDate: startDate.getTime(), // store as timestamp
                 unitType,
                 unitValue,
                 unit,
