@@ -2,7 +2,7 @@ name: Bug Report
 description: Create a report to help us improve
 title: "[bug]: "
 type: "Bug"
-projects: "Vero-Ventures/4"
+projects: "Vero-Ventures/6"
 body:
   - type: markdown
     attributes:
