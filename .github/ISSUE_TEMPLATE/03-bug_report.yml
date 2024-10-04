@@ -1,7 +1,8 @@
 name: Bug Report
 description: Create a report to help us improve
-title: "[Bug]: "
-labels: ["bug"]
+title: "[bug]: "
+type: "Bug"
+projects: "Vero-Ventures/4"
 body:
   - type: markdown
     attributes:
@@ -45,8 +46,28 @@ body:
     attributes:
       label: Operating System
       options:
+        - Windows
+        - macOS
+        - Linux
         - iOS
         - Android
+    validations:
+      required: true
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: Browsers
+      multiple: true
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Arc
+        - Brave
+        - Opera
+        - Vivaldi
+        - Other
     validations:
       required: true
   - type: textarea

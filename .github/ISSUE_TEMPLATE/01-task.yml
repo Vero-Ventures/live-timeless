@@ -1,0 +1,48 @@
+name: Task
+description: Define a small, detailed piece of work
+title: "[task]: "
+type: "Task"
+projects: "Vero-Ventures/4"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for creating a task! Please provide clear and detailed information to help us understand and complete it effectively.
+  - type: textarea
+    id: task-summary
+    attributes:
+      label: Task Summary
+      description: A brief summary of the task.
+      placeholder: Write a short description of the task [...]
+    validations:
+      required: true
+  - type: textarea
+    id: task-details
+    attributes:
+      label: Task Details
+      description: Specify the details and steps needed to accomplish this task.
+      placeholder: Describe the specific actions required, any prerequisites, and expected outcomes [...]
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Define the criteria for the task to be considered complete.
+      placeholder: List specific conditions indicating the task is done [...]
+    validations:
+      required: true
+  - type: textarea
+    id: additional-resources
+    attributes:
+      label: Additional Resources
+      description: Include links to related documentation, files, or tools needed to complete the task.
+    validations:
+      required: false
+  - type: textarea
+    id: additional-notes
+    attributes:
+      label: Additional Notes
+      description: Add any other notes or comments about this task here.
+    validations:
+      required: false
