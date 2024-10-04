@@ -1,13 +1,11 @@
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
 import { View, ImageBackground, Image } from "react-native";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
+import { router } from "expo-router";
 
 export default function Onboarding() {
-  const router = useRouter();
-
   return (
     <ImageBackground
       source={{ uri: "onboarding" }}

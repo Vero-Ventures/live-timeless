@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import { Link, Redirect } from "expo-router";
+import { Link, Redirect, router } from "expo-router";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
@@ -9,12 +9,10 @@ import { api } from "~/convex/_generated/api";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
 import { Loader2 } from "lucide-react-native";
 import { useAuthActions } from "@convex-dev/auth/dist/react";
-import { useRouter } from "expo-router";
 
 export default function Profile() {
   const { signOut } = useAuthActions();
   const user = useQuery(api.users.currentUser);
-  const router = useRouter();
 
   return (
     <SafeAreaView style={{ height: "100%", backgroundColor: "#082139" }}>

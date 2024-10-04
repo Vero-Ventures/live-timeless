@@ -21,6 +21,7 @@ import { formatDate } from "~/lib/date";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import FormSubmitButton from "~/components/form-submit-button";
 import { api } from "~/convex/_generated/api";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export default function EditProfileScreen() {
   return (
@@ -128,88 +129,90 @@ function EditProfileForm() {
     }
   };
   return (
-    <View className="gap-6 px-4">
-      {!!error && (
-        <Alert icon={AlertCircle} variant="destructive" className="max-w-xl">
-          <AlertTitle>Something went wrong!</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-      <View className="gap-2">
-        <Label nativeID="name">Name</Label>
-        <Input
-          inputMode="text"
-          placeholder="John Doe"
-          value={name}
-          onChangeText={setName}
-        />
-      </View>
-      <View className="gap-2">
-        <Label nativeID="email">Email</Label>
-        <Input
-          inputMode="email"
-          placeholder="example@email.com"
-          value={email}
-          onChangeText={setEmail}
-        />
-      </View>
-      <Pressable onPress={showDatePicker}>
-        <View className="rounded-xl border border-input">
-          <View className="flex flex-row items-center gap-4 p-5">
-            <View className="rounded-xl bg-[#1E00FE] p-2">
-              <CalendarDays color="#fff" />
-            </View>
-            <View>
-              <Text
-                className="text-xs text-muted-foreground"
-                style={{
-                  fontFamily: fontFamily.openSans.semiBold,
-                  letterSpacing: 0.5,
-                }}
-              >
-                Date of Birth
-              </Text>
-              <Text
-                style={{
-                  fontFamily: fontFamily.openSans.semiBold,
-                }}
-              >
-                {formatDate(dob)}
-              </Text>
-            </View>
-          </View>
-          <DateTimePicker
-            display="inline"
-            isVisible={isDatePickerVisible}
-            mode="date"
-            date={dob}
-            maximumDate={new Date()}
-            onConfirm={handleConfirm}
-            onCancel={hideDatePicker}
+    <KeyboardAwareScrollView>
+      <View className="gap-6 px-4">
+        {!!error && (
+          <Alert icon={AlertCircle} variant="destructive" className="max-w-xl">
+            <AlertTitle>Something went wrong!</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        <View className="gap-2">
+          <Label nativeID="name">Name</Label>
+          <Input
+            inputMode="text"
+            placeholder="John Doe"
+            value={name}
+            onChangeText={setName}
           />
         </View>
-      </Pressable>
-      <View className="gap-2">
-        <Label nativeID="height">Height (cm)</Label>
-        <Input
-          placeholder="Enter your height"
-          value={height}
-          onChangeText={setHeight}
-          keyboardType="numeric"
-        />
+        <View className="gap-2">
+          <Label nativeID="email">Email</Label>
+          <Input
+            inputMode="email"
+            placeholder="example@email.com"
+            value={email}
+            onChangeText={setEmail}
+          />
+        </View>
+        <Pressable onPress={showDatePicker}>
+          <View className="rounded-xl border border-input">
+            <View className="flex flex-row items-center gap-4 p-5">
+              <View className="rounded-xl bg-[#1E00FE] p-2">
+                <CalendarDays color="#fff" />
+              </View>
+              <View>
+                <Text
+                  className="text-xs text-muted-foreground"
+                  style={{
+                    fontFamily: fontFamily.openSans.semiBold,
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  Date of Birth
+                </Text>
+                <Text
+                  style={{
+                    fontFamily: fontFamily.openSans.semiBold,
+                  }}
+                >
+                  {formatDate(dob)}
+                </Text>
+              </View>
+            </View>
+            <DateTimePicker
+              display="inline"
+              isVisible={isDatePickerVisible}
+              mode="date"
+              date={dob}
+              maximumDate={new Date()}
+              onConfirm={handleConfirm}
+              onCancel={hideDatePicker}
+            />
+          </View>
+        </Pressable>
+        <View className="gap-2">
+          <Label nativeID="height">Height (cm)</Label>
+          <Input
+            placeholder="Enter your height"
+            value={height}
+            onChangeText={setHeight}
+            keyboardType="numeric"
+          />
+        </View>
+        <View className="gap-2">
+          <Label nativeID="weight">Weight (kg)</Label>
+          <Input
+            placeholder="Enter your weight"
+            value={weight}
+            onChangeText={setWeight}
+            keyboardType="numeric"
+          />
+        </View>
+        <FormSubmitButton isPending={isPending} onPress={handleSaveProfile}>
+          Save
+        </FormSubmitButton>
       </View>
-      <View className="gap-2">
-        <Label nativeID="weight">Weight (kg)</Label>
-        <Input
-          placeholder="Enter your weight"
-          value={weight}
-          onChangeText={setWeight}
-          keyboardType="numeric"
-        />
-      </View>
-      <FormSubmitButton isPending={isPending} onPress={handleSaveProfile}>
-        Save
-      </FormSubmitButton>
-    </View>
+    </KeyboardAwareScrollView>
   );
 }
