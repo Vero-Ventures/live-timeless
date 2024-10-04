@@ -17,22 +17,6 @@ body:
     validations:
       required: true
   - type: textarea
-    id: problem-statement
-    attributes:
-      label: Problem Statement
-      description: A clear and concise description of the problem this Epic addresses.
-      placeholder: The main issue is [...]
-    validations:
-      required: true
-  - type: textarea
-    id: success-criteria
-    attributes:
-      label: Success Criteria
-      description: Define what success looks like for this Epic.
-      placeholder: Success will be when [...]
-    validations:
-      required: true
-  - type: textarea
     id: additional-resources
     attributes:
       label: Additional Resources
