@@ -9,11 +9,19 @@ body:
       value: |
         Thank you for outlining this Epic! Please provide comprehensive details of the proposed work. Be sure to add sub issues in the issues later when the Epic is created.
   - type: textarea
-    id: epic-description
+    id: problem-statement
     attributes:
-      label: Describe the Epic
-      description: A clear and concise description of the Epic and its objectives.
-      placeholder: This Epic will [...]
+      label: Problem Statement
+      description: A clear and concise description of the problem this Epic addresses.
+      placeholder: The main issue is [...]
+    validations:
+      required: true
+  - type: textarea
+    id: success-criteria
+    attributes:
+      label: Success Criteria
+      description: Define what success looks like for this Epic.
+      placeholder: Success will be when [...]
     validations:
       required: true
   - type: textarea
