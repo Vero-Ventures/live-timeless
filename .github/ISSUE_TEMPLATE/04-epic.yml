@@ -17,14 +17,6 @@ body:
     validations:
       required: true
   - type: textarea
-    id: success-criteria
-    attributes:
-      label: Success Criteria
-      description: Define what success looks like for this Epic.
-      placeholder: Success will be when [...]
-    validations:
-      required: true
-  - type: textarea
     id: additional-resources
     attributes:
       label: Additional Resources
