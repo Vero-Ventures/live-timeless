@@ -12,12 +12,12 @@ export const fontFamily = Platform.select({
   },
   ios: {
     openSans: {
-      light: "OpenSans_300Light",
-      regular: "OpenSans_400Regular",
-      medium: "OpenSans_500Medium",
-      semiBold: "OpenSans_600SemiBold",
-      bold: "OpenSans_700Bold",
-      extraBold: "OpenSans_800ExtraBold",
+      light: "OpenSans-Light",
+      regular: "OpenSans-Regular",
+      medium: "OpenSans-Medium",
+      semiBold: "OpenSans-SemiBold",
+      bold: "OpenSans-Bold",
+      extraBold: "OpenSans-ExtraBold",
     },
   },
   default: {
