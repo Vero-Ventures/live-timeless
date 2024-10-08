@@ -25,18 +25,6 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen
-          name="home"
-          options={{
-            title: "Home",
-            headerShown: false,
-            tabBarIcon: ({ color }) => (
-              <View style={{ alignItems: "center" }}>
-                <Home color={color} />
-              </View>
-            ),
-          }}
-        />
-        <Tabs.Screen
           name="goals"
           options={{
             title: "Goals",
@@ -44,6 +32,18 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => (
               <View style={{ alignItems: "center" }}>
                 <Goal color={color} />
+              </View>
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="home"
+          options={{
+            title: "Home",
+            headerShown: false,
+            tabBarIcon: ({ color }) => (
+              <View style={{ alignItems: "center" }}>
+                <Home color={color} />
               </View>
             ),
           }}

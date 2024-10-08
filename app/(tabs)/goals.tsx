@@ -9,7 +9,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
-import { Link } from "expo-router";
+import { Link, SplashScreen } from "expo-router";
 import {
   useEffect,
   useRef,
@@ -30,6 +30,12 @@ export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
   const goals = useQuery(api.goals.listGoals);
+
+  useEffect(() => {
+    if (goals) {
+      SplashScreen.hideAsync();
+    }
+  }, [goals]);
 
   return (
     <SafeAreaView
