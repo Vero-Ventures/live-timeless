@@ -2,7 +2,7 @@ import { View } from "react-native";
 import { Tabs } from "expo-router";
 import { User } from "~/lib/icons/User";
 import { Home } from "~/lib/icons/Home";
-import { Goal } from "lucide-react-native";
+import { Goal, Mountain } from "lucide-react-native";
 import { fontFamily } from "~/lib/font";
 import { Star } from "~/lib/icons/Star";
 
@@ -37,13 +37,13 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="home"
+          name="challenges"
           options={{
-            title: "Home",
+            title: "Challenges",
             headerShown: false,
             tabBarIcon: ({ color }) => (
               <View style={{ alignItems: "center" }}>
-                <Home color={color} />
+                <Mountain color={color} />
               </View>
             ),
           }}
