@@ -89,7 +89,6 @@ export default function RootLayout() {
             name="sign-in"
             options={{
               headerShown: false,
-              animation: "fade",
             }}
           />
         </Stack>
