@@ -9,6 +9,7 @@ import { api } from "~/convex/_generated/api";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
 import { Loader2 } from "lucide-react-native";
 import { useAuthActions } from "@convex-dev/auth/dist/react";
+import PrivacyPolicyButton from "~/components/privacy-policy-button";
 
 export default function Profile() {
   const { signOut } = useAuthActions();
@@ -55,18 +56,11 @@ export default function Profile() {
           >
             <Text>Logout</Text>
           </Button>
-          <View>
-            <Button
-              size="lg"
-              onPress={() => {
-                router.push("/privacy-policy");
-              }}
-            >
-              <Text>Privacy Policy</Text>
-            </Button>
-          </View>
         </View>
       </Authenticated>
+      <View className="absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-row gap-4">
+        <PrivacyPolicyButton />
+      </View>
     </SafeAreaView>
   );
 }

@@ -8,6 +8,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { fontFamily } from "~/lib/font";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import PrivacyPolicyButton from "~/components/privacy-policy-button";
 export default function SignIn() {
   const { signIn } = useAuthActions();
   const [step, setStep] = useState<"signIn" | { email: string }>("signIn");
@@ -106,9 +107,7 @@ export default function SignIn() {
         </View>
       </KeyboardAwareScrollView>
       <View className="absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-row gap-4">
-        <Link href="/privacy-policy">
-          <Text className="text-sm text-blue-500">Privacy Policy</Text>
-        </Link>
+        <PrivacyPolicyButton />
       </View>
     </SafeAreaView>
   );
