@@ -1,10 +1,4 @@
-import {
-  FlatList,
-  Pressable,
-  View,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+import { FlatList, Pressable, View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Text } from "~/components/ui/text";
@@ -25,6 +19,7 @@ import { useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import { Doc } from "~/convex/_generated/dataModel";
 import { GOAL_ICONS } from "~/constants/goal-icons";
+import GoalListLoader from "~/components/goal-list-loader";
 
 export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
@@ -63,9 +58,8 @@ export default function GoalsPage() {
           Goals
         </Text>
         {!goals ? (
-          <View className="mt-10 flex flex-row justify-center gap-2">
-            <Text>Loading goals...</Text>
-            <ActivityIndicator />
+          <View className="mt-6 flex flex-row justify-center gap-2">
+            <GoalListLoader />
           </View>
         ) : (
           <FlatList
