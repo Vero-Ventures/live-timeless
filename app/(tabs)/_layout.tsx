@@ -1,7 +1,6 @@
 import { View } from "react-native";
 import { Tabs } from "expo-router";
 import { User } from "~/lib/icons/User";
-import { Home } from "~/lib/icons/Home";
 import { Goal, Mountain } from "lucide-react-native";
 import { fontFamily } from "~/lib/font";
 import { Star } from "~/lib/icons/Star";
