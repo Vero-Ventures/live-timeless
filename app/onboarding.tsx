@@ -3,9 +3,13 @@ import { View, ImageBackground, Image } from "react-native";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
-import { router } from "expo-router";
+import { router, SplashScreen } from "expo-router";
+import { useEffect } from "react";
 
 export default function Onboarding() {
+  useEffect(() => {
+    SplashScreen.hideAsync();
+  }, []);
   return (
     <ImageBackground
       source={{ uri: "onboarding" }}

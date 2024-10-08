@@ -81,7 +81,7 @@ export default function SignIn() {
                   onPress={async () => {
                     try {
                       await signIn("resend-otp", { email, code });
-                      router.replace("/home");
+                      router.replace("/goals");
                     } catch (error) {
                       console.log(error);
                     }
