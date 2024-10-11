@@ -2,6 +2,7 @@
 module.exports = {
   extends: "expo",
   plugins: ["react", "react-native"],
+  parser: "@typescript-eslint/parser",
   rules: {
     "react-native/no-unused-styles": "error",
     "react/jsx-no-leaked-render": [

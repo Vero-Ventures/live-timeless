@@ -5,7 +5,8 @@ import { ConvexReactClient } from "convex/react";
 import * as SecureStore from "expo-secure-store";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Theme, ThemeProvider } from "@react-navigation/native";
+import type { Theme} from "@react-navigation/native";
+import { ThemeProvider } from "@react-navigation/native";
 import { SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
