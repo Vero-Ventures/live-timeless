@@ -1,4 +1,5 @@
 # Live Timeless
+
 This is an [Expo](https://expo.dev) project for the Live Timeless app, a goal-setting and habit-tracking application.
 
 ## About
