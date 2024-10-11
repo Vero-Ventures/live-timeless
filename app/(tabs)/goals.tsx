@@ -23,7 +23,7 @@ import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
 import { useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
-import { Doc } from "~/convex/_generated/dataModel";
+import type { Doc } from "~/convex/_generated/dataModel";
 import { GOAL_ICONS } from "~/constants/goal-icons";
 
 export default function GoalsPage() {

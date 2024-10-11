@@ -1,5 +1,5 @@
 import { useAuthActions } from "@convex-dev/auth/dist/react";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import { useState } from "react";
 import { View, Image } from "react-native";
 import { Text } from "~/components/ui/text";

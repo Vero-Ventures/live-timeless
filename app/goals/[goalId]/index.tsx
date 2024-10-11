@@ -4,7 +4,7 @@ import { Stack, useLocalSearchParams, router } from "expo-router";
 import { Alert, Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
-import { Id } from "~/convex/_generated/dataModel";
+import type { Id } from "~/convex/_generated/dataModel";
 import { fontFamily } from "~/lib/font";
 import * as DropdownMenu from "zeego/dropdown-menu";
 
