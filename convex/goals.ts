@@ -2,6 +2,8 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+hello
+
 export const getGoalById = query({
   args: { goalId: v.id("goals") },
   handler: async (ctx, { goalId }) => {
