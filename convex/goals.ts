@@ -73,7 +73,7 @@ export const updateGoal = mutation({
   },
   handler: async (ctx, args) => {
     const { goalId, ...updateData } = args;
-    await ctx.db.patch(args.goalId, updateData);
+    await ctx.db.patch(goalId, updateData);
   },
 });
 
