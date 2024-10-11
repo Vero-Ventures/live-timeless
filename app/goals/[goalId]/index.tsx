@@ -30,6 +30,14 @@ export default function GoalScreen() {
       ]
     );
   };
+  
+  const handleStartGoal = () => {
+    router.push({
+      pathname: "/goals/[goalId]/start",
+      params: { goalId },
+    });
+  };
+  
 
   return (
     <View className="h-full gap-4 bg-background p-4">
@@ -101,6 +109,19 @@ export default function GoalScreen() {
           ),
         }}
       />
+      
+      <Pressable
+        className="mt-5 bg-[#299240] p-3 rounded-lg items-center"
+        onPress={handleStartGoal}
+      >
+        <Text
+          className="text-white text-base"
+          style={{ fontFamily: fontFamily.openSans.bold }}
+        >
+          Start Goal
+        </Text>
+      </Pressable>
+
     </View>
   );
 }
