@@ -54,6 +54,65 @@ export default function GoalsPage() {
     })
     .filter((item) => item !== null); // Remove nulls
 
+  const currentDayOfWeek = selectedDate
+    .toLocaleString("en-CA", { weekday: "long" })
+    .toLowerCase();
+  const currentDayOfMonth = selectedDate.getDate();
+
+  function isGoalStarted(startDateTimestamp: number) {
+    const startDate = new Date(startDateTimestamp);
+    return startDate <= selectedDate;
+  }
+
+  function isGoalRepeatingOnDay(dailyRepeat: Array<string>) {
+    return dailyRepeat.includes(currentDayOfWeek);
+  }
+
+  function isGoalRepeatingMonthly(
+    monthlyRepeat: Array<number>,
+    currentDayOfMonth: number
+  ) {
+    return monthlyRepeat.includes(currentDayOfMonth);
+  }
+
+  function isGoalRepeatingOnInterval(
+    startDateTimestamp: number,
+    intervalRepeat: number
+  ) {
+    const startDate = new Date(startDateTimestamp);
+    const today = new Date(selectedDate);
+
+    const diffTime = Math.abs(today.getTime() - startDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return diffDays % intervalRepeat === 0;
+  }
+
+  function shouldDisplayGoal(goal: {
+    startDate: number;
+    repeatType: string;
+    dailyRepeat: string[];
+    monthlyRepeat: number[];
+    intervalRepeat: number;
+  }) {
+    if (!isGoalStarted(goal.startDate)) {
+      return false;
+    }
+
+    if (goal.repeatType === "daily") {
+      return isGoalRepeatingOnDay(goal.dailyRepeat);
+    } else if (goal.repeatType === "monthly") {
+      return isGoalRepeatingMonthly(goal.monthlyRepeat, currentDayOfMonth);
+    } else if (goal.repeatType === "interval") {
+      return isGoalRepeatingOnInterval(goal.startDate, goal.intervalRepeat)
+    }
+
+    //TODO: check if there are other repeat types
+
+    return false;
+  }
+
+  const filteredGoals = goals?.filter(shouldDisplayGoal);
   return (
     <SafeAreaView
       style={{
@@ -65,13 +124,14 @@ export default function GoalsPage() {
     >
       <View className="goals-container px-4">
         <Text className="mb-2 text-sm uppercase text-gray-500">
-          {selectedDate.toDateString() === today.toDateString()
+          {/* {selectedDate.toDateString() === today.toDateString()
             ? "Today"
             : selectedDate.toDateString() === yesterday.toDateString()
               ? "Yesterday"
               : selectedDate.toDateString() === tomorrow.toDateString()
-                ? "Tomorrow"
-                : selectedDate.toLocaleDateString("en-US", {
+                ? "Tomorrow" */}
+                {/* :  */}
+                {selectedDate.toLocaleDateString("en-US", {
                     month: "long",
                     day: "numeric",
                     year: "numeric",
