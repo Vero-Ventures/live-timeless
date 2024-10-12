@@ -44,7 +44,7 @@ export default function GoalsPage() {
 
   function normalizeDate(date: Date): Date {
     const normalized = new Date(date);
-    normalized.setHours(0, 0, 0, 0); // set time to midnight
+    normalized.setHours(0, 0, 0, 0);
     return normalized;
   }
   
@@ -92,9 +92,6 @@ export default function GoalsPage() {
     } else if (goal.repeatType === "interval") {
       return isGoalRepeatingOnInterval(goal.startDate, goal.intervalRepeat)
     }
-
-    //TODO: check if there are other repeat types
-
     return false;
   }
 
