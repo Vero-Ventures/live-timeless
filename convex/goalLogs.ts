@@ -16,14 +16,23 @@ export const createGoalLog = mutation({
         date: v.number(),
     },
     handler: async (ctx, args) => {
-        await ctx.db.insert("goalLogs", args);
+        const userId = await getAuthUserId(ctx);
+        if (userId === null) {
+            return null;
+        }
+        await ctx.db.insert("goalLogs", { 
+            ...args,
+            userId,
+        });
     },
 });
 
 export const updateGoalLog = mutation({
     args: {
         goalLogId: v.id("goalLogs"),
-        isComplete: v.boolean(),
+        isComplete: v.optional(v.boolean()),
+        date: v.optional(v.number()),
+        goalId: v.optional(v.id("goals")),
     },
     handler: async (ctx, args) => {
         const { goalLogId, ...updateData } = args;
