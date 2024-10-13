@@ -9,7 +9,7 @@ import { fontFamily } from "~/lib/font";
 import * as DropdownMenu from "zeego/dropdown-menu";
 
 export default function GoalScreen() {
-  const { goalId } = useLocalSearchParams<{ goalId: Id<"goals"> }>();
+  const { goalId, goalLogId } = useLocalSearchParams<{ goalId: Id<"goals">, goalLogId: Id<"goalLogs"> }>();
   const goal = useQuery(api.goals.getGoalById, { goalId });
   const deleteGoal = useMutation(api.goals.deleteGoal);
 
@@ -33,8 +33,8 @@ export default function GoalScreen() {
   
   const handleStartGoal = () => {
     router.push({
-      pathname: "/goals/[goalId]/start",
-      params: { goalId },
+      pathname: "/goals/[goalId]/[goalLogId]/start",
+      params: { goalId, goalLogId },
     });
   };
   
