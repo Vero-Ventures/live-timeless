@@ -60,7 +60,7 @@ export default function StartGoalScreen() {
                 text: "OK",
                 onPress: () => router.push({
                   pathname: "/goals/[goalId]/[goalLogId]/complete",
-                  params: { goalId },
+                  params: { goalId, goalLogId },
                 }),
                 // Navigate back to goals
               },

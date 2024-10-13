@@ -11,7 +11,7 @@ import * as DropdownMenu from "zeego/dropdown-menu";
 export default function GoalScreen() {
   const { goalId, goalLogId } = useLocalSearchParams<{ goalId: Id<"goals">, goalLogId: Id<"goalLogs"> }>();
   const goal = useQuery(api.goals.getGoalById, { goalId });
-  const deleteGoal = useMutation(api.goals.deleteGoal);
+  const deleteGoalAndGoalLogs = useMutation(api.goals.deleteGoalAndGoalLogs);
 
   const handleDelete = async () => {
     Alert.alert(
@@ -21,7 +21,7 @@ export default function GoalScreen() {
         {
           text: "Yes",
           onPress: async () => {
-            await deleteGoal({ goalId });
+            await deleteGoalAndGoalLogs({ goalId });
             router.dismiss();
           },
           style: "destructive",
