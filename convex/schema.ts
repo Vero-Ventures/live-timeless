@@ -35,4 +35,10 @@ export default defineSchema({
     unit: v.string(),
     recurrence: v.string(),
   }).index("by_user_id", ["userId"]),
+  goalLogs: defineTable({
+    _id: v.id("goalLogs"),
+    goalId: v.id("goals"),
+    isComplete: v.boolean(),
+    date: v.number(),
+  }).index("by_goal_id", ["goalId"]),
 });
