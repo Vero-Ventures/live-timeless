@@ -10,41 +10,34 @@ import { useState, useEffect } from 'react';
 export default function StartGoalScreen() {
   const { goalId, goalLogId } = useLocalSearchParams<{ goalId: Id<"goals">, goalLogId: Id<"goalLogs"> }>();
 
-  // Fetch goalLog related to the goalId
   const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });
-  const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);  // Mutation to update goalLog
-  const goal = useQuery(api.goals.getGoalById, { goalId }); // Fetch the goal for goal details
+  const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);  
+  const goal = useQuery(api.goals.getGoalById, { goalId }); 
 
-  const [remaining, setRemaining] = useState(0);  // Start at 0 initially
+  const [remaining, setRemaining] = useState(0); 
 
-  // Recalculate the remaining value when the goalLog is fetched from the backend
   useEffect(() => {
     if (goalLog && goal) {
       const unitValue = goal?.unitValue ?? 0;
       const completedUnits = goalLog?.unitsCompleted ?? 0;
-      setRemaining(unitValue - completedUnits);  // Calculate remaining units
+      setRemaining(unitValue - completedUnits);  
     }
   }, [goalLog, goal]);
 
-  // Optimistically update the UI and send update to backend
   const handleCompleted = async () => {
-    // Optimistically update the UI by decreasing remaining by 1
     setRemaining((prevRemaining) => {
       const newRemaining = prevRemaining - 1;
 
-      // Update the backend in the background
       if (goalLog) {
         const newUnitsCompleted = (goalLog.unitsCompleted ?? 0) + 1;
 
-        // Optimistically update the backend
         updateGoalLog({
           goalLogId: goalLog._id,
-          unitsCompleted: newUnitsCompleted,  // Send updated completedUnits to backend
+          unitsCompleted: newUnitsCompleted,  
         }).catch(error => {
           console.error("Error updating completed units:", error);
         });
 
-        // If all reps are done, show an alert
         if (newRemaining === 0) {
           updateGoalLog({
             goalLogId: goalLog._id,

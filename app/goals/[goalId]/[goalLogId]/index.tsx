@@ -12,9 +12,8 @@ import { useState, useEffect } from "react";
 export default function GoalScreen() {
   const { goalId, goalLogId } = useLocalSearchParams<{ goalId: Id<"goals">, goalLogId: Id<"goalLogs"> }>();
 
-  // Fetch the goal and the specific goalLog by goalId and goalLogId
   const goal = useQuery(api.goals.getGoalById, { goalId });
-  const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });  // Fetch the specific goalLog
+  const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });  
   const goalLogs = useQuery(api.goalLogs.getGoalLogsbyGoalId, { goalId });
 
   const deleteGoalAndGoalLogs = useMutation(api.goals.deleteGoalAndGoalLogs);
@@ -23,7 +22,6 @@ export default function GoalScreen() {
 
   
 
-  // Calculate progress based on goalLogs
   useEffect(() => {
     if (goalLogs) {
       const totalLogs = goalLogs.length;
@@ -34,7 +32,6 @@ export default function GoalScreen() {
     }
   }, [goalLogs]);
 
-  // Handle deleting the goal and its goalLogs
   const handleDelete = async () => {
     Alert.alert(
       `Are you sure you want to delete ${goal?.name}?`,
@@ -53,21 +50,12 @@ export default function GoalScreen() {
     );
   };
 
-  // Start goal logic
   const handleStartGoal = () => {
     router.push({
       pathname: "/goals/[goalId]/[goalLogId]/start",
       params: { goalId, goalLogId },
     });
   };
-// if (!goal || !goalLog) {
-//   return (
-//     <View className="h-full flex justify-center items-center">
-//       <Text>Loading...</Text>
-//     </View>
-//   );
-// }
-
 
   return (
     <View className="h-full gap-4 bg-background p-4">

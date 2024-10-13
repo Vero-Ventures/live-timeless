@@ -4,6 +4,7 @@ import { Pressable, View, Share } from "react-native";
 import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
 import { fontFamily } from "~/lib/font";
+import { Id } from "~/convex/_generated/dataModel";
 
 export default function GoalCompletionScreen() {
   const { goalId } = useLocalSearchParams<{ goalId: Id<"goals"> }>();
@@ -18,7 +19,6 @@ export default function GoalCompletionScreen() {
   // Calculate total, completed, and remaining goalLogs
   const totalLogs = goalLogs.length;
   const completedLogs = goalLogs.filter((log) => log.isComplete).length;
-  const remainingLogs = totalLogs - completedLogs;
 
   const handleShare = async () => {
     try {
