@@ -125,6 +125,6 @@ export const useGoalFormStore = create<FormState & FormActions>()((set) => ({
   selectedIcon: initialFormState.selectedIcon,
   setSelectedIcon: (selectedIcon) => set({ selectedIcon }),
   weeks: initialFormState.weeks,
-  setWeeks: (weeks) => set({ weeks }),
+  setWeeks: (weeks) => set({ weeks: Number(weeks) }),
   resetForm: () => set(initialFormState),
 }));
