@@ -20,10 +20,7 @@ export const createGoalLog = mutation({
         if (userId === null) {
             return null;
         }
-        await ctx.db.insert("goalLogs", { 
-            ...args,
-            userId,
-        });
+        await ctx.db.insert("goalLogs", args);
     },
 });
 

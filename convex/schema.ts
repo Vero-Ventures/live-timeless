@@ -37,7 +37,6 @@ export default defineSchema({
   }).index("by_user_id", ["userId"]),
   goalLogs: defineTable({
     _id: v.id("goalLogs"),
-    userId: v.id("users"),
     goalId: v.id("goals"),
     isComplete: v.boolean(),
     date: v.number(),
