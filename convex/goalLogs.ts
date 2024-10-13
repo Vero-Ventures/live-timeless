@@ -9,6 +9,36 @@ export const getGoalLogById = query({
     },
 });
 
+export const listGoalLogs = query({
+    handler: async (ctx) => {
+      const userId = await getAuthUserId(ctx);
+      if (userId === null) {
+        return null;
+      }
+      
+      const goals = await ctx.db
+        .query("goals")
+        .filter((q) => q.eq(q.field("userId"), userId))
+        .collect();
+      
+      const goalIds = goals.map((goal) => goal._id);
+  
+      if (goalIds.length === 0) {
+        return [];
+      }
+  
+      const goalLogs = await ctx.db
+        .query("goalLogs")
+        .filter((q) => 
+          q.or(...goalIds.map(goalId => q.eq(q.field("goalId"), goalId)))
+        )
+        .collect();
+  
+      return goalLogs;
+    },
+  });
+  
+
 export const createGoalLog = mutation({
     args: {
         goalId: v.id("goals"),

@@ -29,13 +29,31 @@ import { GOAL_ICONS } from "~/constants/goal-icons";
 export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
+  
+  // Fetch both goals and goalLogs
   const goals = useQuery(api.goals.listGoals);
+  const goalLogs = useQuery(api.goalLogs.listGoalLogs);
 
   useEffect(() => {
-    if (goals) {
+    if (goals && goalLogs) {
       SplashScreen.hideAsync();
     }
-  }, [goals]);
+  }, [goals, goalLogs]);
+
+  // Filter goalLogs for the selectedDate
+  const filteredGoalLogs = goalLogs
+    ? goalLogs.filter((log) => {
+        const logDate = new Date(log.date).setHours(0, 0, 0, 0); // Compare at date level
+        const selectedDateStart = new Date(selectedDate).setHours(0, 0, 0, 0);
+        return logDate === selectedDateStart;
+      })
+    : [];
+
+  // Match filtered goalLogs to their corresponding goals
+  const matchedGoals = filteredGoalLogs.map((log) => {
+    const goal = goals?.find((goal) => goal._id === log.goalId);
+    return goal ? { goal, goalLog: log } : null;
+  }).filter((item) => item !== null); // Remove nulls
 
   return (
     <SafeAreaView
@@ -51,14 +69,14 @@ export default function GoalsPage() {
           {selectedDate.toDateString() === today.toDateString()
             ? "Today"
             : selectedDate.toDateString() === yesterday.toDateString()
-              ? "Yesterday"
-              : selectedDate.toDateString() === tomorrow.toDateString()
-                ? "Tomorrow"
-                : selectedDate.toLocaleDateString("en-US", {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
+            ? "Yesterday"
+            : selectedDate.toDateString() === tomorrow.toDateString()
+            ? "Tomorrow"
+            : selectedDate.toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
         </Text>
         <Text
           className="text-2xl"
@@ -68,7 +86,7 @@ export default function GoalsPage() {
         >
           Goals
         </Text>
-        {!goals ? (
+        {!goals || !goalLogs ? (
           <View className="mt-10 flex flex-row justify-center gap-2">
             <Text>Loading goals...</Text>
             <ActivityIndicator />
@@ -79,15 +97,15 @@ export default function GoalsPage() {
               paddingBottom: 60,
             }}
             className="mt-6 border-t border-t-[#fff]/10 pt-6"
-            data={goals}
+            data={matchedGoals}
             ItemSeparatorComponent={() => (
               <View className="my-4 ml-14 mr-6 h-0.5 bg-[#fff]/10" />
             )}
             ListEmptyComponent={() => (
-              <Text className="text-center">No goals found.</Text>
+              <Text className="text-center">No goals found for this date.</Text>
             )}
-            renderItem={({ item }) => <GoalItem goal={item} />}
-            keyExtractor={(goal) => goal._id.toString()}
+            renderItem={({ item }) => <GoalItem goal={item.goal} goalLog={item.goalLog} />}
+            keyExtractor={(item) => item.goal._id.toString()}
           />
         )}
       </View>
@@ -109,15 +127,16 @@ export default function GoalsPage() {
 
 interface GoalItemProps {
   goal: Doc<"goals">;
+  goalLog: Doc<"goalLogs">;
 }
 
-function GoalItem({ goal }: GoalItemProps) {
+function GoalItem({ goal, goalLog }: GoalItemProps) {
   const IconComp = GOAL_ICONS.find(
     (item) => item.name === goal.selectedIcon
   )?.component;
 
   return (
-    <Link href={`/goals/${goal._id}`} asChild>
+    <Link href={`/goals/${goal._id}/${goalLog._id}`} asChild>
       <Pressable>
         <View className="flex-row items-center gap-4">
           <View
@@ -137,7 +156,7 @@ function GoalItem({ goal }: GoalItemProps) {
               {goal.name}
             </Text>
             <Text className="text-xs text-muted-foreground">
-              {`0 / ${goal.unitValue} ${goal.unit}`}
+              {`${goalLog.unitsCompleted} / ${goal.unitValue} ${goal.unit}`}
             </Text>
           </View>
         </View>
