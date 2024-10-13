@@ -9,6 +9,17 @@ export const getGoalLogById = query({
     },
 });
 
+export const getGoalLogsbyGoalId = query({
+    args: { goalId: v.id("goals") },
+    handler: async (ctx, { goalId }) => {
+        const goalLogs = await ctx.db
+            .query("goalLogs")
+            .filter((q) => q.eq(q.field("goalId"), goalId))
+            .collect();
+        return goalLogs;
+    },
+});
+
 export const listGoalLogs = query({
     handler: async (ctx) => {
       const userId = await getAuthUserId(ctx);
