@@ -4,15 +4,37 @@ import { Stack, useLocalSearchParams, router } from "expo-router";
 import { Alert, Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
-import type { Id } from "~/convex/_generated/dataModel";
+import { Id } from "~/convex/_generated/dataModel";
 import { fontFamily } from "~/lib/font";
 import * as DropdownMenu from "zeego/dropdown-menu";
+import { useState, useEffect } from "react";
 
 export default function GoalScreen() {
   const { goalId, goalLogId } = useLocalSearchParams<{ goalId: Id<"goals">, goalLogId: Id<"goalLogs"> }>();
+
+  // Fetch the goal and the specific goalLog by goalId and goalLogId
   const goal = useQuery(api.goals.getGoalById, { goalId });
+  const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });  // Fetch the specific goalLog
+  const goalLogs = useQuery(api.goalLogs.getGoalLogsbyGoalId, { goalId });
+
   const deleteGoalAndGoalLogs = useMutation(api.goals.deleteGoalAndGoalLogs);
 
+  const [progress, setProgress] = useState<number>(0);
+
+  
+
+  // Calculate progress based on goalLogs
+  useEffect(() => {
+    if (goalLogs) {
+      const totalLogs = goalLogs.length;
+      const completedLogs = goalLogs.filter((log) => log.isComplete).length;
+      
+      const percentage = totalLogs > 0 ? (completedLogs / totalLogs) * 100 : 0;
+      setProgress(percentage);
+    }
+  }, [goalLogs]);
+
+  // Handle deleting the goal and its goalLogs
   const handleDelete = async () => {
     Alert.alert(
       `Are you sure you want to delete ${goal?.name}?`,
@@ -30,14 +52,22 @@ export default function GoalScreen() {
       ]
     );
   };
-  
+
+  // Start goal logic
   const handleStartGoal = () => {
     router.push({
       pathname: "/goals/[goalId]/[goalLogId]/start",
       params: { goalId, goalLogId },
     });
   };
-  
+// if (!goal || !goalLog) {
+//   return (
+//     <View className="h-full flex justify-center items-center">
+//       <Text>Loading...</Text>
+//     </View>
+//   );
+// }
+
 
   return (
     <View className="h-full gap-4 bg-background p-4">
@@ -63,12 +93,7 @@ export default function GoalScreen() {
                   <FontAwesome5 name="ellipsis-h" size={20} color="#fff" />
                 </Pressable>
               </DropdownMenu.Trigger>
-              <DropdownMenu.Content
-                key="actions"
-                placeholder=""
-                onPointerEnterCapture={() => {}}
-                onPointerLeaveCapture={() => {}}
-              >
+              <DropdownMenu.Content key="actions" placeholder="">
                 <DropdownMenu.Item
                   onSelect={() =>
                     router.navigate({
@@ -78,15 +103,8 @@ export default function GoalScreen() {
                   }
                   key="edit-goal"
                   textValue="Edit Goal"
-                  placeholder=""
-                  onPointerEnterCapture={() => {}}
-                  onPointerLeaveCapture={() => {}}
                 >
-                  <DropdownMenu.ItemIcon
-                    ios={{
-                      name: "pencil.line",
-                    }}
-                  />
+                  <DropdownMenu.ItemIcon ios={{ name: "pencil.line" }} />
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator />
                 <DropdownMenu.Item
@@ -94,34 +112,34 @@ export default function GoalScreen() {
                   destructive
                   key="delete-goal"
                   textValue="Delete Goal"
-                  placeholder=""
-                  onPointerEnterCapture={() => {}}
-                  onPointerLeaveCapture={() => {}}
                 >
-                  <DropdownMenu.ItemIcon
-                    ios={{
-                      name: "trash",
-                    }}
-                  />
+                  <DropdownMenu.ItemIcon ios={{ name: "trash" }} />
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Root>
           ),
         }}
       />
-      
+
+      <View className="bg-gray-700 p-4 rounded-lg my-4">
+        <Text className="text-white text-base" style={{ fontFamily: fontFamily.openSans.medium }}>
+          Progress: {progress.toFixed(2)}%
+        </Text>
+        <Text className="text-gray-400 text-sm">
+          You have completed {goalLogs?.filter((log) => log.isComplete).length} of {goalLogs?.length} logs.
+        </Text>
+      </View>
+
       <Pressable
-        className="mt-5 bg-[#299240] p-3 rounded-lg items-center"
-        onPress={handleStartGoal}
+        className={`mt-5 p-3 rounded-lg items-center ${goalLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"}`}
+        onPress={goalLog?.isComplete ? null : handleStartGoal} // Disable press if goalLog is complete
+        disabled={goalLog?.isComplete} // Disable the button if the goalLog is complete
       >
-        <Text
-          className="text-white text-base"
-          style={{ fontFamily: fontFamily.openSans.bold }}
-        >
-          Start Goal
+        <Text className="text-white text-base" style={{ fontFamily: fontFamily.openSans.bold }}>
+          {goalLog?.isComplete ? "Goal Log Completed" : "Start Goal"}
         </Text>
       </Pressable>
-
     </View>
   );
 }
+

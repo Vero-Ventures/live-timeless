@@ -1,7 +1,7 @@
-import { View, Pressable, Text, Share } from "react-native";
-import { Stack, useLocalSearchParams, router } from "expo-router";
 import { useQuery } from "convex/react";
-import { Id } from "~/convex/_generated/dataModel";
+import { Stack, useLocalSearchParams, router } from "expo-router";
+import { Pressable, View, Share } from "react-native";
+import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
 import { fontFamily } from "~/lib/font";
 
@@ -31,12 +31,22 @@ export default function GoalCompletionScreen() {
   };
 
   return (
-    <View className="h-full bg-[#0b1a28] p-4 justify-center items-center">
+    <View className="h-full p-4 justify-center items-center">
       <Stack.Screen
         options={{
-          headerStyle: { backgroundColor: "#0b1a28" },
+          headerStyle: {
+            backgroundColor: "#0b1a28",
+          },
           headerTintColor: "#fff",
-          headerTitle: "Goal Completed",
+          headerTitle: () => (
+            <Text 
+                className="text-xl"
+                style={{ fontFamily: fontFamily.openSans.bold }}
+            >
+              Congratulations!
+            </Text>
+          ),
+          headerBackTitleVisible: false,
         }}
       />
       <Text
