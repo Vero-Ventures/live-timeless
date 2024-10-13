@@ -104,5 +104,7 @@ export const deleteGoalAndGoalLogs = mutation({
     for (const goalLog of goalLogs) {
       await ctx.db.delete(goalLog._id);
     }
+
+    await ctx.db.delete(goalId);
   },
 });
