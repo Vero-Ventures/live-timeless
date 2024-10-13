@@ -4,7 +4,7 @@ import { Text } from '~/components/ui/text';  // Custom Text component
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '~/convex/_generated/api';  // Your API to fetch the goal
 import { fontFamily } from '~/lib/font';  // Font library
-import { Id } from "~/convex/_generated/dataModel";
+import type { Id } from "~/convex/_generated/dataModel";
 import { useState, useEffect } from 'react';
 
 export default function StartGoalScreen() {

@@ -4,7 +4,7 @@ import { Pressable, View, Share } from "react-native";
 import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
 import { fontFamily } from "~/lib/font";
-import { Id } from "~/convex/_generated/dataModel";
+import type { Id } from "~/convex/_generated/dataModel";
 
 export default function GoalCompletionScreen() {
   const { goalId } = useLocalSearchParams<{ goalId: Id<"goals"> }>();
