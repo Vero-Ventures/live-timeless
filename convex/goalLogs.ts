@@ -14,6 +14,7 @@ export const createGoalLog = mutation({
         goalId: v.id("goals"),
         isComplete: v.boolean(),
         date: v.number(),
+        unitsCompleted: v.number(),
     },
     handler: async (ctx, args) => {
         const userId = await getAuthUserId(ctx);
@@ -30,6 +31,7 @@ export const updateGoalLog = mutation({
         isComplete: v.optional(v.boolean()),
         date: v.optional(v.number()),
         goalId: v.optional(v.id("goals")),
+        unitsCompleted: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
         const { goalLogId, ...updateData } = args;
