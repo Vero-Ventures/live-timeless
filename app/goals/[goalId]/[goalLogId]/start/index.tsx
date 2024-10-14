@@ -26,35 +26,6 @@ export default function StartGoalScreen() {
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null); // Track timeLeft when starting
   const [remaining, setRemaining] = useState(0); // For unit-based goals
 
-  useEffect(() => {
-    if (goalLog && goal) {
-      const unitValue = goal?.unitValue ?? 0; // Full duration value
-      const completedUnits = goalLog?.unitsCompleted ?? 0; // Elapsed time from DB
-
-      // Check if the goal is duration-based
-      if (goal?.unitType === "Duration") {
-        setIsDurationGoal(true); // Mark this goal as a duration-based goal
-
-        // Calculate the initial time in seconds based on unitsCompleted
-        const initialTimeInSeconds =
-          goal.unit === "min"
-            ? Math.floor((unitValue - completedUnits) * 60) // For minutes
-            : Math.floor((unitValue - completedUnits) * 3600); // For hours
-
-        resetTimer(initialTimeInSeconds); // Set the timer to the correct time
-      } else {
-        setRemaining(unitValue - completedUnits); // For unit-based goals, calculate remaining units
-      }
-    }
-    // No resetTimer in the dependency array
-  }, [goalLog, goal]);
-
-  useEffect(() => {
-    if (timeLeft === 0 && isDurationGoal) {
-      handleCompleted(); // Automatically complete the goal when time reaches 0
-    }
-  }, [timeLeft]);
-
   // Handle toggling between start and pause
   const handleToggleTimer = async () => {
     if (isRunning) {
@@ -170,6 +141,34 @@ export default function StartGoalScreen() {
       });
     }
   };
+
+  useEffect(() => {
+    if (goalLog && goal) {
+      const unitValue = goal?.unitValue ?? 0; // Full duration value
+      const completedUnits = goalLog?.unitsCompleted ?? 0; // Elapsed time from DB
+
+      // Check if the goal is duration-based
+      if (goal?.unitType === "Duration") {
+        setIsDurationGoal(true); // Mark this goal as a duration-based goal
+
+        // Calculate the initial time in seconds based on unitsCompleted
+        const initialTimeInSeconds =
+          goal.unit === "min"
+            ? Math.floor((unitValue - completedUnits) * 60) // For minutes
+            : Math.floor((unitValue - completedUnits) * 3600); // For hours
+
+        resetTimer(initialTimeInSeconds); // Set the timer to the correct time
+      } else {
+        setRemaining(unitValue - completedUnits); // For unit-based goals, calculate remaining units
+      }
+    }
+  }, [goalLog, goal, resetTimer]);
+
+  useEffect(() => {
+    if (timeLeft === 0 && isDurationGoal) {
+      handleCompleted(); // Automatically complete the goal when time reaches 0
+    }
+  }, [timeLeft, isDurationGoal, handleCompleted]);
 
   if (!goal || !goalLog) {
     return <Text>Loading...</Text>;
