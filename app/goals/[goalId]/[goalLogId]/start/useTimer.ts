@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from "react";
 
 export function useTimer(initialTime: number) {
   const [timeLeft, setTimeLeft] = useState(initialTime);
@@ -28,7 +28,7 @@ export function useTimer(initialTime: number) {
     }
   }, [isRunning]);
 
-  const resetTimer = useCallback((newTime: number) => {
+  const setTimer = useCallback((newTime: number) => {
     setTimeLeft(newTime);
     if (timerRef.current) {
       clearInterval(timerRef.current as NodeJS.Timeout);
@@ -44,5 +44,5 @@ export function useTimer(initialTime: number) {
     };
   }, []);
 
-  return { timeLeft, startTimer, pauseTimer, resetTimer, isRunning };
+  return { timeLeft, startTimer, pauseTimer, setTimer, isRunning };
 }

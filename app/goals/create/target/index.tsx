@@ -341,7 +341,9 @@ function SelectNumberOfWeeks() {
           Number of Weeks
         </Text>
         <View className="flex flex-row items-center justify-center gap-1">
-          <Text className="text-muted-foreground">{weeks} week{weeks > 1 ? "s" : ""}</Text>
+          <Text className="text-muted-foreground">
+            {weeks} week{weeks > 1 ? "s" : ""}
+          </Text>
           <ChevronRight />
         </View>
       </View>
@@ -361,7 +363,11 @@ function SelectNumberOfWeeks() {
         }}
       >
         {weekOptions.map((week) => (
-          <Picker.Item key={week} label={`${week} week${week > 1 ? "s" : ""}`} value={week} />
+          <Picker.Item
+            key={week}
+            label={`${week} week${week > 1 ? "s" : ""}`}
+            value={week}
+          />
         ))}
       </Picker>
     </View>
