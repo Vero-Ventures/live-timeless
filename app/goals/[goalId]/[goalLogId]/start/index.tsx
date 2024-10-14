@@ -214,7 +214,7 @@ export default function StartGoalScreen() {
       )}
 
       {/* Show Timer for Duration-based Goals */}
-      {isDurationGoal && (
+      {!!isDurationGoal && (
         <View className="items-center justify-center">
           {/* Timer Display */}
           <Text
