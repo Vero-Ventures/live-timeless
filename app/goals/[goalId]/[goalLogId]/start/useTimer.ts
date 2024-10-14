@@ -1,12 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export function useTimer(initialTime: number) {
-  const [timeLeft, setTimeLeft] = useState(initialTime); // Time left in seconds
+  const [timeLeft, setTimeLeft] = useState(initialTime);
   const [isRunning, setIsRunning] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Start the timer
-  const startTimer = () => {
+  const startTimer = useCallback(() => {
     if (!isRunning) {
       setIsRunning(true);
       timerRef.current = setInterval(() => {
@@ -20,28 +19,30 @@ export function useTimer(initialTime: number) {
         });
       }, 1000);
     }
-  };
+  }, [isRunning]);
 
-  // Pause the timer
-  const pauseTimer = () => {
+  const pauseTimer = useCallback(() => {
     if (isRunning) {
       setIsRunning(false);
       clearInterval(timerRef.current as NodeJS.Timeout);
     }
-  };
+  }, [isRunning]);
 
-  // Reset the timer to any value
-  const resetTimer = (newTime: number = initialTime) => {
-    pauseTimer();
-    setTimeLeft(newTime); // Dynamically reset the timer to the passed value
-  };
+  const resetTimer = useCallback((newTime: number) => {
+    setTimeLeft(newTime);
+    if (timerRef.current) {
+      clearInterval(timerRef.current as NodeJS.Timeout);
+    }
+    setIsRunning(false);
+  }, []);
 
-  // Cleanup interval on component unmount
   useEffect(() => {
     return () => {
-      clearInterval(timerRef.current as NodeJS.Timeout);
+      if (timerRef.current) {
+        clearInterval(timerRef.current as NodeJS.Timeout);
+      }
     };
   }, []);
 
-  return { timeLeft, isRunning, startTimer, pauseTimer, resetTimer };
+  return { timeLeft, startTimer, pauseTimer, resetTimer, isRunning };
 }
