@@ -5,7 +5,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "~/convex/_generated/api"; // Your API to fetch the goal
 import { fontFamily } from "~/lib/font"; // Font library
 import type { Id } from "~/convex/_generated/dataModel";
-import { useState, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useTimer } from "./useTimer";
 
 export default function StartGoalScreen() {
@@ -20,37 +20,20 @@ export default function StartGoalScreen() {
   const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
   const goal = useQuery(api.goals.getGoalById, { goalId });
 
-  const { timeLeft, startTimer, pauseTimer, resetTimer, isRunning } =
-    useTimer(0); // Updated to include isRunning state
+  const { timeLeft, startTimer, pauseTimer, setTimer, isRunning } = useTimer(0); // Updated to include isRunning state
   const [isDurationGoal, setIsDurationGoal] = useState(false); // Flag for duration-based goals
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null); // Track timeLeft when starting
   const [remaining, setRemaining] = useState(0); // For unit-based goals
 
-  // Handle toggling between start and pause
-  const handleToggleTimer = async () => {
-    if (isRunning) {
-      // Pause the timer
-      await handlePause();
-    } else {
-      // Start the timer and track the session start time
-      setSessionStartTime(timeLeft); // Capture the timeLeft when the session starts
-      startTimer();
-    }
-  };
-
-  // Pause the timer and sync with the backend
-  const handlePause = async () => {
+  const handlePause = useCallback(async () => {
     if (!goal || !goalLog || sessionStartTime === null) return;
 
-    // Pause the timer locally first to prevent UI blocking
     pauseTimer();
 
-    // Calculate how much time passed in this session
-    const elapsedSeconds = sessionStartTime - timeLeft; // How much time has passed in this session
+    const elapsedSeconds = sessionStartTime - timeLeft;
     const elapsedUnits =
-      goal.unit === "min" ? elapsedSeconds / 60 : elapsedSeconds / 3600; // Convert to minutes or hours
+      goal.unit === "min" ? elapsedSeconds / 60 : elapsedSeconds / 3600;
 
-    // Update the backend asynchronously after pausing the timer
     try {
       await updateGoalLog({
         goalLogId: goalLog._id,
@@ -60,21 +43,32 @@ export default function StartGoalScreen() {
       console.error("Error updating unitsCompleted:", error);
     }
 
-    // Reset session start time to null since the timer is paused
     setSessionStartTime(null);
-  };
+  }, [goal, goalLog, sessionStartTime, timeLeft, pauseTimer, updateGoalLog]);
 
-  const handleCompleted = async () => {
+  // Handle toggling between start and pause
+  const handleToggleTimer = useCallback(async () => {
+    if (isRunning) {
+      await handlePause();
+    } else {
+      if (sessionStartTime === null) {
+        setSessionStartTime(timeLeft); // Capture the timeLeft when the session starts
+      }
+      startTimer();
+    }
+  }, [isRunning, handlePause, sessionStartTime, timeLeft, startTimer]);
+
+  const handleCompleted = useCallback(async () => {
     if (isDurationGoal) {
+      // Handle duration-based goal completion
       if (timeLeft === 0 && goal && goalLog) {
-        // Simply send the goal's full unit value as units completed
-        const maxUnitsCompleted = goal?.unitValue ?? 0; // Fallback to 0 if unitValue is undefined
+        const maxUnitsCompleted = goal?.unitValue ?? 0;
 
         try {
           await updateGoalLog({
             goalLogId: goalLog._id,
-            unitsCompleted: maxUnitsCompleted, // Send full unit value to the DB
-            isComplete: true, // Mark goalLog as completed
+            unitsCompleted: maxUnitsCompleted,
+            isComplete: true,
           });
 
           Alert.alert(
@@ -95,8 +89,8 @@ export default function StartGoalScreen() {
           console.error("Error completing the goal:", error);
         }
       }
-    } else if (goalLog) {
-      // Handle unit-based goals (no changes here)
+    } else {
+      // Handle non-duration goals
       setRemaining((prevRemaining) => {
         const newRemaining = prevRemaining - 1;
 
@@ -140,35 +134,33 @@ export default function StartGoalScreen() {
         return prevRemaining; // Fallback in case goalLog is undefined
       });
     }
-  };
+  }, [isDurationGoal, timeLeft, goal, goalLog, updateGoalLog, router]);
 
   useEffect(() => {
     if (goalLog && goal) {
-      const unitValue = goal?.unitValue ?? 0; // Full duration value
-      const completedUnits = goalLog?.unitsCompleted ?? 0; // Elapsed time from DB
+      const unitValue = goal?.unitValue ?? 0;
+      const completedUnits = goalLog?.unitsCompleted ?? 0;
 
-      // Check if the goal is duration-based
       if (goal?.unitType === "Duration") {
-        setIsDurationGoal(true); // Mark this goal as a duration-based goal
-
-        // Calculate the initial time in seconds based on unitsCompleted
+        setIsDurationGoal(true);
         const initialTimeInSeconds =
           goal.unit === "min"
-            ? Math.floor((unitValue - completedUnits) * 60) // For minutes
-            : Math.floor((unitValue - completedUnits) * 3600); // For hours
-
-        resetTimer(initialTimeInSeconds); // Set the timer to the correct time
+            ? Math.floor((unitValue - completedUnits) * 60)
+            : Math.floor((unitValue - completedUnits) * 3600);
+        setTimer(initialTimeInSeconds);
       } else {
-        setRemaining(unitValue - completedUnits); // For unit-based goals, calculate remaining units
+        setIsDurationGoal(false);
+        const remainingUnits = unitValue - completedUnits;
+        setRemaining(remainingUnits >= 0 ? remainingUnits : 0);
       }
     }
-  }, [goalLog, goal, resetTimer]);
+  }, [goalLog, goal, setTimer]);
 
   useEffect(() => {
-    if (timeLeft === 0 && isDurationGoal) {
-      handleCompleted(); // Automatically complete the goal when time reaches 0
+    if (timeLeft === 0 && isDurationGoal && !goalLog?.isComplete) {
+      handleCompleted(); // Call handleCompleted only if the goal is not already completed
     }
-  }, [timeLeft, isDurationGoal, handleCompleted]);
+  }, [timeLeft, isDurationGoal, goalLog?.isComplete, handleCompleted]);
 
   if (!goal || !goalLog) {
     return <Text>Loading...</Text>;
@@ -200,9 +192,12 @@ export default function StartGoalScreen() {
           {/* Counter for Unit Value */}
           <Text
             className="text-center text-6xl text-white"
-            style={{ fontFamily: fontFamily.openSans.bold }}
+            style={{
+              fontFamily: fontFamily.openSans.bold,
+              lineHeight: 80,
+            }}
           >
-            {remaining} {/* Show remaining count */}
+            {remaining}
           </Text>
 
           {/* "Left" Text */}
