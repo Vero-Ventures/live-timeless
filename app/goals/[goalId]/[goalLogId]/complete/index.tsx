@@ -31,7 +31,7 @@ export default function GoalCompletionScreen() {
   };
 
   return (
-    <View className="h-full p-4 justify-center items-center">
+    <View className="h-full items-center justify-center p-4">
       <Stack.Screen
         options={{
           headerStyle: {
@@ -39,9 +39,9 @@ export default function GoalCompletionScreen() {
           },
           headerTintColor: "#fff",
           headerTitle: () => (
-            <Text 
-                className="text-xl"
-                style={{ fontFamily: fontFamily.openSans.bold }}
+            <Text
+              className="text-xl"
+              style={{ fontFamily: fontFamily.openSans.bold }}
             >
               Congratulations!
             </Text>
@@ -50,21 +50,22 @@ export default function GoalCompletionScreen() {
         }}
       />
       <Text
-        className="text-white text-2xl"
+        className="text-2xl text-white"
         style={{ fontFamily: fontFamily.openSans.bold }}
       >
         Congratulations!
       </Text>
-      <Text className="text-white text-lg mt-4">
-        You have completed {completedLogs} day(s) out of {totalLogs} towards your goal.
+      <Text className="mt-4 text-lg text-white">
+        You have completed {completedLogs} day(s) out of {totalLogs} towards
+        your goal.
       </Text>
 
       <Pressable
-        className="mt-6 bg-blue-600 p-4 rounded-lg w-full items-center"
+        className="mt-6 w-full items-center rounded-lg bg-blue-600 p-4"
         onPress={handleShare}
       >
         <Text
-          className="text-white text-lg"
+          className="text-lg text-white"
           style={{ fontFamily: fontFamily.openSans.bold }}
         >
           Share Your Progress
@@ -72,11 +73,11 @@ export default function GoalCompletionScreen() {
       </Pressable>
 
       <Pressable
-        className="mt-4 bg-green-600 p-4 rounded-lg w-full items-center"
+        className="mt-4 w-full items-center rounded-lg bg-green-600 p-4"
         onPress={() => router.navigate("/goals")}
       >
         <Text
-          className="text-white text-lg"
+          className="text-lg text-white"
           style={{ fontFamily: fontFamily.openSans.bold }}
         >
           Back to Goals
@@ -85,4 +86,3 @@ export default function GoalCompletionScreen() {
     </View>
   );
 }
-

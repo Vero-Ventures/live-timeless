@@ -1,26 +1,29 @@
-import { View, Pressable, Alert } from 'react-native';
-import { Stack, useLocalSearchParams, router } from 'expo-router';
-import { Text } from '~/components/ui/text';  // Custom Text component
-import { useQuery, useMutation } from 'convex/react';
-import { api } from '~/convex/_generated/api';  // Your API to fetch the goal
-import { fontFamily } from '~/lib/font';  // Font library
+import { View, Pressable, Alert } from "react-native";
+import { Stack, useLocalSearchParams, router } from "expo-router";
+import { Text } from "~/components/ui/text"; // Custom Text component
+import { useQuery, useMutation } from "convex/react";
+import { api } from "~/convex/_generated/api"; // Your API to fetch the goal
+import { fontFamily } from "~/lib/font"; // Font library
 import type { Id } from "~/convex/_generated/dataModel";
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 export default function StartGoalScreen() {
-  const { goalId, goalLogId } = useLocalSearchParams<{ goalId: Id<"goals">, goalLogId: Id<"goalLogs"> }>();
+  const { goalId, goalLogId } = useLocalSearchParams<{
+    goalId: Id<"goals">;
+    goalLogId: Id<"goalLogs">;
+  }>();
 
   const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });
-  const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);  
-  const goal = useQuery(api.goals.getGoalById, { goalId }); 
+  const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
+  const goal = useQuery(api.goals.getGoalById, { goalId });
 
-  const [remaining, setRemaining] = useState(0); 
+  const [remaining, setRemaining] = useState(0);
 
   useEffect(() => {
     if (goalLog && goal) {
       const unitValue = goal?.unitValue ?? 0;
       const completedUnits = goalLog?.unitsCompleted ?? 0;
-      setRemaining(unitValue - completedUnits);  
+      setRemaining(unitValue - completedUnits);
     }
   }, [goalLog, goal]);
 
@@ -33,16 +36,16 @@ export default function StartGoalScreen() {
 
         updateGoalLog({
           goalLogId: goalLog._id,
-          unitsCompleted: newUnitsCompleted,  
-        }).catch(error => {
+          unitsCompleted: newUnitsCompleted,
+        }).catch((error) => {
           console.error("Error updating completed units:", error);
         });
 
         if (newRemaining === 0) {
           updateGoalLog({
             goalLogId: goalLog._id,
-            isComplete: true,  // Mark goalLog as completed
-          }).catch(error => {
+            isComplete: true, // Mark goalLog as completed
+          }).catch((error) => {
             console.error("Error updating goalLog as completed:", error);
           });
           Alert.alert(
@@ -51,10 +54,11 @@ export default function StartGoalScreen() {
             [
               {
                 text: "OK",
-                onPress: () => router.push({
-                  pathname: "/goals/[goalId]/[goalLogId]/complete",
-                  params: { goalId, goalLogId },
-                }),
+                onPress: () =>
+                  router.push({
+                    pathname: "/goals/[goalId]/[goalLogId]/complete",
+                    params: { goalId, goalLogId },
+                  }),
                 // Navigate back to goals
               },
             ]
@@ -64,7 +68,7 @@ export default function StartGoalScreen() {
         return newRemaining;
       }
 
-      return prevRemaining;  // Fallback in case goalLog is undefined
+      return prevRemaining; // Fallback in case goalLog is undefined
     });
   };
 
@@ -73,15 +77,18 @@ export default function StartGoalScreen() {
   }
 
   return (
-    <View className="h-full bg-[#0b1a28] p-4 justify-center items-center">
+    <View className="h-full items-center justify-center bg-[#0b1a28] p-4">
       <Stack.Screen
         options={{
           headerStyle: {
             backgroundColor: "#0b1a28",
           },
-          headerTintColor: "#fff",  // Ensures white color for the header
+          headerTintColor: "#fff", // Ensures white color for the header
           headerTitle: () => (
-            <Text className="text-xl" style={{ fontFamily: fontFamily.openSans.bold }}>
+            <Text
+              className="text-xl"
+              style={{ fontFamily: fontFamily.openSans.bold }}
+            >
               {goal.name} in Progress
             </Text>
           ),
@@ -90,37 +97,41 @@ export default function StartGoalScreen() {
       />
 
       {/* Grouping all the text elements */}
-      <View className="justify-center items-center">
+      <View className="items-center justify-center">
         {/* Counter for Unit Value */}
         <Text
-          className="text-white text-6xl text-center"  // Centering the remaining number
+          className="text-center text-6xl text-white" // Centering the remaining number
           style={{ fontFamily: fontFamily.openSans.bold }}
         >
-          {remaining}  {/* Show remaining count */}
+          {remaining} {/* Show remaining count */}
         </Text>
 
         {/* "Left" Text */}
-        <Text className="text-gray-400 text-xl text-center mt-2">
-          left
-        </Text>
+        <Text className="mt-2 text-center text-xl text-gray-400">left</Text>
       </View>
 
       {/* Button for "Completed" */}
       <Pressable
-        className="mt-6 bg-green-600 p-4 rounded-lg w-full items-center"
-        onPress={handleCompleted}  // Decrement the total when completed
+        className="mt-6 w-full items-center rounded-lg bg-green-600 p-4"
+        onPress={handleCompleted} // Decrement the total when completed
       >
-        <Text className="text-white text-lg" style={{ fontFamily: fontFamily.openSans.bold }}>
+        <Text
+          className="text-lg text-white"
+          style={{ fontFamily: fontFamily.openSans.bold }}
+        >
           Completed
         </Text>
       </Pressable>
 
       {/* Button for "Quit" */}
       <Pressable
-        className="mt-4 bg-red-600 p-4 rounded-lg w-full items-center"
+        className="mt-4 w-full items-center rounded-lg bg-red-600 p-4"
         onPress={() => console.log("Quit clicked")}
       >
-        <Text className="text-white text-lg" style={{ fontFamily: fontFamily.openSans.bold }}>
+        <Text
+          className="text-lg text-white"
+          style={{ fontFamily: fontFamily.openSans.bold }}
+        >
           Quit
         </Text>
       </Pressable>
