@@ -33,6 +33,7 @@ export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
 
+
   // Fetch both goals and goalLogs
   const goals = useQuery(api.goals.listGoals);
   const goalLogs = useQuery(api.goalLogs.listGoalLogs);
@@ -59,6 +60,12 @@ export default function GoalsPage() {
       return goal ? { goal, goalLog: log } : null;
     })
     .filter((item) => item !== null); // Remove nulls
+  const matchedGoals = filteredGoalLogs
+    .map((log) => {
+      const goal = goals?.find((goal) => goal._id === log.goalId);
+      return goal ? { goal, goalLog: log } : null;
+    })
+    .filter((item) => item !== null); // Remove nulls
 
   return (
     <SafeAreaView
@@ -74,6 +81,14 @@ export default function GoalsPage() {
           {selectedDate.toDateString() === today.toDateString()
             ? "Today"
             : selectedDate.toDateString() === yesterday.toDateString()
+              ? "Yesterday"
+              : selectedDate.toDateString() === tomorrow.toDateString()
+                ? "Tomorrow"
+                : selectedDate.toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
               ? "Yesterday"
               : selectedDate.toDateString() === tomorrow.toDateString()
                 ? "Tomorrow"
@@ -108,6 +123,9 @@ export default function GoalsPage() {
             )}
             ListEmptyComponent={() => (
               <Text className="text-center">No goals found for this date.</Text>
+            )}
+            renderItem={({ item }) => (
+              <GoalItem goal={item.goal} goalLog={item.goalLog} />
             )}
             renderItem={({ item }) => (
               <GoalItem goal={item.goal} goalLog={item.goalLog} />
@@ -182,51 +200,21 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
               />
             </View>
 
-            <View className="w-full gap-2">
-              <Text style={{ fontFamily: "openSans.medium" }}>
-                {goal.name}
-              </Text>
-              <Text className="text-xs text-muted-foreground">
-                {`${Math.floor(goalLog.unitsCompleted)} / ${Math.floor(goal.unitValue)} ${goal.unit}`}
-              </Text>
-            </View>
+          <View className="w-full gap-2">
+            <Text style={{ fontFamily: fontFamily.openSans.medium }}>
+              {goal.name}
+            </Text>
+            <Text className="text-xs text-muted-foreground">
+              {`${
+                goalLog.unitsCompleted % 1 === 0
+                  ? goalLog.unitsCompleted
+                  : goalLog.unitsCompleted.toFixed(2)
+              } / ${goal.unitValue} ${goal.unit}`}
+            </Text>
           </View>
-        </Pressable>
-      </Link>
-
-      {/* Log Progress button */}
-      <Pressable
-        className={cn(
-          "flex-row items-center p-3 rounded-full",
-          goalLog.isComplete ? "bg-gray-500" : "bg-gray-800",
-          "w-28 justify-center"
-        )}
-        onPress={handleLogPress}
-        disabled={goalLog.isComplete}
-      >
-        <FontAwesome5 name="keyboard" size={20} color="white" />
-        <Text className="text-white ml-2">Log</Text>
+        </View>
       </Pressable>
-
-      {/* Timer button (only show for Duration/Minutes) */}
-      {(goal.unitType === "Duration" || goal.unit === "minutes") && (
-        <Pressable
-          onPress={handleTimerRedirect}
-          className="flex-row items-center justify-center rounded-full bg-gray-600 p-2"
-          style={{ paddingHorizontal: 12 }}
-        >
-          {!!AlarmIconComp && (
-            <AlarmIconComp name="alarm" size={16} color="#fff" />
-          )}
-          <Text
-            className="ml-2 text-base text-white"
-            style={{ fontFamily: "openSans.bold" }}
-          >
-            Timer
-          </Text>
-        </Pressable>
-      )}
-    </View>
+    </Link>
   );
 }
 
