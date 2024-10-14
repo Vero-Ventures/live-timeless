@@ -23,6 +23,12 @@ export default function StartGoalScreen() {
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null); // Track timeLeft when starting
   const [remaining, setRemaining] = useState(0); // For unit-based goals
 
+  const timerButtonColor = isRunning
+    ? "bg-yellow-600"
+    : (goalLog?.unitsCompleted ?? 0) > 0
+      ? "bg-green-600"
+      : "bg-green-600";
+
   const handlePause = useCallback(async () => {
     if (!goal || !goalLog || sessionStartTime === null) return;
 
@@ -58,7 +64,6 @@ export default function StartGoalScreen() {
 
   const handleCompleted = useCallback(async () => {
     if (isDurationGoal) {
-      // Handle duration-based goal completion
       if (timeLeft === 0 && goal && goalLog) {
         const maxUnitsCompleted = goal?.unitValue ?? 0;
 
@@ -138,7 +143,6 @@ export default function StartGoalScreen() {
     goal,
     goalLog,
     updateGoalLog,
-    router,
     goalId,
     goalLogId,
   ]);
@@ -229,13 +233,7 @@ export default function StartGoalScreen() {
           {/* Timer Controls */}
           <View className="mt-4 flex-row items-center justify-center">
             <Pressable
-              className={`w-full items-center rounded-lg p-4 ${
-                isRunning
-                  ? "bg-yellow-600"
-                  : (goalLog?.unitsCompleted ?? 0) > 0
-                    ? "bg-green-600"
-                    : "bg-green-600"
-              }`}
+              className={`w-full items-center rounded-lg p-4 ${timerButtonColor}`}
               onPress={handleToggleTimer}
               style={{ maxWidth: 600 }}
             >
