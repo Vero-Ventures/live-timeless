@@ -134,7 +134,16 @@ export default function StartGoalScreen() {
         return prevRemaining; // Fallback in case goalLog is undefined
       });
     }
-  }, [isDurationGoal, timeLeft, goal, goalLog, updateGoalLog, router]);
+  }, [
+    isDurationGoal,
+    timeLeft,
+    goal,
+    goalLog,
+    updateGoalLog,
+    router,
+    goalId,
+    goalLogId,
+  ]);
 
   useEffect(() => {
     if (goalLog && goal) {
@@ -173,13 +182,13 @@ export default function StartGoalScreen() {
           headerStyle: {
             backgroundColor: "#0b1a28",
           },
-          headerTintColor: "#fff", // Ensures white color for the header
+          headerTintColor: "#fff",
           headerTitle: () => (
             <Text
               className="text-xl"
               style={{ fontFamily: fontFamily.openSans.bold }}
             >
-              {goal?.name} in Progress
+              {goal?.name ?? ""}
             </Text>
           ),
           headerBackTitleVisible: false,
@@ -192,12 +201,9 @@ export default function StartGoalScreen() {
           {/* Counter for Unit Value */}
           <Text
             className="text-center text-6xl text-white"
-            style={{
-              fontFamily: fontFamily.openSans.bold,
-              lineHeight: 80,
-            }}
+            style={{ fontFamily: fontFamily.openSans.bold }}
           >
-            {remaining}
+            {remaining ?? 0}
           </Text>
 
           {/* "Left" Text */}
@@ -213,13 +219,13 @@ export default function StartGoalScreen() {
             className="text-center text-6xl text-white"
             style={{
               fontFamily: fontFamily.openSans.bold,
-              marginTop: 10, // Add some margin to avoid clipping
-              lineHeight: 70, // Ensure enough line height for large text
+              marginTop: 10,
+              lineHeight: 70,
             }}
           >
             {Math.floor(timeLeft / 60)}:
             {(timeLeft % 60).toString().padStart(2, "0")}{" "}
-            {/* Show time in MM:SS format */}
+            {/* Ensure timeLeft is valid */}
           </Text>
 
           {/* Timer Controls */}
@@ -233,7 +239,7 @@ export default function StartGoalScreen() {
                     : "bg-green-600"
               }`}
               onPress={handleToggleTimer}
-              style={{ maxWidth: 600 }} // Static max width for consistent sizing
+              style={{ maxWidth: 600 }}
             >
               <Text
                 className="text-lg text-white"
@@ -254,7 +260,7 @@ export default function StartGoalScreen() {
       {!isDurationGoal && (
         <Pressable
           className="mt-6 w-full items-center rounded-lg bg-green-600 p-4"
-          onPress={handleCompleted} // Decrement the total when completed
+          onPress={handleCompleted}
         >
           <Text
             className="text-lg text-white"
