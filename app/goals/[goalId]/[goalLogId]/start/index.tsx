@@ -77,17 +77,12 @@ export default function StartGoalScreen() {
     const elapsedUnits =
       goal.unit === "min" ? elapsedSeconds / 60 : elapsedSeconds / 3600; // Convert to minutes or hours
 
-    console.log(
-      `Elapsed time: ${elapsedUnits} units (${elapsedSeconds} seconds)`
-    );
-
     // Update the backend asynchronously after pausing the timer
     try {
       await updateGoalLog({
         goalLogId: goalLog._id,
         unitsCompleted: (goalLog.unitsCompleted ?? 0) + elapsedUnits,
       });
-      console.log("Pause: Database updated successfully");
     } catch (error) {
       console.error("Error updating unitsCompleted:", error);
     }
@@ -108,7 +103,6 @@ export default function StartGoalScreen() {
             unitsCompleted: maxUnitsCompleted, // Send full unit value to the DB
             isComplete: true, // Mark goalLog as completed
           });
-          console.log(`Goal completed with ${maxUnitsCompleted} units`);
 
           Alert.alert(
             "Goal Completed",
