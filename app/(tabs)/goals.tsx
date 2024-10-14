@@ -29,7 +29,7 @@ import { GOAL_ICONS } from "~/constants/goal-icons";
 export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
-  
+
   // Fetch both goals and goalLogs
   const goals = useQuery(api.goals.listGoals);
   const goalLogs = useQuery(api.goalLogs.listGoalLogs);
@@ -50,10 +50,12 @@ export default function GoalsPage() {
     : [];
 
   // Match filtered goalLogs to their corresponding goals
-  const matchedGoals = filteredGoalLogs.map((log) => {
-    const goal = goals?.find((goal) => goal._id === log.goalId);
-    return goal ? { goal, goalLog: log } : null;
-  }).filter((item) => item !== null); // Remove nulls
+  const matchedGoals = filteredGoalLogs
+    .map((log) => {
+      const goal = goals?.find((goal) => goal._id === log.goalId);
+      return goal ? { goal, goalLog: log } : null;
+    })
+    .filter((item) => item !== null); // Remove nulls
 
   return (
     <SafeAreaView
@@ -69,14 +71,14 @@ export default function GoalsPage() {
           {selectedDate.toDateString() === today.toDateString()
             ? "Today"
             : selectedDate.toDateString() === yesterday.toDateString()
-            ? "Yesterday"
-            : selectedDate.toDateString() === tomorrow.toDateString()
-            ? "Tomorrow"
-            : selectedDate.toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })}
+              ? "Yesterday"
+              : selectedDate.toDateString() === tomorrow.toDateString()
+                ? "Tomorrow"
+                : selectedDate.toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
         </Text>
         <Text
           className="text-2xl"
@@ -104,7 +106,9 @@ export default function GoalsPage() {
             ListEmptyComponent={() => (
               <Text className="text-center">No goals found for this date.</Text>
             )}
-            renderItem={({ item }) => <GoalItem goal={item.goal} goalLog={item.goalLog} />}
+            renderItem={({ item }) => (
+              <GoalItem goal={item.goal} goalLog={item.goalLog} />
+            )}
             keyExtractor={(item) => item.goal._id.toString()}
           />
         )}
@@ -156,7 +160,11 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
               {goal.name}
             </Text>
             <Text className="text-xs text-muted-foreground">
-              {`${goalLog.unitsCompleted} / ${goal.unitValue} ${goal.unit}`}
+              {`${
+                goalLog.unitsCompleted % 1 === 0
+                  ? goalLog.unitsCompleted
+                  : goalLog.unitsCompleted.toFixed(2)
+              } / ${goal.unitValue} ${goal.unit}`}
             </Text>
           </View>
         </View>
