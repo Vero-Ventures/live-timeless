@@ -39,6 +39,7 @@ interface FormState {
   recurrence: Recurrence;
   selectedIconColor: string;
   selectedIcon: string | null;
+  weeks: number;
 }
 
 interface FormActions {
@@ -59,6 +60,7 @@ interface FormActions {
   setRecurrence: (recurrence: Recurrence) => void;
   setSelectedIconColor: (selectedIconColor: string) => void;
   setSelectedIcon: (selectedIcon: string) => void;
+  setWeeks: (weeks: number) => void;
   resetForm: () => void;
 }
 
@@ -85,6 +87,7 @@ export const initialFormState: FormState = {
   recurrence: "per day",
   selectedIconColor: "#2AA8CF",
   selectedIcon: null,
+  weeks: 1,
 };
 
 export const useGoalFormStore = create<FormState & FormActions>()((set) => ({
@@ -121,5 +124,7 @@ export const useGoalFormStore = create<FormState & FormActions>()((set) => ({
   setSelectedIconColor: (selectedIconColor) => set({ selectedIconColor }),
   selectedIcon: initialFormState.selectedIcon,
   setSelectedIcon: (selectedIcon) => set({ selectedIcon }),
+  weeks: initialFormState.weeks,
+  setWeeks: (weeks) => set({ weeks: Number(weeks) }),
   resetForm: () => set(initialFormState),
 }));

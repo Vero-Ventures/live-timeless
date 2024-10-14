@@ -40,16 +40,19 @@ export const createGoal = mutation({
     unitValue: v.number(),
     unit: v.string(),
     recurrence: v.string(),
+    weeks: v.number(),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) {
       return null;
     }
-    await ctx.db.insert("goals", {
+    const goalId = await ctx.db.insert("goals", {
       ...args,
       userId,
     });
+
+    return goalId;
   },
 });
 
@@ -70,6 +73,7 @@ export const updateGoal = mutation({
     unitValue: v.float64(),
     unit: v.string(),
     recurrence: v.string(),
+    weeks: v.number(),
   },
   handler: async (ctx, args) => {
     const { goalId, ...updateData } = args;
@@ -82,6 +86,23 @@ export const deleteGoal = mutation({
     goalId: v.id("goals"),
   },
   handler: async (ctx, { goalId }) => {
+    await ctx.db.delete(goalId);
+  },
+});
+
+export const deleteGoalAndGoalLogs = mutation({
+  args: {
+    goalId: v.id("goals"),
+  },
+  handler: async (ctx, { goalId }) => {
+    const goalLogs = await ctx.db
+      .query("goalLogs")
+      .filter((q) => q.eq(q.field("goalId"), goalId))
+      .collect();
+
+    for (const goalLog of goalLogs) {
+      await ctx.db.delete(goalLog._id);
+    }
     await ctx.db.delete(goalId);
   },
 });
