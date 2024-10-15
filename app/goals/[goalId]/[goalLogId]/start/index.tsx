@@ -2,10 +2,6 @@ import {
   View,
   Pressable,
   Alert,
-  TextInput,
-  Keyboard,
-  ScrollView,
-  TouchableWithoutFeedback,
 } from "react-native";
 import { Stack, useLocalSearchParams, router } from "expo-router";
 import { Text } from "~/components/ui/text"; // Custom Text component
@@ -26,18 +22,12 @@ export default function LogProgressScreen() {
   const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
   const goal = useQuery(api.goals.getGoalById, { goalId });
 
-  const { timeLeft, startTimer, pauseTimer, setTimer, isRunning } = useTimer(0); // Timer logic with isRunning state
-  const [isDurationGoal, setIsDurationGoal] = useState(false); // Flag for duration-based goals
-  const [sessionStartTime, setSessionStartTime] = useState<number | null>(null); // Track timeLeft when starting
-  const [remaining, setRemaining] = useState(0); // For unit-based goals
-  const [progressInput, setProgressInput] = useState(""); // Track input for the progress value
-  const [completed, setCompleted] = useState(0); // Track completed units
+  const { timeLeft, startTimer, pauseTimer, setTimer, isRunning } = useTimer(0);
+  const [isDurationGoal, setIsDurationGoal] = useState(false);
+  const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
+  const [remaining, setRemaining] = useState(0);
 
-  const timerButtonColor = isRunning
-    ? "bg-yellow-600"
-    : (goalLog?.unitsCompleted ?? 0) > 0
-      ? "bg-green-600"
-      : "bg-green-600";
+  const timerButtonColor = isRunning ? "bg-yellow-600" : "bg-green-600";
 
   const handlePause = useCallback(async () => {
     if (!goal || !goalLog || sessionStartTime === null) return;
@@ -74,37 +64,34 @@ export default function LogProgressScreen() {
   }, [isRunning, handlePause, sessionStartTime, timeLeft, startTimer]);
 
   const handleCompleted = useCallback(async () => {
-    if (isDurationGoal) {
-      if (timeLeft === 0 && goal && goalLog) {
-        const maxUnitsCompleted = goal?.unitValue ?? 0;
+    if (isDurationGoal && timeLeft === 0 && goal && goalLog) {
+      const maxUnitsCompleted = goal.unitValue ?? 0;
 
-        try {
-          await updateGoalLog({
-            goalLogId: goalLog._id,
-            unitsCompleted: maxUnitsCompleted,
-            isComplete: true,
-          });
+      try {
+        await updateGoalLog({
+          goalLogId: goalLog._id,
+          unitsCompleted: maxUnitsCompleted,
+          isComplete: true,
+        });
 
-          Alert.alert(
-            "Goal Completed",
-            `Congratulations! You've completed the goal.`,
-            [
-              {
-                text: "OK",
-                onPress: () =>
-                  router.push({
-                    pathname: "/goals/[goalId]/[goalLogId]/complete",
-                    params: { goalId, goalLogId },
-                  }),
-              },
-            ]
-          );
-        } catch (error) {
-          console.error("Error completing the goal:", error);
-        }
+        Alert.alert(
+          "Goal Completed",
+          `Congratulations! You've completed the goal.`,
+          [
+            {
+              text: "OK",
+              onPress: () =>
+                router.push({
+                  pathname: "/goals/[goalId]/[goalLogId]/complete",
+                  params: { goalId, goalLogId },
+                }),
+            },
+          ]
+        );
+      } catch (error) {
+        console.error("Error completing the goal:", error);
       }
     } else {
-      // Handle non-duration goals
       setRemaining((prevRemaining) => {
         const newRemaining = prevRemaining - 1;
 
@@ -121,7 +108,7 @@ export default function LogProgressScreen() {
           if (newRemaining === 0) {
             updateGoalLog({
               goalLogId: goalLog._id,
-              isComplete: true, // Mark goalLog as completed
+              isComplete: true,
             }).catch((error) => {
               console.error("Error updating goalLog as completed:", error);
             });
@@ -145,7 +132,7 @@ export default function LogProgressScreen() {
           return newRemaining;
         }
 
-        return prevRemaining; // Fallback in case goalLog is undefined
+        return prevRemaining;
       });
     }
   }, [
@@ -160,10 +147,10 @@ export default function LogProgressScreen() {
 
   useEffect(() => {
     if (goalLog && goal) {
-      const unitValue = goal?.unitValue ?? 0;
-      const completedUnits = goalLog?.unitsCompleted ?? 0;
+      const unitValue = goal.unitValue ?? 0;
+      const completedUnits = goalLog.unitsCompleted ?? 0;
 
-      if (goal?.unitType === "Duration" || goal?.unit === "minutes") {
+      if (goal.unitType === "Duration" || goal.unit === "minutes") {
         setIsDurationGoal(true);
         const initialTimeInSeconds =
           goal.unit === "min" || goal.unit === "minutes"
@@ -172,15 +159,16 @@ export default function LogProgressScreen() {
         setTimer(initialTimeInSeconds);
       } else {
         setIsDurationGoal(false);
-        const remainingUnits = unitValue - completedUnits;
-        setRemaining(remainingUnits >= 0 ? remainingUnits : 0);
+        setRemaining(
+          unitValue - completedUnits >= 0 ? unitValue - completedUnits : 0
+        );
       }
     }
   }, [goalLog, goal, setTimer]);
 
   useEffect(() => {
     if (timeLeft === 0 && isDurationGoal && !goalLog?.isComplete) {
-      handleCompleted(); // Call handleCompleted only if the goal is not already completed
+      handleCompleted();
     }
   }, [timeLeft, isDurationGoal, goalLog?.isComplete, handleCompleted]);
 
@@ -192,9 +180,7 @@ export default function LogProgressScreen() {
     <View className="h-full items-center justify-center bg-[#0b1a28] p-4">
       <Stack.Screen
         options={{
-          headerStyle: {
-            backgroundColor: "#0b1a28",
-          },
+          headerStyle: { backgroundColor: "#0b1a28" },
           headerTintColor: "#fff",
           headerTitle: () => (
             <Text
@@ -208,40 +194,29 @@ export default function LogProgressScreen() {
         }}
       />
 
-      {/* Only show units left if it's NOT a duration-based goal */}
+      {/* Units Left for non-duration goals */}
       {!isDurationGoal && (
         <View className="items-center justify-center">
-          {/* Counter for Unit Value */}
           <Text
             className="text-center text-6xl text-white"
             style={{ fontFamily: fontFamily.openSans.bold }}
           >
-            {remaining ?? 0}
+            {remaining}
           </Text>
-
-          {/* "Left" Text */}
           <Text className="mt-2 text-center text-xl text-gray-400">left</Text>
         </View>
       )}
 
-      {/* Show Timer for Duration-based Goals */}
+      {/* Timer for duration goals */}
       {!!isDurationGoal && (
         <View className="items-center justify-center">
-          {/* Timer Display */}
           <Text
             className="text-center text-6xl text-white"
-            style={{
-              fontFamily: fontFamily.openSans.bold,
-              marginTop: 10,
-              lineHeight: 70,
-            }}
+            style={{ fontFamily: fontFamily.openSans.bold }}
           >
             {Math.floor(timeLeft / 60)}:
-            {(timeLeft % 60).toString().padStart(2, "0")}{" "}
-            {/* Ensure timeLeft is valid */}
+            {(timeLeft % 60).toString().padStart(2, "0")}
           </Text>
-
-          {/* Timer Controls */}
           <View className="mt-4 flex-row items-center justify-center">
             <Pressable
               className={`w-full items-center rounded-lg p-4 ${timerButtonColor}`}
@@ -263,7 +238,7 @@ export default function LogProgressScreen() {
         </View>
       )}
 
-      {/* Button for "Completed" */}
+      {/* Completed Button for non-duration goals */}
       {!isDurationGoal && (
         <Pressable
           className="mt-6 w-full items-center rounded-lg bg-green-600 p-4"
@@ -278,7 +253,7 @@ export default function LogProgressScreen() {
         </Pressable>
       )}
 
-      {/* Button for "Quit" */}
+      {/* Quit Button */}
       <Pressable
         className="mt-4 w-full items-center rounded-lg bg-red-600 p-4"
         onPress={() => console.log("Quit clicked")}

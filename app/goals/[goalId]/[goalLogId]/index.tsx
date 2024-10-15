@@ -14,13 +14,9 @@ export default function GoalScreen() {
     goalId: Id<"goals">;
     goalLogId: Id<"goalLogs">;
   }>();
-  const { goalId, goalLogId } = useLocalSearchParams<{
-    goalId: Id<"goals">;
-    goalLogId: Id<"goalLogs">;
-  }>();
 
+  // Fetch goal and goal logs
   const goal = useQuery(api.goals.getGoalById, { goalId });
-  const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });
   const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });
   const goalLogs = useQuery(api.goalLogs.getGoalLogsbyGoalId, { goalId });
 
@@ -32,8 +28,6 @@ export default function GoalScreen() {
     if (goalLogs) {
       const totalLogs = goalLogs.length;
       const completedLogs = goalLogs.filter((log) => log.isComplete).length;
-
-
       const percentage = totalLogs > 0 ? (completedLogs / totalLogs) * 100 : 0;
       setProgress(percentage);
     }
@@ -132,16 +126,8 @@ export default function GoalScreen() {
           className="text-base text-white"
           style={{ fontFamily: fontFamily.openSans.medium }}
         >
-      <View className="my-4 rounded-lg bg-gray-700 p-4">
-        <Text
-          className="text-base text-white"
-          style={{ fontFamily: fontFamily.openSans.medium }}
-        >
           Progress: {progress.toFixed(2)}%
         </Text>
-        <Text className="text-sm text-gray-400">
-          You have completed {goalLogs?.filter((log) => log.isComplete).length}{" "}
-          of {goalLogs?.length} logs.
         <Text className="text-sm text-gray-400">
           You have completed {goalLogs?.filter((log) => log.isComplete).length}{" "}
           of {goalLogs?.length} logs.
@@ -149,8 +135,9 @@ export default function GoalScreen() {
       </View>
 
       <Pressable
-        className={`mt-5 items-center rounded-lg p-3 ${goalLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"}`}
-        className={`mt-5 items-center rounded-lg p-3 ${goalLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"}`}
+        className={`mt-5 items-center rounded-lg p-3 ${
+          goalLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"
+        }`}
         onPress={goalLog?.isComplete ? null : handleStartGoal} // Disable press if goalLog is complete
         disabled={goalLog?.isComplete} // Disable the button if the goalLog is complete
       >
