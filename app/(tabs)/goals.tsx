@@ -10,7 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
-import { Link, SplashScreen } from "expo-router";
+import { Link, router, SplashScreen } from "expo-router";
 import {
   useEffect,
   useRef,
@@ -54,10 +54,12 @@ export default function GoalsPage() {
 
   // Match filtered goalLogs to their corresponding goals
   const matchedGoals = filteredGoalLogs
+
     .map((log) => {
       const goal = goals?.find((goal) => goal._id === log.goalId);
       return goal ? { goal, goalLog: log } : null;
     })
+
     .filter((item) => item !== null); // Remove nulls
 
   return (
@@ -153,13 +155,13 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
     });
   };
 
-  const handleTimerRedirect = () => {
-    router.push(`/goals/${goal._id}/${goalLog._id}/start`);
-  };
-
   const IconComp = GOAL_ICONS.find(
     (item) => item.name === goal.selectedIcon
   )?.component;
+
+  const handleTimerRedirect = () => {
+    router.push(`/goals/${goal._id}/${goalLog._id}/start`);
+  };
 
   const AlarmIconComp = GOAL_ICONS.find(
     (icon) => icon.name === "alarm"
@@ -167,48 +169,68 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
 
   return (
     <View className="flex-row items-center gap-4">
-      <Link href={`/goals/${goal._id}/${goalLog._id}`} asChild>
-        <Pressable className="flex-1">
-          <View className="flex-row items-center gap-4">
-            <View
-              className={cn(
-                "items-center justify-center rounded-full bg-[#299240]/20 p-1"
-              )}
-            >
-              <IconComp
-                name={goal.selectedIcon}
-                color={goal.selectedIconColor}
-                size={32}
-              />
-            </View>
+      <View className="flex-row items-center gap-4">
+        <Link href={`/goals/${goal._id}/${goalLog._id}`} asChild>
+          <Pressable className="flex-1">
+            <View className="flex-row items-center gap-4">
+              <View
+                className={cn(
+                  "items-center justify-center rounded-full bg-[#299240]/20 p-1"
+                )}
+              >
+                <IconComp
+                  name={goal.selectedIcon}
+                  color={goal.selectedIconColor}
+                  size={32}
+                />
+              </View>
 
-            <View className="w-full gap-2">
-              <Text style={{ fontFamily: "openSans.medium" }}>
-                {goal.name}
-              </Text>
-              <Text className="text-xs text-muted-foreground">
-                {`${Math.floor(goalLog.unitsCompleted)} / ${Math.floor(goal.unitValue)} ${goal.unit}`}
-              </Text>
+              <View className="w-full gap-2">
+                <Text style={{ fontFamily: "openSans.medium" }}>
+                  {goal.name}
+                </Text>
+                <Text className="text-xs text-muted-foreground">
+                  {`${Math.floor(Math.floor(goalLog.unitsCompleted))} / ${Math.floor(Math.floor(goal.unitValue))} ${goal.unit}`}
+                </Text>
+              </View>
             </View>
-          </View>
+          </Pressable>
+        </Link>
+
+        {/* Log Progress button */}
+        <Pressable
+          className={cn(
+            "flex-row items-center rounded-full p-3",
+            goalLog.isComplete ? "bg-gray-500" : "bg-gray-800",
+            "w-28 justify-center"
+          )}
+          onPress={handleLogPress}
+          disabled={goalLog.isComplete}
+        >
+          <FontAwesome5 name="keyboard" size={20} color="white" />
+          <Text className="ml-2 text-white">Log</Text>
         </Pressable>
-      </Link>
 
-      {/* Log Progress button */}
-      <Pressable
-        className={cn(
-          "flex-row items-center p-3 rounded-full",
-          goalLog.isComplete ? "bg-gray-500" : "bg-gray-800",
-          "w-28 justify-center"
+        {/* Timer button (only show for Duration/Minutes) */}
+        {(goal.unitType === "Duration" || goal.unit === "minutes") && (
+          <Pressable
+            onPress={handleTimerRedirect}
+            className="flex-row items-center justify-center rounded-full bg-gray-600 p-2"
+            style={{ paddingHorizontal: 12 }}
+          >
+            {!!AlarmIconComp && (
+              <AlarmIconComp name="alarm" size={16} color="#fff" />
+            )}
+            <Text
+              className="ml-2 text-base text-white"
+              style={{ fontFamily: "openSans.bold" }}
+            >
+              Timer
+            </Text>
+          </Pressable>
         )}
-        onPress={handleLogPress}
-        disabled={goalLog.isComplete}
-      >
-        <FontAwesome5 name="keyboard" size={20} color="white" />
-        <Text className="text-white ml-2">Log</Text>
-      </Pressable>
+      </View>
 
-      {/* Timer button (only show for Duration/Minutes) */}
       {(goal.unitType === "Duration" || goal.unit === "minutes") && (
         <Pressable
           onPress={handleTimerRedirect}
@@ -220,7 +242,7 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
           )}
           <Text
             className="ml-2 text-base text-white"
-            style={{ fontFamily: "openSans.bold" }}
+            style={{ fontFamily: fontFamily.openSans.bold }}
           >
             Timer
           </Text>
