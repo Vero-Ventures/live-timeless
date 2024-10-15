@@ -4,6 +4,7 @@ import {
   View,
   ScrollView,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -25,6 +26,8 @@ import { useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import type { Doc } from "~/convex/_generated/dataModel";
 import { GOAL_ICONS } from "~/constants/goal-icons";
+import { useRouter } from "expo-router";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
@@ -135,37 +138,64 @@ interface GoalItemProps {
 }
 
 function GoalItem({ goal, goalLog }: GoalItemProps) {
+  const router = useRouter();
+
+  const handleLogPress = (e: any) => {
+    e.stopPropagation(); // Stop the parent Pressable from triggering
+
+    // If the goal is completed, show an alert and prevent navigation
+    if (goalLog.isComplete) {
+      Alert.alert("Goal Completed", "This goal has already been completed.");
+      return;
+    }
+
+    // Navigate to the /goals/[goalId]/[goalLogId]/start page for logging progress
+    router.push({
+      pathname: `/goals/${goal._id}/${goalLog._id}/start`,
+    });
+  };
+
   const IconComp = GOAL_ICONS.find(
     (item) => item.name === goal.selectedIcon
   )?.component;
 
   return (
-    <Link href={`/goals/${goal._id}/${goalLog._id}`} asChild>
-      <Pressable>
-        <View className="flex-row items-center gap-4">
-          <View
-            className={cn(
-              "items-center justify-center rounded-full bg-[#299240]/20 p-1"
-            )}
-          >
-            <IconComp
-              name={goal.selectedIcon}
-              color={goal.selectedIconColor}
-              size={32}
-            />
-          </View>
-
-          <View className="w-full gap-2">
-            <Text style={{ fontFamily: fontFamily.openSans.medium }}>
-              {goal.name}
-            </Text>
-            <Text className="text-xs text-muted-foreground">
-              {`${goalLog.unitsCompleted} / ${goal.unitValue} ${goal.unit}`}
-            </Text>
-          </View>
+    <Pressable onPress={() => router.push(`/goals/${goal._id}/${goalLog._id}`)}>
+      <View className="flex-row items-center gap-4">
+        <View
+          className={cn(
+            "items-center justify-center rounded-full bg-[#299240]/20 p-1"
+          )}
+        >
+          <IconComp
+            name={goal.selectedIcon}
+            color={goal.selectedIconColor}
+            size={32}
+          />
         </View>
-      </Pressable>
-    </Link>
+
+        <View className="flex-1">
+          <Text style={{ fontFamily: "openSans.medium" }}>{goal.name}</Text>
+          <Text className="text-xs text-muted-foreground">
+            {`${goalLog.unitsCompleted} / ${goal.unitValue} ${goal.unit}`}
+          </Text>
+        </View>
+
+        {/* Log Progress button - Make it wider and more aesthetically pleasing */}
+        <Pressable
+          className={cn(
+            "flex-row items-center rounded-full p-3",
+            goalLog.isComplete ? "bg-gray-500" : "bg-gray-800",
+            "w-28 justify-center" // Set the width to be wider (e.g., 28 Tailwind units) and center content
+          )}
+          onPress={handleLogPress} // Trigger navigation or alert
+          disabled={goalLog.isComplete} // Disable button if goal is completed
+        >
+          <FontAwesome5 name="keyboard" size={20} color="white" />
+          <Text className="ml-2 text-white">Log</Text>
+        </Pressable>
+      </View>
+    </Pressable>
   );
 }
 
