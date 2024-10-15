@@ -31,3 +31,12 @@ export const createChallenge = mutation({
     await ctx.db.insert("challenges", args);
   },
 });
+
+export const deleteChallenge = mutation({
+  args: {
+    challengeId: v.id("challenges"),
+  },
+  handler: async (ctx, { challengeId }) => {
+    await ctx.db.delete(challengeId);
+  },
+});
