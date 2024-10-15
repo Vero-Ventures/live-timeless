@@ -322,7 +322,7 @@ function EditGoalForm() {
                 unitValue,
                 unit,
                 recurrence,
-                weeks
+                weeks,
               };
 
               await updateGoal(updatedGoal);
