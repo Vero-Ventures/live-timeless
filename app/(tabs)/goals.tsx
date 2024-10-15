@@ -177,7 +177,7 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
     }
 
     router.push({
-      pathname: `/goals/${goal._id}/${goalLog._id}/start`,
+      pathname: `/goals/${goal._id}/${goalLog._id}/start/logProgress`,
     });
   };
 

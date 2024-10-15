@@ -1,8 +1,4 @@
-import {
-  View,
-  Pressable,
-  Alert,
-} from "react-native";
+import { View, Pressable, Alert } from "react-native";
 import { Stack, useLocalSearchParams, router } from "expo-router";
 import { Text } from "~/components/ui/text"; // Custom Text component
 import { useQuery, useMutation } from "convex/react";
