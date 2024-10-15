@@ -7,11 +7,31 @@ import { api } from "~/convex/_generated/api";
 import type { Id } from "~/convex/_generated/dataModel";
 import { fontFamily } from "~/lib/font";
 import * as DropdownMenu from "zeego/dropdown-menu";
+import { useState, useEffect } from "react";
 
 export default function GoalScreen() {
-  const { goalId } = useLocalSearchParams<{ goalId: Id<"goals"> }>();
+  const { goalId, goalLogId } = useLocalSearchParams<{
+    goalId: Id<"goals">;
+    goalLogId: Id<"goalLogs">;
+  }>();
+
   const goal = useQuery(api.goals.getGoalById, { goalId });
-  const deleteGoal = useMutation(api.goals.deleteGoal);
+  const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });
+  const goalLogs = useQuery(api.goalLogs.getGoalLogsbyGoalId, { goalId });
+
+  const deleteGoalAndGoalLogs = useMutation(api.goals.deleteGoalAndGoalLogs);
+
+  const [progress, setProgress] = useState<number>(0);
+
+  useEffect(() => {
+    if (goalLogs) {
+      const totalLogs = goalLogs.length;
+      const completedLogs = goalLogs.filter((log) => log.isComplete).length;
+
+      const percentage = totalLogs > 0 ? (completedLogs / totalLogs) * 100 : 0;
+      setProgress(percentage);
+    }
+  }, [goalLogs]);
 
   const handleDelete = async () => {
     Alert.alert(
@@ -21,7 +41,7 @@ export default function GoalScreen() {
         {
           text: "Yes",
           onPress: async () => {
-            await deleteGoal({ goalId });
+            await deleteGoalAndGoalLogs({ goalId });
             router.dismiss();
           },
           style: "destructive",
@@ -29,6 +49,13 @@ export default function GoalScreen() {
         { text: "Cancel", style: "cancel" },
       ]
     );
+  };
+
+  const handleStartGoal = () => {
+    router.push({
+      pathname: "/goals/[goalId]/[goalLogId]/start",
+      params: { goalId, goalLogId },
+    });
   };
 
   return (
@@ -55,12 +82,7 @@ export default function GoalScreen() {
                   <FontAwesome5 name="ellipsis-h" size={20} color="#fff" />
                 </Pressable>
               </DropdownMenu.Trigger>
-              <DropdownMenu.Content
-                key="actions"
-                placeholder=""
-                onPointerEnterCapture={() => {}}
-                onPointerLeaveCapture={() => {}}
-              >
+              <DropdownMenu.Content key="actions" placeholder="">
                 <DropdownMenu.Item
                   onSelect={() =>
                     router.navigate({
@@ -70,15 +92,8 @@ export default function GoalScreen() {
                   }
                   key="edit-goal"
                   textValue="Edit Goal"
-                  placeholder=""
-                  onPointerEnterCapture={() => {}}
-                  onPointerLeaveCapture={() => {}}
                 >
-                  <DropdownMenu.ItemIcon
-                    ios={{
-                      name: "pencil.line",
-                    }}
-                  />
+                  <DropdownMenu.ItemIcon ios={{ name: "pencil.line" }} />
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator />
                 <DropdownMenu.Item
@@ -86,21 +101,40 @@ export default function GoalScreen() {
                   destructive
                   key="delete-goal"
                   textValue="Delete Goal"
-                  placeholder=""
-                  onPointerEnterCapture={() => {}}
-                  onPointerLeaveCapture={() => {}}
                 >
-                  <DropdownMenu.ItemIcon
-                    ios={{
-                      name: "trash",
-                    }}
-                  />
+                  <DropdownMenu.ItemIcon ios={{ name: "trash" }} />
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Root>
           ),
         }}
       />
+
+      <View className="my-4 rounded-lg bg-gray-700 p-4">
+        <Text
+          className="text-base text-white"
+          style={{ fontFamily: fontFamily.openSans.medium }}
+        >
+          Progress: {progress.toFixed(2)}%
+        </Text>
+        <Text className="text-sm text-gray-400">
+          You have completed {goalLogs?.filter((log) => log.isComplete).length}{" "}
+          of {goalLogs?.length} logs.
+        </Text>
+      </View>
+
+      <Pressable
+        className={`mt-5 items-center rounded-lg p-3 ${goalLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"}`}
+        onPress={goalLog?.isComplete ? null : handleStartGoal} // Disable press if goalLog is complete
+        disabled={goalLog?.isComplete} // Disable the button if the goalLog is complete
+      >
+        <Text
+          className="text-base text-white"
+          style={{ fontFamily: fontFamily.openSans.bold }}
+        >
+          {goalLog?.isComplete ? "Goal Log Completed" : "Start Goal"}
+        </Text>
+      </Pressable>
     </View>
   );
 }
