@@ -63,6 +63,7 @@ function CreateGoalForm() {
     unitValue,
     unit,
     recurrence,
+    weeks,
     resetForm,
   ] = useGoalFormStore(
     useShallow((s) => [
@@ -81,6 +82,7 @@ function CreateGoalForm() {
       s.unitValue,
       s.unit,
       s.recurrence,
+      s.weeks,
       s.resetForm,
     ])
   );
@@ -88,7 +90,9 @@ function CreateGoalForm() {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
   const createGoal = useMutation(api.goals.createGoal);
-
+  const createGoalLogsFromGoal = useMutation(
+    api.goalLogs.createGoalLogsFromGoal
+  );
   useEffect(() => {
     return () => resetForm();
   }, [resetForm]);
@@ -225,10 +229,16 @@ function CreateGoalForm() {
                 unitValue,
                 unit,
                 recurrence,
+                weeks,
               };
+              const goalId = await createGoal(newGoal);
+              if (!goalId) {
+                throw new Error("Failed to create goal");
+              }
 
-              await createGoal(newGoal);
-
+              await createGoalLogsFromGoal({
+                goalId,
+              });
               router.navigate("/goals");
               resetForm();
             } catch (error) {
