@@ -36,7 +36,9 @@ export default function StartGoalScreen() {
 
     const elapsedSeconds = sessionStartTime - timeLeft;
     const elapsedUnits =
-      goal.unit === "min" ? elapsedSeconds / 60 : elapsedSeconds / 3600;
+      goal.unit === "minutes" || goal.unit === "min"
+        ? elapsedSeconds / 60 // Convert seconds to minutes
+        : elapsedSeconds / 3600; // Convert seconds to hours if unit is hours
 
     try {
       await updateGoalLog({
@@ -152,10 +154,10 @@ export default function StartGoalScreen() {
       const unitValue = goal?.unitValue ?? 0;
       const completedUnits = goalLog?.unitsCompleted ?? 0;
 
-      if (goal?.unitType === "Duration") {
+      if (goal?.unitType === "Duration" || goal?.unit === "minutes") {
         setIsDurationGoal(true);
         const initialTimeInSeconds =
-          goal.unit === "min"
+          goal.unit === "min" || goal.unit === "minutes"
             ? Math.floor((unitValue - completedUnits) * 60)
             : Math.floor((unitValue - completedUnits) * 3600);
         setTimer(initialTimeInSeconds);
