@@ -95,7 +95,6 @@ export const deleteGoalAndGoalLogs = mutation({
     goalId: v.id("goals"),
   },
   handler: async (ctx, { goalId }) => {
-    
     const goalLogs = await ctx.db
       .query("goalLogs")
       .filter((q) => q.eq(q.field("goalId"), goalId))
