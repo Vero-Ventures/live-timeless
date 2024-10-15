@@ -182,7 +182,7 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
           className="flex-row items-center justify-center rounded-full bg-gray-600 p-2"
           style={{ paddingHorizontal: 12 }}
         >
-          {AlarmIconComp && (
+          {!!AlarmIconComp && (
             <AlarmIconComp name="alarm" size={16} color="#fff" />
           )}
           <Text
