@@ -7,17 +7,10 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
-import { Link, router, SplashScreen } from "expo-router";
-import {
-  useEffect,
-  useRef,
-  useState,
-  type Dispatch,
-  type SetStateAction,
-} from "react";
+import { Link, SplashScreen } from "expo-router";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { fontFamily } from "~/lib/font";
 import { Plus } from "lucide-react-native";
 import { Separator } from "~/components/ui/separator";
@@ -54,12 +47,6 @@ export default function GoalsPage() {
     : [];
 
   // Match filtered goalLogs to their corresponding goals
-  const matchedGoals = filteredGoalLogs
-    .map((log) => {
-      const goal = goals?.find((goal) => goal._id === log.goalId);
-      return goal ? { goal, goalLog: log } : null;
-    })
-    .filter((item) => item !== null); // Remove nulls
   const matchedGoals = filteredGoalLogs
     .map((log) => {
       const goal = goals?.find((goal) => goal._id === log.goalId);
@@ -203,26 +190,9 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
                 size={32}
               />
             </View>
-    <View className="flex-row items-center gap-4">
-      <Link href={`/goals/${goal._id}/${goalLog._id}`} asChild>
-        <Pressable className="flex-1">
-          <View className="flex-row items-center gap-4">
-            <View
-              className={cn(
-                "items-center justify-center rounded-full bg-[#299240]/20 p-1"
-              )}
-            >
-              <IconComp
-                name={goal.selectedIcon}
-                color={goal.selectedIconColor}
-                size={32}
-              />
-            </View>
 
             <View className="w-full gap-2">
-              <Text style={{ fontFamily: fontFamily.openSans.medium }}>
-                {goal.name}
-              </Text>
+              <Text style={{ fontFamily: "openSans.medium" }}>{goal.name}</Text>
               <Text className="text-xs text-muted-foreground">
                 {`${Math.floor(goalLog.unitsCompleted)} / ${Math.floor(goal.unitValue)} ${goal.unit}`}
               </Text>
@@ -231,6 +201,21 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
         </Pressable>
       </Link>
 
+      {/* Log Progress button */}
+      <Pressable
+        className={cn(
+          "flex-row items-center rounded-full p-3",
+          goalLog.isComplete ? "bg-gray-500" : "bg-gray-800",
+          "w-28 justify-center"
+        )}
+        onPress={handleLogPress}
+        disabled={goalLog.isComplete}
+      >
+        <FontAwesome5 name="keyboard" size={20} color="white" />
+        <Text className="ml-2 text-white">Log</Text>
+      </Pressable>
+
+      {/* Timer button (only show for Duration/Minutes) */}
       {(goal.unitType === "Duration" || goal.unit === "minutes") && (
         <Pressable
           onPress={handleTimerRedirect}
@@ -242,7 +227,7 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
           )}
           <Text
             className="ml-2 text-base text-white"
-            style={{ fontFamily: fontFamily.openSans.bold }}
+            style={{ fontFamily: "openSans.bold" }}
           >
             Timer
           </Text>
