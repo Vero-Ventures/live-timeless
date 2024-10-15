@@ -145,6 +145,29 @@ interface GoalItemProps {
 function GoalItem({ goal, goalLog }: GoalItemProps) {
   const router = useRouter();
 
+  const allowedUnits = [
+    "steps",
+    "kg",
+    "grams",
+    "mg",
+    "oz",
+    "pounds",
+    "μg",
+    "litres",
+    "mL",
+    "US fl oz",
+    "cups",
+    "kilojoules",
+    "kcal",
+    "cal",
+    "joules",
+    "km",
+    "metres",
+    "feet",
+    "yards",
+    "miles",
+  ];
+
   const handleLogPress = (e: any) => {
     e.stopPropagation(); // Prevent parent navigation
 
@@ -174,6 +197,12 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
     (icon) => icon.name === "alarm"
   )?.component;
 
+  // Check if the goal unit is one of the allowed units for the "Log" button
+  const isAllowedUnit = allowedUnits.includes(goal.unit);
+
+  const buttonStyles =
+    "w-28 justify-center flex-row items-center rounded-full p-3"; // Shared styles for both buttons
+
   return (
     <View className="flex-row items-center gap-4">
       <Link href={`/goals/${goal._id}/${goalLog._id}`} asChild>
@@ -201,32 +230,31 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
         </Pressable>
       </Link>
 
-      {/* Log Progress button */}
-      <Pressable
-        className={cn(
-          "flex-row items-center rounded-full p-3",
-          goalLog.isComplete ? "bg-gray-500" : "bg-gray-800",
-          "w-28 justify-center"
-        )}
-        onPress={handleLogPress}
-        disabled={goalLog.isComplete}
-      >
-        <FontAwesome5 name="keyboard" size={20} color="white" />
-        <Text className="ml-2 text-white">Log</Text>
-      </Pressable>
-
-      {/* Timer button (only show for Duration/Minutes) */}
-      {(goal.unitType === "Duration" || goal.unit === "minutes") && (
+      {/* Conditionally render Timer or Log button based on the unit */}
+      {isAllowedUnit ? (
+        // Show Log button for allowed units
+        <Pressable
+          className={cn(
+            buttonStyles,
+            goalLog.isComplete ? "bg-gray-500" : "bg-gray-800"
+          )}
+          onPress={handleLogPress}
+          disabled={goalLog.isComplete}
+        >
+          <FontAwesome5 name="keyboard" size={20} color="white" />
+          <Text className="ml-2 text-white">Log</Text>
+        </Pressable>
+      ) : (
+        // Show Timer button for other units
         <Pressable
           onPress={handleTimerRedirect}
-          className="flex-row items-center justify-center rounded-full bg-gray-600 p-2"
-          style={{ paddingHorizontal: 12 }}
+          className={cn(buttonStyles, "bg-gray-600")}
         >
           {!!AlarmIconComp && (
-            <AlarmIconComp name="alarm" size={16} color="#fff" />
+            <AlarmIconComp name="alarm" size={20} color="#fff" />
           )}
           <Text
-            className="ml-2 text-base text-white"
+            className="ml-2 text-white"
             style={{ fontFamily: "openSans.bold" }}
           >
             Timer
