@@ -9,7 +9,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
-import { Link, SplashScreen } from "expo-router";
+import { Link, router, SplashScreen } from "expo-router";
 import {
   useEffect,
   useRef,
@@ -139,37 +139,61 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
     (item) => item.name === goal.selectedIcon
   )?.component;
 
-  return (
-    <Link href={`/goals/${goal._id}/${goalLog._id}`} asChild>
-      <Pressable>
-        <View className="flex-row items-center gap-4">
-          <View
-            className={cn(
-              "items-center justify-center rounded-full bg-[#299240]/20 p-1"
-            )}
-          >
-            <IconComp
-              name={goal.selectedIcon}
-              color={goal.selectedIconColor}
-              size={32}
-            />
-          </View>
+  const handleTimerRedirect = () => {
+    router.push(`/goals/${goal._id}/${goalLog._id}/start`);
+  };
 
-          <View className="w-full gap-2">
-            <Text style={{ fontFamily: fontFamily.openSans.medium }}>
-              {goal.name}
-            </Text>
-            <Text className="text-xs text-muted-foreground">
-              {`${
-                goalLog.unitsCompleted % 1 === 0
-                  ? goalLog.unitsCompleted
-                  : goalLog.unitsCompleted.toFixed(2)
-              } / ${goal.unitValue} ${goal.unit}`}
-            </Text>
+  const AlarmIconComp = GOAL_ICONS.find(
+    (icon) => icon.name === "alarm"
+  )?.component;
+
+  return (
+    <View className="flex-row items-center gap-4">
+      <Link href={`/goals/${goal._id}/${goalLog._id}`} asChild>
+        <Pressable className="flex-1">
+          <View className="flex-row items-center gap-4">
+            <View
+              className={cn(
+                "items-center justify-center rounded-full bg-[#299240]/20 p-1"
+              )}
+            >
+              <IconComp
+                name={goal.selectedIcon}
+                color={goal.selectedIconColor}
+                size={32}
+              />
+            </View>
+
+            <View className="w-full gap-2">
+              <Text style={{ fontFamily: fontFamily.openSans.medium }}>
+                {goal.name}
+              </Text>
+              <Text className="text-xs text-muted-foreground">
+                {`${Math.floor(goalLog.unitsCompleted)} / ${Math.floor(goal.unitValue)} ${goal.unit}`}
+              </Text>
+            </View>
           </View>
-        </View>
-      </Pressable>
-    </Link>
+        </Pressable>
+      </Link>
+
+      {(goal.unitType === "Duration" || goal.unit === "minutes") && (
+        <Pressable
+          onPress={handleTimerRedirect}
+          className="flex-row items-center justify-center rounded-full bg-gray-600 p-2"
+          style={{ paddingHorizontal: 12 }}
+        >
+          {AlarmIconComp && (
+            <AlarmIconComp name="alarm" size={16} color="#fff" />
+          )}
+          <Text
+            className="ml-2 text-base text-white"
+            style={{ fontFamily: fontFamily.openSans.bold }}
+          >
+            Timer
+          </Text>
+        </Pressable>
+      )}
+    </View>
   );
 }
 
