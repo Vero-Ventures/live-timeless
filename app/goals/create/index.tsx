@@ -90,7 +90,9 @@ function CreateGoalForm() {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
   const createGoal = useMutation(api.goals.createGoal);
-  const createGoalLogsFromGoal = useMutation(api.goalLogs.createGoalLogsFromGoal);
+  const createGoalLogsFromGoal = useMutation(
+    api.goalLogs.createGoalLogsFromGoal
+  );
   useEffect(() => {
     return () => resetForm();
   }, [resetForm]);
@@ -235,8 +237,8 @@ function CreateGoalForm() {
               }
 
               await createGoalLogsFromGoal({
-                goalId
-              }); 
+                goalId,
+              });
               router.navigate("/goals");
               resetForm();
             } catch (error) {
