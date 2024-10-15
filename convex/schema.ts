@@ -35,4 +35,23 @@ export default defineSchema({
     unit: v.string(),
     recurrence: v.string(),
   }).index("by_user_id", ["userId"]),
+  challenges: defineTable({
+    _id: v.id("challenges"),
+    name: v.string(),
+    description: v.string(),
+    repeat: v.array(v.string()),
+    unitType: v.string(),
+    unitValue: v.number(),
+    unit: v.string(),
+    recurrence: v.string(),
+    startDate: v.number(),
+    endDate: v.number(),
+  }),
+  challengeParticipants: defineTable({
+    _id: v.id("challengeParticipants"),
+    userId: v.id("users"),
+    challengeId: v.id("challenges"),
+  })
+    .index("by_challenge_id", ["challengeId"])
+    .index("by_user_id", ["userId"]),
 });
