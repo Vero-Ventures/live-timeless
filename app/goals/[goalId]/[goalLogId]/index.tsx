@@ -10,23 +10,24 @@ import * as DropdownMenu from "zeego/dropdown-menu";
 import { useState, useEffect } from "react";
 
 export default function GoalScreen() {
-  const { goalId, goalLogId } = useLocalSearchParams<{ goalId: Id<"goals">, goalLogId: Id<"goalLogs"> }>();
+  const { goalId, goalLogId } = useLocalSearchParams<{
+    goalId: Id<"goals">;
+    goalLogId: Id<"goalLogs">;
+  }>();
 
   const goal = useQuery(api.goals.getGoalById, { goalId });
-  const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });  
+  const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });
   const goalLogs = useQuery(api.goalLogs.getGoalLogsbyGoalId, { goalId });
 
   const deleteGoalAndGoalLogs = useMutation(api.goals.deleteGoalAndGoalLogs);
 
   const [progress, setProgress] = useState<number>(0);
 
-  
-
   useEffect(() => {
     if (goalLogs) {
       const totalLogs = goalLogs.length;
       const completedLogs = goalLogs.filter((log) => log.isComplete).length;
-      
+
       const percentage = totalLogs > 0 ? (completedLogs / totalLogs) * 100 : 0;
       setProgress(percentage);
     }
@@ -120,25 +121,31 @@ export default function GoalScreen() {
         }}
       />
 
-      <View className="bg-gray-700 p-4 rounded-lg my-4">
-        <Text className="text-white text-base" style={{ fontFamily: fontFamily.openSans.medium }}>
+      <View className="my-4 rounded-lg bg-gray-700 p-4">
+        <Text
+          className="text-base text-white"
+          style={{ fontFamily: fontFamily.openSans.medium }}
+        >
           Progress: {progress.toFixed(2)}%
         </Text>
-        <Text className="text-gray-400 text-sm">
-          You have completed {goalLogs?.filter((log) => log.isComplete).length} of {goalLogs?.length} logs.
+        <Text className="text-sm text-gray-400">
+          You have completed {goalLogs?.filter((log) => log.isComplete).length}{" "}
+          of {goalLogs?.length} logs.
         </Text>
       </View>
 
       <Pressable
-        className={`mt-5 p-3 rounded-lg items-center ${goalLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"}`}
+        className={`mt-5 items-center rounded-lg p-3 ${goalLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"}`}
         onPress={goalLog?.isComplete ? null : handleStartGoal} // Disable press if goalLog is complete
         disabled={goalLog?.isComplete} // Disable the button if the goalLog is complete
       >
-        <Text className="text-white text-base" style={{ fontFamily: fontFamily.openSans.bold }}>
-          {goalLog?.isComplete ? "Goal Log Completed" : "Start Goal"}
+        <Text
+          className="text-base text-white"
+          style={{ fontFamily: fontFamily.openSans.bold }}
+        >
+          {goalLog?.isComplete ? "Goal Log Completed" : "Log Progress"}
         </Text>
       </Pressable>
     </View>
   );
 }
-
