@@ -13,21 +13,25 @@ export default function GoalCompletionScreen() {
   if (!goal || !goalLogs) {
     return <Text>Loading...</Text>;
   }
+  const cleanedGoalName = goal.name.trim();
 
   const totalLogs = goalLogs.length;
   const completedLogs = goalLogs.filter((log) => log.isComplete).length;
 
-  // Sharing Goals
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `I just completed ${completedLogs} day(s) out of ${totalLogs} towards my goal
-        of ${goal.name}! #goals #wellness`,
+        message: `I just completed ${completedLogs} day(s) out of ${totalLogs} towards my goal of ${cleanedGoalName}! #goals #wellness`,
       });
       Alert.alert("Success", "Your progress has been shared successfully.");
     } catch (error) {
-      console.error("Error sharing:", error);
-      Alert.alert("Error", "There was an error sharing your progress. Try again later.");
+      if ((error as Error).message !== "User did not share") {
+        console.error("Error sharing:", error);
+        Alert.alert(
+          "Error",
+          "There was an error sharing your progress. Try again later."
+        );
+      }
     }
   };
 
