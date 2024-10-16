@@ -36,12 +36,33 @@ export default function GoalsPage() {
     }
   }, [goals, goalLogs]);
 
+  const isDailyRepeat = (dailyRepeat: string[], selectedDate: Date) => {
+    const dayOfWeek = selectedDate.getDay();
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    return dailyRepeat.includes(days[dayOfWeek]);
+  };
+
   // Filter goalLogs for the selectedDate
   const filteredGoalLogs = goalLogs
     ? goalLogs.filter((log) => {
+        const goal = goals?.find((goal) => goal._id === log.goalId);
+        if (!goal) return false;
+
+        if (goal.repeatType === "daily") {
+          return isDailyRepeat(goal.dailyRepeat, selectedDate);
+        }
+
         const logDate = new Date(log.date).setHours(0, 0, 0, 0); // Compare at date level
         const selectedDateStart = new Date(selectedDate).setHours(0, 0, 0, 0);
-        return logDate === selectedDateStart;
+        return logDate === selectedDateStart; // For one-time goals
       })
     : [];
 
