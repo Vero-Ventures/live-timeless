@@ -107,12 +107,22 @@ export default function GoalsPage() {
     : [];
 
   // Match filtered goalLogs to their corresponding goals
-  const matchedGoals = filteredGoalLogs
-    .map((log) => {
-      const goal = goals?.find((goal) => goal._id === log.goalId);
-      return goal ? { goal, goalLog: log } : null;
-    })
-    .filter((item) => item !== null); // Remove nulls
+  const groupedGoals = new Map<
+    string,
+    { goal: Doc<"goals">; goalLogs: Doc<"goalLogs">[] }
+  >();
+
+  filteredGoalLogs.forEach((log) => {
+    const goal = goals?.find((goal) => goal._id === log.goalId);
+    if (!goal) return;
+
+    if (!groupedGoals.has(goal._id)) {
+      groupedGoals.set(goal._id, { goal, goalLogs: [] });
+    }
+    groupedGoals.get(goal._id)?.goalLogs.push(log);
+  });
+
+  const matchedGoals = Array.from(groupedGoals.values());
 
   return (
     <SafeAreaView
