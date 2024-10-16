@@ -36,7 +36,11 @@ export default function GoalsPage() {
     }
   }, [goals, goalLogs]);
 
-  const isDailyRepeat = (dailyRepeat: string[], selectedDate: Date) => {
+  const isDailyRepeat = (
+    dailyRepeat: string[],
+    startDate: Date,
+    selectedDate: Date
+  ) => {
     const dayOfWeek = selectedDate.getDay();
     const days = [
       "Sunday",
@@ -47,9 +51,16 @@ export default function GoalsPage() {
       "Friday",
       "Saturday",
     ];
-    return dailyRepeat.includes(days[dayOfWeek]);
+  
+    const isRepeatDay = dailyRepeat.includes(days[dayOfWeek]);
+  
+    // Convert both dates to timestamps for comparison
+    const isAfterStartDate =
+      selectedDate.getTime() >= new Date(startDate).getTime();
+  
+    return isRepeatDay && isAfterStartDate;
   };
-
+  
   const isIntervalRepeat = (
     startDate: string | Date,
     intervalRepeat: number,
@@ -59,11 +70,15 @@ export default function GoalsPage() {
       (selectedDate.getTime() - new Date(startDate).getTime()) /
         (1000 * 60 * 60 * 24)
     );
-    return diffInDays >= 0 && diffInDays % intervalRepeat === 0;
+    const isRepeatInterval =
+      diffInDays >= 0 && diffInDays % intervalRepeat === 0;
+  
+    return isRepeatInterval;
   };
-
+  
   const isMonthlyRepeat = (monthlyRepeat: number[], selectedDate: Date) => {
-    return monthlyRepeat.includes(selectedDate.getDate());
+    const isRepeatDay = monthlyRepeat.includes(selectedDate.getDate());
+    return isRepeatDay;
   };
 
   // Filter goalLogs for the selectedDate
