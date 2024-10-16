@@ -4,19 +4,13 @@ import {
   View,
   ScrollView,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
-import { Link, router, SplashScreen } from "expo-router";
-import {
-  useEffect,
-  useRef,
-  useState,
-  type Dispatch,
-  type SetStateAction,
-} from "react";
+import { Link, SplashScreen } from "expo-router";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { fontFamily } from "~/lib/font";
 import { Plus } from "lucide-react-native";
 import { Separator } from "~/components/ui/separator";
@@ -25,6 +19,8 @@ import { useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import type { Doc } from "~/convex/_generated/dataModel";
 import { GOAL_ICONS } from "~/constants/goal-icons";
+import { useRouter } from "expo-router";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
@@ -135,6 +131,44 @@ interface GoalItemProps {
 }
 
 function GoalItem({ goal, goalLog }: GoalItemProps) {
+  const router = useRouter();
+
+  const allowedUnits = [
+    "steps",
+    "kg",
+    "grams",
+    "mg",
+    "oz",
+    "pounds",
+    "μg",
+    "litres",
+    "mL",
+    "US fl oz",
+    "cups",
+    "kilojoules",
+    "kcal",
+    "cal",
+    "joules",
+    "km",
+    "metres",
+    "feet",
+    "yards",
+    "miles",
+  ];
+
+  const handleLogPress = (e: any) => {
+    e.stopPropagation(); // Prevent parent navigation
+
+    if (goalLog.isComplete) {
+      Alert.alert("Goal Completed", "This goal has already been completed.");
+      return;
+    }
+
+    router.push({
+      pathname: `/goals/${goal._id}/${goalLog._id}/start/logProgress`,
+    });
+  };
+
   const IconComp = GOAL_ICONS.find(
     (item) => item.name === goal.selectedIcon
   )?.component;
@@ -146,6 +180,12 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
   const AlarmIconComp = GOAL_ICONS.find(
     (icon) => icon.name === "alarm"
   )?.component;
+
+  // Check if the goal unit is one of the allowed units for the "Log" button
+  const isAllowedUnit = allowedUnits.includes(goal.unit);
+
+  const buttonStyles =
+    "w-28 justify-center flex-row items-center rounded-full p-3"; // Shared styles for both buttons
 
   return (
     <View className="flex-row items-center gap-4">
@@ -165,9 +205,7 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
             </View>
 
             <View className="w-full gap-2">
-              <Text style={{ fontFamily: fontFamily.openSans.medium }}>
-                {goal.name}
-              </Text>
+              <Text style={{ fontFamily: "openSans.medium" }}>{goal.name}</Text>
               <Text className="text-xs text-muted-foreground">
                 {`${Math.floor(goalLog.unitsCompleted)} / ${Math.floor(goal.unitValue)} ${goal.unit}`}
               </Text>
@@ -176,18 +214,32 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
         </Pressable>
       </Link>
 
-      {(goal.unitType === "Duration" || goal.unit === "minutes") && (
+      {/* Conditionally render Timer or Log button based on the unit */}
+      {isAllowedUnit ? (
+        // Show Log button for allowed units
+        <Pressable
+          className={cn(
+            buttonStyles,
+            goalLog.isComplete ? "bg-gray-500" : "bg-gray-800"
+          )}
+          onPress={handleLogPress}
+          disabled={goalLog.isComplete}
+        >
+          <FontAwesome5 name="keyboard" size={20} color="white" />
+          <Text className="ml-2 text-white">Log</Text>
+        </Pressable>
+      ) : (
+        // Show Timer button for other units
         <Pressable
           onPress={handleTimerRedirect}
-          className="flex-row items-center justify-center rounded-full bg-gray-600 p-2"
-          style={{ paddingHorizontal: 12 }}
+          className={cn(buttonStyles, "bg-gray-600")}
         >
           {!!AlarmIconComp && (
-            <AlarmIconComp name="alarm" size={16} color="#fff" />
+            <AlarmIconComp name="alarm" size={20} color="#fff" />
           )}
           <Text
-            className="ml-2 text-base text-white"
-            style={{ fontFamily: fontFamily.openSans.bold }}
+            className="ml-2 text-white"
+            style={{ fontFamily: "openSans.bold" }}
           >
             Timer
           </Text>
