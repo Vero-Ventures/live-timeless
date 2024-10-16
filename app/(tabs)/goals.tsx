@@ -205,7 +205,8 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
   const router = useRouter();
 
   // Get the latest log (or some other logic for selecting a log)
-  const latestLog = goalLogs && goalLogs.length > 0 ? goalLogs[goalLogs.length - 1] : null;
+  const latestLog =
+    goalLogs && goalLogs.length > 0 ? goalLogs[goalLogs.length - 1] : null;
 
   const allowedUnits = [
     "steps",
