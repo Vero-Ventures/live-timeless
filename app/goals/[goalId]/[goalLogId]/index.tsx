@@ -15,6 +15,7 @@ export default function GoalScreen() {
     goalLogId: Id<"goalLogs">;
   }>();
 
+  // Fetch goal and goal logs
   const goal = useQuery(api.goals.getGoalById, { goalId });
   const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });
   const goalLogs = useQuery(api.goalLogs.getGoalLogsbyGoalId, { goalId });
@@ -27,7 +28,6 @@ export default function GoalScreen() {
     if (goalLogs) {
       const totalLogs = goalLogs.length;
       const completedLogs = goalLogs.filter((log) => log.isComplete).length;
-
       const percentage = totalLogs > 0 ? (completedLogs / totalLogs) * 100 : 0;
       setProgress(percentage);
     }
@@ -82,7 +82,12 @@ export default function GoalScreen() {
                   <FontAwesome5 name="ellipsis-h" size={20} color="#fff" />
                 </Pressable>
               </DropdownMenu.Trigger>
-              <DropdownMenu.Content key="actions" placeholder="">
+              <DropdownMenu.Content
+                key="actions"
+                placeholder=""
+                onPointerEnterCapture={() => {}}
+                onPointerLeaveCapture={() => {}}
+              >
                 <DropdownMenu.Item
                   onSelect={() =>
                     router.navigate({
@@ -92,6 +97,9 @@ export default function GoalScreen() {
                   }
                   key="edit-goal"
                   textValue="Edit Goal"
+                  placeholder=""
+                  onPointerEnterCapture={() => {}}
+                  onPointerLeaveCapture={() => {}}
                 >
                   <DropdownMenu.ItemIcon ios={{ name: "pencil.line" }} />
                 </DropdownMenu.Item>
@@ -101,6 +109,9 @@ export default function GoalScreen() {
                   destructive
                   key="delete-goal"
                   textValue="Delete Goal"
+                  placeholder=""
+                  onPointerEnterCapture={() => {}}
+                  onPointerLeaveCapture={() => {}}
                 >
                   <DropdownMenu.ItemIcon ios={{ name: "trash" }} />
                 </DropdownMenu.Item>
@@ -124,7 +135,9 @@ export default function GoalScreen() {
       </View>
 
       <Pressable
-        className={`mt-5 items-center rounded-lg p-3 ${goalLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"}`}
+        className={`mt-5 items-center rounded-lg p-3 ${
+          goalLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"
+        }`}
         onPress={goalLog?.isComplete ? null : handleStartGoal} // Disable press if goalLog is complete
         disabled={goalLog?.isComplete} // Disable the button if the goalLog is complete
       >
@@ -132,7 +145,7 @@ export default function GoalScreen() {
           className="text-base text-white"
           style={{ fontFamily: fontFamily.openSans.bold }}
         >
-          {goalLog?.isComplete ? "Goal Log Completed" : "Start Goal"}
+          {goalLog?.isComplete ? "Goal Log Completed" : "Log Progress"}
         </Text>
       </Pressable>
     </View>
