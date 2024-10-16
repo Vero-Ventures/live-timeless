@@ -62,6 +62,10 @@ export default function GoalsPage() {
     return diffInDays >= 0 && diffInDays % intervalRepeat === 0;
   };
 
+  const isMonthlyRepeat = (monthlyRepeat: number[], selectedDate: Date) => {
+    return monthlyRepeat.includes(selectedDate.getDate());
+  };
+
   // Filter goalLogs for the selectedDate
   const filteredGoalLogs = goalLogs
     ? goalLogs.filter((log) => {
@@ -78,6 +82,10 @@ export default function GoalsPage() {
             goal.intervalRepeat,
             selectedDate
           );
+        }
+
+        if (goal.repeatType === "monthly") {
+          return isMonthlyRepeat(goal.monthlyRepeat, selectedDate);
         }
 
         const logDate = new Date(log.date).setHours(0, 0, 0, 0); // Compare at date level
