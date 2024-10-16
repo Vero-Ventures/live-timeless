@@ -51,16 +51,16 @@ export default function GoalsPage() {
       "Friday",
       "Saturday",
     ];
-  
+
     const isRepeatDay = dailyRepeat.includes(days[dayOfWeek]);
-  
+
     // Convert both dates to timestamps for comparison
     const isAfterStartDate =
       selectedDate.getTime() >= new Date(startDate).getTime();
-  
+
     return isRepeatDay && isAfterStartDate;
   };
-  
+
   const isIntervalRepeat = (
     startDate: string | Date,
     intervalRepeat: number,
@@ -72,10 +72,10 @@ export default function GoalsPage() {
     );
     const isRepeatInterval =
       diffInDays >= 0 && diffInDays % intervalRepeat === 0;
-  
+
     return isRepeatInterval;
   };
-  
+
   const isMonthlyRepeat = (monthlyRepeat: number[], selectedDate: Date) => {
     const isRepeatDay = monthlyRepeat.includes(selectedDate.getDate());
     return isRepeatDay;
@@ -87,25 +87,22 @@ export default function GoalsPage() {
         const goal = goals?.find((goal) => goal._id === log.goalId);
         if (!goal) return false;
 
-        if (goal.repeatType === "daily") {
-          return isDailyRepeat(goal.dailyRepeat, selectedDate);
+        const startDate = new Date(goal.startDate);
+        switch (goal.repeatType) {
+          case "daily":
+            return isDailyRepeat(goal.dailyRepeat, startDate, selectedDate);
+          case "interval":
+            return isIntervalRepeat(
+              startDate,
+              goal.intervalRepeat,
+              selectedDate
+            );
+          case "monthly":
+            return isMonthlyRepeat(goal.monthlyRepeat, selectedDate);
+          default:
+            const selectedDateStart = selectedDate.getTime();
+            return startDate.getTime() === selectedDateStart;
         }
-
-        if (goal.repeatType === "interval") {
-          return isIntervalRepeat(
-            new Date(goal.startDate),
-            goal.intervalRepeat,
-            selectedDate
-          );
-        }
-
-        if (goal.repeatType === "monthly") {
-          return isMonthlyRepeat(goal.monthlyRepeat, selectedDate);
-        }
-
-        const logDate = new Date(log.date).setHours(0, 0, 0, 0); // Compare at date level
-        const selectedDateStart = new Date(selectedDate).setHours(0, 0, 0, 0);
-        return logDate === selectedDateStart; // For one-time goals
       })
     : [];
 
