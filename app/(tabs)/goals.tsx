@@ -174,7 +174,7 @@ export default function GoalsPage() {
               <Text className="text-center">No goals found for this date.</Text>
             )}
             renderItem={({ item }) => (
-              <GoalItem goal={item.goal} goalLog={item.goalLog} />
+              <GoalItem goal={item.goal} goalLogs={item.goalLogs} />
             )}
             keyExtractor={(item) => item.goal._id.toString()}
           />
@@ -198,14 +198,14 @@ export default function GoalsPage() {
 
 interface GoalItemProps {
   goal: Doc<"goals">;
-  goalLog: Doc<"goalLogs">;
+  goalLogs: Doc<"goalLogs">[];
 }
 
 function GoalItem({ goal, goalLogs }: GoalItemProps) {
   const router = useRouter();
 
   // Get the latest log (or some other logic for selecting a log)
-  const latestLog = goalLogs[goalLogs.length - 1]; // Assuming you want the most recent log
+  const latestLog = goalLogs && goalLogs.length > 0 ? goalLogs[goalLogs.length - 1] : null;
 
   const allowedUnits = [
     "steps",
@@ -229,6 +229,10 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
     "yards",
     "miles",
   ];
+
+  if (!latestLog) {
+    return null;
+  }
 
   const handleLogPress = (e: any) => {
     e.stopPropagation(); // Prevent parent navigation
