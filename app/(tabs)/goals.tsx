@@ -50,6 +50,18 @@ export default function GoalsPage() {
     return dailyRepeat.includes(days[dayOfWeek]);
   };
 
+  const isIntervalRepeat = (
+    startDate: string | Date,
+    intervalRepeat: number,
+    selectedDate: Date
+  ) => {
+    const diffInDays = Math.floor(
+      (selectedDate.getTime() - new Date(startDate).getTime()) /
+        (1000 * 60 * 60 * 24)
+    );
+    return diffInDays >= 0 && diffInDays % intervalRepeat === 0;
+  };
+
   // Filter goalLogs for the selectedDate
   const filteredGoalLogs = goalLogs
     ? goalLogs.filter((log) => {
@@ -58,6 +70,14 @@ export default function GoalsPage() {
 
         if (goal.repeatType === "daily") {
           return isDailyRepeat(goal.dailyRepeat, selectedDate);
+        }
+
+        if (goal.repeatType === "interval") {
+          return isIntervalRepeat(
+            new Date(goal.startDate),
+            goal.intervalRepeat,
+            selectedDate
+          );
         }
 
         const logDate = new Date(log.date).setHours(0, 0, 0, 0); // Compare at date level
