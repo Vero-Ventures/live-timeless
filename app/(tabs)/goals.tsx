@@ -201,8 +201,11 @@ interface GoalItemProps {
   goalLog: Doc<"goalLogs">;
 }
 
-function GoalItem({ goal, goalLog }: GoalItemProps) {
+function GoalItem({ goal, goalLogs }: GoalItemProps) {
   const router = useRouter();
+
+  // Get the latest log (or some other logic for selecting a log)
+  const latestLog = goalLogs[goalLogs.length - 1]; // Assuming you want the most recent log
 
   const allowedUnits = [
     "steps",
@@ -230,13 +233,13 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
   const handleLogPress = (e: any) => {
     e.stopPropagation(); // Prevent parent navigation
 
-    if (goalLog.isComplete) {
+    if (latestLog.isComplete) {
       Alert.alert("Goal Completed", "This goal has already been completed.");
       return;
     }
 
     router.push({
-      pathname: `/goals/${goal._id}/${goalLog._id}/start/logProgress`,
+      pathname: `/goals/${goal._id}/${latestLog._id}/start/logProgress`,
     });
   };
 
@@ -245,7 +248,7 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
   )?.component;
 
   const handleTimerRedirect = () => {
-    router.push(`/goals/${goal._id}/${goalLog._id}/start`);
+    router.push(`/goals/${goal._id}/${latestLog._id}/start`);
   };
 
   const AlarmIconComp = GOAL_ICONS.find(
@@ -260,7 +263,7 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
 
   return (
     <View className="flex-row items-center gap-4">
-      <Link href={`/goals/${goal._id}/${goalLog._id}`} asChild>
+      <Link href={`/goals/${goal._id}/${latestLog._id}`} asChild>
         <Pressable className="flex-1">
           <View className="flex-row items-center gap-4">
             <View
@@ -278,7 +281,7 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
             <View className="w-full gap-2">
               <Text style={{ fontFamily: "openSans.medium" }}>{goal.name}</Text>
               <Text className="text-xs text-muted-foreground">
-                {`${Math.floor(goalLog.unitsCompleted)} / ${Math.floor(goal.unitValue)} ${goal.unit}`}
+                {`${Math.floor(latestLog.unitsCompleted)} / ${Math.floor(goal.unitValue)} ${goal.unit}`}
               </Text>
             </View>
           </View>
@@ -291,10 +294,10 @@ function GoalItem({ goal, goalLog }: GoalItemProps) {
         <Pressable
           className={cn(
             buttonStyles,
-            goalLog.isComplete ? "bg-gray-500" : "bg-gray-800"
+            latestLog.isComplete ? "bg-gray-500" : "bg-gray-800"
           )}
           onPress={handleLogPress}
-          disabled={goalLog.isComplete}
+          disabled={latestLog.isComplete}
         >
           <FontAwesome5 name="keyboard" size={20} color="white" />
           <Text className="ml-2 text-white">Log</Text>
