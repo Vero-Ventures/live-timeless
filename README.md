@@ -32,7 +32,7 @@ This is the mobile app component for the Live Timeless platform.
    ```
 
 > [!NOTE]  
-> Unlike the web, React Native is not backwards compatible. This means that npm packages often need to be the exact right version for the currently installed copy of react-native in your project. Expo CLI provides a best-effort tool for doing this using a list of popular packages and the known working version combinations. Simply use the `install` command as a drop-in replacement for `npm install`.
+> Unlike the web, React Native is not backwards compatible. This means that npm packages often need to be the exact right version for the currently installed copy of react-native in your project. Expo CLI provides a best-effort tool for doing this using a list of popular packages and the known working version combinations. Simply use the `expo install` command as a drop-in replacement for `npm install`.
 
 2. **Set up environment variables**
 
