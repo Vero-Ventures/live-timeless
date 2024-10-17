@@ -69,12 +69,16 @@ This is the mobile app component for the Live Timeless platform.
 
    ### iOS
 
-   #### Prerequisites
+      #### Prerequisites
+   
+      Before we begin, ensure you have:
+      - **Developer Mode activated on iOS 16 or higher**: Installing development builds on your device requires Developer Mode to be enabled. If this is your first time or if it's currently disabled, see these instructions to [activate Developer Mode](https://docs.expo.dev/guides/ios-developer-mode/).
 
-   Before we begin, ensure you have:
-   - **Developer Mode activated on iOS 16 or higher**: Installing development builds on your device requires Developer Mode to be enabled. If this is your first time or if it's currently disabled, see these instructions to [activate Developer Mode](https://docs.expo.dev/guides/ios-developer-mode/).
-
-   1. Follow the instructions [here](https://docs.expo.dev/tutorial/eas/ios-development-build-for-devices/#provisioning-profile) on registering your device and creating and installing the new provisioning profile on to your device (#1 and #2).
+   
+   1. Contact your team admin and have them create and install provisioning profile. Refer to the [documentation](https://docs.expo.dev/tutorial/eas/ios-development-build-for-devices/#register-an-ios-device). 
+      ```
+      eas device:create
+      ```
    2. Ask a team admin with apple developer account access to create a development build. Refer to the [documentation](https://docs.expo.dev/tutorial/eas/ios-development-build-for-devices/#development-build-for-ios-device) for more information.
 
       ```bash
