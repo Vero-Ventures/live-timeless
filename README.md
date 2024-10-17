@@ -1,11 +1,12 @@
 # Live Timeless
+
 This is the mobile app component for the Live Timeless platform.
 
 ## Key features
+
 - Enables employees to take control of their personal and professional development by identifying and cultivating productive habits.
 - Offers a structured and systematic approach to logging progress, helping employees stay on track and motivated.
 - Delivers valuable insights into personal growth and habit patterns, enabling employees to make informed adjustments and improvements.
-
 
 ## Resources
 
@@ -27,6 +28,7 @@ This is the mobile app component for the Live Timeless platform.
    ```bash
    npm install expo
    ```
+
    ```bash
    npx expo install
    ```
@@ -38,7 +40,7 @@ This is the mobile app component for the Live Timeless platform.
 
    Copy over the `.env.example` and name it `.env.local`. Replace the placeholder values with your actual values.
 
-> [!NOTE]   
+> [!NOTE]  
 > The `npx convex dev` command will automatically generate your env variables for Convex so you won't have to manually enter it.
 
 3. **Log in to Convex**
@@ -63,19 +65,19 @@ This is the mobile app component for the Live Timeless platform.
 
    ### Android
 
-      1. Go to the [development builds page](https://expo.dev/accounts/live-timeless/projects/live-timeless-app/development-builds) on the Expo Dashboard on your phone.
-      2. Look for the latest Android internal distribution build (profile should say Development).
-      3. Click install to install the APK on your device.
+   1. Go to the [development builds page](https://expo.dev/accounts/live-timeless/projects/live-timeless-app/development-builds) on the Expo Dashboard on your phone.
+   2. Look for the latest Android internal distribution build (profile should say Development).
+   3. Click install to install the APK on your device.
 
    ### iOS
 
-      #### Prerequisites
-   
-      Before we begin, ensure you have:
-      - **Developer Mode activated on iOS 16 or higher**: Installing development builds on your device requires Developer Mode to be enabled. If this is your first time or if it's currently disabled, see these instructions to [activate Developer Mode](https://docs.expo.dev/guides/ios-developer-mode/).
+   #### Prerequisites
 
-   
-   1. Contact your team admin (user with access to the apple developer account)  and have them create and install provisioning profile. Running the command below should create a link so you can share the provisioning profile link with your team ios devices for downloading and installing the profile. Refer to the [documentation](https://docs.expo.dev/tutorial/eas/ios-development-build-for-devices/#register-an-ios-device). 
+   Before we begin, ensure you have:
+
+   - **Developer Mode activated on iOS 16 or higher**: Installing development builds on your device requires Developer Mode to be enabled. If this is your first time or if it's currently disabled, see these instructions to [activate Developer Mode](https://docs.expo.dev/guides/ios-developer-mode/).
+
+   1. Contact your team admin (user with access to the apple developer account) and have them create and install provisioning profile. Running the command below should create a link so you can share the provisioning profile link with your team ios devices for downloading and installing the profile. Refer to the [documentation](https://docs.expo.dev/tutorial/eas/ios-development-build-for-devices/#register-an-ios-device).
       ```
       eas device:create
       ```
@@ -88,25 +90,27 @@ This is the mobile app component for the Live Timeless platform.
 > [!IMPORTANT]  
 > Make sure your device is selected in the Provisioning Profile.
 
-   3. Go to the [development builds page](https://expo.dev/accounts/live-timeless/projects/live-timeless-app/development-builds) on the Expo Dashboard on your phone.
-   4. Look for the latest iOS internal distribution build (profile should say Development).
-   5. Click install to install the IPA on your device.
+3.  Go to the [development builds page](https://expo.dev/accounts/live-timeless/projects/live-timeless-app/development-builds) on the Expo Dashboard on your phone.
+4.  Look for the latest iOS internal distribution build (profile should say Development).
+5.  Click install to install the IPA on your device.
 
-7. **Start the development server**
+6.  **Start the development server**
 
-   After you have installed the development build, you can start the development server by running:
+    After you have installed the development build, you can start the development server by running:
 
-   ```bash
-   npm start -c
-   ```
-> [!NOTE]
-> The `-c` flag clears the cache so it might fix potential issues that have occured due to caching.
+    ```bash
+    npm start -c
+    ```
 
-8. **Sign in to the app**
+    > [!NOTE]
+    > The `-c` flag clears the cache so it might fix potential issues that have occured due to caching.
 
-   Click on the Live Timeless app and log in with your Expo account by clicking on the user profile icon on the top right. Then close the app and open it again.
+7.  **Sign in to the app**
+
+    Click on the Live Timeless app and log in with your Expo account by clicking on the user profile icon on the top right. Then close the app and open it again.
 
 ## Contributing
+
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
 ## Project Structure
@@ -135,4 +139,3 @@ To learn more about developing your project with Expo, look at the following res
 
 - [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
 - [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
