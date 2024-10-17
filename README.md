@@ -63,21 +63,19 @@ This is the mobile app component for the Live Timeless platform.
 
    ### Android
 
-   1. Go to the [development builds page](https://expo.dev/accounts/live-timeless/projects/live-timeless-app/development-builds) on the Expo Dashboard on your phone.
-   2. Look for the latest Android internal distribution build (profile should say Development).
-   3. Click install to install the APK on your device.
+      1. Go to the [development builds page](https://expo.dev/accounts/live-timeless/projects/live-timeless-app/development-builds) on the Expo Dashboard on your phone.
+      2. Look for the latest Android internal distribution build (profile should say Development).
+      3. Click install to install the APK on your device.
 
    ### iOS
 
    #### Prerequisites
 
    Before we begin, ensure you have:
-
-   - **Apple Developer Account**: Join the Live Timeless apple developer account.
    - **Developer Mode activated on iOS 16 or higher**: Installing development builds on your device requires Developer Mode to be enabled. If this is your first time or if it's currently disabled, see these instructions to [activate Developer Mode](https://docs.expo.dev/guides/ios-developer-mode/).
 
-   1. Follow the instructions [here](https://docs.expo.dev/tutorial/eas/ios-development-build-for-devices/#provisioning-profile) on registering your device and creating and installing the new provisioning profile (#1 and #2).
-   2. Run the following command to create another development build. Refer to the [documentation](https://docs.expo.dev/tutorial/eas/ios-development-build-for-devices/#development-build-for-ios-device) for more information.
+   1. Follow the instructions [here](https://docs.expo.dev/tutorial/eas/ios-development-build-for-devices/#provisioning-profile) on registering your device and creating and installing the new provisioning profile on to your device (#1 and #2).
+   2. Ask a team admin with apple developer account access to create a development build. Refer to the [documentation](https://docs.expo.dev/tutorial/eas/ios-development-build-for-devices/#development-build-for-ios-device) for more information.
 
       ```bash
       eas build --platform ios --profile development
