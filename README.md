@@ -75,7 +75,7 @@ This is the mobile app component for the Live Timeless platform.
       - **Developer Mode activated on iOS 16 or higher**: Installing development builds on your device requires Developer Mode to be enabled. If this is your first time or if it's currently disabled, see these instructions to [activate Developer Mode](https://docs.expo.dev/guides/ios-developer-mode/).
 
    
-   1. Contact your team admin and have them create and install provisioning profile. Refer to the [documentation](https://docs.expo.dev/tutorial/eas/ios-development-build-for-devices/#register-an-ios-device). 
+   1. Contact your team admin and have them create and install provisioning profile. Running the command below should create a link so you can share the provisioning profile link with your team ios devices for downloading and installing the profile. Refer to the [documentation](https://docs.expo.dev/tutorial/eas/ios-development-build-for-devices/#register-an-ios-device). 
       ```
       eas device:create
       ```
