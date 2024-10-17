@@ -97,8 +97,10 @@ This is the mobile app component for the Live Timeless platform.
    After you have installed the development build, you can start the development server by running:
 
    ```bash
-   npm start
+   npm start -c
    ```
+> [!NOTE]
+> The `-c` flag clears the cache so it might fix potential issues that have occured due to caching.
 
 8. **Sign in to the app**
 
