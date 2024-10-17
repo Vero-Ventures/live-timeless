@@ -1,17 +1,13 @@
 # Live Timeless
+This is the mobile app component for the Live Timeless platform.
 
-This is an [Expo](https://expo.dev) project for the Live Timeless app, a goal-setting and habit-tracking application.
+## Key features
+- Enables employees to take control of their personal and professional development by identifying and cultivating productive habits.
+- Offers a structured and systematic approach to logging progress, helping employees stay on track and motivated.
+- Delivers valuable insights into personal growth and habit patterns, enabling employees to make informed adjustments and improvements.
 
-## About
 
-Live Timeless helps users set meaningful goals and develop habits to achieve them. Key features include:
-
-- User authentication with Kinde
-- Goal creation and management
-- AI-powered habit plan generation
-- Cross-platform compatibility (iOS, Android, and Web)
-
-## Design and Documentation
+## Resources
 
 - [Figma Design](https://www.figma.com/design/Uo8lKmyyGjQzIUty6RH89t/Live-Timeless---Raul-Version?node-id=5-13450&t=F6wqbjoMY7NHUa7W-0)
 - [Concept Document](https://docs.google.com/document/d/1OxHxL4G9lwTwSLeegsMo6ROS_LrOjwFMnz12L6zyV5E/edit#heading=h.yx6bzclsmjey)
@@ -21,45 +17,92 @@ Live Timeless helps users set meaningful goals and develop habits to achieve the
 
 - [Expo](https://expo.dev): React Native framework
 - [Convex](https://www.convex.dev/): Backend-as-a-Service
-- [Kinde](https://kinde.com/): Authentication provider
 - [NativeWind](https://www.nativewind.dev/): Tailwind CSS for React Native
 - [Expo Router](https://docs.expo.dev/router/introduction/): File-based routing
 
-## Get started
+## Get Started
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Set up environment variables
-
-   Create a `.env` file in the root directory with the following variables:
-
-   ```
-   EXPO_PUBLIC_KINDE_ISSUER_URL=your_kinde_issuer_url
-   EXPO_PUBLIC_KINDE_CLIENT_ID=your_kinde_client_id
-   EXPO_PUBLIC_KINDE_REDIRECT_URI=your_kinde_redirect_uri
-   EXPO_PUBLIC_KINDE_POST_LOGOUT_REDIRECT_URI=your_kinde_post_logout_redirect_uri
-   EXPO_PUBLIC_CONVEX_URL=your_convex_deployment_url
-   ```
-
-   Replace the placeholder values with your actual Kinde and Convex credentials.
-
-3. Start the app
+1. **Install dependencies**
 
    ```bash
-    npm start
+   npm install expo
+   ```
+   ```bash
+   npx expo install
    ```
 
-In the output, you'll find options to open the app in a:
+> [!NOTE]  
+> Unlike the web, React Native is not backwards compatible. This means that npm packages often need to be the exact right version for the currently installed copy of react-native in your project. Expo CLI provides a best-effort tool for doing this using a list of popular packages and the known working version combinations. Simply use the `install` command as a drop-in replacement for `npm install`.
 
-- [Development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go)
+2. **Set up environment variables**
 
+   Copy over the `.env.example` and name it `.env.local`. Replace the placeholder values with your actual values.
+
+> [!NOTE]   
+> The `npx convex dev` command will automatically generate your env variables for Convex so you won't have to manually enter it.
+
+3. **Log in to Convex**
+
+   Visit [Convex](https://www.convex.dev/login) and log in with GitHub using our shared account: `admin@veroventures.com`.
+
+4. **Log in to the Convex CLI**
+
+   ```bash
+   npx convex login
+   ```
+
+5. **Run the Convex dev server**
+
+   ```bash
+   npx convex dev
+   ```
+
+6. **Install a Development Build**
+
+   For running the app on your device, you will need to install a [development build](https://docs.expo.dev/develop/development-builds/introduction/). Follow the instructions below to get a development build set up for your device.
+
+   ### Android
+
+   1. Go to the [development builds page](https://expo.dev/accounts/live-timeless/projects/live-timeless-app/development-builds) on the Expo Dashboard on your phone.
+   2. Look for the latest Android internal distribution build (profile should say Development).
+   3. Click install to install the APK on your device.
+
+   ### iOS
+
+   #### Prerequisites
+
+   Before we begin, ensure you have:
+
+   - **Apple Developer Account**: Join the Live Timeless apple developer account.
+   - **Developer Mode activated on iOS 16 or higher**: Installing development builds on your device requires Developer Mode to be enabled. If this is your first time or if it's currently disabled, see these instructions to [activate Developer Mode](https://docs.expo.dev/guides/ios-developer-mode/).
+
+   1. Follow the instructions [here](https://docs.expo.dev/tutorial/eas/ios-development-build-for-devices/#provisioning-profile) on registering your device and creating and installing the new provisioning profile (#1 and #2).
+   2. Run the following command to create another development build. Refer to the [documentation](https://docs.expo.dev/tutorial/eas/ios-development-build-for-devices/#development-build-for-ios-device) for more information.
+
+      ```bash
+      eas build --platform ios --profile development
+      ```
+
+> [!IMPORTANT]  
+> Make sure your device is selected in the Provisioning Profile.
+
+   3. Go to the [development builds page](https://expo.dev/accounts/live-timeless/projects/live-timeless-app/development-builds) on the Expo Dashboard on your phone.
+   4. Look for the latest iOS internal distribution build (profile should say Development).
+   5. Click install to install the IPA on your device.
+
+7. **Start the development server**
+
+   After you have installed the development build, you can start the development server by running:
+
+   ```bash
+   npm start
+   ```
+
+8. **Sign in to the app**
+
+   Click on the Live Timeless app and log in with your Expo account by clicking on the user profile icon on the top right. Then close the app and open it again.
+
+## Contributing
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
 ## Project Structure
@@ -72,15 +115,10 @@ You can start developing by editing the files inside the **app** directory. This
 
 ### Workflow
 
-1. Create a new branch for each feature or bug fix
+1. Create a new branch for each task, feature and bug fix
 2. Write clean, well-commented code
 3. Test your changes thoroughly
 4. Create a pull request for code review before merging
-
-### Testing
-
-- We use Jest for unit testing. Run tests with `npm test`
-- For manual testing, use Expo Go on your physical device or emulators/simulators
 
 ### Deployment
 
@@ -94,9 +132,3 @@ To learn more about developing your project with Expo, look at the following res
 - [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
 - [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
