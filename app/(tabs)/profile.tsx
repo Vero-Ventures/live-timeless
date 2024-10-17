@@ -53,12 +53,13 @@ export default function Profile() {
             </Button>
           </Link>
           <Button
+            variant="destructive"
             size="lg"
             onPress={async () => {
               await signOut();
             }}
           >
-            <Text>Logout</Text>
+            <Text>Sign Out</Text>
           </Button>
         </View>
       </Authenticated>
