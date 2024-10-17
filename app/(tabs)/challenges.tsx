@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import { FlatList, View } from "react-native";
+import { FlatList, Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Text } from "~/components/ui/text";
@@ -11,6 +11,7 @@ import {
   isBefore,
   isAfter,
 } from "date-fns";
+import { Link } from "expo-router";
 
 const getChallengeStatus = (startDate: Date, endDate: Date) => {
   const currentDate = new Date();
@@ -59,27 +60,32 @@ export default function ChallengesScreen() {
             <Text className="text-center">No Challenges yet.</Text>
           )}
           renderItem={({ item }) => (
-            <View className="rounded-lg bg-[#0e2942]">
-              <View className="flex-row items-center justify-between gap-4 px-4 py-4">
-                <Text
-                  className="text-xl"
-                  style={{
-                    fontFamily: fontFamily.openSans.semiBold,
-                  }}
-                >
-                  {item.name}
-                </Text>
-
-                <View className="rounded-lg bg-[#3d7bb6] p-2">
-                  <Text className="text-sm uppercase">
-                    {getChallengeStatus(
-                      new Date(item.startDate),
-                      new Date(item.endDate)
-                    )}
+            <Link
+              href={{ pathname: "/challenges/[id]", params: { id: item._id } }}
+              asChild
+            >
+              <Pressable className="rounded-lg bg-[#0e2942]">
+                <View className="flex-row items-center justify-between gap-4 px-4 py-4">
+                  <Text
+                    className="text-xl"
+                    style={{
+                      fontFamily: fontFamily.openSans.semiBold,
+                    }}
+                  >
+                    {item.name}
                   </Text>
+
+                  <View className="rounded-lg bg-[#3d7bb6] p-2">
+                    <Text className="text-sm uppercase">
+                      {getChallengeStatus(
+                        new Date(item.startDate),
+                        new Date(item.endDate)
+                      )}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            </View>
+              </Pressable>
+            </Link>
           )}
           keyExtractor={(item) => item._id}
         />
