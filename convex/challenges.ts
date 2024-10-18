@@ -1,3 +1,4 @@
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
@@ -56,22 +57,64 @@ export const deleteChallenge = mutation({
 });
 
 // Get non invited users
-// export const getNonInivtedUsers = query({
-//   args: {},
-//   handler: async (ctx) => {
-//     //TODO: Make sure current logged in user's role is an 'admin'
+export const getNonInivtedUsers = query({
+  args: {},
+  handler: async (ctx) => {
+    //TODO: Make sure current logged in user's role is an 'admin'
 
-//     const users = await ctx.db.query("users").collect();
+    const users = await ctx.db.query("users").collect();
 
-//     const challengeParticipants = await ctx.db
-//       .query("challengeParticipants")
-//       .collect();
-//     const challengeParticipantsIds = challengeParticipants.map((p) => p.userId);
+    const challengeParticipants = await ctx.db
+      .query("challengeParticipants")
+      .collect();
+    const challengeParticipantsIds = challengeParticipants.map((p) => p.userId);
 
-//     const filteredUsers = users.filter(
-//       (user) => !challengeParticipantsIds.includes(user._id)
-//     );
+    const filteredUsers = users.filter(
+      (user) => !challengeParticipantsIds.includes(user._id)
+    );
 
-//     return filteredUsers;
-//   },
-// });
+    return filteredUsers;
+  },
+});
+
+export const joinChallenge = mutation({
+  args: {
+    challengeId: v.id("challenges"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Not logged in");
+    }
+    await ctx.db.insert("challengeParticipants", {
+      challengeId: args.challengeId,
+      userId,
+    });
+  },
+});
+
+export const leaveChallenge = mutation({
+  args: {
+    challengeId: v.id("challenges"),
+  },
+  handler: async (ctx, { challengeId }) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Not logged in");
+    }
+    const challengeParticipant = await ctx.db
+      .query("challengeParticipants")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("challengeId"), challengeId),
+          q.eq(q.field("userId"), userId)
+        )
+      )
+      .collect()
+      .then((res) => res.at(0));
+    if (!challengeParticipant) {
+      throw new Error("User is not in the challenge");
+    }
+    await ctx.db.delete(challengeParticipant._id);
+  },
+});
