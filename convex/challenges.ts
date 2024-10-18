@@ -2,6 +2,37 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+export const getChallengeByIdWthHasJoined = query({
+  args: { challengeId: v.id("challenges") },
+  handler: async (ctx, { challengeId }) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Not logged in");
+    }
+    const challenge = await ctx.db.get(challengeId);
+    if (!challenge) {
+      throw new Error("Not found");
+    }
+    const challengeParticipants = await ctx.db
+      .query("challengeParticipants")
+      .filter((q) => q.eq(q.field("challengeId"), challenge._id))
+      .collect();
+
+    const challengeParticipantsUserIds = challengeParticipants.map(
+      (cp) => cp.userId
+    );
+
+    const hasJoined = challengeParticipantsUserIds.includes(userId);
+
+    const participants = await Promise.all(
+      challengeParticipants.map(async (participant) =>
+        ctx.db.get(participant.userId)
+      )
+    );
+    return { ...challenge, participants, hasJoined };
+  },
+});
+
 export const getChallengeById = query({
   args: { challengeId: v.id("challenges") },
   handler: async (ctx, { challengeId }) => {
@@ -102,6 +133,30 @@ export const leaveChallenge = mutation({
     if (!userId) {
       throw new Error("Not logged in");
     }
+    const challengeParticipant = await ctx.db
+      .query("challengeParticipants")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("challengeId"), challengeId),
+          q.eq(q.field("userId"), userId)
+        )
+      )
+      .collect()
+      .then((res) => res.at(0));
+    if (!challengeParticipant) {
+      throw new Error("User is not in the challenge");
+    }
+    await ctx.db.delete(challengeParticipant._id);
+  },
+});
+
+export const removeFromChallenge = mutation({
+  args: {
+    userId: v.id("users"),
+    challengeId: v.id("challenges"),
+  },
+  handler: async (ctx, { challengeId, userId }) => {
+    //TODO: Make sure current logged in user's role is an 'admin'
     const challengeParticipant = await ctx.db
       .query("challengeParticipants")
       .filter((q) =>
