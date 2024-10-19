@@ -78,6 +78,24 @@ export const createChallenge = mutation({
   },
 });
 
+export const updateChallenge = mutation({
+  args: {
+    challengeId: v.id("challenges"),
+    name: v.string(),
+    description: v.string(),
+    repeat: v.array(v.string()),
+    unitType: v.string(),
+    unitValue: v.number(),
+    unit: v.string(),
+    recurrence: v.string(),
+    startDate: v.number(),
+    endDate: v.number(),
+  },
+  handler: async (ctx, { challengeId, ...args }) => {
+    await ctx.db.patch(challengeId, args);
+  },
+});
+
 export const deleteChallenge = mutation({
   args: {
     challengeId: v.id("challenges"),
