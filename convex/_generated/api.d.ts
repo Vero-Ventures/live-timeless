@@ -15,11 +15,12 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as ResendOTP from "../ResendOTP.js";
 import type * as auth from "../auth.js";
+import type * as challenges from "../challenges.js";
 import type * as goalLogs from "../goalLogs.js";
 import type * as goals from "../goals.js";
 import type * as http from "../http.js";
-import type * as ResendOTP from "../ResendOTP.js";
 import type * as users from "../users.js";
 
 /**
@@ -31,11 +32,12 @@ import type * as users from "../users.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  ResendOTP: typeof ResendOTP;
   auth: typeof auth;
+  challenges: typeof challenges;
   goalLogs: typeof goalLogs;
   goals: typeof goals;
   http: typeof http;
-  ResendOTP: typeof ResendOTP;
   users: typeof users;
 }>;
 export declare const api: FilterApi<
