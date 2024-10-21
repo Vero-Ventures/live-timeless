@@ -62,4 +62,27 @@ export default defineSchema({
   })
     .index("by_challenge_id", ["challengeId"])
     .index("by_user_id", ["userId"]),
+  organizations: defineTable({
+    _id: v.id("organizations"),
+    name: v.string(),
+    slug: v.string(),
+    logo: v.optional(v.string()),
+    metadata: v.optional(v.string()),
+  }).index("by_slug", ["slug"]),
+  members: defineTable({
+    _id: v.id("members"),
+    userId: v.id("users"),
+    organizationId: v.id("organizations"),
+    role: v.string(),
+  })
+    .index("by_user_id", ["userId"])
+    .index("by_organization_id", ["organizationId"]),
+  invitations: defineTable({
+    _id: v.id("invitations"),
+    email: v.string(),
+    organizationId: v.id("organizations"),
+    role: v.string(),
+    status: v.string(),
+    expiresAt: v.number(),
+  }).index("by_organization_id", ["organizationId"]),
 });
