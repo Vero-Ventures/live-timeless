@@ -9,7 +9,7 @@ export default function SignInPage() {
         <Onboarding />
       </Unauthenticated>
       <Authenticated>
-        <Redirect href="/goals" />
+        <Redirect href="/onboarding/name" />
       </Authenticated>
     </>
   );
