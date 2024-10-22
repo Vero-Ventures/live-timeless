@@ -159,5 +159,5 @@ const button = {
   textAlign: "center" as const,
   display: "block",
   padding: "11px 23px",
-  width: "280px",
+  width: "380px",
 };

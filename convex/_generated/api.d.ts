@@ -16,6 +16,7 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as ResendOTP from "../ResendOTP.js";
+import type * as actions from "../actions.js";
 import type * as auth from "../auth.js";
 import type * as challenges from "../challenges.js";
 import type * as emails_LTLoginOTP from "../emails/LTLoginOTP.js";
@@ -36,6 +37,7 @@ import type * as users from "../users.js";
  */
 declare const fullApi: ApiFromModules<{
   ResendOTP: typeof ResendOTP;
+  actions: typeof actions;
   auth: typeof auth;
   challenges: typeof challenges;
   "emails/LTLoginOTP": typeof emails_LTLoginOTP;
