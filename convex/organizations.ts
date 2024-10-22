@@ -71,3 +71,46 @@ export const updateOrganization = mutation({
     }
   },
 });
+
+export const deleteOrganization = mutation({
+  args: {
+    organizationId: v.id("organizations"),
+  },
+  handler: async (ctx, { organizationId }) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
+
+    const member = await ctx.db
+      .query("members")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("userId"), userId),
+          q.eq(q.field("organizationId"), organizationId)
+        )
+      )
+      .collect()
+      .then((res) => res.at(0));
+    if (!member) {
+      throw new Error("Not a member of any organization");
+    }
+
+    if (member.role === "owner") {
+      const organizationMembers = await ctx.db
+        .query("members")
+        .filter((q) => q.eq(q.field("organizationId"), organizationId))
+        .collect();
+
+      await Promise.all(
+        organizationMembers.map(async (member) => {
+          await ctx.db.delete(member._id);
+          await ctx.db.delete(member.userId);
+        })
+      );
+      await ctx.db.delete(organizationId);
+    } else {
+      throw new Error("Not the owner of the organization");
+    }
+  },
+});
