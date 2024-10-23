@@ -42,12 +42,6 @@ export const createUser = internalMutation({
     email: v.string(),
   },
   handler: async (ctx, args) => {
-    // const userId = await getAuthUserId(ctx);
-    // if (userId === null) {
-    //   return null;
-    // }
-    // TODO: Make sure only us developers can run this.
-
     return await ctx.db.insert("users", {
       name: args.name,
       email: args.email,
@@ -60,12 +54,6 @@ export const createOrganization = internalMutation({
     name: v.string(),
   },
   handler: async (ctx, args) => {
-    // const userId = await getAuthUserId(ctx);
-    // if (userId === null) {
-    //   return null;
-    // }
-    // TODO: Make sure only us developers can run this.
-
     return await ctx.db.insert("organizations", {
       name: args.name,
       slug: getSlug(args.name),
@@ -79,12 +67,6 @@ export const createMember = internalMutation({
     userId: v.id("users"),
   },
   handler: async (ctx, args) => {
-    // const userId = await getAuthUserId(ctx);
-    // if (userId === null) {
-    //   return null;
-    // }
-    // TODO: Make sure only us developers can run this.
-
     return await ctx.db.insert("members", {
       organizationId: args.orgId,
       userId: args.userId,
