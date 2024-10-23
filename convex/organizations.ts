@@ -7,10 +7,8 @@ export const getOrganizationBySlug = query({
   handler: async (ctx, { slug }) => {
     const organization = await ctx.db
       .query("organizations")
-      .withIndex("by_slug")
-      .filter((q) => q.eq(q.field("slug"), slug))
-      .collect()
-      .then((res) => res.at(0));
+      .withIndex("by_slug", (q) => q.eq("slug", slug))
+      .unique();
 
     if (!organization) {
       throw new Error("Organization not found");
@@ -36,14 +34,10 @@ export const updateOrganization = mutation({
 
     const member = await ctx.db
       .query("members")
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("userId"), userId),
-          q.eq(q.field("organizationId"), organizationId)
-        )
+      .withIndex("by_user_id_organization_id", (q) =>
+        q.eq("userId", userId).eq("organizationId", organizationId)
       )
-      .collect()
-      .then((res) => res.at(0));
+      .unique();
     if (!member) {
       throw new Error("Not a member of any organization");
     }
@@ -68,14 +62,10 @@ export const deleteOrganization = mutation({
 
     const member = await ctx.db
       .query("members")
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("userId"), userId),
-          q.eq(q.field("organizationId"), organizationId)
-        )
+      .withIndex("by_user_id_organization_id", (q) =>
+        q.eq("userId", userId).eq("organizationId", organizationId)
       )
-      .collect()
-      .then((res) => res.at(0));
+      .unique();
     if (!member) {
       throw new Error("Not a member of any organization");
     }
@@ -83,7 +73,9 @@ export const deleteOrganization = mutation({
     if (member.role === "owner") {
       const organizationMembers = await ctx.db
         .query("members")
-        .filter((q) => q.eq(q.field("organizationId"), organizationId))
+        .withIndex("by_organization_id", (q) =>
+          q.eq("organizationId", organizationId)
+        )
         .collect();
 
       await Promise.all(
