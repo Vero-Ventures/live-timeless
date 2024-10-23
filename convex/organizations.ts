@@ -2,10 +2,21 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
-export const getOrganizationById = query({
-  args: { organizationId: v.id("organizations") },
-  handler: async (ctx, { organizationId }) => {
-    return await ctx.db.get(organizationId);
+export const getOrganizationBySlug = query({
+  args: { slug: v.string() },
+  handler: async (ctx, { slug }) => {
+    const organization = await ctx.db
+      .query("organizations")
+      .withIndex("by_slug")
+      .filter((q) => q.eq(q.field("slug"), slug))
+      .collect()
+      .then((res) => res.at(0));
+
+    if (!organization) {
+      throw new Error("Organization not found");
+    }
+
+    return organization;
   },
 });
 
