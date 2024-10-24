@@ -12,47 +12,60 @@ import {
 } from "@react-email/components";
 
 interface LTInvitationProps {
-  email: string;
   name: string;
+  owner: string;
+  org: string;
 }
 
 export default function LTInvitation({
-  email = "example@acme.com",
   name = "John Doe",
+  org = "Vero Ventures",
+  owner = "Yaniv Talmor",
 }: LTInvitationProps) {
   return (
     <Html>
       <Head />
       <Preview>Welcome to Live Timeless</Preview>
       <Body style={main}>
+        <Section style={imageSection}>
+          <Img
+            src="https://livetimeless.kinde.com/logo?p_org_code=&cache=87d0180cfefd442ba2ac41f75fc3e542"
+            alt="Live Timeless's Logo"
+            style={logo}
+          />
+        </Section>
         <Container style={container}>
           <Section style={coverSection}>
-            <Section style={imageSection}>
-              <Img
-                src="https://livetimeless.kinde.com/logo?p_org_code=&cache=87d0180cfefd442ba2ac41f75fc3e542"
-                alt="Live Timeless's Logo"
-                style={{ marginLeft: "auto", marginRight: "auto" }}
-              />
-            </Section>
             <Section style={upperSection}>
               <Text style={mainText}>Hello {name},</Text>
               <Text style={validityText}>
-                [Company Name] is excited to invite you to our employee wellness
-                app, designed to support your health and well-being journey!
+                <span
+                  style={{
+                    fontWeight: "bold",
+                  }}
+                >
+                  {owner}
+                </span>{" "}
+                has invited you to join{" "}
+                <span
+                  style={{
+                    fontWeight: "bold",
+                  }}
+                >
+                  {org}
+                </span>{" "}
+                on Live Timeless - your gateway to workplace wellness and
+                personal growth.
               </Text>
-              <Text style={validityText}>
-                Getting started is easy: 1. Download our app from: • App Store
-                (iPhone) • Google Play Store (Android) 2. Open the app and enter
-                your work email: example@acme.com 3. You'll receive a
-                verification code by email 4. Enter the code to access your
-                personalized wellness experience No passwords needed - you'll
-                use a verification code each time you sign in to keep your
-                account secure.
-              </Text>
+
+              <Text style={validityText}>What you'll get access to:</Text>
+              <ul style={featureList}>
+                <li>Powerful Habit Tracking Features</li>
+                <li>Wellness challenges and activities</li>
+                <li>Personalized AI wellness advisor</li>
+                <li>Health tracking tools</li>
+              </ul>
               <Section>
-                <Section>
-                  <Text style={codeText}>Email: {email}</Text>
-                </Section>
                 <Section
                   style={{
                     display: "flex",
@@ -64,7 +77,7 @@ export default function LTInvitation({
                   }}
                 >
                   <Button style={button} href="https://livetimeless.com/">
-                    Login to Admin Dashboard
+                    Accept Invitation
                   </Button>
                 </Section>
               </Section>
@@ -99,15 +112,15 @@ const main = {
 };
 
 const container = {
-  padding: "20px",
   margin: "0 auto",
+  padding: "20px 0 48px",
 };
 
 const link = {
   color: "#2754C5",
   fontFamily:
     "-apple-system, BlinkMacSystemFont, 'Open Sans', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
-  fontSize: "14px",
+  fontSize: "16px",
   textDecoration: "underline",
 };
 
@@ -115,17 +128,16 @@ const text = {
   color: "#333",
   fontFamily:
     "-apple-system, BlinkMacSystemFont, 'Open Sans', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
-  fontSize: "14px",
+  fontSize: "16px",
   margin: "24px 0",
 };
 
 const imageSection = {
   backgroundColor: "#0f2336",
-  display: "flex",
   padding: "20px 20px",
-  alignItems: "center",
-  justifyContent: "center",
 };
+
+const logo = { margin: "0 auto" };
 
 const coverSection = { backgroundColor: "#fff" };
 
@@ -135,14 +147,6 @@ const footerText = {
   ...text,
   fontSize: "12px",
   padding: "0 20px",
-};
-
-const codeText = {
-  ...text,
-  fontWeight: "bold",
-  fontSize: "16px",
-  margin: "20px 0px 20px",
-  textAlign: "center" as const,
 };
 
 const validityText = {
@@ -165,4 +169,12 @@ const button = {
   display: "block",
   padding: "11px 23px",
   width: "380px",
+};
+
+const featureList = {
+  marginBottom: "40px",
+  gap: 8,
+  fontSize: "16px",
+  fontFamily:
+    "-apple-system, BlinkMacSystemFont, 'Open Sans', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
 };
