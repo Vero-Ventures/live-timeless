@@ -18,22 +18,22 @@ interface LTWelcomeProps {
 
 export default function LTWelcome({
   email = "example@acme.com",
-  name = "John Doe",
+  name = "Yaniv Talmor",
 }: LTWelcomeProps) {
   return (
     <Html>
       <Head />
       <Preview>Welcome to Live Timeless</Preview>
       <Body style={main}>
+        <Section style={imageSection}>
+          <Img
+            src="https://livetimeless.kinde.com/logo?p_org_code=&cache=87d0180cfefd442ba2ac41f75fc3e542"
+            alt="Live Timeless's Logo"
+            style={logo}
+          />
+        </Section>
         <Container style={container}>
           <Section style={coverSection}>
-            <Section style={imageSection}>
-              <Img
-                src="https://livetimeless.kinde.com/logo?p_org_code=&cache=87d0180cfefd442ba2ac41f75fc3e542"
-                alt="Live Timeless's Logo"
-                style={{ marginLeft: "auto", marginRight: "auto" }}
-              />
-            </Section>
             <Section style={upperSection}>
               <Text style={mainText}>Hello {name},</Text>
               <Text style={validityText}>
@@ -94,15 +94,15 @@ const main = {
 };
 
 const container = {
-  padding: "20px",
   margin: "0 auto",
+  padding: "20px 0 48px",
 };
 
 const link = {
   color: "#2754C5",
   fontFamily:
     "-apple-system, BlinkMacSystemFont, 'Open Sans', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
-  fontSize: "14px",
+  fontSize: "16px",
   textDecoration: "underline",
 };
 
@@ -110,17 +110,16 @@ const text = {
   color: "#333",
   fontFamily:
     "-apple-system, BlinkMacSystemFont, 'Open Sans', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
-  fontSize: "14px",
+  fontSize: "16px",
   margin: "24px 0",
 };
 
 const imageSection = {
   backgroundColor: "#0f2336",
-  display: "flex",
   padding: "20px 20px",
-  alignItems: "center",
-  justifyContent: "center",
 };
+
+const logo = { margin: "0 auto" };
 
 const coverSection = { backgroundColor: "#fff" };
 
@@ -136,7 +135,7 @@ const codeText = {
   ...text,
   fontWeight: "bold",
   fontSize: "16px",
-  margin: "20px 0px 20px",
+  margin: "20px 0px 40px",
   textAlign: "center" as const,
 };
 
@@ -147,7 +146,7 @@ const validityText = {
   textAlign: "left" as const,
 };
 
-const mainText = { ...text, marginBottom: "14px" };
+const mainText = { ...text, marginBottom: "16px" };
 
 const button = {
   backgroundColor: "#0f2336",

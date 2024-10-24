@@ -21,15 +21,15 @@ export default function LTLoginOTP({ otp = "12345678" }: LTLoginOTPProps) {
       <Head />
       <Preview>Sign in to Live Timeless</Preview>
       <Body style={main}>
+        <Section style={imageSection}>
+          <Img
+            src="https://livetimeless.kinde.com/logo?p_org_code=&cache=87d0180cfefd442ba2ac41f75fc3e542"
+            alt="Live Timeless's Logo"
+            style={logo}
+          />
+        </Section>
         <Container style={container}>
           <Section style={coverSection}>
-            <Section style={imageSection}>
-              <Img
-                src="https://livetimeless.kinde.com/logo?p_org_code=&cache=87d0180cfefd442ba2ac41f75fc3e542"
-                alt="Live Timeless's Logo"
-                style={{ marginLeft: "auto", marginRight: "auto" }}
-              />
-            </Section>
             <Section style={upperSection}>
               <Text style={mainText}>
                 To complete your sign-in, please use the following One-Time
@@ -85,15 +85,15 @@ const main = {
 };
 
 const container = {
-  padding: "20px",
   margin: "0 auto",
+  padding: "20px 0 48px",
 };
 
 const link = {
   color: "#2754C5",
   fontFamily:
     "-apple-system, BlinkMacSystemFont, 'Open Sans', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
-  fontSize: "14px",
+  fontSize: "16px",
   textDecoration: "underline",
 };
 
@@ -101,22 +101,21 @@ const text = {
   color: "#333",
   fontFamily:
     "-apple-system, BlinkMacSystemFont, 'Open Sans', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
-  fontSize: "14px",
+  fontSize: "16px",
   margin: "24px 0",
 };
 
 const imageSection = {
   backgroundColor: "#0f2336",
-  display: "flex",
   padding: "20px 20px",
-  alignItems: "center",
-  justifyContent: "center",
 };
+
+const logo = { margin: "0 auto" };
 
 const codeContainer = {
   background: "rgba(0,0,0,.05)",
   borderRadius: "4px",
-  margin: "20px auto 20px",
+  margin: "20px auto 40px",
   verticalAlign: "middle",
   width: "280px",
 };
@@ -153,6 +152,6 @@ const verificationSection = {
   justifyContent: "center",
 };
 
-const mainText = { ...text, marginBottom: "14px" };
+const mainText = { ...text, marginBottom: "16px" };
 
 const cautionText = { ...text, margin: "0px" };
