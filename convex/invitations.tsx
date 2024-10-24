@@ -78,3 +78,65 @@ export const createMember = internalMutation({
 function getSlug(name: string) {
   return name.toLowerCase().split(" ").join("-");
 }
+
+// === User Invitations ===
+export const sendUserInvitation = action({
+  args: {
+    email: v.string(),
+    organizationId: v.id("organizations"),
+    role: v.string(),
+    expiresAt: v.number(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.runMutation(internal.actions.createInvitation, {
+      email: args.email,
+      organizationId: args.organizationId,
+      role: args.role,
+      expiresAt: args.expiresAt,
+    });
+
+    // await resend.emails.send({
+    //   from: "Live Timeless <no-reply@livetimeless.veroventures.com>",
+    //   to: [args.owner.email],
+    //   subject: "Welcome to Live Timeless",
+    //   react: <LTWelcome email={args.owner.email} name={args.owner.name} />,
+    // });
+    // optionally return a value
+    return "success";
+  },
+});
+
+export const createInvitation = internalMutation({
+  args: {
+    email: v.string(),
+    organizationId: v.id("organizations"),
+    role: v.string(),
+    expiresAt: v.number(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("invitations", {
+      email: args.email,
+      organizationId: args.organizationId,
+      role: args.role,
+      status: "pending",
+      expiresAt: args.expiresAt,
+    });
+  },
+});
+
+export const updateInvitation = internalMutation({
+  args: {
+    invitationId: v.id("invitations"),
+  },
+  handler: async (ctx, args) => {
+    const invitation = await ctx.db.get(args.invitationId);
+    if (!invitation) {
+      throw new Error("Invitation not found");
+    }
+
+    return await ctx.db.patch(args.invitationId, {
+      status: "accepted",
+      expiresAt: Date.now(),
+    });
+  },
+});
