@@ -1,5 +1,12 @@
+import { addDays } from "date-fns";
+
 import { v } from "convex/values";
-import { action, internalMutation } from "./_generated/server";
+import {
+  action,
+  internalMutation,
+  internalQuery,
+  mutation,
+} from "./_generated/server";
 import { internal } from "./_generated/api";
 import { Resend } from "resend";
 import LTWelcome from "./emails/LTWelcome";
@@ -88,6 +95,20 @@ export const sendUserInvitation = action({
     expiresAt: v.number(),
   },
   handler: async (ctx, args) => {
+    // delete any existing invitation for this email
+    const existingInvitation = await ctx.runQuery(
+      internal.actions.getInvitation,
+      {
+        email: args.email,
+        organizationId: args.organizationId,
+      }
+    );
+    if (existingInvitation) {
+      await ctx.runMutation(internal.actions.deleteInvitation, {
+        invitationId: existingInvitation._id,
+      });
+    }
+
     await ctx.runMutation(internal.actions.createInvitation, {
       email: args.email,
       organizationId: args.organizationId,
@@ -106,6 +127,22 @@ export const sendUserInvitation = action({
   },
 });
 
+export const getInvitation = internalQuery({
+  args: {
+    email: v.string(),
+    organizationId: v.id("organizations"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("invitations")
+      .withIndex("by_organization_id", (q) =>
+        q.eq("organizationId", args.organizationId)
+      )
+      .filter((q) => q.eq(q.field("email"), args.email))
+      .unique();
+  },
+});
+
 export const createInvitation = internalMutation({
   args: {
     email: v.string(),
@@ -114,17 +151,19 @@ export const createInvitation = internalMutation({
     expiresAt: v.number(),
   },
   handler: async (ctx, args) => {
+    const thirtyDaysFromNow = addDays(new Date(), 30).getTime();
+
     return await ctx.db.insert("invitations", {
       email: args.email,
       organizationId: args.organizationId,
       role: args.role,
       status: "pending",
-      expiresAt: args.expiresAt,
+      expiresAt: thirtyDaysFromNow,
     });
   },
 });
 
-export const updateInvitation = internalMutation({
+export const acceptInvitation = mutation({
   args: {
     invitationId: v.id("invitations"),
   },
@@ -138,5 +177,14 @@ export const updateInvitation = internalMutation({
       status: "accepted",
       expiresAt: Date.now(),
     });
+  },
+});
+
+export const deleteInvitation = internalMutation({
+  args: {
+    invitationId: v.id("invitations"),
+  },
+  handler: async (ctx, { invitationId }) => {
+    return await ctx.db.delete(invitationId);
   },
 });
