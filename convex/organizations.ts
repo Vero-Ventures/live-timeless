@@ -1,6 +1,24 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { internalMutation, mutation, query } from "./_generated/server";
+import {
+  internalMutation,
+  internalQuery,
+  mutation,
+  query,
+} from "./_generated/server";
 import { v } from "convex/values";
+
+export const getOrganizationById = internalQuery({
+  args: { organizationId: v.id("organizations") },
+  handler: async (ctx, { organizationId }) => {
+    const organization = await ctx.db.get(organizationId);
+
+    if (!organization) {
+      throw new Error("Organization not found");
+    }
+
+    return organization;
+  },
+});
 
 export const getOrganizationBySlug = query({
   args: { slug: v.string() },
