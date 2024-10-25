@@ -3,6 +3,7 @@ import { addDays } from "date-fns";
 import { v } from "convex/values";
 import {
   action,
+  internalAction,
   internalMutation,
   internalQuery,
   mutation,
@@ -19,15 +20,18 @@ export const sendOwnerInvitation = action({
     orgName: v.string(),
   },
   handler: async (ctx, args) => {
-    const userId = await ctx.runMutation(internal.actions.createUser, {
+    const userId = await ctx.runMutation(internal.invitations.createUser, {
       email: args.owner.email,
       name: args.owner.name,
     });
-    const orgId = await ctx.runMutation(internal.actions.createOrganization, {
-      name: args.orgName,
-    });
+    const orgId = await ctx.runMutation(
+      internal.invitations.createOrganization,
+      {
+        name: args.orgName,
+      }
+    );
     // put the newly created user in the members table with the newly created org
-    await ctx.runMutation(internal.actions.createMember, {
+    await ctx.runMutation(internal.invitations.createMember, {
       orgId,
       userId,
     });
@@ -87,7 +91,7 @@ function getSlug(name: string) {
 }
 
 // === User Invitations ===
-export const sendUserInvitation = action({
+export const sendUserInvitation = mutation({
   args: {
     email: v.string(),
     organizationId: v.id("organizations"),
@@ -95,21 +99,49 @@ export const sendUserInvitation = action({
     expiresAt: v.number(),
   },
   handler: async (ctx, args) => {
-    // delete any existing invitation for this email
-    const existingInvitation = await ctx.runQuery(
-      internal.actions.getInvitation,
+    await ctx.scheduler.runAfter(
+      0,
+      internal.invitations.sendUserInvitationAction,
       {
         email: args.email,
         organizationId: args.organizationId,
+        role: args.role,
+        expiresAt: args.expiresAt,
       }
     );
-    if (existingInvitation) {
-      await ctx.runMutation(internal.actions.deleteInvitation, {
-        invitationId: existingInvitation._id,
-      });
-    }
+  },
+});
 
-    await ctx.runMutation(internal.actions.createInvitation, {
+export const resendUserInvitation = mutation({
+  args: {
+    email: v.string(),
+    organizationId: v.id("organizations"),
+    role: v.string(),
+    expiresAt: v.number(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.scheduler.runAfter(
+      0,
+      internal.invitations.resendUserInvitationAction,
+      {
+        email: args.email,
+        organizationId: args.organizationId,
+        role: args.role,
+        expiresAt: args.expiresAt,
+      }
+    );
+  },
+});
+
+export const sendUserInvitationAction = internalAction({
+  args: {
+    email: v.string(),
+    organizationId: v.id("organizations"),
+    role: v.string(),
+    expiresAt: v.number(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.runMutation(internal.invitations.createInvitation, {
       email: args.email,
       organizationId: args.organizationId,
       role: args.role,
@@ -123,6 +155,34 @@ export const sendUserInvitation = action({
     //   react: <LTWelcome email={args.owner.email} name={args.owner.name} />,
     // });
     // optionally return a value
+    return "success";
+  },
+});
+
+export const resendUserInvitationAction = internalAction({
+  args: {
+    email: v.string(),
+    organizationId: v.id("organizations"),
+    role: v.string(),
+    expiresAt: v.number(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.runMutation(internal.invitations.deleteExistingInvitation, {
+      email: args.email,
+      organizationId: args.organizationId,
+    });
+
+    await ctx.scheduler.runAfter(
+      0,
+      internal.invitations.sendUserInvitationAction,
+      {
+        email: args.email,
+        organizationId: args.organizationId,
+        role: args.role,
+        expiresAt: args.expiresAt,
+      }
+    );
+
     return "success";
   },
 });
@@ -186,5 +246,27 @@ export const deleteInvitation = internalMutation({
   },
   handler: async (ctx, { invitationId }) => {
     return await ctx.db.delete(invitationId);
+  },
+});
+
+export const deleteExistingInvitation = internalMutation({
+  args: {
+    email: v.string(),
+    organizationId: v.id("organizations"),
+  },
+  handler: async (ctx, args) => {
+    const existingInvitation = await ctx.runQuery(
+      internal.invitations.getInvitation,
+      {
+        email: args.email,
+        organizationId: args.organizationId,
+      }
+    );
+
+    if (existingInvitation) {
+      await ctx.runMutation(internal.invitations.deleteInvitation, {
+        invitationId: existingInvitation._id,
+      });
+    }
   },
 });
