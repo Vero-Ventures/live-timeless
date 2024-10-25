@@ -11,6 +11,7 @@ import {
 import { internal } from "./_generated/api";
 import { Resend } from "resend";
 import LTWelcome from "./emails/LTWelcome";
+import LTUserInvitation from "./emails/LTUserInvitation";
 
 const resend = new Resend(process.env.AUTH_RESEND_KEY);
 
@@ -125,15 +126,38 @@ export const sendUserInvitationAction = internalAction({
       expiresAt: args.expiresAt,
     });
 
-    // const organization = await ctx.
+    const organization = await ctx.runQuery(
+      internal.organizations.getOrganizationById,
+      {
+        organizationId: args.organizationId,
+      }
+    );
 
-    // await resend.emails.send({
-    //   from: "Live Timeless <no-reply@livetimeless.veroventures.com>",
-    //   to: [args.owner.email],
-    //   subject: "Welcome to Live Timeless",
-    //   react: <LTWelcome email={args.owner.email} name={args.owner.name} />,
-    // });
-    // optionally return a value
+    // Get the owner of the organization
+    const member = await ctx.runQuery(
+      internal.members.getMemberByOrgIdAndRole,
+      {
+        orgId: args.organizationId,
+        role: "owner",
+      }
+    );
+    const owner = await ctx.runQuery(internal.users.getUserById, {
+      userId: member.userId,
+    });
+
+    await resend.emails.send({
+      from: "Live Timeless <no-reply@livetimeless.veroventures.com>",
+      to: [args.email],
+      subject: "Welcome to Live Timeless",
+      react: (
+        <LTUserInvitation
+          role={args.role}
+          org={organization.name}
+          owner={owner.name || "Owner"}
+        />
+      ),
+    });
+
     return "success";
   },
 });
