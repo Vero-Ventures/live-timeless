@@ -12,13 +12,13 @@ import {
 } from "@react-email/components";
 
 interface LTInvitationProps {
-  name: string;
+  role: string;
   owner: string;
   org: string;
 }
 
 export default function LTInvitation({
-  name = "John Doe",
+  role = "User",
   org = "Vero Ventures",
   owner = "Yaniv Talmor",
 }: LTInvitationProps) {
@@ -37,7 +37,9 @@ export default function LTInvitation({
         <Container style={container}>
           <Section style={coverSection}>
             <Section style={upperSection}>
-              <Text style={mainText}>Hello {name},</Text>
+              <Text style={mainText}>
+                You've been invited to join {org} on Live Timeless
+              </Text>
               <Text style={validityText}>
                 <span
                   style={{
@@ -46,7 +48,7 @@ export default function LTInvitation({
                 >
                   {owner}
                 </span>{" "}
-                has invited you to join{" "}
+                would like you to join the{" "}
                 <span
                   style={{
                     fontWeight: "bold",
@@ -54,8 +56,15 @@ export default function LTInvitation({
                 >
                   {org}
                 </span>{" "}
-                on Live Timeless - your gateway to workplace wellness and
-                personal growth.
+                organization on Live Timeless with the{" "}
+                <span
+                  style={{
+                    fontWeight: "bold",
+                  }}
+                >
+                  {role}
+                </span>{" "}
+                role.
               </Text>
 
               <Text style={validityText}>What you'll get access to:</Text>
@@ -151,12 +160,17 @@ const footerText = {
 
 const validityText = {
   ...text,
-  margin: "0px",
-  marginBottom: "16px",
+  margin: "26px 0px",
   textAlign: "left" as const,
 };
 
-const mainText = { ...text, marginBottom: "14px" };
+const mainText = {
+  ...text,
+  fontWeight: "600",
+  fontSize: "30px",
+  lineHeight: "1.2",
+  marginBottom: "14px",
+};
 
 const button = {
   backgroundColor: "#0f2336",
