@@ -120,9 +120,14 @@ export const resendUserInvitation = mutation({
     expiresAt: v.number(),
   },
   handler: async (ctx, args) => {
+    await ctx.runMutation(internal.invitations.deleteExistingInvitation, {
+      email: args.email,
+      organizationId: args.organizationId,
+    });
+
     await ctx.scheduler.runAfter(
       0,
-      internal.invitations.resendUserInvitationAction,
+      internal.invitations.sendUserInvitationAction,
       {
         email: args.email,
         organizationId: args.organizationId,
@@ -155,34 +160,6 @@ export const sendUserInvitationAction = internalAction({
     //   react: <LTWelcome email={args.owner.email} name={args.owner.name} />,
     // });
     // optionally return a value
-    return "success";
-  },
-});
-
-export const resendUserInvitationAction = internalAction({
-  args: {
-    email: v.string(),
-    organizationId: v.id("organizations"),
-    role: v.string(),
-    expiresAt: v.number(),
-  },
-  handler: async (ctx, args) => {
-    await ctx.runMutation(internal.invitations.deleteExistingInvitation, {
-      email: args.email,
-      organizationId: args.organizationId,
-    });
-
-    await ctx.scheduler.runAfter(
-      0,
-      internal.invitations.sendUserInvitationAction,
-      {
-        email: args.email,
-        organizationId: args.organizationId,
-        role: args.role,
-        expiresAt: args.expiresAt,
-      }
-    );
-
     return "success";
   },
 });
