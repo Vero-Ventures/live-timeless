@@ -49,20 +49,6 @@ export const sendOwnerInvitation = action({
   },
 });
 
-export const createMember = internalMutation({
-  args: {
-    orgId: v.id("organizations"),
-    userId: v.id("users"),
-  },
-  handler: async (ctx, args) => {
-    return await ctx.db.insert("members", {
-      organizationId: args.orgId,
-      userId: args.userId,
-      role: "owner",
-    });
-  },
-});
-
 // === User Invitations ===
 export const sendUserInvitation = mutation({
   args: {
