@@ -1,5 +1,5 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
 export const getOrganizationBySlug = query({
@@ -15,6 +15,21 @@ export const getOrganizationBySlug = query({
     }
 
     return organization;
+  },
+});
+
+function getSlug(name: string) {
+  return name.toLowerCase().split(" ").join("-");
+}
+export const createOrganization = internalMutation({
+  args: {
+    name: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("organizations", {
+      name: args.name,
+      slug: getSlug(args.name),
+    });
   },
 });
 

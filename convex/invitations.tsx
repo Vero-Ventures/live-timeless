@@ -20,20 +20,21 @@ export const sendOwnerInvitation = action({
     orgName: v.string(),
   },
   handler: async (ctx, args) => {
-    const userId = await ctx.runMutation(internal.invitations.createUser, {
+    const userId = await ctx.runMutation(internal.users.createUser, {
       email: args.owner.email,
       name: args.owner.name,
     });
     const orgId = await ctx.runMutation(
-      internal.invitations.createOrganization,
+      internal.organizations.createOrganization,
       {
         name: args.orgName,
       }
     );
     // put the newly created user in the members table with the newly created org
-    await ctx.runMutation(internal.invitations.createMember, {
+    await ctx.runMutation(internal.members.createMember, {
       orgId,
       userId,
+      role: "owner",
     });
 
     await resend.emails.send({
@@ -44,31 +45,6 @@ export const sendOwnerInvitation = action({
     });
     // optionally return a value
     return "success";
-  },
-});
-
-export const createUser = internalMutation({
-  args: {
-    name: v.string(),
-    email: v.string(),
-  },
-  handler: async (ctx, args) => {
-    return await ctx.db.insert("users", {
-      name: args.name,
-      email: args.email,
-    });
-  },
-});
-
-export const createOrganization = internalMutation({
-  args: {
-    name: v.string(),
-  },
-  handler: async (ctx, args) => {
-    return await ctx.db.insert("organizations", {
-      name: args.name,
-      slug: getSlug(args.name),
-    });
   },
 });
 
@@ -85,10 +61,6 @@ export const createMember = internalMutation({
     });
   },
 });
-
-function getSlug(name: string) {
-  return name.toLowerCase().split(" ").join("-");
-}
 
 // === User Invitations ===
 export const sendUserInvitation = mutation({
@@ -152,6 +124,8 @@ export const sendUserInvitationAction = internalAction({
       role: args.role,
       expiresAt: args.expiresAt,
     });
+
+    // const organization = await ctx.
 
     // await resend.emails.send({
     //   from: "Live Timeless <no-reply@livetimeless.veroventures.com>",

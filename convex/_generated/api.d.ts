@@ -25,6 +25,7 @@ import type * as goalLogs from "../goalLogs.js";
 import type * as goals from "../goals.js";
 import type * as http from "../http.js";
 import type * as invitations from "../invitations.js";
+import type * as members from "../members.js";
 import type * as organizations from "../organizations.js";
 import type * as users from "../users.js";
 
@@ -47,6 +48,7 @@ declare const fullApi: ApiFromModules<{
   goals: typeof goals;
   http: typeof http;
   invitations: typeof invitations;
+  members: typeof members;
   organizations: typeof organizations;
   users: typeof users;
 }>;
