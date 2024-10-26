@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { internalMutation, internalQuery } from "./_generated/server";
+import { internalMutation, internalQuery, mutation } from "./_generated/server";
 
 export const getMemberByOrgIdAndRole = internalQuery({
   args: {
@@ -31,6 +31,18 @@ export const createMember = internalMutation({
     return await ctx.db.insert("members", {
       organizationId: args.orgId,
       userId: args.userId,
+      role: args.role,
+    });
+  },
+});
+
+export const updateMemberRole = mutation({
+  args: {
+    memberId: v.id("members"),
+    role: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.memberId, {
       role: args.role,
     });
   },
