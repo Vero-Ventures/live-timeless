@@ -2,7 +2,6 @@ import { addDays } from "date-fns";
 
 import { v } from "convex/values";
 import {
-  action,
   internalAction,
   internalMutation,
   internalQuery,
@@ -15,7 +14,25 @@ import LTUserInvitation from "./emails/LTUserInvitation";
 
 const resend = new Resend(process.env.AUTH_RESEND_KEY);
 
-export const sendOwnerInvitation = action({
+// === Owner Invitations ===
+export const sendOwnerInvitation = mutation({
+  args: {
+    owner: v.object({ email: v.string(), name: v.string() }),
+    orgName: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.scheduler.runAfter(
+      0,
+      internal.invitations.sendOwnerInvitationAction,
+      {
+        owner: args.owner,
+        orgName: args.orgName,
+      }
+    );
+  },
+});
+
+export const sendOwnerInvitationAction = internalAction({
   args: {
     owner: v.object({ email: v.string(), name: v.string() }),
     orgName: v.string(),
