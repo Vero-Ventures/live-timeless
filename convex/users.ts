@@ -32,12 +32,12 @@ export const getUserById = internalQuery({
 
 export const createUser = internalMutation({
   args: {
-    name: v.string(),
+    name: v.optional(v.string()),
     email: v.string(),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("users", {
-      name: args.name,
+      ...(args.name && { name: args.name }),
       email: args.email,
     });
   },
