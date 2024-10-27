@@ -114,6 +114,33 @@ export const resendUserInvitation = mutation({
   },
 });
 
+export const acceptInvitation = mutation({
+  args: {
+    invitationId: v.id("invitations"),
+  },
+  handler: async (ctx, args) => {
+    const invitation = await ctx.db.get(args.invitationId);
+    if (!invitation) {
+      throw new Error("Invitation not found");
+    }
+
+    await ctx.db.patch(args.invitationId, {
+      status: "accepted",
+      expiresAt: Date.now(),
+    });
+
+    const userId = await ctx.runMutation(internal.users.createUser, {
+      email: invitation.email,
+    });
+
+    await ctx.runMutation(internal.members.createMember, {
+      orgId: invitation.organizationId,
+      userId,
+      role: invitation.role,
+    });
+  },
+});
+
 export const sendUserInvitationAction = internalAction({
   args: {
     email: v.string(),
@@ -197,23 +224,6 @@ export const createInvitation = internalMutation({
       role: args.role,
       status: "pending",
       expiresAt: thirtyDaysFromNow,
-    });
-  },
-});
-
-export const acceptInvitation = mutation({
-  args: {
-    invitationId: v.id("invitations"),
-  },
-  handler: async (ctx, args) => {
-    const invitation = await ctx.db.get(args.invitationId);
-    if (!invitation) {
-      throw new Error("Invitation not found");
-    }
-
-    return await ctx.db.patch(args.invitationId, {
-      status: "accepted",
-      expiresAt: Date.now(),
     });
   },
 });
