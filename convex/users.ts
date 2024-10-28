@@ -111,3 +111,38 @@ export const updateProfile = mutation({
     });
   },
 });
+
+export const updateUserName = mutation({
+  args: {
+    name: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
+    await ctx.db.patch(userId, {
+      name: args.name,
+      hasOnboarded: true,
+    });
+  },
+});
+
+export const updatePartialProfile = mutation({
+  args: {
+    dob: v.optional(v.number()),
+    height: v.optional(v.number()),
+    weight: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
+    await ctx.db.patch(userId, {
+      dob: args.dob,
+      height: args.height,
+      weight: args.weight,
+    });
+  },
+});

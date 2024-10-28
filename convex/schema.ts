@@ -18,6 +18,7 @@ export default defineSchema({
     isAnonymous: v.optional(v.boolean()),
     organizationId: v.id("organizations"),
     role: v.string(),
+    hasOnboarded: v.optional(v.boolean()),
   }).index("email", ["email"]),
   goals: defineTable({
     _id: v.id("goals"),
