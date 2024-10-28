@@ -75,6 +75,17 @@ export const sendUserInvitation = mutation({
     expiresAt: v.number(),
   },
   handler: async (ctx, args) => {
+    const memberRole = await ctx.runQuery(
+      internal.utils.getMemberOrganizationRole,
+      {
+        organizationId: args.organizationId,
+      }
+    );
+
+    if (!memberRole?.isOwner && !memberRole?.isAdmin) {
+      throw new Error("Not the owner or admin of the organization");
+    }
+
     await ctx.scheduler.runAfter(
       0,
       internal.invitations.sendUserInvitationAction,
@@ -96,6 +107,17 @@ export const resendUserInvitation = mutation({
     expiresAt: v.number(),
   },
   handler: async (ctx, args) => {
+    const memberRole = await ctx.runQuery(
+      internal.utils.getMemberOrganizationRole,
+      {
+        organizationId: args.organizationId,
+      }
+    );
+
+    if (!memberRole?.isOwner && !memberRole?.isAdmin) {
+      throw new Error("Not the owner or admin of the organization");
+    }
+
     await ctx.runMutation(internal.invitations.deleteExistingInvitation, {
       email: args.email,
       organizationId: args.organizationId,
@@ -144,8 +166,20 @@ export const acceptInvitation = mutation({
 export const deleteInvitation = mutation({
   args: {
     invitationId: v.id("invitations"),
+    organizationId: v.id("organizations"),
   },
   handler: async (ctx, args) => {
+    const memberRole = await ctx.runQuery(
+      internal.utils.getMemberOrganizationRole,
+      {
+        organizationId: args.organizationId,
+      }
+    );
+
+    if (!memberRole?.isOwner && !memberRole?.isAdmin) {
+      throw new Error("Not the owner or admin of the organization");
+    }
+
     await ctx.db.delete(args.invitationId);
   },
 });

@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { internalMutation, internalQuery, mutation } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
+import { internal } from "./_generated/api";
 
 export const getMemberByOrgIdAndRole = internalQuery({
   args: {
@@ -44,25 +44,19 @@ export const updateMemberRole = mutation({
     organizationId: v.id("organizations"),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) {
-      return null;
+    const memberRole = await ctx.runQuery(
+      internal.utils.getMemberOrganizationRole,
+      {
+        organizationId: args.organizationId,
+      }
+    );
+
+    if (!memberRole?.isOwner && !memberRole?.isAdmin) {
+      throw new Error("Not the owner or admin of the organization");
     }
 
-    const member = await ctx.db
-      .query("members")
-      .withIndex("by_user_id_organization_id", (q) =>
-        q.eq("userId", userId).eq("organizationId", args.organizationId)
-      )
-      .unique();
-    if (!member) {
-      throw new Error("Not a member of any organization");
-    }
-
-    if (member.role === "owner" || member.role === "admin") {
-      await ctx.db.patch(args.memberId, {
-        role: args.role,
-      });
-    }
+    await ctx.db.patch(args.memberId, {
+      role: args.role,
+    });
   },
 });
