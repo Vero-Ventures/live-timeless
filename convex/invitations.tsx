@@ -69,7 +69,6 @@ export const sendUserInvitation = mutation({
   args: {
     email: v.string(),
     role: v.string(),
-    expiresAt: v.number(),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -98,7 +97,6 @@ export const sendUserInvitation = mutation({
         organizationId: user.organizationId,
         ownerName: owner.name || "Owner",
         role: args.role,
-        expiresAt: args.expiresAt,
       }
     );
   },
@@ -108,7 +106,6 @@ export const resendUserInvitation = mutation({
   args: {
     email: v.string(),
     role: v.string(),
-    expiresAt: v.number(),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -142,7 +139,6 @@ export const resendUserInvitation = mutation({
         organizationId: user.organizationId,
         ownerName: owner.name || "Owner",
         role: args.role,
-        expiresAt: args.expiresAt,
       }
     );
   },
@@ -200,14 +196,12 @@ export const sendUserInvitationAction = internalAction({
     organizationId: v.id("organizations"),
     ownerName: v.string(),
     role: v.string(),
-    expiresAt: v.number(),
   },
   handler: async (ctx, args) => {
     await ctx.runMutation(internal.invitations.createInvitation, {
       email: args.email,
       organizationId: args.organizationId,
       role: args.role,
-      expiresAt: args.expiresAt,
     });
 
     const organization = await ctx.runQuery(
@@ -255,7 +249,6 @@ export const createInvitation = internalMutation({
     email: v.string(),
     organizationId: v.id("organizations"),
     role: v.string(),
-    expiresAt: v.number(),
   },
   handler: async (ctx, args) => {
     const thirtyDaysFromNow = addDays(new Date(), 30).getTime();
