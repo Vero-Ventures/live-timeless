@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
 
 export const getChallengeByIdWthHasJoined = query({
   args: { challengeId: v.id("challenges") },
@@ -174,21 +175,19 @@ export const removeFromChallenge = mutation({
   args: {
     userId: v.id("users"),
     challengeId: v.id("challenges"),
-    organizationId: v.id("organizations"),
   },
-  handler: async (ctx, { challengeId, userId, organizationId }) => {
-    const member = await ctx.db
-      .query("members")
-      .withIndex("by_user_id_organization_id", (q) =>
-        q.eq("userId", userId).eq("organizationId", organizationId)
-      )
-      .unique();
-    if (!member) {
-      throw new Error("Not a member of any organization");
+  handler: async (ctx, { challengeId, userId }) => {
+    const currentUserId = await getAuthUserId(ctx);
+    if (currentUserId === null) {
+      return null;
     }
 
-    if (member.role === "user") {
-      throw new Error("Not the owner of the organization");
+    const user = await ctx.runQuery(internal.users.getUserById, {
+      userId: currentUserId,
+    });
+
+    if (!(user.role === "owner") && !(user.role === "admin")) {
+      throw new Error("Not the owner or admin of the organization");
     }
 
     const challengeParticipant = await ctx.db

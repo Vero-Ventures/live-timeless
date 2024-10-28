@@ -6,6 +6,7 @@ import {
 } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 export const getOrganizationById = internalQuery({
   args: { organizationId: v.id("organizations") },
@@ -60,14 +61,16 @@ export const updateOrganization = mutation({
     metadata: v.optional(v.string()),
   },
   handler: async (ctx, { organizationId, ...args }) => {
-    const memberRole = await ctx.runQuery(
-      internal.utils.getMemberOrganizationRole,
-      {
-        organizationId,
-      }
-    );
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
 
-    if (!memberRole?.isOwner) {
+    const user = await ctx.runQuery(internal.users.getUserById, {
+      userId,
+    });
+
+    if (!(user.role === "owner")) {
       throw new Error("Not the owner of the organization");
     }
 
@@ -80,30 +83,28 @@ export const deleteOrganization = mutation({
     organizationId: v.id("organizations"),
   },
   handler: async (ctx, { organizationId }) => {
-    const memberRole = await ctx.runQuery(
-      internal.utils.getMemberOrganizationRole,
-      {
-        organizationId,
-      }
-    );
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
 
-    if (!memberRole?.isOwner) {
+    const user = await ctx.runQuery(internal.users.getUserById, {
+      userId,
+    });
+
+    if (!(user.role === "owner")) {
       throw new Error("Not the owner of the organization");
     }
 
-    const organizationMembers = await ctx.db
-      .query("members")
-      .withIndex("by_organization_id", (q) =>
-        q.eq("organizationId", organizationId)
-      )
-      .collect();
-
+    const users = await ctx.runQuery(internal.users.getUsers, {
+      organizationId,
+    });
     await Promise.all(
-      organizationMembers.map(async (member) => {
-        await ctx.db.delete(member._id);
-        await ctx.db.delete(member.userId);
+      users.map(async (user) => {
+        await ctx.db.delete(user._id);
       })
     );
+
     await ctx.db.delete(organizationId);
   },
 });

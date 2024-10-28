@@ -11,6 +11,7 @@ import { internal } from "./_generated/api";
 import { Resend } from "resend";
 import LTWelcome from "./emails/LTWelcome";
 import LTUserInvitation from "./emails/LTUserInvitation";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 const resend = new Resend(process.env.AUTH_RESEND_KEY);
 
@@ -38,20 +39,17 @@ export const sendOwnerInvitationAction = internalAction({
     orgName: v.string(),
   },
   handler: async (ctx, args) => {
-    const userId = await ctx.runMutation(internal.users.createUser, {
-      email: args.owner.email,
-      name: args.owner.name,
-    });
     const orgId = await ctx.runMutation(
       internal.organizations.createOrganization,
       {
         name: args.orgName,
       }
     );
-    // put the newly created user in the members table with the newly created org
-    await ctx.runMutation(internal.members.createMember, {
-      orgId,
-      userId,
+
+    await ctx.runMutation(internal.users.createUser, {
+      email: args.owner.email,
+      name: args.owner.name,
+      organizationId: orgId,
       role: "owner",
     });
 
@@ -70,28 +68,35 @@ export const sendOwnerInvitationAction = internalAction({
 export const sendUserInvitation = mutation({
   args: {
     email: v.string(),
-    organizationId: v.id("organizations"),
     role: v.string(),
     expiresAt: v.number(),
   },
   handler: async (ctx, args) => {
-    const memberRole = await ctx.runQuery(
-      internal.utils.getMemberOrganizationRole,
-      {
-        organizationId: args.organizationId,
-      }
-    );
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
 
-    if (!memberRole?.isOwner && !memberRole?.isAdmin) {
+    const user = await ctx.runQuery(internal.users.getUserById, {
+      userId,
+    });
+
+    if (!(user.role === "owner") && !(user.role === "admin")) {
       throw new Error("Not the owner or admin of the organization");
     }
+
+    const owner = await ctx.runQuery(internal.users.getUserByOrgIdAndRole, {
+      organizationId: user.organizationId,
+      role: "owner",
+    });
 
     await ctx.scheduler.runAfter(
       0,
       internal.invitations.sendUserInvitationAction,
       {
         email: args.email,
-        organizationId: args.organizationId,
+        organizationId: user.organizationId,
+        ownerName: owner.name || "Owner",
         role: args.role,
         expiresAt: args.expiresAt,
       }
@@ -102,25 +107,31 @@ export const sendUserInvitation = mutation({
 export const resendUserInvitation = mutation({
   args: {
     email: v.string(),
-    organizationId: v.id("organizations"),
     role: v.string(),
     expiresAt: v.number(),
   },
   handler: async (ctx, args) => {
-    const memberRole = await ctx.runQuery(
-      internal.utils.getMemberOrganizationRole,
-      {
-        organizationId: args.organizationId,
-      }
-    );
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
 
-    if (!memberRole?.isOwner && !memberRole?.isAdmin) {
+    const user = await ctx.runQuery(internal.users.getUserById, {
+      userId,
+    });
+
+    if (!(user.role === "owner") && !(user.role === "admin")) {
       throw new Error("Not the owner or admin of the organization");
     }
 
+    const owner = await ctx.runQuery(internal.users.getUserByOrgIdAndRole, {
+      organizationId: user.organizationId,
+      role: "owner",
+    });
+
     await ctx.runMutation(internal.invitations.deleteExistingInvitation, {
       email: args.email,
-      organizationId: args.organizationId,
+      organizationId: user.organizationId,
     });
 
     await ctx.scheduler.runAfter(
@@ -128,7 +139,8 @@ export const resendUserInvitation = mutation({
       internal.invitations.sendUserInvitationAction,
       {
         email: args.email,
-        organizationId: args.organizationId,
+        organizationId: user.organizationId,
+        ownerName: owner.name || "Owner",
         role: args.role,
         expiresAt: args.expiresAt,
       }
@@ -151,13 +163,9 @@ export const acceptInvitation = mutation({
       expiresAt: Date.now(),
     });
 
-    const userId = await ctx.runMutation(internal.users.createUser, {
+    await ctx.runMutation(internal.users.createUser, {
       email: invitation.email,
-    });
-
-    await ctx.runMutation(internal.members.createMember, {
-      orgId: invitation.organizationId,
-      userId,
+      organizationId: invitation.organizationId,
       role: invitation.role,
     });
   },
@@ -169,14 +177,16 @@ export const deleteInvitation = mutation({
     organizationId: v.id("organizations"),
   },
   handler: async (ctx, args) => {
-    const memberRole = await ctx.runQuery(
-      internal.utils.getMemberOrganizationRole,
-      {
-        organizationId: args.organizationId,
-      }
-    );
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
 
-    if (!memberRole?.isOwner && !memberRole?.isAdmin) {
+    const user = await ctx.runQuery(internal.users.getUserById, {
+      userId,
+    });
+
+    if (!(user.role === "owner") && !(user.role === "admin")) {
       throw new Error("Not the owner or admin of the organization");
     }
 
@@ -188,6 +198,7 @@ export const sendUserInvitationAction = internalAction({
   args: {
     email: v.string(),
     organizationId: v.id("organizations"),
+    ownerName: v.string(),
     role: v.string(),
     expiresAt: v.number(),
   },
@@ -206,18 +217,6 @@ export const sendUserInvitationAction = internalAction({
       }
     );
 
-    // Get the owner of the organization
-    const member = await ctx.runQuery(
-      internal.members.getMemberByOrgIdAndRole,
-      {
-        orgId: args.organizationId,
-        role: "owner",
-      }
-    );
-    const owner = await ctx.runQuery(internal.users.getUserById, {
-      userId: member.userId,
-    });
-
     await resend.emails.send({
       from: "Live Timeless <no-reply@livetimeless.veroventures.com>",
       to: [args.email],
@@ -226,7 +225,7 @@ export const sendUserInvitationAction = internalAction({
         <LTUserInvitation
           role={args.role}
           org={organization.name}
-          owner={owner.name || "Owner"}
+          owner={args.ownerName}
         />
       ),
     });

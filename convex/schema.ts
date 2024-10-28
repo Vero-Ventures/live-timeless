@@ -16,6 +16,8 @@ export default defineSchema({
     phone: v.optional(v.string()),
     phoneVerificationTime: v.optional(v.number()),
     isAnonymous: v.optional(v.boolean()),
+    organizationId: v.id("organizations"),
+    role: v.string(),
   }).index("email", ["email"]),
   goals: defineTable({
     _id: v.id("goals"),
@@ -67,14 +69,6 @@ export default defineSchema({
     logo: v.optional(v.string()),
     metadata: v.optional(v.string()),
   }).index("by_slug", ["slug"]),
-  members: defineTable({
-    _id: v.id("members"),
-    userId: v.id("users"),
-    organizationId: v.id("organizations"),
-    role: v.string(),
-  })
-    .index("by_user_id_organization_id", ["userId", "organizationId"])
-    .index("by_organization_id", ["organizationId"]),
   invitations: defineTable({
     _id: v.id("invitations"),
     email: v.string(),
