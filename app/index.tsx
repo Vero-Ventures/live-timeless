@@ -1,6 +1,7 @@
 import { Redirect } from "expo-router";
-import { Authenticated, Unauthenticated } from "convex/react";
+import { Authenticated, Unauthenticated, useQuery } from "convex/react";
 import Onboarding from "./onboarding";
+import { api } from "~/convex/_generated/api";
 
 export default function SignInPage() {
   return (
@@ -9,8 +10,16 @@ export default function SignInPage() {
         <Onboarding />
       </Unauthenticated>
       <Authenticated>
-        <Redirect href="/goals" />
+        <CrossRoad />
       </Authenticated>
     </>
   );
+}
+
+function CrossRoad() {
+  const user = useQuery(api.users.currentUser);
+  if (!user) {
+    return null;
+  }
+  return <Redirect href={user.hasOnboarded ? "/goals" : "/onboarding/name"} />;
 }

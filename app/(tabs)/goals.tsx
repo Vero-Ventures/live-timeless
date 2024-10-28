@@ -10,7 +10,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Link, SplashScreen } from "expo-router";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fontFamily } from "~/lib/font";
 import { Plus } from "lucide-react-native";
 import { Separator } from "~/components/ui/separator";
@@ -244,7 +245,11 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
     }
 
     router.push({
-      pathname: `/goals/${goal._id}/${latestLog._id}/start/logProgress`,
+      pathname: `/goals/[goalId]/[goalLogId]/start/logProgress`,
+      params: {
+        goalId: goal._id,
+        goalLogId: latestLog._id,
+      },
     });
   };
 

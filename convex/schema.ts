@@ -16,6 +16,7 @@ export default defineSchema({
     phone: v.optional(v.string()),
     phoneVerificationTime: v.optional(v.number()),
     isAnonymous: v.optional(v.boolean()),
+    hasOnboarded: v.optional(v.boolean()),
   }).index("email", ["email"]),
   goals: defineTable({
     _id: v.id("goals"),

@@ -11,15 +11,17 @@ import {
   Button,
 } from "@react-email/components";
 
-interface LTWelcomeProps {
-  email: string;
-  name: string;
+interface LTInvitationProps {
+  role: string;
+  owner: string;
+  org: string;
 }
 
-export default function LTWelcome({
-  email = "example@acme.com",
-  name = "Yaniv Talmor",
-}: LTWelcomeProps) {
+export default function LTInvitation({
+  role = "User",
+  org = "Vero Ventures",
+  owner = "Yaniv Talmor",
+}: LTInvitationProps) {
   return (
     <Html>
       <Head />
@@ -35,19 +37,44 @@ export default function LTWelcome({
         <Container style={container}>
           <Section style={coverSection}>
             <Section style={upperSection}>
-              <Text style={mainText}>Hello {name},</Text>
-              <Text style={validityText}>
-                We're thrilled to have you join our wellness platform. Get ready
-                to take control and empower your employees on their journey to
-                better health and well-being!
+              <Text style={mainText}>
+                You've been invited to join {org} on Live Timeless
               </Text>
               <Text style={validityText}>
-                You're credentials to login to the admin dashboard is below:
+                <span
+                  style={{
+                    fontWeight: "bold",
+                  }}
+                >
+                  {owner}
+                </span>{" "}
+                would like you to join the{" "}
+                <span
+                  style={{
+                    fontWeight: "bold",
+                  }}
+                >
+                  {org}
+                </span>{" "}
+                organization on Live Timeless with the{" "}
+                <span
+                  style={{
+                    fontWeight: "bold",
+                  }}
+                >
+                  {role}
+                </span>{" "}
+                role.
               </Text>
+
+              <Text style={validityText}>What you'll get access to:</Text>
+              <ul style={featureList}>
+                <li>Powerful Habit Tracking Features</li>
+                <li>Wellness challenges and activities</li>
+                <li>Personalized AI wellness advisor</li>
+                <li>Health tracking tools</li>
+              </ul>
               <Section>
-                <Section>
-                  <Text style={codeText}>Email: {email}</Text>
-                </Section>
                 <Section
                   style={{
                     display: "flex",
@@ -59,7 +86,7 @@ export default function LTWelcome({
                   }}
                 >
                   <Button style={button} href="https://livetimeless.com/">
-                    Login to Admin Dashboard
+                    Accept Invitation
                   </Button>
                 </Section>
               </Section>
@@ -131,22 +158,19 @@ const footerText = {
   padding: "0 20px",
 };
 
-const codeText = {
-  ...text,
-  fontWeight: "bold",
-  fontSize: "16px",
-  margin: "20px 0px 40px",
-  textAlign: "center" as const,
-};
-
 const validityText = {
   ...text,
-  margin: "0px",
-  marginBottom: "16px",
+  margin: "26px 0px",
   textAlign: "left" as const,
 };
 
-const mainText = { ...text, marginBottom: "16px" };
+const mainText = {
+  ...text,
+  fontWeight: "600",
+  fontSize: "30px",
+  lineHeight: "1.2",
+  marginBottom: "14px",
+};
 
 const button = {
   backgroundColor: "#0f2336",
@@ -159,4 +183,12 @@ const button = {
   display: "block",
   padding: "11px 23px",
   width: "380px",
+};
+
+const featureList = {
+  marginBottom: "40px",
+  gap: 8,
+  fontSize: "16px",
+  fontFamily:
+    "-apple-system, BlinkMacSystemFont, 'Open Sans', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
 };
