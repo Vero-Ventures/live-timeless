@@ -15,7 +15,9 @@ export const getChallengeByIdWthHasJoined = query({
     }
     const challengeParticipants = await ctx.db
       .query("challengeParticipants")
-      .filter((q) => q.eq(q.field("challengeId"), challenge._id))
+      .withIndex("by_challenge_id_user_id", (q) =>
+        q.eq("challengeId", challengeId)
+      )
       .collect();
 
     const challengeParticipantsUserIds = challengeParticipants.map(
@@ -42,7 +44,9 @@ export const getChallengeById = query({
     }
     const challengeParticipants = await ctx.db
       .query("challengeParticipants")
-      .filter((q) => q.eq(q.field("challengeId"), challenge._id))
+      .withIndex("by_challenge_id_user_id", (q) =>
+        q.eq("challengeId", challengeId)
+      )
       .collect();
 
     const participants = await Promise.all(
@@ -151,19 +155,17 @@ export const leaveChallenge = mutation({
     if (!userId) {
       throw new Error("Not logged in");
     }
+
     const challengeParticipant = await ctx.db
       .query("challengeParticipants")
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("challengeId"), challengeId),
-          q.eq(q.field("userId"), userId)
-        )
+      .withIndex("by_challenge_id_user_id", (q) =>
+        q.eq("challengeId", challengeId).eq("userId", userId)
       )
-      .collect()
-      .then((res) => res.at(0));
+      .unique();
     if (!challengeParticipant) {
       throw new Error("User is not in the challenge");
     }
+
     await ctx.db.delete(challengeParticipant._id);
   },
 });
@@ -172,22 +174,33 @@ export const removeFromChallenge = mutation({
   args: {
     userId: v.id("users"),
     challengeId: v.id("challenges"),
+    organizationId: v.id("organizations"),
   },
-  handler: async (ctx, { challengeId, userId }) => {
-    //TODO: Make sure current logged in user's role is an 'admin'
+  handler: async (ctx, { challengeId, userId, organizationId }) => {
+    const member = await ctx.db
+      .query("members")
+      .withIndex("by_user_id_organization_id", (q) =>
+        q.eq("userId", userId).eq("organizationId", organizationId)
+      )
+      .unique();
+    if (!member) {
+      throw new Error("Not a member of any organization");
+    }
+
+    if (member.role === "user") {
+      throw new Error("Not the owner of the organization");
+    }
+
     const challengeParticipant = await ctx.db
       .query("challengeParticipants")
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("challengeId"), challengeId),
-          q.eq(q.field("userId"), userId)
-        )
+      .withIndex("by_challenge_id_user_id", (q) =>
+        q.eq("challengeId", challengeId).eq("userId", userId)
       )
-      .collect()
-      .then((res) => res.at(0));
+      .unique();
     if (!challengeParticipant) {
       throw new Error("User is not in the challenge");
     }
+
     await ctx.db.delete(challengeParticipant._id);
   },
 });

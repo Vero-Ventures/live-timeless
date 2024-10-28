@@ -59,9 +59,7 @@ export default defineSchema({
     _id: v.id("challengeParticipants"),
     userId: v.id("users"),
     challengeId: v.id("challenges"),
-  })
-    .index("by_challenge_id", ["challengeId"])
-    .index("by_user_id", ["userId"]),
+  }).index("by_challenge_id_user_id", ["challengeId", "userId"]),
   organizations: defineTable({
     _id: v.id("organizations"),
     name: v.string(),
@@ -75,7 +73,7 @@ export default defineSchema({
     organizationId: v.id("organizations"),
     role: v.string(),
   })
-    .index("by_user_id", ["userId"])
+    .index("by_user_id_organization_id", ["userId", "organizationId"])
     .index("by_organization_id", ["organizationId"]),
   invitations: defineTable({
     _id: v.id("invitations"),

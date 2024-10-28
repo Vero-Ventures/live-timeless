@@ -1,5 +1,5 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { query } from "./_generated/server";
+import { internalMutation, internalQuery, query } from "./_generated/server";
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 
@@ -12,6 +12,34 @@ export const currentUser = query({
     }
     const user = await ctx.db.get(userId);
     return user;
+  },
+});
+
+export const getUserById = internalQuery({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db.get(args.userId);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    return user;
+  },
+});
+
+export const createUser = internalMutation({
+  args: {
+    name: v.optional(v.string()),
+    email: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("users", {
+      ...(args.name && { name: args.name }),
+      email: args.email,
+    });
   },
 });
 
