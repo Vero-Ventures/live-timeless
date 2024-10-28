@@ -245,7 +245,11 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
     }
 
     router.push({
-      pathname: `/goals/${goal._id}/${latestLog._id}/start/logProgress`,
+      pathname: `/goals/[goalId]/[goalLogId]/start/logProgress`,
+      params: {
+        goalId: goal._id,
+        goalLogId: latestLog._id,
+      },
     });
   };
 
