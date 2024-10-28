@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { router, SplashScreen } from "expo-router";
 import { AlertCircle } from "lucide-react-native";
 import { useEffect, useState } from "react";
@@ -12,17 +12,10 @@ import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
 
 export default function OnboardingNamePage() {
-  const user = useQuery(api.users.currentUser);
   useEffect(() => {
-    if (user) {
-      if (user.hasOnboarded) {
-        router.replace("/goals");
-      }
-      SplashScreen.hideAsync();
-    }
-  }, [user]);
+    SplashScreen.hideAsync();
+  }, []);
 
-  SplashScreen.hideAsync();
   return (
     <SafeAreaView
       style={{

@@ -77,6 +77,7 @@ export const updateUserName = mutation({
     }
     await ctx.db.patch(userId, {
       name: args.name,
+      hasOnboarded: true,
     });
   },
 });
@@ -96,7 +97,6 @@ export const updatePartialProfile = mutation({
       dob: args.dob,
       height: args.height,
       weight: args.weight,
-      hasOnboarded: true,
     });
   },
 });
