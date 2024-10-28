@@ -15,6 +15,8 @@ import { fontFamily } from "~/lib/font";
 import { useProfileFormStore } from "~/app/profile/edit/profile-form-store";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "~/components/ui/button";
+import { useMutation } from "convex/react";
+import { api } from "~/convex/_generated/api";
 
 export default function OnboardingProfilePage() {
   return (
@@ -41,6 +43,7 @@ export default function OnboardingProfilePage() {
 }
 
 function OnboardingProfileForm() {
+  const updateProfile = useMutation(api.users.updatePartialProfile);
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
@@ -71,8 +74,11 @@ function OnboardingProfileForm() {
   const handleSaveProfile = async () => {
     try {
       setIsPending(true);
-      const profile = { dob, weight, height };
-      console.log(profile);
+      updateProfile({
+        dob: dob.getTime(),
+        weight: Number(weight),
+        height: Number(height),
+      });
       router.replace("/goals");
     } catch (error) {
       if (error instanceof Error) {

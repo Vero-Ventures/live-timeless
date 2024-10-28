@@ -1,3 +1,4 @@
+import { useMutation, useQuery } from "convex/react";
 import { router, SplashScreen } from "expo-router";
 import { AlertCircle } from "lucide-react-native";
 import { useEffect, useState } from "react";
@@ -8,11 +9,18 @@ import FormSubmitButton from "~/components/form-submit-button";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Input } from "~/components/ui/input";
 import { Text } from "~/components/ui/text";
+import { api } from "~/convex/_generated/api";
 
 export default function OnboardingNamePage() {
+  const user = useQuery(api.users.currentUser);
   useEffect(() => {
-    SplashScreen.hideAsync();
-  }, []);
+    if (user) {
+      if (user.hasOnboarded) {
+        router.replace("/goals");
+      }
+      SplashScreen.hideAsync();
+    }
+  }, [user]);
 
   SplashScreen.hideAsync();
   return (
@@ -39,6 +47,7 @@ export default function OnboardingNamePage() {
 }
 
 function OnboardingProfileForm() {
+  const updateUserName = useMutation(api.users.updateUserName);
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
   const [name, setName] = useState("");
@@ -46,7 +55,14 @@ function OnboardingProfileForm() {
   const handleSaveName = async () => {
     try {
       setIsPending(true);
-      console.log(name);
+      if (name.trim().length < 2) {
+        throw new Error("Your name is too short");
+      }
+      const nameRegex = /^[a-zA-Z]+$/;
+      if (nameRegex.test(name.trim())) {
+        throw new Error("Your name can only contain letters");
+      }
+      await updateUserName({ name });
       router.replace("/onboarding/profile");
     } catch (error) {
       if (error instanceof Error) {
