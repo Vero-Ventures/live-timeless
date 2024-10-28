@@ -141,6 +141,15 @@ export const acceptInvitation = mutation({
   },
 });
 
+export const deleteInvitation = mutation({
+  args: {
+    invitationId: v.id("invitations"),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.invitationId);
+  },
+});
+
 export const sendUserInvitationAction = internalAction({
   args: {
     email: v.string(),
@@ -228,15 +237,6 @@ export const createInvitation = internalMutation({
   },
 });
 
-export const deleteInvitation = internalMutation({
-  args: {
-    invitationId: v.id("invitations"),
-  },
-  handler: async (ctx, { invitationId }) => {
-    return await ctx.db.delete(invitationId);
-  },
-});
-
 export const deleteExistingInvitation = internalMutation({
   args: {
     email: v.string(),
@@ -252,9 +252,7 @@ export const deleteExistingInvitation = internalMutation({
     );
 
     if (existingInvitation) {
-      await ctx.runMutation(internal.invitations.deleteInvitation, {
-        invitationId: existingInvitation._id,
-      });
+      await ctx.db.delete(existingInvitation._id);
     }
   },
 });
