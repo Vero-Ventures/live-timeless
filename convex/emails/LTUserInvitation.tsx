@@ -90,7 +90,7 @@ export default function LTInvitation({
                 >
                   <Button
                     style={button}
-                    href={`http://localhost:3000/verify-member?invitationId=${invitationId}`}
+                    href={`${process.env.DASHBOARD_URL}/verify-member?invitationId=${invitationId}`}
                   >
                     Accept Invitation
                   </Button>

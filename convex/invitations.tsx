@@ -31,6 +31,7 @@ export const sendOwnerInvitation = mutation({
         orgName: args.orgName,
       }
     );
+    return "success";
   },
 });
 
@@ -60,8 +61,6 @@ export const sendOwnerInvitationAction = internalAction({
       subject: "Welcome to Live Timeless",
       react: <LTWelcome email={args.owner.email} name={args.owner.name} />,
     });
-    // optionally return a value
-    return "success";
   },
 });
 

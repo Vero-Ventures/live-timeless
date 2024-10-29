@@ -58,7 +58,7 @@ export default function LTWelcome({
                     marginRight: "auto",
                   }}
                 >
-                  <Button style={button} href="https://livetimeless.com/">
+                  <Button style={button} href={`${process.env.DASHBOARD_URL}/`}>
                     Login to Admin Dashboard
                   </Button>
                 </Section>
