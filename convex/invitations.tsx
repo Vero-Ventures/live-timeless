@@ -93,8 +93,12 @@ export const listInvitations = query({
       )
       .collect();
 
-    const updatedInvitations = invitations.map(async (invitation) => {
-      if (invitation.status !== "pending") {
+    const updatedInvitations = await Promise.all(
+      invitations.map(async (invitation) => {
+        if (invitation.status === "pending") {
+          return invitation;
+        }
+
         const user = await ctx.db
           .query("users")
           .withIndex("email", (q) => q.eq("email", invitation.email))
@@ -108,11 +112,9 @@ export const listInvitations = query({
           ...invitation,
           role: user.role,
           userId: user._id,
-          name: user.name || "",
         };
-      }
-      return invitation;
-    });
+      })
+    );
 
     return updatedInvitations;
   },

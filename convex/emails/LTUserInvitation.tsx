@@ -62,6 +62,7 @@ export default function LTInvitation({
                 organization on Live Timeless with the{" "}
                 <span
                   style={{
+                    textTransform: "capitalize",
                     fontWeight: "bold",
                   }}
                 >
