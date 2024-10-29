@@ -253,11 +253,14 @@ export const sendUserInvitationAction = internalAction({
     role: v.string(),
   },
   handler: async (ctx, args) => {
-    await ctx.runMutation(internal.invitations.createInvitation, {
-      email: args.email,
-      organizationId: args.organizationId,
-      role: args.role,
-    });
+    const invitationId = await ctx.runMutation(
+      internal.invitations.createInvitation,
+      {
+        email: args.email,
+        organizationId: args.organizationId,
+        role: args.role,
+      }
+    );
 
     const organization = await ctx.runQuery(
       internal.organizations.getOrganizationById,
@@ -275,6 +278,7 @@ export const sendUserInvitationAction = internalAction({
           role={args.role}
           org={organization.name}
           owner={args.ownerName}
+          invitationId={invitationId}
         />
       ),
     });
