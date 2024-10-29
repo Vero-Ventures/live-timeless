@@ -116,7 +116,7 @@ export const listInvitations = query({
 
 export const sendUserInvitation = mutation({
   args: {
-    email: v.string(),
+    emails: v.array(v.string()),
     role: v.string(),
   },
   handler: async (ctx, args) => {
@@ -139,15 +139,19 @@ export const sendUserInvitation = mutation({
       role: "owner",
     });
 
-    await ctx.scheduler.runAfter(
-      0,
-      internal.invitations.sendUserInvitationAction,
-      {
-        email: args.email,
-        organizationId: user.organizationId,
-        ownerName: owner.name || "Owner",
-        role: args.role,
-      }
+    await Promise.all(
+      args.emails.map((email) =>
+        ctx.scheduler.runAfter(
+          0,
+          internal.invitations.sendUserInvitationAction,
+          {
+            email,
+            organizationId: user.organizationId,
+            ownerName: owner.name || "Owner",
+            role: args.role,
+          }
+        )
+      )
     );
   },
 });
