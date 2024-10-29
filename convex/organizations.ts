@@ -101,11 +101,7 @@ export const deleteOrganization = mutation({
     const users = await ctx.runQuery(internal.users.getUsers, {
       organizationId,
     });
-    await Promise.all(
-      users.map(async (user) => {
-        await ctx.db.delete(user._id);
-      })
-    );
+    await Promise.all(users.map(async (user) => ctx.db.delete(user._id)));
 
     await ctx.db.delete(organizationId);
   },
