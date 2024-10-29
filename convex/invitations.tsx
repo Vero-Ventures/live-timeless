@@ -227,10 +227,16 @@ export const acceptInvitation = mutation({
       expiresAt: Date.now(),
     });
 
-    await ctx.runMutation(internal.users.createUser, {
+    const userId = await ctx.runMutation(internal.users.createUser, {
       email: invitation.email,
       organizationId: invitation.organizationId,
       role: invitation.role,
+    });
+
+    await ctx.runMutation(internal.users.createAuthAccount, {
+      email: invitation.email,
+      provider: "resend-otp",
+      userId,
     });
   },
 });

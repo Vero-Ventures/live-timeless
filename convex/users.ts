@@ -85,6 +85,7 @@ export const createUser = internalMutation({
     });
   },
 });
+
 export const createAuthAccount = internalMutation({
   args: {
     provider: v.string(),
@@ -97,6 +98,22 @@ export const createAuthAccount = internalMutation({
       provider: args.provider,
       userId: args.userId,
     });
+  },
+});
+
+export const deleteAuthAccount = mutation({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const authAccount = await ctx.db
+      .query("authAccounts")
+      .withIndex("userIdAndProvider", (q) => q.eq("userId", args.userId))
+      .unique();
+    if (!authAccount) {
+      throw new Error("Can't find auth account to delete");
+    }
+    await ctx.db.delete(authAccount._id);
   },
 });
 
