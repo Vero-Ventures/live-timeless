@@ -89,7 +89,28 @@ export const listInvitations = query({
       )
       .collect();
 
-    return invitations;
+    const updatedInvitations = invitations.map(async (invitation) => {
+      if (invitation.status !== "pending") {
+        const user = await ctx.db
+          .query("users")
+          .withIndex("email", (q) => q.eq("email", invitation.email))
+          .unique();
+
+        if (!user) {
+          throw new Error("Users not found");
+        }
+
+        return {
+          ...invitation,
+          role: user.role,
+          userId: user._id,
+          name: user.name || "",
+        };
+      }
+      return invitation;
+    });
+
+    return updatedInvitations;
   },
 });
 
