@@ -48,11 +48,16 @@ export const sendOwnerInvitationAction = internalAction({
       }
     );
 
-    await ctx.runMutation(internal.users.createUser, {
+    const userId = await ctx.runMutation(internal.users.createUser, {
       email: args.owner.email,
       name: args.owner.name,
       organizationId: orgId,
       role: "owner",
+    });
+    await ctx.runMutation(internal.users.createAuthAccount, {
+      email: args.owner.email,
+      provider: "resend-otp",
+      userId,
     });
 
     await resend.emails.send({

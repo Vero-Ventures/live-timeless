@@ -73,6 +73,20 @@ export const createUser = internalMutation({
     });
   },
 });
+export const createAuthAccount = internalMutation({
+  args: {
+    provider: v.string(),
+    email: v.string(),
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("authAccounts", {
+      providerAccountId: args.email,
+      provider: args.provider,
+      userId: args.userId,
+    });
+  },
+});
 
 export const updateProfile = mutation({
   args: {
