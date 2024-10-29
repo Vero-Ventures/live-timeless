@@ -66,9 +66,10 @@ export const updateOrganization = mutation({
       return null;
     }
 
-    const user = await ctx.runQuery(internal.users.getUserById, {
-      userId,
-    });
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
 
     if (!(user.role === "owner")) {
       throw new Error("Not the owner of the organization");
@@ -88,9 +89,10 @@ export const deleteOrganization = mutation({
       return null;
     }
 
-    const user = await ctx.runQuery(internal.users.getUserById, {
-      userId,
-    });
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
 
     if (!(user.role === "owner")) {
       throw new Error("Not the owner of the organization");

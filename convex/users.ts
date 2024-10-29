@@ -2,7 +2,6 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { internalMutation, internalQuery, query } from "./_generated/server";
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { internal } from "./_generated/api";
 
 export const currentUser = query({
   args: {},
@@ -12,21 +11,6 @@ export const currentUser = query({
       return null;
     }
     const user = await ctx.db.get(userId);
-    return user;
-  },
-});
-
-export const getUserById = internalQuery({
-  args: {
-    userId: v.id("users"),
-  },
-  handler: async (ctx, args) => {
-    const user = await ctx.db.get(args.userId);
-
-    if (!user) {
-      throw new Error("User not found");
-    }
-
     return user;
   },
 });
@@ -158,9 +142,10 @@ export const deleteUser = mutation({
       return null;
     }
 
-    const user = await ctx.runQuery(internal.users.getUserById, {
-      userId,
-    });
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
 
     if (!(user.role === "owner") && !(user.role === "admin")) {
       throw new Error("Not the owner or admin of the organization");

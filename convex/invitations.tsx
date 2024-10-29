@@ -6,6 +6,7 @@ import {
   internalMutation,
   internalQuery,
   mutation,
+  query,
 } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { Resend } from "resend";
@@ -65,6 +66,33 @@ export const sendOwnerInvitationAction = internalAction({
 });
 
 // === User Invitations ===
+export const listInvitations = query({
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
+
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (!(user.role === "owner") && !(user.role === "admin")) {
+      throw new Error("Not the owner or admin of the organization");
+    }
+
+    const invitations = await ctx.db
+      .query("invitations")
+      .withIndex("by_organization_id", (q) =>
+        q.eq("organizationId", user.organizationId)
+      )
+      .collect();
+
+    return invitations;
+  },
+});
+
 export const sendUserInvitation = mutation({
   args: {
     email: v.string(),
@@ -76,9 +104,10 @@ export const sendUserInvitation = mutation({
       return null;
     }
 
-    const user = await ctx.runQuery(internal.users.getUserById, {
-      userId,
-    });
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
 
     if (!(user.role === "owner") && !(user.role === "admin")) {
       throw new Error("Not the owner or admin of the organization");
@@ -113,9 +142,10 @@ export const resendUserInvitation = mutation({
       return null;
     }
 
-    const user = await ctx.runQuery(internal.users.getUserById, {
-      userId,
-    });
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
 
     if (!(user.role === "owner") && !(user.role === "admin")) {
       throw new Error("Not the owner or admin of the organization");
@@ -177,9 +207,10 @@ export const deleteInvitation = mutation({
       return null;
     }
 
-    const user = await ctx.runQuery(internal.users.getUserById, {
-      userId,
-    });
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
 
     if (!(user.role === "owner") && !(user.role === "admin")) {
       throw new Error("Not the owner or admin of the organization");
