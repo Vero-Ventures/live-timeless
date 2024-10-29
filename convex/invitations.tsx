@@ -170,7 +170,6 @@ export const acceptInvitation = mutation({
 export const deleteInvitation = mutation({
   args: {
     invitationId: v.id("invitations"),
-    organizationId: v.id("organizations"),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
