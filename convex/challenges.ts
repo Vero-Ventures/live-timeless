@@ -218,13 +218,29 @@ export const joinChallenge = mutation({
   args: {
     challengeId: v.id("challenges"),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, { challengeId }) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) {
       throw new Error("Not logged in");
     }
+    const user = await ctx.db.get(userId);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const challenge = await ctx.db.get(challengeId);
+
+    if (!challenge) {
+      throw new Error("Challenge not found");
+    }
+
+    if (challenge.organizationId !== user.organizationId) {
+      throw new Error("User doesn't belong in the organization");
+    }
+
     await ctx.db.insert("challengeParticipants", {
-      challengeId: args.challengeId,
+      challengeId,
       userId,
     });
   },
