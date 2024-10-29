@@ -134,7 +134,7 @@ export const updatePartialProfile = mutation({
 
 export const deleteUser = mutation({
   args: {
-    email: v.string(),
+    userId: v.id("users"),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -151,14 +151,6 @@ export const deleteUser = mutation({
       throw new Error("Not the owner or admin of the organization");
     }
 
-    const userToDelete = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", args.email))
-      .unique();
-    if (!userToDelete) {
-      throw new Error("User not found");
-    }
-
-    await ctx.db.delete(userToDelete._id);
+    await ctx.db.delete(args.userId);
   },
 });
