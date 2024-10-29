@@ -23,24 +23,6 @@ export const sendOwnerInvitation = mutation({
     orgName: v.string(),
   },
   handler: async (ctx, args) => {
-    await ctx.scheduler.runAfter(
-      0,
-      internal.invitations.sendOwnerInvitationAction,
-      {
-        owner: args.owner,
-        orgName: args.orgName,
-      }
-    );
-    return "success";
-  },
-});
-
-export const sendOwnerInvitationAction = internalAction({
-  args: {
-    owner: v.object({ email: v.string(), name: v.string() }),
-    orgName: v.string(),
-  },
-  handler: async (ctx, args) => {
     const orgId = await ctx.runMutation(
       internal.organizations.createOrganization,
       {
@@ -54,12 +36,32 @@ export const sendOwnerInvitationAction = internalAction({
       organizationId: orgId,
       role: "owner",
     });
+
     await ctx.runMutation(internal.users.createAuthAccount, {
       email: args.owner.email,
       provider: "resend-otp",
       userId,
     });
 
+    await ctx.scheduler.runAfter(
+      0,
+      internal.invitations.sendOwnerInvitationEmailAction,
+      {
+        owner: args.owner,
+        orgName: args.orgName,
+      }
+    );
+
+    return "success";
+  },
+});
+
+export const sendOwnerInvitationEmailAction = internalAction({
+  args: {
+    owner: v.object({ email: v.string(), name: v.string() }),
+    orgName: v.string(),
+  },
+  handler: async (_ctx, args) => {
     await resend.emails.send({
       from: "Live Timeless <no-reply@livetimeless.veroventures.com>",
       to: [args.owner.email],
@@ -146,28 +148,43 @@ export const sendUserInvitation = mutation({
     });
 
     await Promise.all(
-      args.emails.map((email) =>
-        ctx.scheduler.runAfter(
-          0,
-          internal.invitations.sendUserInvitationAction,
+      args.emails.map(async (email) => {
+        const invitationId = await ctx.runMutation(
+          internal.invitations.createInvitation,
           {
             email,
             organizationId: user.organizationId,
+            role: args.role,
+          }
+        );
+
+        const organization = await ctx.runQuery(
+          internal.organizations.getOrganizationById,
+          {
+            organizationId: user.organizationId,
+          }
+        );
+        await ctx.scheduler.runAfter(
+          0,
+          internal.invitations.sendUserInvitationEmailAction,
+          {
+            invitationId,
+            email,
+            organizationName: organization.name,
             ownerName: owner.name || "Owner",
             role: args.role,
           }
-        )
-      )
+        );
+      })
     );
   },
 });
 
 export const resendUserInvitation = mutation({
   args: {
-    email: v.string(),
-    role: v.string(),
+    invitationId: v.id("invitations"),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, { invitationId }) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) {
       return null;
@@ -178,8 +195,20 @@ export const resendUserInvitation = mutation({
       throw new Error("User not found");
     }
 
-    if (!(user.role === "owner") && !(user.role === "admin")) {
+    if (user.role === "user") {
       throw new Error("Not the owner or admin of the organization");
+    }
+
+    const thirtyDaysFromNow = addDays(new Date(), 30).getTime();
+
+    await ctx.db.patch(invitationId, {
+      expiresAt: thirtyDaysFromNow,
+    });
+
+    const invitation = await ctx.db.get(invitationId);
+
+    if (!invitation) {
+      throw new Error("Invitation not found");
     }
 
     const owner = await ctx.runQuery(internal.users.getUserByOrgIdAndRole, {
@@ -187,19 +216,21 @@ export const resendUserInvitation = mutation({
       role: "owner",
     });
 
-    await ctx.runMutation(internal.invitations.deleteExistingInvitation, {
-      email: args.email,
-      organizationId: user.organizationId,
-    });
+    const organization = await ctx.db.get(user.organizationId);
+
+    if (!organization) {
+      throw new Error("Organization not found");
+    }
 
     await ctx.scheduler.runAfter(
       0,
-      internal.invitations.sendUserInvitationAction,
+      internal.invitations.sendUserInvitationEmailAction,
       {
-        email: args.email,
-        organizationId: user.organizationId,
+        invitationId,
+        email: invitation.email,
+        role: invitation.role,
         ownerName: owner.name || "Owner",
-        role: args.role,
+        organizationName: organization.name,
       }
     );
   },
@@ -264,30 +295,15 @@ export const deleteInvitation = mutation({
   },
 });
 
-export const sendUserInvitationAction = internalAction({
+export const sendUserInvitationEmailAction = internalAction({
   args: {
     email: v.string(),
-    organizationId: v.id("organizations"),
+    invitationId: v.id("invitations"),
     ownerName: v.string(),
     role: v.string(),
+    organizationName: v.string(),
   },
-  handler: async (ctx, args) => {
-    const invitationId = await ctx.runMutation(
-      internal.invitations.createInvitation,
-      {
-        email: args.email,
-        organizationId: args.organizationId,
-        role: args.role,
-      }
-    );
-
-    const organization = await ctx.runQuery(
-      internal.organizations.getOrganizationById,
-      {
-        organizationId: args.organizationId,
-      }
-    );
-
+  handler: async (_ctx, args) => {
     await resend.emails.send({
       from: "Live Timeless <no-reply@livetimeless.veroventures.com>",
       to: [args.email],
@@ -295,14 +311,12 @@ export const sendUserInvitationAction = internalAction({
       react: (
         <LTUserInvitation
           role={args.role}
-          org={organization.name}
+          org={args.organizationName}
           owner={args.ownerName}
-          invitationId={invitationId}
+          invitationId={args.invitationId}
         />
       ),
     });
-
-    return "success";
   },
 });
 
