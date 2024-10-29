@@ -2,6 +2,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { internalMutation, internalQuery, query } from "./_generated/server";
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
 
 export const currentUser = query({
   args: {},
@@ -144,5 +145,35 @@ export const updatePartialProfile = mutation({
       height: args.height,
       weight: args.weight,
     });
+  },
+});
+
+export const deleteUser = mutation({
+  args: {
+    email: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
+
+    const user = await ctx.runQuery(internal.users.getUserById, {
+      userId,
+    });
+
+    if (!(user.role === "owner") && !(user.role === "admin")) {
+      throw new Error("Not the owner or admin of the organization");
+    }
+
+    const userToDelete = await ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", args.email))
+      .unique();
+    if (!userToDelete) {
+      throw new Error("User not found");
+    }
+
+    await ctx.db.delete(userToDelete._id);
   },
 });
