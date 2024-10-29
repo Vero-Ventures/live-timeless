@@ -140,6 +140,7 @@ const codeText = {
   fontSize: "16px",
   margin: "20px 0px 40px",
   textAlign: "center" as const,
+  textDecoration: "none",
 };
 
 const validityText = {
