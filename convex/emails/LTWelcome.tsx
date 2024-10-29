@@ -58,7 +58,10 @@ export default function LTWelcome({
                     marginRight: "auto",
                   }}
                 >
-                  <Button style={button} href={`${process.env.DASHBOARD_URL}/`}>
+                  <Button
+                    style={button}
+                    href={`${process.env.DASHBOARD_URL}/sign-in`}
+                  >
                     Login to Admin Dashboard
                   </Button>
                 </Section>
