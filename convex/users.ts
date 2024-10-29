@@ -56,6 +56,18 @@ export const getUserByOrgIdAndRole = internalQuery({
     return user;
   },
 });
+export const getUserByEmail = internalQuery({
+  args: {
+    email: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", args.email))
+      .unique();
+    return user;
+  },
+});
 
 export const createUser = internalMutation({
   args: {

@@ -214,6 +214,13 @@ export const acceptInvitation = mutation({
     if (!invitation) {
       throw new Error("Invitation not found");
     }
+    const user = await ctx.runQuery(internal.users.getUserByEmail, {
+      email: invitation.email,
+    });
+
+    if (user) {
+      return;
+    }
 
     await ctx.db.patch(args.invitationId, {
       status: "accepted",
