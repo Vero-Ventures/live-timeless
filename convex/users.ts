@@ -56,6 +56,7 @@ export const getUserByOrgIdAndRole = internalQuery({
     return user;
   },
 });
+
 export const getUserByEmail = internalQuery({
   args: {
     email: v.string(),
@@ -196,4 +197,15 @@ export const deleteUser = mutation({
 
     await ctx.db.delete(args.userId);
   },
+});
+
+export const checkUserEmail = mutation({
+  args: {
+    email: v.string(),
+  },
+  handler: async (ctx, { email }) =>
+    ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", email))
+      .unique(),
 });

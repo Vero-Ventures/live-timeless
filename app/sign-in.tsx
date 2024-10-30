@@ -9,12 +9,18 @@ import { Input } from "~/components/ui/input";
 import { fontFamily } from "~/lib/font";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import PrivacyPolicyButton from "~/components/privacy-policy-button";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { AlertCircle } from "~/lib/icons/AlertCircle";
+import { useMutation } from "convex/react";
+import { api } from "~/convex/_generated/api";
+
 export default function SignIn() {
   const { signIn } = useAuthActions();
   const [step, setStep] = useState<"signIn" | { email: string }>("signIn");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
-
+  const [error, setError] = useState("");
+  const checkUserEmail = useMutation(api.users.checkUserEmail);
   return (
     <SafeAreaView
       style={{
@@ -30,6 +36,16 @@ export default function SignIn() {
               className="mx-auto mt-6 h-[40px] w-[168px]"
             />
           </View>
+          {!!error && (
+            <Alert
+              icon={AlertCircle}
+              variant="destructive"
+              className="max-w-xl"
+            >
+              <AlertTitle>Something went wrong!</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <View className="gap-4 p-4">
             {step === "signIn" ? (
               <>
@@ -51,6 +67,12 @@ export default function SignIn() {
                   size="lg"
                   onPress={async () => {
                     try {
+                      const user = await checkUserEmail({ email });
+                      if (!user) {
+                        throw new Error(
+                          "This email isn't registered on our platform."
+                        );
+                      }
                       await signIn("resend-otp", { email });
                       setStep({ email });
                     } catch (error) {
@@ -84,7 +106,10 @@ export default function SignIn() {
                       await signIn("resend-otp", { email, code });
                       router.replace("/goals");
                     } catch (error) {
-                      console.log(error);
+                      if (error instanceof Error) {
+                        console.log(error);
+                        setError(error.message);
+                      }
                     }
                   }}
                 >
