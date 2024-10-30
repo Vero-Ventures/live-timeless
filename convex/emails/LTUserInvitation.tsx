@@ -10,17 +10,20 @@ import {
   Img,
   Button,
 } from "@react-email/components";
+import type { Id } from "../_generated/dataModel";
 
 interface LTInvitationProps {
   role: string;
   owner: string;
   org: string;
+  invitationId: Id<"invitations">;
 }
 
 export default function LTInvitation({
   role = "User",
   org = "Vero Ventures",
   owner = "Yaniv Talmor",
+  invitationId,
 }: LTInvitationProps) {
   return (
     <Html>
@@ -59,6 +62,7 @@ export default function LTInvitation({
                 organization on Live Timeless with the{" "}
                 <span
                   style={{
+                    textTransform: "capitalize",
                     fontWeight: "bold",
                   }}
                 >
@@ -85,7 +89,10 @@ export default function LTInvitation({
                     marginRight: "auto",
                   }}
                 >
-                  <Button style={button} href="https://livetimeless.com/">
+                  <Button
+                    style={button}
+                    href={`${process.env.DASHBOARD_URL}/verify-member?invitationId=${invitationId}`}
+                  >
                     Accept Invitation
                   </Button>
                 </Section>

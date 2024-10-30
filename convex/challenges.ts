@@ -9,6 +9,7 @@ export const getChallengeByIdWthHasJoined = query({
     if (!userId) {
       throw new Error("Not logged in");
     }
+
     const challenge = await ctx.db.get(challengeId);
     if (!challenge) {
       throw new Error("Not found");
@@ -60,7 +61,24 @@ export const getChallengeById = query({
 
 export const listChallenges = query({
   handler: async (ctx) => {
-    const challenges = await ctx.db.query("challenges").collect();
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Not logged in");
+    }
+
+    const user = await ctx.db.get(userId);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const challenges = await ctx.db
+      .query("challenges")
+      .withIndex("by_organization_id", (q) =>
+        q.eq("organizationId", user.organizationId)
+      )
+      .collect();
+
     return challenges;
   },
 });
@@ -78,7 +96,25 @@ export const createChallenge = mutation({
     endDate: v.number(),
   },
   handler: async (ctx, args) => {
-    await ctx.db.insert("challenges", args);
+    const userId = await getAuthUserId(ctx);
+
+    if (!userId) {
+      throw new Error("Not logged in");
+    }
+
+    const user = await ctx.db.get(userId);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (user.role === "user") {
+      throw new Error("Forbidden action");
+    }
+    await ctx.db.insert("challenges", {
+      ...args,
+      organizationId: user.organizationId,
+    });
   },
 });
 
@@ -96,6 +132,30 @@ export const updateChallenge = mutation({
     endDate: v.number(),
   },
   handler: async (ctx, { challengeId, ...args }) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (!userId) {
+      throw new Error("Not logged in");
+    }
+
+    const user = await ctx.db.get(userId);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (user.role === "user") {
+      throw new Error("Forbidden action");
+    }
+    const challenge = await ctx.db.get(challengeId);
+
+    if (!challenge) {
+      throw new Error("Challenge not found");
+    }
+
+    if (challenge.organizationId !== user.organizationId) {
+      throw new Error("User doesn't belong in the organization");
+    }
     await ctx.db.patch(challengeId, args);
   },
 });
@@ -105,6 +165,30 @@ export const deleteChallenge = mutation({
     challengeId: v.id("challenges"),
   },
   handler: async (ctx, { challengeId }) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (!userId) {
+      throw new Error("Not logged in");
+    }
+
+    const user = await ctx.db.get(userId);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (user.role === "user") {
+      throw new Error("Forbidden action");
+    }
+    const challenge = await ctx.db.get(challengeId);
+
+    if (!challenge) {
+      throw new Error("Challenge not found");
+    }
+
+    if (challenge.organizationId !== user.organizationId) {
+      throw new Error("User doesn't belong in the organization");
+    }
     await ctx.db.delete(challengeId);
   },
 });
@@ -134,13 +218,29 @@ export const joinChallenge = mutation({
   args: {
     challengeId: v.id("challenges"),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, { challengeId }) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) {
       throw new Error("Not logged in");
     }
+    const user = await ctx.db.get(userId);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const challenge = await ctx.db.get(challengeId);
+
+    if (!challenge) {
+      throw new Error("Challenge not found");
+    }
+
+    if (challenge.organizationId !== user.organizationId) {
+      throw new Error("User doesn't belong in the organization");
+    }
+
     await ctx.db.insert("challengeParticipants", {
-      challengeId: args.challengeId,
+      challengeId,
       userId,
     });
   },
@@ -174,21 +274,30 @@ export const removeFromChallenge = mutation({
   args: {
     userId: v.id("users"),
     challengeId: v.id("challenges"),
-    organizationId: v.id("organizations"),
   },
-  handler: async (ctx, { challengeId, userId, organizationId }) => {
-    const member = await ctx.db
-      .query("members")
-      .withIndex("by_user_id_organization_id", (q) =>
-        q.eq("userId", userId).eq("organizationId", organizationId)
-      )
-      .unique();
-    if (!member) {
-      throw new Error("Not a member of any organization");
+  handler: async (ctx, { challengeId, userId }) => {
+    const currentUserId = await getAuthUserId(ctx);
+    if (currentUserId === null) {
+      return null;
     }
 
-    if (member.role === "user") {
-      throw new Error("Not the owner of the organization");
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (user.role === "user") {
+      throw new Error("Not the owner or admin of the organization");
+    }
+
+    const challenge = await ctx.db.get(challengeId);
+
+    if (!challenge) {
+      throw new Error("Challenge not found");
+    }
+
+    if (challenge.organizationId === user.organizationId) {
+      throw new Error("User doesn't belong to the organization");
     }
 
     const challengeParticipant = await ctx.db
@@ -197,6 +306,7 @@ export const removeFromChallenge = mutation({
         q.eq("challengeId", challengeId).eq("userId", userId)
       )
       .unique();
+
     if (!challengeParticipant) {
       throw new Error("User is not in the challenge");
     }

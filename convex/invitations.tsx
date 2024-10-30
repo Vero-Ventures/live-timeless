@@ -6,11 +6,13 @@ import {
   internalMutation,
   internalQuery,
   mutation,
+  query,
 } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { Resend } from "resend";
 import LTWelcome from "./emails/LTWelcome";
 import LTUserInvitation from "./emails/LTUserInvitation";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 const resend = new Resend(process.env.AUTH_RESEND_KEY);
 
@@ -21,116 +23,215 @@ export const sendOwnerInvitation = mutation({
     orgName: v.string(),
   },
   handler: async (ctx, args) => {
-    await ctx.scheduler.runAfter(
-      0,
-      internal.invitations.sendOwnerInvitationAction,
-      {
-        owner: args.owner,
-        orgName: args.orgName,
-      }
-    );
-  },
-});
-
-export const sendOwnerInvitationAction = internalAction({
-  args: {
-    owner: v.object({ email: v.string(), name: v.string() }),
-    orgName: v.string(),
-  },
-  handler: async (ctx, args) => {
-    const userId = await ctx.runMutation(internal.users.createUser, {
-      email: args.owner.email,
-      name: args.owner.name,
-    });
     const orgId = await ctx.runMutation(
       internal.organizations.createOrganization,
       {
         name: args.orgName,
       }
     );
-    // put the newly created user in the members table with the newly created org
-    await ctx.runMutation(internal.members.createMember, {
-      orgId,
-      userId,
+
+    const userId = await ctx.runMutation(internal.users.createUser, {
+      email: args.owner.email,
+      name: args.owner.name,
+      organizationId: orgId,
       role: "owner",
     });
 
+    await ctx.runMutation(internal.users.createAuthAccount, {
+      email: args.owner.email,
+      provider: "resend-otp",
+      userId,
+    });
+
+    await ctx.scheduler.runAfter(
+      0,
+      internal.invitations.sendOwnerInvitationEmailAction,
+      {
+        owner: args.owner,
+        orgName: args.orgName,
+      }
+    );
+
+    return "success";
+  },
+});
+
+export const sendOwnerInvitationEmailAction = internalAction({
+  args: {
+    owner: v.object({ email: v.string(), name: v.string() }),
+    orgName: v.string(),
+  },
+  handler: async (_ctx, args) => {
     await resend.emails.send({
       from: "Live Timeless <no-reply@livetimeless.veroventures.com>",
       to: [args.owner.email],
       subject: "Welcome to Live Timeless",
       react: <LTWelcome email={args.owner.email} name={args.owner.name} />,
     });
-    // optionally return a value
-    return "success";
   },
 });
 
 // === User Invitations ===
-export const sendUserInvitation = mutation({
-  args: {
-    email: v.string(),
-    organizationId: v.id("organizations"),
-    role: v.string(),
-    expiresAt: v.number(),
-  },
-  handler: async (ctx, args) => {
-    const memberRole = await ctx.runQuery(
-      internal.utils.getMemberOrganizationRole,
-      {
-        organizationId: args.organizationId,
-      }
-    );
+export const listInvitations = query({
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
 
-    if (!memberRole?.isOwner && !memberRole?.isAdmin) {
+    const user = await ctx.db.get(userId);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (!(user.role === "owner") && !(user.role === "admin")) {
       throw new Error("Not the owner or admin of the organization");
     }
 
-    await ctx.scheduler.runAfter(
-      0,
-      internal.invitations.sendUserInvitationAction,
-      {
-        email: args.email,
-        organizationId: args.organizationId,
-        role: args.role,
-        expiresAt: args.expiresAt,
-      }
+    const invitations = await ctx.db
+      .query("invitations")
+      .withIndex("by_organization_id", (q) =>
+        q.eq("organizationId", user.organizationId)
+      )
+      .collect();
+
+    const updatedInvitations = await Promise.all(
+      invitations.map(async (invitation) => {
+        if (invitation.status === "pending") {
+          return invitation;
+        }
+
+        const user = await ctx.db
+          .query("users")
+          .withIndex("email", (q) => q.eq("email", invitation.email))
+          .unique();
+
+        if (!user) {
+          throw new Error("Users not found");
+        }
+
+        return {
+          ...invitation,
+          role: user.role,
+          userId: user._id,
+        };
+      })
+    );
+
+    return updatedInvitations;
+  },
+});
+
+export const sendUserInvitation = mutation({
+  args: {
+    emails: v.array(v.string()),
+    role: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
+
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (!(user.role === "owner") && !(user.role === "admin")) {
+      throw new Error("Not the owner or admin of the organization");
+    }
+
+    const owner = await ctx.runQuery(internal.users.getUserByOrgIdAndRole, {
+      organizationId: user.organizationId,
+      role: "owner",
+    });
+
+    await Promise.all(
+      args.emails.map(async (email) => {
+        const invitationId = await ctx.runMutation(
+          internal.invitations.createInvitation,
+          {
+            email,
+            organizationId: user.organizationId,
+            role: args.role,
+          }
+        );
+
+        const organization = await ctx.runQuery(
+          internal.organizations.getOrganizationById,
+          {
+            organizationId: user.organizationId,
+          }
+        );
+        await ctx.scheduler.runAfter(
+          0,
+          internal.invitations.sendUserInvitationEmailAction,
+          {
+            invitationId,
+            email,
+            organizationName: organization.name,
+            ownerName: owner.name || "Owner",
+            role: args.role,
+          }
+        );
+      })
     );
   },
 });
 
 export const resendUserInvitation = mutation({
   args: {
-    email: v.string(),
-    organizationId: v.id("organizations"),
-    role: v.string(),
-    expiresAt: v.number(),
+    invitationId: v.id("invitations"),
   },
-  handler: async (ctx, args) => {
-    const memberRole = await ctx.runQuery(
-      internal.utils.getMemberOrganizationRole,
-      {
-        organizationId: args.organizationId,
-      }
-    );
+  handler: async (ctx, { invitationId }) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
 
-    if (!memberRole?.isOwner && !memberRole?.isAdmin) {
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (user.role === "user") {
       throw new Error("Not the owner or admin of the organization");
     }
 
-    await ctx.runMutation(internal.invitations.deleteExistingInvitation, {
-      email: args.email,
-      organizationId: args.organizationId,
+    const thirtyDaysFromNow = addDays(new Date(), 30).getTime();
+
+    await ctx.db.patch(invitationId, {
+      expiresAt: thirtyDaysFromNow,
     });
+
+    const invitation = await ctx.db.get(invitationId);
+
+    if (!invitation) {
+      throw new Error("Invitation not found");
+    }
+
+    const owner = await ctx.runQuery(internal.users.getUserByOrgIdAndRole, {
+      organizationId: user.organizationId,
+      role: "owner",
+    });
+
+    const organization = await ctx.db.get(user.organizationId);
+
+    if (!organization) {
+      throw new Error("Organization not found");
+    }
 
     await ctx.scheduler.runAfter(
       0,
-      internal.invitations.sendUserInvitationAction,
+      internal.invitations.sendUserInvitationEmailAction,
       {
-        email: args.email,
-        organizationId: args.organizationId,
-        role: args.role,
-        expiresAt: args.expiresAt,
+        invitationId,
+        email: invitation.email,
+        role: invitation.role,
+        ownerName: owner.name || "Owner",
+        organizationName: organization.name,
       }
     );
   },
@@ -145,6 +246,13 @@ export const acceptInvitation = mutation({
     if (!invitation) {
       throw new Error("Invitation not found");
     }
+    const user = await ctx.runQuery(internal.users.getUserByEmail, {
+      email: invitation.email,
+    });
+
+    if (user) {
+      return;
+    }
 
     await ctx.db.patch(args.invitationId, {
       status: "accepted",
@@ -153,12 +261,14 @@ export const acceptInvitation = mutation({
 
     const userId = await ctx.runMutation(internal.users.createUser, {
       email: invitation.email,
+      organizationId: invitation.organizationId,
+      role: invitation.role,
     });
 
-    await ctx.runMutation(internal.members.createMember, {
-      orgId: invitation.organizationId,
+    await ctx.runMutation(internal.users.createAuthAccount, {
+      email: invitation.email,
+      provider: "resend-otp",
       userId,
-      role: invitation.role,
     });
   },
 });
@@ -166,17 +276,19 @@ export const acceptInvitation = mutation({
 export const deleteInvitation = mutation({
   args: {
     invitationId: v.id("invitations"),
-    organizationId: v.id("organizations"),
   },
   handler: async (ctx, args) => {
-    const memberRole = await ctx.runQuery(
-      internal.utils.getMemberOrganizationRole,
-      {
-        organizationId: args.organizationId,
-      }
-    );
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
 
-    if (!memberRole?.isOwner && !memberRole?.isAdmin) {
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (!(user.role === "owner") && !(user.role === "admin")) {
       throw new Error("Not the owner or admin of the organization");
     }
 
@@ -184,40 +296,15 @@ export const deleteInvitation = mutation({
   },
 });
 
-export const sendUserInvitationAction = internalAction({
+export const sendUserInvitationEmailAction = internalAction({
   args: {
     email: v.string(),
-    organizationId: v.id("organizations"),
+    invitationId: v.id("invitations"),
+    ownerName: v.string(),
     role: v.string(),
-    expiresAt: v.number(),
+    organizationName: v.string(),
   },
-  handler: async (ctx, args) => {
-    await ctx.runMutation(internal.invitations.createInvitation, {
-      email: args.email,
-      organizationId: args.organizationId,
-      role: args.role,
-      expiresAt: args.expiresAt,
-    });
-
-    const organization = await ctx.runQuery(
-      internal.organizations.getOrganizationById,
-      {
-        organizationId: args.organizationId,
-      }
-    );
-
-    // Get the owner of the organization
-    const member = await ctx.runQuery(
-      internal.members.getMemberByOrgIdAndRole,
-      {
-        orgId: args.organizationId,
-        role: "owner",
-      }
-    );
-    const owner = await ctx.runQuery(internal.users.getUserById, {
-      userId: member.userId,
-    });
-
+  handler: async (_ctx, args) => {
     await resend.emails.send({
       from: "Live Timeless <no-reply@livetimeless.veroventures.com>",
       to: [args.email],
@@ -225,13 +312,12 @@ export const sendUserInvitationAction = internalAction({
       react: (
         <LTUserInvitation
           role={args.role}
-          org={organization.name}
-          owner={owner.name || "Owner"}
+          org={args.organizationName}
+          owner={args.ownerName}
+          invitationId={args.invitationId}
         />
       ),
     });
-
-    return "success";
   },
 });
 
@@ -256,7 +342,6 @@ export const createInvitation = internalMutation({
     email: v.string(),
     organizationId: v.id("organizations"),
     role: v.string(),
-    expiresAt: v.number(),
   },
   handler: async (ctx, args) => {
     const thirtyDaysFromNow = addDays(new Date(), 30).getTime();

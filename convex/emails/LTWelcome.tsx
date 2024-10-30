@@ -58,7 +58,10 @@ export default function LTWelcome({
                     marginRight: "auto",
                   }}
                 >
-                  <Button style={button} href="https://livetimeless.com/">
+                  <Button
+                    style={button}
+                    href={`${process.env.DASHBOARD_URL}/sign-in`}
+                  >
                     Login to Admin Dashboard
                   </Button>
                 </Section>
@@ -137,6 +140,7 @@ const codeText = {
   fontSize: "16px",
   margin: "20px 0px 40px",
   textAlign: "center" as const,
+  textDecoration: "none",
 };
 
 const validityText = {

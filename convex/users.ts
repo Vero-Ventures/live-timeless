@@ -15,12 +15,39 @@ export const currentUser = query({
   },
 });
 
-export const getUserById = internalQuery({
+export const getUsers = internalQuery({
   args: {
-    userId: v.id("users"),
+    organizationId: v.id("organizations"),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.db.get(args.userId);
+    const users = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("organizationId"), args.organizationId))
+      .collect();
+
+    if (!users) {
+      throw new Error("Users not found");
+    }
+
+    return users;
+  },
+});
+
+export const getUserByOrgIdAndRole = internalQuery({
+  args: {
+    organizationId: v.id("organizations"),
+    role: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("organizationId"), args.organizationId),
+          q.eq(q.field("role"), args.role)
+        )
+      )
+      .unique();
 
     if (!user) {
       throw new Error("User not found");
@@ -30,16 +57,64 @@ export const getUserById = internalQuery({
   },
 });
 
+export const getUserByEmail = internalQuery({
+  args: {
+    email: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", args.email))
+      .unique();
+    return user;
+  },
+});
+
 export const createUser = internalMutation({
   args: {
     name: v.optional(v.string()),
     email: v.string(),
+    organizationId: v.id("organizations"),
+    role: v.string(),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("users", {
       ...(args.name && { name: args.name }),
       email: args.email,
+      organizationId: args.organizationId,
+      role: args.role,
     });
+  },
+});
+
+export const createAuthAccount = internalMutation({
+  args: {
+    provider: v.string(),
+    email: v.string(),
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("authAccounts", {
+      providerAccountId: args.email,
+      provider: args.provider,
+      userId: args.userId,
+    });
+  },
+});
+
+export const deleteAuthAccount = mutation({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const authAccount = await ctx.db
+      .query("authAccounts")
+      .withIndex("userIdAndProvider", (q) => q.eq("userId", args.userId))
+      .unique();
+    if (!authAccount) {
+      throw new Error("Can't find auth account to delete");
+    }
+    await ctx.db.delete(authAccount._id);
   },
 });
 
@@ -99,4 +174,38 @@ export const updatePartialProfile = mutation({
       weight: args.weight,
     });
   },
+});
+
+export const deleteUser = mutation({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
+
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (!(user.role === "owner") && !(user.role === "admin")) {
+      throw new Error("Not the owner or admin of the organization");
+    }
+
+    await ctx.db.delete(args.userId);
+  },
+});
+
+export const checkUserEmail = mutation({
+  args: {
+    email: v.string(),
+  },
+  handler: async (ctx, { email }) =>
+    ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", email))
+      .unique(),
 });

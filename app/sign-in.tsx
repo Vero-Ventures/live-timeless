@@ -9,11 +9,19 @@ import { Input } from "~/components/ui/input";
 import { fontFamily } from "~/lib/font";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import PrivacyPolicyButton from "~/components/privacy-policy-button";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { AlertCircle } from "~/lib/icons/AlertCircle";
+import { useMutation } from "convex/react";
+import { api } from "~/convex/_generated/api";
+
 export default function SignIn() {
   const { signIn } = useAuthActions();
   const [step, setStep] = useState<"signIn" | { email: string }>("signIn");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+  const checkUserEmail = useMutation(api.users.checkUserEmail);
+  const [isPending, setIsPending] = useState(false);
 
   return (
     <SafeAreaView
@@ -31,6 +39,16 @@ export default function SignIn() {
             />
           </View>
           <View className="gap-4 p-4">
+            {!!error && (
+              <Alert
+                icon={AlertCircle}
+                variant="destructive"
+                className="max-w-xl"
+              >
+                <AlertTitle>Something went wrong!</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             {step === "signIn" ? (
               <>
                 <Text
@@ -47,18 +65,32 @@ export default function SignIn() {
                   autoComplete="email"
                 />
                 <Button
+                  disabled={isPending}
                   variant="default"
                   size="lg"
                   onPress={async () => {
                     try {
+                      setError("");
+                      setIsPending(true);
+                      const user = await checkUserEmail({ email });
+                      if (!user) {
+                        throw new Error(
+                          "This email isn't registered on our platform. Please accept your email invitation to proceed."
+                        );
+                      }
                       await signIn("resend-otp", { email });
                       setStep({ email });
                     } catch (error) {
-                      console.log(error);
+                      if (error instanceof Error) {
+                        console.log(error);
+                        setError(error.message);
+                      }
+                    } finally {
+                      setIsPending(false);
                     }
                   }}
                 >
-                  <Text>Send Code</Text>
+                  <Text>{isPending ? "Sending..." : "Send Code"}</Text>
                 </Button>
               </>
             ) : (
@@ -77,14 +109,21 @@ export default function SignIn() {
                   autoComplete="one-time-code"
                 />
                 <Button
+                  disabled={isPending}
                   variant="default"
                   size="lg"
                   onPress={async () => {
                     try {
+                      setIsPending(true);
                       await signIn("resend-otp", { email, code });
                       router.replace("/goals");
                     } catch (error) {
-                      console.log(error);
+                      if (error instanceof Error) {
+                        console.log(error);
+                        setError(error.message);
+                      }
+                    } finally {
+                      setIsPending(false);
                     }
                   }}
                 >
