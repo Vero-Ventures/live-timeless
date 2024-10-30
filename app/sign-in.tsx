@@ -70,6 +70,7 @@ export default function SignIn() {
                   size="lg"
                   onPress={async () => {
                     try {
+                      setError("");
                       setIsPending(true);
                       const user = await checkUserEmail({ email });
                       if (!user) {
