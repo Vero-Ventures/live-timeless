@@ -21,6 +21,8 @@ export default function SignIn() {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const checkUserEmail = useMutation(api.users.checkUserEmail);
+  const [isPending, setIsPending] = useState(false);
+
   return (
     <SafeAreaView
       style={{
@@ -36,17 +38,17 @@ export default function SignIn() {
               className="mx-auto mt-6 h-[40px] w-[168px]"
             />
           </View>
-          {!!error && (
-            <Alert
-              icon={AlertCircle}
-              variant="destructive"
-              className="max-w-xl"
-            >
-              <AlertTitle>Something went wrong!</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
           <View className="gap-4 p-4">
+            {!!error && (
+              <Alert
+                icon={AlertCircle}
+                variant="destructive"
+                className="max-w-xl"
+              >
+                <AlertTitle>Something went wrong!</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             {step === "signIn" ? (
               <>
                 <Text
@@ -63,24 +65,31 @@ export default function SignIn() {
                   autoComplete="email"
                 />
                 <Button
+                  disabled={isPending}
                   variant="default"
                   size="lg"
                   onPress={async () => {
                     try {
+                      setIsPending(true);
                       const user = await checkUserEmail({ email });
                       if (!user) {
                         throw new Error(
-                          "This email isn't registered on our platform."
+                          "This email isn't registered on our platform. Please accept your email invitation to proceed."
                         );
                       }
                       await signIn("resend-otp", { email });
                       setStep({ email });
                     } catch (error) {
-                      console.log(error);
+                      if (error instanceof Error) {
+                        console.log(error);
+                        setError(error.message);
+                      }
+                    } finally {
+                      setIsPending(false);
                     }
                   }}
                 >
-                  <Text>Send Code</Text>
+                  <Text>{isPending ? "Sending..." : "Send Code"}</Text>
                 </Button>
               </>
             ) : (
@@ -99,10 +108,12 @@ export default function SignIn() {
                   autoComplete="one-time-code"
                 />
                 <Button
+                  disabled={isPending}
                   variant="default"
                   size="lg"
                   onPress={async () => {
                     try {
+                      setIsPending(true);
                       await signIn("resend-otp", { email, code });
                       router.replace("/goals");
                     } catch (error) {
@@ -110,6 +121,8 @@ export default function SignIn() {
                         console.log(error);
                         setError(error.message);
                       }
+                    } finally {
+                      setIsPending(false);
                     }
                   }}
                 >
