@@ -80,6 +80,7 @@ export const listInvitations = query({
     }
 
     const user = await ctx.db.get(userId);
+
     if (!user) {
       throw new Error("User not found");
     }
