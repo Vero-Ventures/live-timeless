@@ -11,7 +11,12 @@ export const currentUser = query({
       return null;
     }
     const user = await ctx.db.get(userId);
-    return user;
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    return { ...user, organization: await ctx.db.get(user.organizationId) };
   },
 });
 
