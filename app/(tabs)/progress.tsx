@@ -1,5 +1,3 @@
-// app/tabs/Progress.tsx
-
 import React from "react";
 import {
   FlatList,
@@ -10,7 +8,6 @@ import {
   Dimensions,
 } from "react-native";
 import HabitStatCard from "../../components/ui/HabitStatCard";
-import { HabitStat } from "../../convex/fetchHabitStats";
 import { fontFamily } from "~/lib/font";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -23,15 +20,15 @@ const Progress: React.FC = () => {
   // Use useQuery to fetch habit stats for the authenticated user
   const habits = useQuery(api.fetchHabitStats.fetchHabitStats);
 
-  const labels = Array.from({ length: 7 }, (_, i) =>
-    format(subDays(new Date(), 6 - i), "MMM dd")
+  const labels = Array.from({ length: 5 }, (_, i) =>
+    format(subDays(new Date(), 4 - i), "MMM dd")
   ); // Correct order: oldest to today
 
-  // Extract the last 7 days' completion rates from the first habit's dailyCompletionRates
+  // Extract the last 5 days' completion rates from the first habit's dailyCompletionRates
   const dailyCompletionRates =
     habits && habits[0]?.dailyCompletionRates
       ? habits[0].dailyCompletionRates
-          .slice(-7)
+          .slice(-5)
           .map((rate) => rate.completionRate || 0)
       : Array(7).fill(0); // Fallback to zeros if data isn't available
 
@@ -61,29 +58,38 @@ const Progress: React.FC = () => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <Text style={styles.title}>
-          Progress - Avg Completion: {overallCompletionRate.toFixed(1)}%
+          Avg Completion: {overallCompletionRate.toFixed(1)}%
         </Text>
 
-        <BarChart
-          data={chartData}
-          width={screenWidth - 32}
-          height={220}
-          yAxisLabel=""
-          yAxisSuffix="%"
-          chartConfig={{
-            backgroundColor: "#1E2923",
-            backgroundGradientFrom: "#1E2923",
-            backgroundGradientTo: "#08130D",
-            decimalPlaces: 1,
-            color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-            style: {
-              borderRadius: 16,
-            },
-          }}
-          verticalLabelRotation={0}
-          style={styles.chart}
-        />
+        <View style={styles.chartWrapper}>
+          <BarChart
+            data={chartData}
+            width={screenWidth - 40} // Adjusted width to give more space on the right side
+            height={220}
+            yAxisLabel=""
+            yAxisSuffix="%"
+            xLabelsOffset={0}
+            chartConfig={{
+              backgroundColor: "transparent",
+              backgroundGradientFrom: "#1E202B",
+              backgroundGradientTo: "#1E202B",
+              decimalPlaces: 1,
+              color: () => `rgba(120, 120, 255, 1)`,
+              labelColor: () => `rgba(255, 255, 255, 1)`,
+              fillShadowGradientOpacity: 1, // Set opacity for the bars (1 for solid color)
+              propsForBackgroundLines: {
+                stroke: "#ffffff", // White grid lines
+                transform: [{ translateX: 75 }], // Shift grid lines to the right
+              },
+              propsForLabels: {
+                fill: "#ffffff",
+                fontSize: 10,
+              },
+            }}
+            verticalLabelRotation={0}
+            style={styles.chart}
+          />
+        </View>
 
         {/* List of Habit Stats */}
         <FlatList
@@ -128,9 +134,16 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     marginBottom: 16,
   },
-  chart: {
+  chartWrapper: {
     marginBottom: 16,
-    borderRadius: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#ffffff",
+    paddingHorizontal: 3,
+    paddingVertical: 5,
+  },
+  chart: {
+    paddingRight: 55,
   },
   listContentContainer: {
     paddingBottom: 60,
