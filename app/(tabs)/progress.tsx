@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from 'react';
 import {
   FlatList,
   View,
@@ -13,12 +13,40 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { BarChart } from "react-native-chart-kit";
 import { format, subDays } from "date-fns";
+import { Menu, Button, Provider } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const screenWidth = Dimensions.get("window").width;
 
 const Progress: React.FC = () => {
   // Use useQuery to fetch habit stats for the authenticated user
   const habits = useQuery(api.habitStats.fetchHabitStats);
+
+  // Filter Header
+  const [visible, setVisible] = useState(false);
+  const year = new Date().getFullYear();
+  const month = () => {
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    return monthNames[new Date().getMonth()];
+  }
+  const filterSelections = [
+    "Last 7 days",
+    "Last 30 days",
+    "Last 90 days",
+    "This Week",
+    `${month()} ${year}`,
+    `${year}`
+  ];
+  const [filterByTitle, setFilterByTitle] = useState(filterSelections[1]);
+  const openMenu = () => setVisible(true);
+  const closeMenu = () => setVisible(false);
+  const handleMenuItemPress = (index: number) => {
+    setFilterByTitle(filterSelections[index]);
+    closeMenu();
+  }
 
   const labels = Array.from({ length: 5 }, (_, i) =>
     format(subDays(new Date(), 4 - i), "MMM dd")
@@ -35,7 +63,7 @@ const Progress: React.FC = () => {
   const overallCompletionRate =
     habits && habits.length
       ? habits.reduce((sum, habit) => sum + (habit.dailyAverage || 0), 0) /
-        habits.length
+      habits.length
       : 0;
 
   // Bar chart data
@@ -53,43 +81,63 @@ const Progress: React.FC = () => {
     return <Text style={styles.noDataText}>No habits data available.</Text>;
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        {/* Display Overall Completion Rate */}
-        <Text style={styles.title}>
-          Avg Completion: {overallCompletionRate.toFixed(1)}%
-        </Text>
+    <Provider>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+          <View>
+            <Menu
+              visible={visible}
+              onDismiss={closeMenu}
+              anchor={
+                <Button 
+                  labelStyle={ styles.title } 
+                  onPress={openMenu}
+                >
+                  {filterByTitle}
+                  <Icon name="arrow-drop-down" size={24} color="white" />
+                </Button>
+              }
+            >
+              {filterSelections.map((selection, index) => (
+                <Menu.Item key={index} onPress={() => {handleMenuItemPress(index)}} title={`${selection}`} />
+              ))}
+            </Menu>
+          </View>
+
+          <Text style={styles.title}>
+            Avg Completion: {overallCompletionRate.toFixed(1)}%
+          </Text>
 
         {/* Display Bar Chart for Daily Completion Rates */}
-        <View style={styles.chartWrapper}>
-          <BarChart
-            data={chartData}
-            width={screenWidth - 40} // Adjusted width to give more space on the right side
-            height={220}
-            yAxisLabel=""
-            yAxisSuffix="%"
-            xLabelsOffset={0}
-            chartConfig={{
-              backgroundColor: "transparent",
-              backgroundGradientFrom: "#1E202B",
-              backgroundGradientTo: "#1E202B",
-              decimalPlaces: 1,
-              color: () => `rgba(120, 120, 255, 1)`,
-              labelColor: () => `rgba(255, 255, 255, 1)`,
-              fillShadowGradientOpacity: 1, // Set opacity for the bars (1 for solid color)
-              propsForBackgroundLines: {
-                stroke: "#ffffff", // White grid lines
-                transform: [{ translateX: 75 }], // Shift grid lines to the right
-              },
-              propsForLabels: {
-                fill: "#ffffff",
-                fontSize: 10,
-              },
-            }}
-            verticalLabelRotation={0}
-            style={styles.chart}
-          />
-        </View>
+          <View style={styles.chartWrapper}>
+            <BarChart
+              data={chartData}
+              width={screenWidth - 40} // Adjusted width to give more space on the right side
+              height={220}
+              yAxisLabel=""
+              yAxisSuffix="%"
+              xLabelsOffset={0}
+              chartConfig={{
+                backgroundColor: "transparent",
+                backgroundGradientFrom: "#1E202B",
+                backgroundGradientTo: "#1E202B",
+                decimalPlaces: 1,
+                color: () => `rgba(120, 120, 255, 1)`,
+                labelColor: () => `rgba(255, 255, 255, 1)`,
+                fillShadowGradientOpacity: 1, // Set opacity for the bars (1 for solid color)
+                propsForBackgroundLines: {
+                  stroke: "#ffffff", // White grid lines
+                  transform: [{ translateX: 75 }], // Shift grid lines to the right
+                },
+                propsForLabels: {
+                  fill: "#ffffff",
+                  fontSize: 10,
+                },
+              }}
+              verticalLabelRotation={0}
+              style={styles.chart}
+            />
+          </View>
 
         {/* List of Habit Stats - Displayed below the Bar Chart */}
         <FlatList
@@ -121,6 +169,7 @@ const Progress: React.FC = () => {
         />
       </View>
     </SafeAreaView>
+    </Provider>
   );
 };
 
