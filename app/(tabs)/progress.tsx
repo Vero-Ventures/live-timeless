@@ -1,7 +1,10 @@
+// app/tabs/Progress.tsx
+
 import React, { useEffect, useState } from "react";
-import { View, Text } from "react-native";
+import { FlatList, View, Text, SafeAreaView, StyleSheet } from "react-native";
 import HabitStatCard from "../../components/ui/HabitStatCard";
 import { HabitStat } from "../../convex/fetchHabitStats"; // Import HabitStat type from backend
+import { fontFamily } from "~/lib/font";
 
 const Progress: React.FC = () => {
   const [habits, setHabits] = useState<HabitStat[] | null>(null);
@@ -54,26 +57,80 @@ const Progress: React.FC = () => {
     fetchData();
   }, []);
 
-  if (loading) return <Text>Loading...</Text>;
-  if (!habits) return <Text>No habits data available.</Text>;
+  if (loading) return <Text style={styles.loadingText}>Loading...</Text>;
+  if (!habits)
+    return <Text style={styles.noDataText}>No habits data available.</Text>;
 
   return (
-    <View>
-      <Text>Progress</Text>
-      {habits.map((habit) => (
-        <HabitStatCard
-          key={habit._id}
-          name={habit.name}
-          duration={habit.duration}
-          longestStreak={habit.longestStreak}
-          total={habit.total}
-          dailyAverage={habit.dailyAverage}
-          skipped={habit.skipped}
-          failed={habit.failed}
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Progress</Text>
+
+        <FlatList
+          data={habits}
+          contentContainerStyle={styles.listContentContainer}
+          ListEmptyComponent={() => (
+            <Text style={styles.noDataText}>No habits data available.</Text>
+          )}
+          renderItem={({ item }) => (
+            <View style={styles.cardWrapper}>
+              <HabitStatCard
+                name={item.name}
+                duration={item.duration}
+                longestStreak={item.longestStreak}
+                total={item.total}
+                dailyAverage={item.dailyAverage}
+                skipped={item.skipped}
+                failed={item.failed}
+              />
+            </View>
+          )}
+          keyExtractor={(item) => item._id}
         />
-      ))}
-    </View>
+      </View>
+    </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#082139", // Background color consistent with Challenges page
+  },
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#082139",
+  },
+  title: {
+    fontFamily: fontFamily.openSans.bold,
+    fontSize: 24,
+    color: "#ffffff",
+    marginBottom: 16,
+  },
+  listContentContainer: {
+    paddingBottom: 60,
+  },
+  cardWrapper: {
+    backgroundColor: "#0e2942",
+    borderRadius: 8,
+    marginBottom: 10,
+    padding: 16,
+  },
+  loadingText: {
+    fontFamily: fontFamily.openSans.medium,
+    fontSize: 16,
+    color: "#ffffff",
+    textAlign: "center",
+    marginTop: 20,
+  },
+  noDataText: {
+    fontFamily: fontFamily.openSans.medium,
+    fontSize: 16,
+    color: "#ffffff",
+    textAlign: "center",
+    marginTop: 20,
+  },
+});
 
 export default Progress;

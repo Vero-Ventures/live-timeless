@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import { Tabs } from "expo-router";
 import { User } from "~/lib/icons/User";
-import { Goal, Mountain } from "lucide-react-native";
+import { Goal, Mountain, TrendingUp } from "lucide-react-native";
 import { fontFamily } from "~/lib/font";
 import { Star } from "~/lib/icons/Star";
 
@@ -42,7 +42,7 @@ export default function TabLayout() {
             headerShown: false,
             tabBarIcon: ({ color }) => (
               <View style={{ alignItems: "center" }}>
-                <Mountain color={color} />
+                <TrendingUp color={color} />
               </View>
             ),
           }}
