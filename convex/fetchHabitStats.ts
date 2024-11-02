@@ -1,4 +1,5 @@
 import { query } from "./_generated/server";
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 
 // Define the HabitStat type for the backend
@@ -13,22 +14,24 @@ export type HabitStat = {
   failed: number;
 };
 
-export const fetchHabitStats = query(async ({ db, auth }) => {
-  // Fetch the current user from Convex auth
-  const identity = await auth.getUserIdentity();
-  if (!identity) throw new Error("User not authenticated");
+export const fetchHabitStats = query(async (ctx) => {
+  // Fetch the authenticated user's ID directly
+  const userId = await getAuthUserId(ctx);
+  if (!userId) {
+    console.error("User not authenticated");
+    throw new Error("User not authenticated");
+  }
 
-  const user = await db
-    .query("users")
-    .filter((q) => q.eq("email", identity.email))
-    .first();
-  if (!user) throw new Error("User not found");
+  console.log("Authenticated User ID:", userId);
 
-  // Fetch the habit stats based on the user
-  const goals = await db
+  // Fetch the habit stats based on the user ID
+  const goals = await ctx.db
     .query("goals")
-    .withIndex("by_user_id", (q) => q.eq("userId", user._id))
+    .withIndex("by_user_id", (q) => q.eq("userId", userId))
     .collect();
+
+  console.log("Goals found for user:", goals);
+
   const stats: HabitStat[] = goals.map((goal) => {
     // Assume some predefined logic for calculating habit stats
     return {
@@ -48,26 +51,21 @@ export const fetchHabitStats = query(async ({ db, auth }) => {
 
 // Placeholder functions for calculations
 function calculateLongestStreak(goal: any): number {
-  // Implement actual logic
-  return 0;
+  return 0; // Implement actual logic
 }
 
 function calculateTotal(goal: any): number {
-  // Implement actual logic
-  return 0;
+  return 0; // Implement actual logic
 }
 
 function calculateDailyAverage(goal: any): number {
-  // Implement actual logic
-  return 0;
+  return 0;// Implement actual logic
 }
 
 function calculateSkipped(goal: any): number {
-  // Implement actual logic
-  return 0;
+  return 0; // Implement actual logic
 }
 
 function calculateFailed(goal: any): number {
-  // Implement actual logic
-  return 0;
+  return 0; // Implement actual logic
 }

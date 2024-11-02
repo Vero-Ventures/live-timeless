@@ -1,71 +1,69 @@
 // app/tabs/Progress.tsx
 
-import React, { useEffect, useState } from "react";
-import { FlatList, View, Text, SafeAreaView, StyleSheet } from "react-native";
+import React from "react";
+import {
+  FlatList,
+  View,
+  Text,
+  SafeAreaView,
+  StyleSheet,
+  Dimensions,
+} from "react-native";
 import HabitStatCard from "../../components/ui/HabitStatCard";
-import { HabitStat } from "../../convex/fetchHabitStats"; // Import HabitStat type from backend
+import { HabitStat } from "../../convex/fetchHabitStats";
 import { fontFamily } from "~/lib/font";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { BarChart } from "react-native-chart-kit";
+
+const screenWidth = Dimensions.get("window").width;
 
 const Progress: React.FC = () => {
-  const [habits, setHabits] = useState<HabitStat[] | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Use useQuery to fetch habit stats for the authenticated user
+  const habits = useQuery(api.fetchHabitStats.fetchHabitStats);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Generate dummy data
-        const dummyHabits: HabitStat[] = [
-          {
-            _id: "1",
-            name: "Exercise",
-            duration: "30 mins per day",
-            longestStreak: 10,
-            total: 300,
-            dailyAverage: 30,
-            skipped: 2,
-            failed: 1,
-          },
-          {
-            _id: "2",
-            name: "Reading",
-            duration: "20 mins per day",
-            longestStreak: 15,
-            total: 200,
-            dailyAverage: 20,
-            skipped: 1,
-            failed: 0,
-          },
-          {
-            _id: "3",
-            name: "Meditation",
-            duration: "10 mins per day",
-            longestStreak: 20,
-            total: 100,
-            dailyAverage: 10,
-            skipped: 0,
-            failed: 0,
-          },
-        ];
-        setHabits(dummyHabits);
-      } catch (error) {
-        console.error("Error generating dummy habit stats:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading) return <Text style={styles.loadingText}>Loading...</Text>;
-  if (!habits)
+  if (!habits) return <Text style={styles.loadingText}>Loading...</Text>;
+  if (habits.length === 0)
     return <Text style={styles.noDataText}>No habits data available.</Text>;
+
+  // Data for the BarChart
+  const chartData = {
+    labels: habits.map((habit) => habit.name),
+    datasets: [
+      {
+        data: habits.map((habit) => habit.dailyAverage || 0),
+      },
+    ],
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <Text style={styles.title}>Progress</Text>
 
+        {/* Bar Graph at the Top */}
+        <BarChart
+          data={chartData}
+          width={screenWidth - 32} // width from container padding
+          height={220}
+          yAxisLabel=""
+          yAxisSuffix="%" // Adding yAxisSuffix as required by the library
+          chartConfig={{
+            backgroundColor: "#1E2923",
+            backgroundGradientFrom: "#1E2923",
+            backgroundGradientTo: "#08130D",
+            decimalPlaces: 1, // optional, shows one decimal place
+            color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            style: {
+              borderRadius: 16,
+            },
+          }}
+          verticalLabelRotation={30} // Rotate labels for readability
+          style={styles.chart}
+        />
+
+        {/* List of Habit Stats */}
         <FlatList
           data={habits}
           contentContainerStyle={styles.listContentContainer}
@@ -95,7 +93,7 @@ const Progress: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#082139", // Background color consistent with Challenges page
+    backgroundColor: "#082139",
   },
   container: {
     flex: 1,
@@ -107,6 +105,10 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#ffffff",
     marginBottom: 16,
+  },
+  chart: {
+    marginBottom: 16,
+    borderRadius: 8,
   },
   listContentContainer: {
     paddingBottom: 60,
