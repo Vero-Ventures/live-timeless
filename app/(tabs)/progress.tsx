@@ -15,6 +15,7 @@ import { fontFamily } from "~/lib/font";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { BarChart } from "react-native-chart-kit";
+import { format, subDays } from "date-fns";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -22,44 +23,65 @@ const Progress: React.FC = () => {
   // Use useQuery to fetch habit stats for the authenticated user
   const habits = useQuery(api.fetchHabitStats.fetchHabitStats);
 
-  if (!habits) return <Text style={styles.loadingText}>Loading...</Text>;
-  if (habits.length === 0)
-    return <Text style={styles.noDataText}>No habits data available.</Text>;
+  const labels = Array.from({ length: 7 }, (_, i) =>
+    format(subDays(new Date(), 6 - i), "MMM dd")
+  ); // Correct order: oldest to today
 
-  // Data for the BarChart
+  // Extract the last 7 days' completion rates from the first habit's dailyCompletionRates
+  const dailyCompletionRates =
+    habits && habits[0]?.dailyCompletionRates
+      ? habits[0].dailyCompletionRates
+          .slice(-7)
+          .map((rate) => rate.completionRate || 0)
+      : Array(7).fill(0); // Fallback to zeros if data isn't available
+
+  console.log("Daily Completion Rates for Chart:", dailyCompletionRates);
+
+  const overallCompletionRate =
+    habits && habits.length
+      ? habits.reduce((sum, habit) => sum + (habit.dailyAverage || 0), 0) /
+        habits.length
+      : 0;
+
+  // Bar chart data
   const chartData = {
-    labels: habits.map((habit) => habit.name),
+    labels,
     datasets: [
       {
-        data: habits.map((habit) => habit.dailyAverage || 0),
+        data: dailyCompletionRates,
       },
     ],
   };
 
+  if (!habits) return <Text style={styles.loadingText}>Loading...</Text>;
+  if (habits.length === 0)
+    return <Text style={styles.noDataText}>No habits data available.</Text>;
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <Text style={styles.title}>Progress</Text>
+        <Text style={styles.title}>
+          Progress - Avg Completion: {overallCompletionRate.toFixed(1)}%
+        </Text>
 
-        {/* Bar Graph at the Top */}
         <BarChart
           data={chartData}
-          width={screenWidth - 32} // width from container padding
+          width={screenWidth - 32}
           height={220}
           yAxisLabel=""
-          yAxisSuffix="%" // Adding yAxisSuffix as required by the library
+          yAxisSuffix="%"
           chartConfig={{
             backgroundColor: "#1E2923",
             backgroundGradientFrom: "#1E2923",
             backgroundGradientTo: "#08130D",
-            decimalPlaces: 1, // optional, shows one decimal place
+            decimalPlaces: 1,
             color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
             labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             style: {
               borderRadius: 16,
             },
           }}
-          verticalLabelRotation={30} // Rotate labels for readability
+          verticalLabelRotation={0}
           style={styles.chart}
         />
 
