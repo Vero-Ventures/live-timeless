@@ -57,7 +57,7 @@ export default defineSchema({
     recurrence: v.string(),
     startDate: v.number(),
     endDate: v.number(),
-    organizationId: v.id("organizations"),
+    organizationId: v.optional(v.id("organizations")),
   }).index("by_organization_id", ["organizationId"]),
   challengeParticipants: defineTable({
     _id: v.id("challengeParticipants"),

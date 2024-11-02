@@ -36,6 +36,18 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="progress"
+          options={{
+            title: "Progress",
+            headerShown: false,
+            tabBarIcon: ({ color }) => (
+              <View style={{ alignItems: "center" }}>
+                <Mountain color={color} />
+              </View>
+            ),
+          }}
+        />
+        <Tabs.Screen
           name="challenges"
           options={{
             title: "Challenges",
