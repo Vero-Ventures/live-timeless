@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 // @ts-ignore
 import CalendarHeatmap from "react-native-calendar-heatmap";
+import { subDays, format } from "date-fns";
 
 interface HabitStatCardProps {
   name: string;
@@ -14,6 +15,45 @@ interface HabitStatCardProps {
   completionData: { date: string; count: number }[]; // Data format for the heatmap
 }
 
+// Helper function to generate the past 30 days in an 11-11-8 layout
+const generatePaddedCompletionData = (completionData: { date: string; count: number }[]) => {
+  const today = new Date();
+  
+  // Generate past 30 dates starting from today
+  const past30Days = Array.from({ length: 30 }, (_, i) => {
+    const date = subDays(today, i);
+    return {
+      date: format(date, "yyyy-MM-dd"),
+      count: 0, // Default count of 0 (you can update this based on actual data below)
+    };
+  }).reverse(); // Reverse to get dates in ascending order
+
+  // Update counts based on actual completionData
+  const mappedData = past30Days.map(day => {
+    const matchingData = completionData.find(d => d.date === day.date);
+    return {
+      ...day,
+      count: matchingData ? matchingData.count : 0, // Use count from completionData if available
+    };
+  });
+
+  // Split into 11-11-8 layout with padding cells as needed
+  const paddedCompletionData = [
+    { date: "", count: 0 }, // Empty padding cell
+    { date: "", count: 0 },
+    ...mappedData.slice(0, 11), // First 11 days
+    { date: "", count: 0 }, // Empty padding cell
+    { date: "", count: 0 },
+    ...mappedData.slice(11, 22), // Next 11 days
+    { date: "", count: 0 }, // Empty padding cells
+    { date: "", count: 0 },
+    { date: "", count: 0 },
+    ...mappedData.slice(22, 30), // Last 8 days
+  ];
+
+  return paddedCompletionData;
+};
+
 const HabitStatCard: React.FC<HabitStatCardProps> = ({
   name,
   duration,
@@ -24,19 +64,8 @@ const HabitStatCard: React.FC<HabitStatCardProps> = ({
   failed,
   completionData,
 }) => {
-  // Prepare padded data for 11-11-8 layout
-  const paddedCompletionData = [
-    { date: "2024-10-01", count: 0 }, // Empty cell for padding
-    { date: "2024-10-02", count: 0 },
-    ...completionData.slice(0, 11), // First 11 days
-    { date: "2024-10-13", count: 0 }, // Empty cell for padding
-    { date: "2024-10-14", count: 0 },
-    ...completionData.slice(11, 22), // Next 11 days
-    { date: "2024-10-25", count: 0 }, // Empty cell for padding
-    { date: "2024-10-26", count: 0 },
-    { date: "2024-10-27", count: 0 },
-    ...completionData.slice(22, 30), // Last 8 days
-  ];
+  // Generate padded data for the past 30 days
+  const paddedCompletionData = generatePaddedCompletionData(completionData);
 
   return (
     <View style={styles.card}>
@@ -60,6 +89,7 @@ const HabitStatCard: React.FC<HabitStatCardProps> = ({
         />
       </View>
 
+      {/* Stats */}
       <View style={styles.stats}>
         <View style={styles.statRow}>
           <Text style={styles.icon}>🔥</Text>
