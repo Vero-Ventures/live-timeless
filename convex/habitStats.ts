@@ -1,6 +1,6 @@
 import { query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { v } from "convex/values";
+import type { GoalLog } from "./goalLogs";
 
 // Define the HabitStat type for the backend
 export type HabitStat = {
@@ -40,14 +40,17 @@ export const fetchHabitStats = query(async (ctx) => {
         .query("goalLogs")
         .withIndex("by_goal_id", (q) => q.eq("goalId", goal._id))
         .collect();
-      
-      const total = calculateTotal(logs);
+
+      const total = calculateTotal();
       const dailyAverage = calculateDailyAverage(logs);
-      const longestStreak = calculateLongestStreak(logs);
-      const skipped = calculateSkipped(logs);
-      const failed = calculateFailed(logs);
-      const dailyCompletionRates = calculateDailyCompletionRates(logs, goal.unitValue);
-  
+      const longestStreak = calculateLongestStreak();
+      const skipped = calculateSkipped();
+      const failed = calculateFailed();
+      const dailyCompletionRates = calculateDailyCompletionRates(
+        logs,
+        goal.unitValue
+      );
+
       return {
         _id: goal._id,
         name: goal.name,
@@ -61,53 +64,56 @@ export const fetchHabitStats = query(async (ctx) => {
       };
     })
   );
-  
 
   return stats;
 });
 
 // Placeholder functions for calculations
-function calculateLongestStreak(goal: any): number {
+function calculateLongestStreak(): number {
   return 0; // Implement actual logic
 }
 
-function calculateTotal(goal: any): number {
+function calculateTotal(): number {
   return 0; // Implement actual logic
 }
 
 // Calculate the overall completion rate of each individual goal
-function calculateDailyAverage(logs: any[]): number {
+function calculateDailyAverage(logs: GoalLog[]): number {
   if (logs.length === 0) return 0;
 
-  const completedLogs = logs.filter(log => log.isComplete).length;
+  const completedLogs = logs.filter((log) => log.isComplete).length;
   return (completedLogs / logs.length) * 100; // Return as percentage
 }
 
-function calculateSkipped(goal: any): number {
+function calculateSkipped(): number {
   return 0; // Implement actual logic
 }
 
-function calculateFailed(goal: any): number {
+function calculateFailed(): number {
   return 0; // Implement actual logic
 }
 
-function calculateDailyCompletionRates(logs: any[], unitValue: number) {
+function calculateDailyCompletionRates(logs: GoalLog[], unitValue: number) {
   // Group logs by date
-  const dailyLogs = logs.reduce((acc, log) => {
-    const date = new Date(log.date).toISOString().split("T")[0]; // Format date as YYYY-MM-DD
-    if (!acc[date]) acc[date] = [];
-    acc[date].push(log);
-    return acc;
-  }, {} as Record<string, any[]>);
+  const dailyLogs = logs.reduce(
+    (acc, log) => {
+      const date = new Date(log.date).toISOString().split("T")[0]; // Format date as YYYY-MM-DD
+      if (!acc[date]) acc[date] = [];
+      acc[date].push(log);
+      return acc;
+    },
+    {} as Record<string, GoalLog[]>
+  );
 
   // Calculate daily completion rates
   const dailyCompletionRates = Object.keys(dailyLogs).map((date) => {
     const dayLogs = dailyLogs[date];
     const totalCompleted = dayLogs.reduce(
-      (sum: any, log: { unitsCompleted: any; }) => sum + log.unitsCompleted,
+      (sum: any, log: { unitsCompleted: any }) => sum + log.unitsCompleted,
       0
     );
-    const completionRate = (totalCompleted / (unitValue * dayLogs.length)) * 100;
+    const completionRate =
+      (totalCompleted / (unitValue * dayLogs.length)) * 100;
     return { date, completionRate };
   });
 

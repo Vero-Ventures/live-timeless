@@ -18,7 +18,7 @@ const screenWidth = Dimensions.get("window").width;
 
 const Progress: React.FC = () => {
   // Use useQuery to fetch habit stats for the authenticated user
-  const habits = useQuery(api.fetchHabitStats.fetchHabitStats);
+  const habits = useQuery(api.habitStats.fetchHabitStats);
 
   const labels = Array.from({ length: 5 }, (_, i) =>
     format(subDays(new Date(), 4 - i), "MMM dd")
@@ -31,8 +31,6 @@ const Progress: React.FC = () => {
           .slice(-5)
           .map((rate) => rate.completionRate || 0)
       : Array(7).fill(0); // Fallback to zeros if data isn't available
-
-  console.log("Daily Completion Rates for Chart:", dailyCompletionRates);
 
   const overallCompletionRate =
     habits && habits.length

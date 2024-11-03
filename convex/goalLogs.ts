@@ -2,6 +2,13 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+export type GoalLog = {
+  goalId: string;
+  isComplete: boolean;
+  date: number;
+  unitsCompleted: number;
+};
+
 export const getGoalLogById = query({
   args: { goalLogId: v.id("goalLogs") },
   handler: async (ctx, { goalLogId }) => {
