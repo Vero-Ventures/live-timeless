@@ -41,15 +41,13 @@ export const fetchHabitStats = query(async (ctx) => {
         .withIndex("by_goal_id", (q) => q.eq("goalId", goal._id))
         .collect();
 
-      const total = calculateTotal();
-      const dailyAverage = calculateDailyAverage(logs);
-      const longestStreak = calculateLongestStreak();
-      const skipped = calculateSkipped();
-      const failed = calculateFailed();
-      const dailyCompletionRates = calculateDailyCompletionRates(
-        logs,
-        goal.unitValue
-      );
+        const total = calculateTotal(logs);
+        const dailyAverage = calculateDailyAverage(logs);
+        const longestStreak = calculateLongestStreak(logs);
+        const skipped = calculateSkipped(logs, goal.unitValue);
+        const failed = calculateFailed(logs);
+        const dailyCompletionRates = calculateDailyCompletionRates(logs, goal.unitValue);
+        
 
       return {
         _id: goal._id,
@@ -68,13 +66,38 @@ export const fetchHabitStats = query(async (ctx) => {
   return stats;
 });
 
-// Placeholder functions for calculations
-function calculateLongestStreak(): number {
-  return 0; // Implement actual logic
+// Calculate the longest streak of consecutive completed days
+function calculateLongestStreak(logs: GoalLog[]): number {
+  // Sort logs by date to ensure they are in consecutive order
+  const sortedLogs = logs.sort((a, b) => a.date - b.date);
+  let longestStreak = 0;
+  let currentStreak = 0;
+  let previousDate: Date | null = null;
+
+  sortedLogs.forEach((log) => {
+    if (log.isComplete) {
+      const currentDate = new Date(log.date * 1000);
+      if (
+        previousDate &&
+        currentDate.getTime() - previousDate.getTime() === 86400000 // 1 day in milliseconds
+      ) {
+        currentStreak++;
+      } else {
+        currentStreak = 1; // Start a new streak
+      }
+      longestStreak = Math.max(longestStreak, currentStreak);
+      previousDate = currentDate;
+    } else {
+      currentStreak = 0; // Reset the streak on an incomplete day
+    }
+  });
+
+  return longestStreak;
 }
 
-function calculateTotal(): number {
-  return 0; // Implement actual logic
+// Calculate the total units completed
+function calculateTotal(logs: GoalLog[]): number {
+  return logs.reduce((sum, log) => sum + log.unitsCompleted, 0);
 }
 
 // Calculate the overall completion rate of each individual goal
@@ -85,12 +108,32 @@ function calculateDailyAverage(logs: GoalLog[]): number {
   return (completedLogs / logs.length) * 100; // Return as percentage
 }
 
-function calculateSkipped(): number {
-  return 0; // Implement actual logic
+// Calculate the number of skipped days in the past 30 days
+function calculateSkipped(logs: GoalLog[], unitValue: number): number {
+  const today = new Date();
+  let skippedDays = 0;
+
+  for (let i = 0; i < 30; i++) {
+    const dateToCheck = new Date(today);
+    dateToCheck.setDate(today.getDate() - i);
+    const formattedDate = dateToCheck.toISOString().split("T")[0];
+    
+    const logForDate = logs.find((log) => {
+      const logDate = new Date(log.date * 1000).toISOString().split("T")[0];
+      return logDate === formattedDate;
+    });
+
+    if (!logForDate) {
+      skippedDays++;
+    }
+  }
+
+  return skippedDays;
 }
 
-function calculateFailed(): number {
-  return 0; // Implement actual logic
+// Calculate the number of failed days (days where the goal was logged but incomplete)
+function calculateFailed(logs: GoalLog[]): number {
+  return logs.filter((log) => !log.isComplete).length;
 }
 
 function calculateDailyCompletionRates(logs: GoalLog[], unitValue: number) {

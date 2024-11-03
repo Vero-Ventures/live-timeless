@@ -55,10 +55,12 @@ const Progress: React.FC = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
+        {/* Display Overall Completion Rate */}
         <Text style={styles.title}>
           Avg Completion: {overallCompletionRate.toFixed(1)}%
         </Text>
 
+        {/* Display Bar Chart for Daily Completion Rates */}
         <View style={styles.chartWrapper}>
           <BarChart
             data={chartData}
@@ -89,7 +91,7 @@ const Progress: React.FC = () => {
           />
         </View>
 
-        {/* List of Habit Stats */}
+        {/* List of Habit Stats - Displayed below the Bar Chart */}
         <FlatList
           data={habits}
           contentContainerStyle={styles.listContentContainer}
@@ -105,8 +107,7 @@ const Progress: React.FC = () => {
                 total={item.total}
                 dailyAverage={item.dailyAverage}
                 skipped={item.skipped}
-                failed={item.failed}
-              />
+                failed={item.failed} completionData={[]}              />
             </View>
           )}
           keyExtractor={(item) => item._id}
