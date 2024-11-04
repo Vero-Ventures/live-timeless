@@ -24,8 +24,8 @@ const Calendar = ({ progressData, selectedDate }: CalendarProps) => {
     <View style={styles.container}>
       {/* Days of the Week */}
       <View style={styles.weekdays}>
-        {["S", "M", "T", "W", "T", "F", "S"].map((day) => (
-          <Text key={day} style={styles.weekday} className="text-gray-500">
+        {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
+          <Text key={index} style={styles.weekday} className="text-gray-500">
             {day}
           </Text>
         ))}
@@ -42,7 +42,7 @@ const Calendar = ({ progressData, selectedDate }: CalendarProps) => {
           const progress = progressData[index] || 0; // Default to 0 if no data
 
           return (
-            <View key={index} style={styles.dayContainer}>
+            <View key={`${index}`} style={styles.dayContainer}>
               {progress > 0 ? (
                 <Svg height="40" width="40" viewBox="0 0 40 40">
                   <Circle

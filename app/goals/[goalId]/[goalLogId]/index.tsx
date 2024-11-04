@@ -1,21 +1,44 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useMutation, useQuery } from "convex/react";
 import { Stack, useLocalSearchParams, router } from "expo-router";
-import { Alert, Pressable, View } from "react-native";
+import { Alert, Dimensions, Pressable, ScrollView, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
 import type { Id } from "~/convex/_generated/dataModel";
 import { fontFamily } from "~/lib/font";
 import * as DropdownMenu from "zeego/dropdown-menu"; // TODO: Remove @ts-ignore lines when zeego is fixed
 import { useState, useEffect } from "react";
-import { ArrowRight, Check, Flame, MoveRight, X } from "lucide-react-native";
+import { ArrowRight, Check, ChevronDown, X } from "lucide-react-native";
+import { BarChart } from "react-native-chart-kit";
 import { StatCard } from "~/components/ui/statCard";
 import Calendar from "~/components/ui/calendar";
+import { addDays } from "date-fns";
+import ToggleSwitch from "~/components/ui/ToggleSwitch";
+import { formatDecimalNumber } from "~/lib/utils";
 
 const progressData = [
-  10, 20, 30, 50, 60, 80, 0, 90, 75, 30, 50, 20, 40, 60, 80, 100, 90, 75, 0,
-  50, 20, 40, 60, 80, 100, 90, 75, 30, 0, 0, 0,
+  10, 20, 30, 50, 60, 80, 0, 90, 75, 30, 50, 20, 40, 60, 80, 100, 90, 75, 0, 50,
+  20, 40, 60, 80, 100, 90, 75, 30, 0, 0, 0,
 ];
+
+const chartData = {
+  labels: [],
+  datasets: [
+    {
+      data: progressData,
+    },
+  ],
+};
+
+type Modes = "day" | "week" | "month";
+
+const modeLabels: Record<Modes, string> = {
+  day: "D",
+  week: "W",
+  month: "M",
+};
+
+const modeOptions: Modes[] = ["day", "week", "month"];
 
 export default function GoalScreen() {
   const { goalId, goalLogId } = useLocalSearchParams<{
@@ -27,6 +50,51 @@ export default function GoalScreen() {
   const goal = useQuery(api.goals.getGoalById, { goalId });
   const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });
   const goalLogs = useQuery(api.goalLogs.getGoalLogsbyGoalId, { goalId });
+  const habitStats = useQuery(api.singleHabitStats.fetchSingleHabitStats, {
+    goalId,
+  });
+  console.log("habitStats", habitStats);
+  const [selectedPeriod, setSelectedPeriod] = useState<Date>(new Date());
+  const [modeIndex, setModeIndex] = useState<number>(0);
+  const screenWidth = Dimensions.get("window").width;
+  const averageLabel = (mode: Modes) => {
+    return mode === "day" ? "Daily" : mode === "week" ? "Weekly" : "Monthly";
+  };
+
+  const mode = modeOptions[modeIndex];
+  const averageValue =
+    mode === "day"
+      ? habitStats?.dailyAverage
+      : mode === "week"
+        ? habitStats?.weeklyAverage
+        : habitStats?.monthlyAverage;
+  const averageUnits = goal?.unit ?? "units";
+
+  const periodSelectorString = (date: Date, mode: Modes) => {
+    switch (mode) {
+      case "day":
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
+      case "week":
+        return `${date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })} - ${addDays(date, 6).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })}`;
+      case "month":
+        return date.toLocaleDateString("default", {
+          month: "long",
+          year: "numeric",
+        });
+    }
+  };
 
   const deleteGoalAndGoalLogs = useMutation(api.goals.deleteGoalAndGoalLogs);
 
@@ -67,6 +135,7 @@ export default function GoalScreen() {
   };
 
   return (
+    <ScrollView className="h-full space-y-4 bg-background p-4">
     <View className="h-full gap-4 bg-background p-4">
       <Stack.Screen
         options={{
@@ -151,77 +220,129 @@ export default function GoalScreen() {
         }}
       />
 
-      {/* <View className="my-4 rounded-lg bg-gray-700 p-4">
-        <Text
-          className="text-base text-white"
-          style={{ fontFamily: fontFamily.openSans.medium }}
+        <Pressable className="flex flex-row items-center justify-center gap-4 rounded-xl border border-gray-600 bg-slate-700 p-4">
+          <Text className="text-lg font-bold text-white">
+            {periodSelectorString(selectedPeriod, mode)}
+          </Text>
+          <ChevronDown size={24} color="white" />
+        </Pressable>
+
+        <View className="flex flex-row items-center gap-4 rounded-xl border border-gray-600 p-6">
+          <FontAwesome5 name="fire" size={36} color="#f9a825" />
+          <View className="flex flex-col gap-2">
+            <Text className="uppercase text-gray-400">Current Streak</Text>
+            <Text className="text-xl font-bold">
+              {habitStats?.currentStreak} Days
+            </Text>
+          </View>
+        </View>
+
+        <View className="gap-4">
+          <View className="flex w-full flex-row gap-4">
+            <StatCard
+              titleIcon={<Check size={16} color="grey" />}
+              title="Success"
+              value={`${habitStats?.successfulDays} Days`}
+              comparison={
+                habitStats?.successfulDays === 0
+                  ? "---"
+                  : `${habitStats?.successfulDays} Days`
+              }
+              status={
+                (habitStats?.successfulDays ?? 0 > 0) ? "positive" : "neutral"
+              }
+            />
+
+            <StatCard
+              titleIcon={<X size={16} color="grey" />}
+              title="Failed"
+              value={` Days`}
+              comparison={
+                habitStats?.failed === 0 ? "---" : `${habitStats?.failed} Days`
+              }
+              status={(habitStats?.failed ?? 0 > 0) ? "negative" : "neutral"}
+            />
+          </View>
+          <View className="flex w-full flex-row gap-4">
+            <StatCard
+              titleIcon={<ArrowRight size={16} color="grey" />}
+              title="Skipped"
+              value={`${habitStats?.skipped} Days`}
+              comparison={
+                habitStats?.skipped === 0
+                  ? "---"
+                  : `${habitStats?.skipped} Days`
+              }
+              status={(habitStats?.skipped ?? 0 > 0) ? "negative" : "neutral"}
+            />
+
+            <StatCard
+              title="Total"
+              value={`${formatDecimalNumber(habitStats?.total ?? 0)} ${goal?.unit}`}
+              comparison={`${formatDecimalNumber(habitStats?.total)} ${goal?.unit}`}
+              status="positive"
+            />
+          </View>
+        </View>
+
+        <Calendar progressData={progressData} selectedDate={new Date()} />
+
+        <View className="flex flex-col gap-6 rounded-xl border border-gray-500 py-4">
+          <View className="px-4">
+            <Text className="text-lg uppercase text-gray-500">{`${averageLabel(mode)} Average`}</Text>
+            <Text className="text-2xl font-bold">
+              {formatDecimalNumber(averageValue)} {averageUnits}
+            </Text>
+          </View>
+          <BarChart
+            data={chartData}
+            width={screenWidth - 60}
+            height={220}
+            yAxisLabel=""
+            yAxisSuffix="%"
+            xLabelsOffset={-10}
+            chartConfig={{
+              backgroundColor: "transparent",
+              backgroundGradientFrom: "#1E202B",
+              backgroundGradientTo: "#1E202B",
+              decimalPlaces: 1,
+              color: () => "green",
+              labelColor: () => `rgba(255, 255, 255, 1)`,
+              fillShadowGradientOpacity: 1,
+              propsForBackgroundLines: {
+                stroke: "grey",
+                transform: [{ translateX: 75 }],
+              },
+              propsForLabels: {
+                fill: "transparent",
+                fontSize: 10,
+              },
+              barPercentage: 0.3,
+            }}
+            verticalLabelRotation={0}
+          />
+
+          <ToggleSwitch
+            currentOption={modeIndex}
+            onToggle={(option) => setModeIndex(option)}
+            options={Object.values(modeLabels)}
+          />
+        </View>
+        <Pressable
+          className={`mt-5 items-center rounded-lg p-3 ${
+            goalLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"
+          }`}
+          onPress={goalLog?.isComplete ? null : handleStartGoal}
+          disabled={goalLog?.isComplete}
         >
-          Progress: {progress.toFixed(2)}%
-        </Text>
-        <Text className="text-sm text-gray-400">
-          You have completed {goalLogs?.filter((log) => log.isComplete).length}{" "}
-          of {goalLogs?.length} logs.
-        </Text>
-      </View> */}
-      <View className="flex flex-row items-center gap-4 rounded-xl border border-gray-600 p-4">
-        <FontAwesome5 name="fire" size={36} color="#f9a825" />
-        <View className="flex flex-col gap-2">
-          <Text className="uppercase text-gray-400">Current Streak</Text>
-          <Text className="text-lg font-bold">0 days</Text>
-        </View>
+          <Text
+            className="text-base text-white"
+            style={{ fontFamily: fontFamily.openSans.bold }}
+          >
+            {goalLog?.isComplete ? "Goal Log Completed" : "Log Progress"}
+          </Text>
+        </Pressable>
       </View>
-
-      <View className="gap-4">
-        <View className="flex w-full flex-row gap-4">
-          <StatCard
-            titleIcon={<Check size={16} color="grey" />}
-            title="Success"
-            value="0 Days"
-            comparison="---"
-            status="neutral"
-          />
-
-          <StatCard
-            titleIcon={<X size={16} color="grey" />}
-            title="Failed"
-            value="0 Days"
-            comparison="---"
-            status="neutral"
-          />
-        </View>
-        <View className="flex w-full flex-row gap-4">
-          <StatCard
-            titleIcon={<ArrowRight size={16} color="grey" />}
-            title="Skipped"
-            value="0 Days"
-            comparison="---"
-            status="neutral"
-          />
-
-          <StatCard
-            title="Total"
-            value="26.02 Minutes"
-            comparison="26.02min"
-            status="positive"
-          />
-        </View>
-      </View>
-
-      <Calendar progressData={progressData} selectedDate={new Date()} />
-      <Pressable
-        className={`mt-5 items-center rounded-lg p-3 ${
-          goalLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"
-        }`}
-        onPress={goalLog?.isComplete ? null : handleStartGoal} // Disable press if goalLog is complete
-        disabled={goalLog?.isComplete} // Disable the button if the goalLog is complete
-      >
-        <Text
-          className="text-base text-white"
-          style={{ fontFamily: fontFamily.openSans.bold }}
-        >
-          {goalLog?.isComplete ? "Goal Log Completed" : "Log Progress"}
-        </Text>
-      </Pressable>
-    </View>
+    </ScrollView>
   );
 }
