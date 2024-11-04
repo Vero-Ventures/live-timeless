@@ -23,6 +23,7 @@ import type * as emails_LTUserInvitation from "../emails/LTUserInvitation.js";
 import type * as emails_LTWelcome from "../emails/LTWelcome.js";
 import type * as goalLogs from "../goalLogs.js";
 import type * as goals from "../goals.js";
+import type * as habitStats from "../habitStats.js";
 import type * as http from "../http.js";
 import type * as invitations from "../invitations.js";
 import type * as organizations from "../organizations.js";
@@ -45,6 +46,7 @@ declare const fullApi: ApiFromModules<{
   "emails/LTWelcome": typeof emails_LTWelcome;
   goalLogs: typeof goalLogs;
   goals: typeof goals;
+  habitStats: typeof habitStats;
   http: typeof http;
   invitations: typeof invitations;
   organizations: typeof organizations;
