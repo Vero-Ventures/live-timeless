@@ -1,5 +1,20 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View } from "react-native";
+import { Text } from "./text";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./card";
+import { fontFamily } from "~/lib/font";
+import { Calendar } from "~/lib/icons/Calendar";
+import { ArrowRight } from "~/lib/icons/ArrowRight";
+import { Flame } from "~/lib/icons/Flame";
+import { Infinity } from "~/lib/icons/Infinity";
+import { X } from "~/lib/icons/X";
+import { Separator } from "./separator";
 
 interface HabitStatCardProps {
   name: string;
@@ -11,7 +26,7 @@ interface HabitStatCardProps {
   failed: number;
 }
 
-const HabitStatCard: React.FC<HabitStatCardProps> = ({
+function HabitStatCard({
   name,
   duration,
   longestStreak,
@@ -19,69 +34,69 @@ const HabitStatCard: React.FC<HabitStatCardProps> = ({
   dailyAverage,
   skipped,
   failed,
-}) => {
+}: HabitStatCardProps) {
   return (
-    <View style={styles.card}>
-      <View style={styles.header}>
-        <Text style={styles.name}>{name}</Text>
-        <Text style={styles.duration}>{duration}</Text>
-      </View>
-      <View style={styles.stats}>
-        <Text style={styles.stat}>
-          <Text style={styles.label}>🔥 Longest Streak:</Text> {longestStreak}{" "}
-          days
-        </Text>
-        <Text style={styles.stat}>
-          <Text style={styles.label}>∞ Total:</Text> {total} mins
-        </Text>
-        <Text style={styles.stat}>
-          <Text style={styles.label}>📅 Daily Average:</Text> {dailyAverage}{" "}
-          mins
-        </Text>
-        <Text style={styles.stat}>
-          <Text style={styles.label}>⏭️ Skipped:</Text> {skipped} days
-        </Text>
-        <Text style={styles.stat}>
-          <Text style={styles.label}>❌ Failed:</Text> {failed} days
-        </Text>
-      </View>
-    </View>
+    <Card className="border-input bg-background shadow-none">
+      <CardHeader className="pb-4">
+        <CardTitle
+          style={{
+            fontFamily: fontFamily.openSans.bold,
+          }}
+        >
+          {name}
+        </CardTitle>
+        <CardDescription
+          style={{
+            fontFamily: fontFamily.openSans.regular,
+          }}
+        >
+          {duration}
+        </CardDescription>
+      </CardHeader>
+      <Separator className="mb-4 bg-input" />
+      <CardContent className="p-0 pb-6">
+        <View className="flex-row justify-between px-6 pb-4">
+          <View className="flex flex-row items-center gap-2">
+            <Flame size={20} className="text-muted-foreground" />
+            <Text className="font-bold">Longest Streak:</Text>
+          </View>
+          <Text>{longestStreak} days</Text>
+        </View>
+        <Separator className="mb-4 bg-input" />
+        <View className="flex-row justify-between px-6 pb-4">
+          <View className="flex flex-row items-center gap-2">
+            <Infinity size={20} className="text-muted-foreground" />
+            <Text className="font-bold">Total:</Text>
+          </View>
+          <Text>{total} mins</Text>
+        </View>
+        <Separator className="mb-4 bg-input" />
+        <View className="flex-row justify-between px-6 pb-4">
+          <View className="flex flex-row items-center gap-2">
+            <Calendar size={20} className="text-muted-foreground" />
+            <Text className="font-bold">Daily Average:</Text>
+          </View>
+          <Text>{dailyAverage.toFixed(1)} mins</Text>
+        </View>
+        <Separator className="mb-4 bg-input" />
+        <View className="flex-row justify-between px-6 pb-4">
+          <View className="flex flex-row items-center gap-2">
+            <ArrowRight size={20} className="text-muted-foreground" />
+            <Text className="font-bold">Skipped:</Text>
+          </View>
+          <Text>{skipped} days</Text>
+        </View>
+        <Separator className="mb-4 bg-input" />
+        <View className="flex-row justify-between px-6">
+          <View className="flex flex-row items-center gap-2">
+            <X size={20} className="text-muted-foreground" />
+            <Text className="font-bold">Failed:</Text>
+          </View>
+          <Text>{failed} days</Text>
+        </View>
+      </CardContent>
+    </Card>
   );
-};
-
-const styles = StyleSheet.create({
-  card: {
-    padding: 10,
-    margin: 10,
-    backgroundColor: "#fff",
-    borderRadius: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
-  },
-  header: {
-    marginBottom: 10,
-  },
-  name: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  duration: {
-    fontSize: 14,
-    color: "#666",
-  },
-  stats: {
-    marginTop: 10,
-  },
-  stat: {
-    fontSize: 14,
-    marginBottom: 5,
-  },
-  label: {
-    fontWeight: "bold",
-  },
-});
+}
 
 export default HabitStatCard;

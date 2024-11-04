@@ -2,10 +2,10 @@ import React from "react";
 import {
   FlatList,
   View,
-  Text,
   SafeAreaView,
   StyleSheet,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import HabitStatCard from "../../components/ui/HabitStatCard";
 import { fontFamily } from "~/lib/font";
@@ -13,10 +13,19 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { BarChart } from "react-native-chart-kit";
 import { format, subDays } from "date-fns";
+import { Text } from "~/components/ui/text";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import { Separator } from "~/components/ui/separator";
 
 const screenWidth = Dimensions.get("window").width;
 
-const Progress: React.FC = () => {
+function Progress() {
   // Use useQuery to fetch habit stats for the authenticated user
   const habits = useQuery(api.habitStats.fetchHabitStats);
 
@@ -48,121 +57,102 @@ const Progress: React.FC = () => {
     ],
   };
 
-  if (!habits) return <Text style={styles.loadingText}>Loading...</Text>;
-  if (habits.length === 0)
-    return <Text style={styles.noDataText}>No habits data available.</Text>;
-
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Text style={styles.title}>
-          Avg Completion: {overallCompletionRate.toFixed(1)}%
-        </Text>
-
-        <View style={styles.chartWrapper}>
-          <BarChart
-            data={chartData}
-            width={screenWidth - 40} // Adjusted width to give more space on the right side
-            height={220}
-            yAxisLabel=""
-            yAxisSuffix="%"
-            xLabelsOffset={0}
-            chartConfig={{
-              backgroundColor: "transparent",
-              backgroundGradientFrom: "#1E202B",
-              backgroundGradientTo: "#1E202B",
-              decimalPlaces: 0,
-              color: () => `rgba(120, 120, 255, 1)`,
-              labelColor: () => `rgba(255, 255, 255, 1)`,
-              fillShadowGradientOpacity: 1, // Set opacity for the bars (1 for solid color)
-              propsForBackgroundLines: {
-                stroke: "#ffffff", // White grid lines
-                transform: [{ translateX: 75 }], // Shift grid lines to the right
-              },
-              propsForLabels: {
-                fill: "#ffffff",
-                fontSize: 10,
-              },
-            }}
-            verticalLabelRotation={0}
-            style={styles.chart}
-          />
+      {!habits ? (
+        <View className="mt-10 flex flex-row justify-center gap-2">
+          <ActivityIndicator />
+          <Text>Loading...</Text>
         </View>
-
-        {/* List of Habit Stats */}
+      ) : habits.length === 0 ? (
+        <Text style={styles.noDataText}>No habits data available.</Text>
+      ) : (
         <FlatList
+          className="px-4"
           data={habits}
+          ListHeaderComponent={() => (
+            <Card className="mb-4 border-input bg-background shadow-none">
+              <CardHeader className="pb-4">
+                <CardDescription
+                  className="mb-4"
+                  style={{
+                    fontFamily: fontFamily.openSans.semiBold,
+                  }}
+                >
+                  Average Completion Rate
+                </CardDescription>
+                <CardTitle
+                  style={{
+                    fontFamily: fontFamily.openSans.bold,
+                  }}
+                >
+                  {overallCompletionRate.toFixed(1)}%
+                </CardTitle>
+              </CardHeader>
+              <Separator className="mb-4 bg-input" />
+              <CardContent className="p-1">
+                <BarChart
+                  data={chartData}
+                  width={screenWidth - 60} // Adjusted width to give more space on the right side
+                  height={220}
+                  yAxisLabel=""
+                  yAxisSuffix="%"
+                  xLabelsOffset={0}
+                  chartConfig={{
+                    backgroundColor: "transparent",
+                    backgroundGradientFrom: "#082139",
+                    backgroundGradientTo: "#082139",
+                    decimalPlaces: 0,
+                    color: () => `rgba(120, 120, 255, 1)`,
+                    labelColor: () => `rgba(255, 255, 255, 1)`,
+                    fillShadowGradientOpacity: 1, // Set opacity for the bars (1 for solid color)
+                    propsForBackgroundLines: {
+                      stroke: "#ffffff", // White grid lines
+                      transform: [{ translateX: 75 }], // Shift grid lines to the right
+                    },
+                    propsForLabels: {
+                      fill: "#ffffff",
+                      fontSize: 10,
+                    },
+                  }}
+                  verticalLabelRotation={0}
+                />
+              </CardContent>
+            </Card>
+          )}
           contentContainerStyle={styles.listContentContainer}
           ListEmptyComponent={() => (
             <Text style={styles.noDataText}>No habits data available.</Text>
           )}
           renderItem={({ item }) => (
-            <View style={styles.cardWrapper}>
-              <HabitStatCard
-                name={item.name}
-                duration={item.duration}
-                longestStreak={item.longestStreak}
-                total={item.total}
-                dailyAverage={item.dailyAverage}
-                skipped={item.skipped}
-                failed={item.failed}
-              />
-            </View>
+            <HabitStatCard
+              name={item.name}
+              duration={item.duration}
+              longestStreak={item.longestStreak}
+              total={item.total}
+              dailyAverage={item.dailyAverage}
+              skipped={item.skipped}
+              failed={item.failed}
+            />
           )}
           keyExtractor={(item) => item._id}
         />
-      </View>
+      )}
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#082139",
   },
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: "#082139",
-  },
-  title: {
-    fontFamily: fontFamily.openSans.bold,
-    fontSize: 24,
-    color: "#ffffff",
-    marginBottom: 16,
-  },
-  chartWrapper: {
-    marginBottom: 16,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "#ffffff",
-    paddingHorizontal: 3,
-    paddingVertical: 5,
-  },
-  chart: {
-    paddingRight: 55,
-  },
   listContentContainer: {
-    paddingBottom: 60,
-  },
-  cardWrapper: {
-    backgroundColor: "#0e2942",
-    borderRadius: 8,
-    marginBottom: 10,
-    padding: 16,
-  },
-  loadingText: {
-    fontFamily: fontFamily.openSans.medium,
-    fontSize: 16,
-    color: "#ffffff",
-    textAlign: "center",
-    marginTop: 20,
+    paddingBottom: 40,
   },
   noDataText: {
     fontFamily: fontFamily.openSans.medium,
     fontSize: 16,
-    color: "#ffffff",
     textAlign: "center",
     marginTop: 20,
   },
