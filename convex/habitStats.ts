@@ -44,7 +44,10 @@ export const fetchHabitStats = query(async (ctx) => {
       const longestStreak = calculateLongestStreak(logs);
       const skipped = calculateSkipped(logs, goal.unitValue);
       const failed = calculateFailed(logs);
-      const dailyCompletionRates = calculateDailyCompletionRates(logs, goal.unitValue);
+      const dailyCompletionRates = calculateDailyCompletionRates(
+        logs,
+        goal.unitValue
+      );
 
       return {
         _id: goal._id,
@@ -116,7 +119,7 @@ function calculateSkipped(logs: GoalLog[], unitValue: number): number {
     const dateToCheck = new Date(today);
     dateToCheck.setDate(today.getDate() - i);
     const formattedDate = dateToCheck.toISOString().split("T")[0];
-    
+
     const logForDate = logs.find((log) => {
       const logDate = new Date(log.date * 1000).toISOString().split("T")[0];
       return logDate === formattedDate;
