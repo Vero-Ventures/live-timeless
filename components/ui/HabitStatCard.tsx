@@ -1,5 +1,20 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View } from "react-native";
+import { Text } from "./text";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./card";
+import { fontFamily } from "~/lib/font";
+import { Calendar } from "~/lib/icons/Calendar";
+import { ArrowRight } from "~/lib/icons/ArrowRight";
+import { Flame } from "~/lib/icons/Flame";
+import { Infinity } from "~/lib/icons/Infinity";
+import { X } from "~/lib/icons/X";
+import { Separator } from "./separator";
 // @ts-ignore
 import CalendarHeatmap from "react-native-calendar-heatmap";
 import { subDays, format } from "date-fns";
@@ -42,21 +57,14 @@ const generatePaddedCompletionData = (
   });
   // Split into 11-11-8 layout with padding cells as needed
   const paddedCompletionData = [
-    { date: "", count: 0 }, // Empty padding cell
-    { date: "", count: 0 },
     ...mappedData.slice(0, 11), // First 11 days
-    { date: "", count: 0 }, // Empty padding cell
-    { date: "", count: 0 },
     ...mappedData.slice(11, 22), // Next 11 days
-    { date: "", count: 0 }, // Empty padding cells
-    { date: "", count: 0 },
-    { date: "", count: 0 },
     ...mappedData.slice(22, 30), // Last 8 days
   ];
   return paddedCompletionData;
 };
 
-const HabitStatCard: React.FC<HabitStatCardProps> = ({
+function HabitStatCard({
   name,
   icon,
   iconColor,
@@ -67,7 +75,7 @@ const HabitStatCard: React.FC<HabitStatCardProps> = ({
   skipped,
   failed,
   completionData,
-}) => {
+}: HabitStatCardProps) {
   // Generate padded data for the past 30 days
   const paddedCompletionData = generatePaddedCompletionData(completionData);
 
@@ -77,128 +85,97 @@ const HabitStatCard: React.FC<HabitStatCardProps> = ({
   )?.component;
 
   return (
-    <View style={styles.card}>
-      {/* Header Section with Habit Title, Duration, and Icon */}
-      <View style={styles.headerSection}>
-        <View style={styles.titleAndDuration}>
-          <Text style={styles.name}>{name}</Text>
-          <Text style={styles.duration}>{duration}</Text>
+    <Card className="border-input bg-background shadow-none">
+      {/* Top Section with Icon, Title, and Duration */}
+      <View className="flex-row justify-between items-center p-4">
+        <View className="flex-1">
+          <Text
+            style={{
+              fontFamily: fontFamily.openSans.bold,
+              fontSize: 18,
+              color: "#ffffff",
+            }}
+          >
+            {name}
+          </Text>
+          <Text
+            style={{
+              fontFamily: fontFamily.openSans.regular,
+              fontSize: 14,
+              color: "#ffffff",
+            }}
+          >
+            {duration}
+          </Text>
         </View>
-        {IconComponent ? (
+        {/* Icon on the right side */}
+        {IconComponent && (
           <IconComponent name={icon} color={iconColor} size={32} />
-        ) : (
-          <Text style={[styles.icon, { color: iconColor }]}>{icon}</Text> // Fallback if icon is not found
         )}
       </View>
 
-      {/* Heatmap */}
-      <View style={styles.heatmap}>
+      {/* Heatmap Section */}
+      <View style={{ paddingHorizontal: 16, paddingBottom: 8 }}>
         <CalendarHeatmap
           endDate={new Date()}
-          numDays={30} // Show the past 30 days
+          numDays={30}
           values={paddedCompletionData}
           showMonthLabels={false}
           showOutOfRangeDays={false}
           gutterSize={2}
-          squareSize={12} // Increase square size to help fill the space
-          horizontal={true} // Ensure a horizontal layout
+          squareSize={14}
+          horizontal={true} // Set to false to display in rows
           colors={["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"]}
         />
       </View>
 
-      {/* Stats */}
-      <View style={styles.stats}>
-        <View style={styles.statRow}>
-          <Text style={styles.icon}>🔥</Text>
-          <Text style={styles.label}>Longest Streak:</Text>
-          <Text style={styles.value}>{longestStreak} days</Text>
-        </View>
-        <View style={styles.statRow}>
-          <Text style={styles.icon}>∞</Text>
-          <Text style={styles.label}>Total:</Text>
-          <Text style={styles.value}>{total} mins</Text>
-        </View>
-        <View style={styles.statRow}>
-          <Text style={styles.icon}>📅</Text>
-          <Text style={styles.label}>Daily Average:</Text>
-          <Text style={styles.value}>{dailyAverage} mins</Text>
-        </View>
-        <View style={styles.statRow}>
-          <Text style={styles.icon}>⏭️</Text>
-          <Text style={styles.label}>Skipped:</Text>
-          <Text style={styles.value}>{skipped} days</Text>
-        </View>
-        <View style={styles.statRow}>
-          <Text style={styles.icon}>❌</Text>
-          <Text style={styles.label}>Failed:</Text>
-          <Text style={styles.value}>{failed} days</Text>
-        </View>
-      </View>
-    </View>
-  );
-};
+      {/* Separator */}
+      <Separator className="mb-4 bg-input" />
 
-const styles = StyleSheet.create({
-  card: {
-    padding: 16,
-    marginVertical: 10,
-    backgroundColor: "#1e1e1e",
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 3,
-  },
-  headerSection: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  titleAndDuration: {
-    flexDirection: "column",
-    justifyContent: "center",
-    flex: 1,
-  },
-  name: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#ffffff",
-  },
-  duration: {
-    fontSize: 14,
-    color: "#4CAF50",
-  },
-  heatmap: {
-    alignItems: "center",
-    marginVertical: 10,
-  },
-  stats: {
-    marginTop: 10,
-  },
-  statRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: "#333333",
-  },
-  icon: {
-    fontSize: 18,
-    width: 24,
-    color: "#ffffff",
-  },
-  label: {
-    fontSize: 14,
-    color: "#cccccc",
-    flex: 1,
-    paddingLeft: 8,
-  },
-  value: {
-    fontSize: 14,
-    color: "#ffffff",
-  },
-});
+      {/* Stats Section */}
+      <CardContent className="p-0 pb-6">
+        <View className="flex-row justify-between px-6 pb-4">
+          <View className="flex flex-row items-center gap-2">
+            <Flame size={20} className="text-muted-foreground" />
+            <Text className="font-bold">Longest Streak:</Text>
+          </View>
+          <Text>{longestStreak} days</Text>
+        </View>
+        <Separator className="mb-4 bg-input" />
+        <View className="flex-row justify-between px-6 pb-4">
+          <View className="flex flex-row items-center gap-2">
+            <Infinity size={20} className="text-muted-foreground" />
+            <Text className="font-bold">Total:</Text>
+          </View>
+          <Text>{total} mins</Text>
+        </View>
+        <Separator className="mb-4 bg-input" />
+        <View className="flex-row justify-between px-6 pb-4">
+          <View className="flex flex-row items-center gap-2">
+            <Calendar size={20} className="text-muted-foreground" />
+            <Text className="font-bold">Daily Average:</Text>
+          </View>
+          <Text>{dailyAverage.toFixed(1)} mins</Text>
+        </View>
+        <Separator className="mb-4 bg-input" />
+        <View className="flex-row justify-between px-6 pb-4">
+          <View className="flex flex-row items-center gap-2">
+            <ArrowRight size={20} className="text-muted-foreground" />
+            <Text className="font-bold">Skipped:</Text>
+          </View>
+          <Text>{skipped} days</Text>
+        </View>
+        <Separator className="mb-4 bg-input" />
+        <View className="flex-row justify-between px-6">
+          <View className="flex flex-row items-center gap-2">
+            <X size={20} className="text-muted-foreground" />
+            <Text className="font-bold">Failed:</Text>
+          </View>
+          <Text>{failed} days</Text>
+        </View>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default HabitStatCard;

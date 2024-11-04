@@ -106,8 +106,8 @@ const Progress: React.FC = () => {
                 iconColor={item.iconColor} // Pass the iconColor property
                 duration={item.duration}
                 longestStreak={item.longestStreak}
-                total={item.total}
-                dailyAverage={item.dailyAverage}
+                total={parseFloat(item.total.toFixed(1))} // Format total to 1 decimal place
+                dailyAverage={parseFloat(item.dailyAverage.toFixed(1))} // Format dailyAverage to 1 decimal place
                 skipped={item.skipped}
                 failed={item.failed}
                 completionData={item.dailyCompletionRates.map((rate) => ({
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   cardWrapper: {
     backgroundColor: "#0e2942",
     borderRadius: 8,
-    marginBottom: 10,
+    marginBottom: 10, // Added marginBottom to separate cards
     padding: 16,
   },
   loadingText: {
