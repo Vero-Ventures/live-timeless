@@ -40,12 +40,14 @@ const Progress: React.FC = () => {
     `${month()} ${year}`,
     `${year}`
   ];
+  const [filterIndex, setFilterIndex] = useState(1);
   const [filterByTitle, setFilterByTitle] = useState(filterSelections[1]);
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
   const handleMenuItemPress = (index: number) => {
     setFilterByTitle(filterSelections[index]);
     closeMenu();
+    setFilterIndex(index);
   }
 
   const labels = Array.from({ length: 5 }, (_, i) =>

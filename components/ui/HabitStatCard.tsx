@@ -25,16 +25,37 @@ interface HabitStatCardProps {
   skipped: number;
   failed: number;
   completionData: { date: string; count: number }[]; // Data format for the heatmap
+  filter: number;
 }
 
-// Helper function to generate the past 30 days in an 11-11-8 layout
+// Returns the number of days based on filter index
+const daysByFilterIndex = (filter: number) => {
+  switch (filter) {
+    case 0:
+    case 3: 
+      return 7; // Last 7 days, This week
+    case 1:
+    case 4: 
+      return 30; // Last 30 days, This month
+    case 2: 
+      return 90; // Last 90 days
+    case 5: 
+      return 360; // This year
+    default:
+      return 30;
+  }
+};
+
+// Helper function to generate the past days in an 11-11-8 layout
 const generatePaddedCompletionData = (
-  completionData: { date: string; count: number }[]
+  completionData: { date: string; count: number }[],
+  numberOfDays: number,
+  filter: number
 ) => {
   const today = new Date();
-
-  // Generate past 30 dates starting from today
-  const past30Days = Array.from({ length: 30 }, (_, i) => {
+  
+  // Generates array dependant on numberOfDays and filter
+  const filteredDays = Array.from({ length: numberOfDays }, (_, i) => {
     const date = subDays(today, i);
     return {
       date: format(date, "yyyy-MM-dd"),
@@ -42,8 +63,8 @@ const generatePaddedCompletionData = (
     };
   }).reverse(); // Reverse to get dates in ascending order
   // Update counts based on actual completionData
-  const mappedData = past30Days.map((day) => {
-    const matchingData = completionData.find((d) => d.date === day.date);
+  const mappedData = filteredDays.map(day => {
+    const matchingData = completionData.find(d => d.date === day.date);
     return {
       ...day,
       count: matchingData ? matchingData.count : 0, // Use count from completionData if available
@@ -69,9 +90,10 @@ function HabitStatCard({
   skipped,
   failed,
   completionData,
+  filter,
 }: HabitStatCardProps) {
-  // Generate padded data for the past 30 days
-  const paddedCompletionData = generatePaddedCompletionData(completionData);
+  let numberOfDays = daysByFilterIndex(filter);
+  const paddedCompletionData = generatePaddedCompletionData(completionData, numberOfDays, filter);
 
   // Find the matching icon component from GOAL_ICONS
   const IconComponent = GOAL_ICONS.find(
@@ -112,7 +134,7 @@ function HabitStatCard({
       <View style={{ paddingHorizontal: 16, paddingBottom: 8 }}>
         <CalendarHeatmap
           endDate={new Date()}
-          numDays={30}
+          numDays={numberOfDays}
           values={paddedCompletionData}
           showMonthLabels={false}
           showOutOfRangeDays={false}
