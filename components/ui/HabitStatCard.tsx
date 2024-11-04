@@ -4,9 +4,6 @@ import { Text } from "./text";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "./card";
 import { fontFamily } from "~/lib/font";
 import { Calendar } from "~/lib/icons/Calendar";
@@ -87,7 +84,7 @@ function HabitStatCard({
   return (
     <Card className="border-input bg-background shadow-none">
       {/* Top Section with Icon, Title, and Duration */}
-      <View className="flex-row justify-between items-center p-4">
+      <View className="flex-row items-center justify-between p-4">
         <View className="flex-1">
           <Text
             style={{
@@ -109,9 +106,7 @@ function HabitStatCard({
           </Text>
         </View>
         {/* Icon on the right side */}
-        {IconComponent && (
-          <IconComponent name={icon} color={iconColor} size={32} />
-        )}
+        {!!IconComponent && <IconComponent name={icon} color={iconColor} size={32} />}
       </View>
 
       {/* Heatmap Section */}
