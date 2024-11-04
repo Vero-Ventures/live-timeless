@@ -1,7 +1,13 @@
 import React from "react";
 import { View } from "react-native";
 import { Text } from "./text";
-import { Card, CardContent } from "./card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./card";
 import { fontFamily } from "~/lib/font";
 import { Calendar } from "~/lib/icons/Calendar";
 import { ArrowRight } from "~/lib/icons/ArrowRight";
@@ -80,54 +86,44 @@ function HabitStatCard({
 
   return (
     <Card className="border-input bg-background shadow-none">
-      {/* Top Section with Icon, Title, and Duration */}
-      <View className="flex-row items-center justify-between p-4">
-        <View className="flex-1">
-          <Text
+      <CardHeader className="flex-row items-center justify-between pb-4">
+        <View>
+          <CardTitle
             style={{
               fontFamily: fontFamily.openSans.bold,
-              fontSize: 18,
-              color: "#ffffff",
             }}
           >
             {name}
-          </Text>
-          <Text
+          </CardTitle>
+          <CardDescription
             style={{
               fontFamily: fontFamily.openSans.regular,
-              fontSize: 14,
-              color: "#ffffff",
             }}
           >
             {duration}
-          </Text>
+          </CardDescription>
         </View>
-        {/* Icon on the right side */}
         {!!IconComponent && (
           <IconComponent name={icon} color={iconColor} size={32} />
         )}
-      </View>
-
-      {/* Heatmap Section */}
-      <View style={{ paddingHorizontal: 16, paddingBottom: 8 }}>
-        <CalendarHeatmap
-          endDate={new Date()}
-          numDays={30}
-          values={paddedCompletionData}
-          showMonthLabels={false}
-          showOutOfRangeDays={false}
-          gutterSize={2}
-          squareSize={14}
-          horizontal={true} // Set to false to display in rows
-          colors={["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"]}
-        />
-      </View>
-
-      {/* Separator */}
+      </CardHeader>
       <Separator className="mb-4 bg-input" />
 
-      {/* Stats Section */}
       <CardContent className="p-0 pb-6">
+        <View className="mb-5 items-center">
+          <CalendarHeatmap
+            endDate={new Date()}
+            numDays={90}
+            values={paddedCompletionData}
+            showMonthLabels={false}
+            showOutOfRangeDays={true}
+            gutterSize={2}
+            squareSize={14}
+            horizontal={true} // Set to false to display in rows
+            colorArray={["#eee", "#D44B79", "#6B1928", "#9F3251", "#360000"]}
+          />
+        </View>
+        <Separator className="mb-4 bg-input" />
         <View className="flex-row justify-between px-6 pb-4">
           <View className="flex flex-row items-center gap-2">
             <Flame size={20} className="text-muted-foreground" />
