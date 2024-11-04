@@ -1,10 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import { Text } from "./text";
-import {
-  Card,
-  CardContent,
-} from "./card";
+import { Card, CardContent } from "./card";
 import { fontFamily } from "~/lib/font";
 import { Calendar } from "~/lib/icons/Calendar";
 import { ArrowRight } from "~/lib/icons/ArrowRight";
@@ -106,7 +103,9 @@ function HabitStatCard({
           </Text>
         </View>
         {/* Icon on the right side */}
-        {!!IconComponent && <IconComponent name={icon} color={iconColor} size={32} />}
+        {!!IconComponent && (
+          <IconComponent name={icon} color={iconColor} size={32} />
+        )}
       </View>
 
       {/* Heatmap Section */}
