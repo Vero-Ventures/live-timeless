@@ -3,9 +3,12 @@ import { View, Text, StyleSheet } from "react-native";
 // @ts-ignore
 import CalendarHeatmap from "react-native-calendar-heatmap";
 import { subDays, format } from "date-fns";
+import { GOAL_ICONS } from "~/constants/goal-icons"; // Import the icon constants
 
 interface HabitStatCardProps {
   name: string;
+  icon: string; // This will be `selectedIcon` from the database
+  iconColor: string; // This will be `selectedIconColor` from the database
   duration: string;
   longestStreak: number;
   total: number;
@@ -16,9 +19,11 @@ interface HabitStatCardProps {
 }
 
 // Helper function to generate the past 30 days in an 11-11-8 layout
-const generatePaddedCompletionData = (completionData: { date: string; count: number }[]) => {
+const generatePaddedCompletionData = (
+  completionData: { date: string; count: number }[]
+) => {
   const today = new Date();
-  
+
   // Generate past 30 dates starting from today
   const past30Days = Array.from({ length: 30 }, (_, i) => {
     const date = subDays(today, i);
@@ -27,16 +32,14 @@ const generatePaddedCompletionData = (completionData: { date: string; count: num
       count: 0, // Default count of 0 (you can update this based on actual data below)
     };
   }).reverse(); // Reverse to get dates in ascending order
-
   // Update counts based on actual completionData
-  const mappedData = past30Days.map(day => {
-    const matchingData = completionData.find(d => d.date === day.date);
+  const mappedData = past30Days.map((day) => {
+    const matchingData = completionData.find((d) => d.date === day.date);
     return {
       ...day,
       count: matchingData ? matchingData.count : 0, // Use count from completionData if available
     };
   });
-
   // Split into 11-11-8 layout with padding cells as needed
   const paddedCompletionData = [
     { date: "", count: 0 }, // Empty padding cell
@@ -50,12 +53,13 @@ const generatePaddedCompletionData = (completionData: { date: string; count: num
     { date: "", count: 0 },
     ...mappedData.slice(22, 30), // Last 8 days
   ];
-
   return paddedCompletionData;
 };
 
 const HabitStatCard: React.FC<HabitStatCardProps> = ({
   name,
+  icon,
+  iconColor,
   duration,
   longestStreak,
   total,
@@ -67,27 +71,40 @@ const HabitStatCard: React.FC<HabitStatCardProps> = ({
   // Generate padded data for the past 30 days
   const paddedCompletionData = generatePaddedCompletionData(completionData);
 
+  // Find the matching icon component from GOAL_ICONS
+  const IconComponent = GOAL_ICONS.find(
+    (item) => item.name === icon
+  )?.component;
+
   return (
     <View style={styles.card}>
-      <View style={styles.header}>
-        <Text style={styles.name}>{name}</Text>
-        <Text style={styles.duration}>{duration}</Text>
+      <View style={styles.statRow}>
+        {/* Header Section with Habit Title, Duration, and Icon */}
+        <View style={styles.headerSection}>
+          <View style={styles.titleAndDuration}>
+            <Text style={styles.name}>{name}</Text>
+            <Text style={styles.duration}>{duration}</Text>
+          </View>
+          {IconComponent ? (
+            <IconComponent name={icon} color={iconColor} size={32} />
+          ) : (
+            <Text style={[styles.icon, { color: iconColor }]}>{icon}</Text> // Fallback if icon is not found
+          )}
+        </View>
       </View>
 
       {/* Heatmap */}
-      <View style={styles.heatmap}>
-        <CalendarHeatmap
-          endDate={new Date()}
-          numDays={30}
-          values={paddedCompletionData}
-          showMonthLabels={false}
-          showOutOfRangeDays={false}
-          gutterSize={2}
-          horizontal={true}
-          squareSize={14}
-          colors={["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"]} // Color range
-        />
-      </View>
+      <CalendarHeatmap
+        endDate={new Date()}
+        numDays={30} // Show the past 30 days
+        values={paddedCompletionData}
+        showMonthLabels={false}
+        showOutOfRangeDays={false}
+        gutterSize={2}
+        squareSize={12} // Increase square size to help fill the space
+        horizontal={true} // Ensure a horizontal layout
+        colors={["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"]}
+      />
 
       {/* Stats */}
       <View style={styles.stats}>
@@ -133,11 +150,16 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 3,
   },
-  header: {
+  headerSection: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 10,
+  },
+  titleAndDuration: {
+    flexDirection: "column",
+    justifyContent: "center",
+    flex: 1,
   },
   name: {
     fontSize: 18,
@@ -149,7 +171,10 @@ const styles = StyleSheet.create({
     color: "#4CAF50",
   },
   heatmap: {
+    alignItems: "center",
     marginVertical: 10,
+    // borderBottomWidth: 1,
+    // borderBottomColor: "#333333",
   },
   stats: {
     marginTop: 10,

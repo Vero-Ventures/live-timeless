@@ -30,7 +30,7 @@ const Progress: React.FC = () => {
       ? habits[0].dailyCompletionRates
           .slice(-5)
           .map((rate) => rate.completionRate || 0)
-      : Array(7).fill(0); // Fallback to zeros if data isn't available
+      : Array(5).fill(0); // Fallback to zeros if data isn't available
 
   const overallCompletionRate =
     habits && habits.length
@@ -102,12 +102,19 @@ const Progress: React.FC = () => {
             <View style={styles.cardWrapper}>
               <HabitStatCard
                 name={item.name}
+                icon={item.icon} // Pass the icon property
+                iconColor={item.iconColor} // Pass the iconColor property
                 duration={item.duration}
                 longestStreak={item.longestStreak}
                 total={item.total}
                 dailyAverage={item.dailyAverage}
                 skipped={item.skipped}
-                failed={item.failed} completionData={[]}              />
+                failed={item.failed}
+                completionData={item.dailyCompletionRates.map((rate) => ({
+                  date: rate.date,
+                  count: rate.completionRate,
+                }))}
+              />
             </View>
           )}
           keyExtractor={(item) => item._id}

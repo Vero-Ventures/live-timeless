@@ -6,6 +6,8 @@ import type { GoalLog } from "./goalLogs";
 export type HabitStat = {
   _id: string;
   name: string;
+  icon: string; // New field for selectedIcon
+  iconColor: string; // New field for selectedIconColor
   duration: string;
   longestStreak: number;
   total: number;
@@ -23,15 +25,11 @@ export const fetchHabitStats = query(async (ctx) => {
     throw new Error("User not authenticated");
   }
 
-  console.log("Authenticated User ID:", userId);
-
   // Fetch the habit stats based on the user ID
   const goals = await ctx.db
     .query("goals")
     .withIndex("by_user_id", (q) => q.eq("userId", userId))
     .collect();
-
-  console.log("Goals found for user:", goals);
 
   const stats: HabitStat[] = await Promise.all(
     goals.map(async (goal) => {
@@ -41,21 +39,22 @@ export const fetchHabitStats = query(async (ctx) => {
         .withIndex("by_goal_id", (q) => q.eq("goalId", goal._id))
         .collect();
 
-        const total = calculateTotal(logs);
-        const dailyAverage = calculateDailyAverage(logs);
-        const longestStreak = calculateLongestStreak(logs);
-        const skipped = calculateSkipped(logs, goal.unitValue);
-        const failed = calculateFailed(logs);
-        const dailyCompletionRates = calculateDailyCompletionRates(logs, goal.unitValue);
-        
+      const total = calculateTotal(logs);
+      const dailyAverage = calculateDailyAverage(logs);
+      const longestStreak = calculateLongestStreak(logs);
+      const skipped = calculateSkipped(logs, goal.unitValue);
+      const failed = calculateFailed(logs);
+      const dailyCompletionRates = calculateDailyCompletionRates(logs, goal.unitValue);
 
       return {
         _id: goal._id,
         name: goal.name,
+        icon: goal.selectedIcon, // Fetch selectedIcon from goal
+        iconColor: goal.selectedIconColor, // Fetch selectedIconColor from goal
         duration: `${goal.unitValue} mins per day`,
         longestStreak,
         total,
-        dailyAverage, // Now represents completion rate for the goal
+        dailyAverage,
         skipped,
         failed,
         dailyCompletionRates,
