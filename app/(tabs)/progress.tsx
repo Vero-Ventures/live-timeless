@@ -71,7 +71,7 @@ const Progress: React.FC = () => {
               backgroundColor: "transparent",
               backgroundGradientFrom: "#1E202B",
               backgroundGradientTo: "#1E202B",
-              decimalPlaces: 1,
+              decimalPlaces: 0,
               color: () => `rgba(120, 120, 255, 1)`,
               labelColor: () => `rgba(255, 255, 255, 1)`,
               fillShadowGradientOpacity: 1, // Set opacity for the bars (1 for solid color)
