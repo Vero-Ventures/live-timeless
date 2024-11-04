@@ -78,19 +78,17 @@ const HabitStatCard: React.FC<HabitStatCardProps> = ({
 
   return (
     <View style={styles.card}>
-      <View style={styles.statRow}>
-        {/* Header Section with Habit Title, Duration, and Icon */}
-        <View style={styles.headerSection}>
-          <View style={styles.titleAndDuration}>
-            <Text style={styles.name}>{name}</Text>
-            <Text style={styles.duration}>{duration}</Text>
-          </View>
-          {IconComponent ? (
-            <IconComponent name={icon} color={iconColor} size={32} />
-          ) : (
-            <Text style={[styles.icon, { color: iconColor }]}>{icon}</Text> // Fallback if icon is not found
-          )}
+      {/* Header Section with Habit Title, Duration, and Icon */}
+      <View style={styles.headerSection}>
+        <View style={styles.titleAndDuration}>
+          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.duration}>{duration}</Text>
         </View>
+        {IconComponent ? (
+          <IconComponent name={icon} color={iconColor} size={32} />
+        ) : (
+          <Text style={[styles.icon, { color: iconColor }]}>{icon}</Text> // Fallback if icon is not found
+        )}
       </View>
 
       {/* Heatmap */}
@@ -173,8 +171,6 @@ const styles = StyleSheet.create({
   heatmap: {
     alignItems: "center",
     marginVertical: 10,
-    // borderBottomWidth: 1,
-    // borderBottomColor: "#333333",
   },
   stats: {
     marginTop: 10,
