@@ -92,17 +92,19 @@ const HabitStatCard: React.FC<HabitStatCardProps> = ({
       </View>
 
       {/* Heatmap */}
-      <CalendarHeatmap
-        endDate={new Date()}
-        numDays={30} // Show the past 30 days
-        values={paddedCompletionData}
-        showMonthLabels={false}
-        showOutOfRangeDays={false}
-        gutterSize={2}
-        squareSize={12} // Increase square size to help fill the space
-        horizontal={true} // Ensure a horizontal layout
-        colors={["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"]}
-      />
+      <View style={styles.heatmap}>
+        <CalendarHeatmap
+          endDate={new Date()}
+          numDays={30} // Show the past 30 days
+          values={paddedCompletionData}
+          showMonthLabels={false}
+          showOutOfRangeDays={false}
+          gutterSize={2}
+          squareSize={12} // Increase square size to help fill the space
+          horizontal={true} // Ensure a horizontal layout
+          colors={["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"]}
+        />
+      </View>
 
       {/* Stats */}
       <View style={styles.stats}>

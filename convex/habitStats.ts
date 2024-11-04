@@ -42,7 +42,7 @@ export const fetchHabitStats = query(async (ctx) => {
       const total = calculateTotal(logs);
       const dailyAverage = calculateDailyAverage(logs);
       const longestStreak = calculateLongestStreak(logs);
-      const skipped = calculateSkipped(logs, goal.unitValue);
+      const skipped = calculateSkipped(logs);
       const failed = calculateFailed(logs);
       const dailyCompletionRates = calculateDailyCompletionRates(
         logs,
@@ -111,7 +111,7 @@ function calculateDailyAverage(logs: GoalLog[]): number {
 }
 
 // Calculate the number of skipped days in the past 30 days
-function calculateSkipped(logs: GoalLog[], unitValue: number): number {
+function calculateSkipped(logs: GoalLog[]): number {
   const today = new Date();
   let skippedDays = 0;
 
