@@ -8,6 +8,14 @@ import type { Id } from "~/convex/_generated/dataModel";
 import { fontFamily } from "~/lib/font";
 import * as DropdownMenu from "zeego/dropdown-menu"; // TODO: Remove @ts-ignore lines when zeego is fixed
 import { useState, useEffect } from "react";
+import { ArrowRight, Check, Flame, MoveRight, X } from "lucide-react-native";
+import { StatCard } from "~/components/ui/statCard";
+import Calendar from "~/components/ui/calendar";
+
+const progressData = [
+  10, 20, 30, 50, 60, 80, 0, 90, 75, 30, 50, 20, 40, 60, 80, 100, 90, 75, 0,
+  50, 20, 40, 60, 80, 100, 90, 75, 30, 0, 0, 0,
+];
 
 export default function GoalScreen() {
   const { goalId, goalLogId } = useLocalSearchParams<{
@@ -143,7 +151,7 @@ export default function GoalScreen() {
         }}
       />
 
-      <View className="my-4 rounded-lg bg-gray-700 p-4">
+      {/* <View className="my-4 rounded-lg bg-gray-700 p-4">
         <Text
           className="text-base text-white"
           style={{ fontFamily: fontFamily.openSans.medium }}
@@ -154,8 +162,52 @@ export default function GoalScreen() {
           You have completed {goalLogs?.filter((log) => log.isComplete).length}{" "}
           of {goalLogs?.length} logs.
         </Text>
+      </View> */}
+      <View className="flex flex-row items-center gap-4 rounded-xl border border-gray-600 p-4">
+        <FontAwesome5 name="fire" size={36} color="#f9a825" />
+        <View className="flex flex-col gap-2">
+          <Text className="uppercase text-gray-400">Current Streak</Text>
+          <Text className="text-lg font-bold">0 days</Text>
+        </View>
       </View>
 
+      <View className="gap-4">
+        <View className="flex w-full flex-row gap-4">
+          <StatCard
+            titleIcon={<Check size={16} color="grey" />}
+            title="Success"
+            value="0 Days"
+            comparison="---"
+            status="neutral"
+          />
+
+          <StatCard
+            titleIcon={<X size={16} color="grey" />}
+            title="Failed"
+            value="0 Days"
+            comparison="---"
+            status="neutral"
+          />
+        </View>
+        <View className="flex w-full flex-row gap-4">
+          <StatCard
+            titleIcon={<ArrowRight size={16} color="grey" />}
+            title="Skipped"
+            value="0 Days"
+            comparison="---"
+            status="neutral"
+          />
+
+          <StatCard
+            title="Total"
+            value="26.02 Minutes"
+            comparison="26.02min"
+            status="positive"
+          />
+        </View>
+      </View>
+
+      <Calendar progressData={progressData} selectedDate={new Date()} />
       <Pressable
         className={`mt-5 items-center rounded-lg p-3 ${
           goalLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"
