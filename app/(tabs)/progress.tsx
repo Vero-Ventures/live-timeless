@@ -83,13 +83,24 @@ const Progress: React.FC = () => {
     setFilteredReferenceDate(generateReferenceDate(index));
   };
 
-  const filterFailedCount = (failed: GoalLog[]) => {
-      const filteredLogs = failed.filter((log) => {
+  const filterFailedCount = (unfilteredLogs: GoalLog[]) => {
+      const filteredLogs = unfilteredLogs.filter((log) => {
         const logDate = new Date(log.date);
         return isAfter(logDate, filteredReferenceDate) && isAfter(today, logDate);
       });
 
       return filteredLogs.length;
+  };
+
+  const filterTotalCount = (unfilteredLogs: GoalLog[]) => {
+    return unfilteredLogs.reduce((sum, log) => {
+      const logDate = new Date(log.date);
+      if (isAfter(logDate, filteredReferenceDate) && isAfter(today, logDate)) {
+        return sum + log.unitsCompleted;
+      } else {
+        return sum;
+      }
+    }, 0); 
   };
 
   const labels = Array.from({ length: 5 }, (_, i) =>
@@ -198,7 +209,7 @@ const Progress: React.FC = () => {
                 iconColor={item.iconColor} // Pass the iconColor property
                 duration={item.duration}
                 longestStreak={item.longestStreak}
-                total={parseFloat(item.total.toFixed(1))} // Format total to 1 decimal place
+                total={filterTotalCount(item.totalLog)}
                 dailyAverage={parseFloat(item.dailyAverage.toFixed(1))} // Format dailyAverage to 1 decimal place
                 skipped={item.skipped}
                 failed={filterFailedCount(item.failed)}

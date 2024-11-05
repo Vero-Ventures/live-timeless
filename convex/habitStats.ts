@@ -15,6 +15,7 @@ export type HabitStat = {
   skipped: number;
   failed: GoalLog[];
   dailyCompletionRates: { date: string; completionRate: number }[];
+  totalLog: GoalLog[];
 };
 
 export const fetchHabitStats = query(async (ctx) => {
@@ -48,6 +49,7 @@ export const fetchHabitStats = query(async (ctx) => {
         logs,
         goal.unitValue
       );
+      const totalLog = calculateTotalLog(logs);
 
       return {
         _id: goal._id,
@@ -61,6 +63,7 @@ export const fetchHabitStats = query(async (ctx) => {
         skipped,
         failed,
         dailyCompletionRates,
+        totalLog,
       };
     })
   );
@@ -100,6 +103,10 @@ function calculateLongestStreak(logs: GoalLog[]): number {
 // Calculate the total units completed
 function calculateTotal(logs: GoalLog[]): number {
   return logs.reduce((sum, log) => sum + log.unitsCompleted, 0);
+}
+
+const calculateTotalLog = (logs: GoalLog[]): GoalLog[] => {
+  return logs.filter((log) => log.unitsCompleted != 0);
 }
 
 // Calculate the overall completion rate of each individual goal
