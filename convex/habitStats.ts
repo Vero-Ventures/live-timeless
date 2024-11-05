@@ -139,10 +139,10 @@ function calculateFailed(logs: GoalLog[]): number {
 }
 
 function calculateDailyCompletionRates(logs: GoalLog[], unitValue: number) {
-  // Group logs by date
   const dailyLogs = logs.reduce(
     (acc, log) => {
-      const date = new Date(log.date).toISOString().split("T")[0]; // Format date as YYYY-MM-DD
+      // Convert log.date to a date string without the time component
+      const date = new Date(log.date).toISOString().split("T")[0]; // Format as YYYY-MM-DD
       if (!acc[date]) acc[date] = [];
       acc[date].push(log);
       return acc;
@@ -150,11 +150,10 @@ function calculateDailyCompletionRates(logs: GoalLog[], unitValue: number) {
     {} as Record<string, GoalLog[]>
   );
 
-  // Calculate daily completion rates
   const dailyCompletionRates = Object.keys(dailyLogs).map((date) => {
     const dayLogs = dailyLogs[date];
     const totalCompleted = dayLogs.reduce(
-      (sum: any, log: { unitsCompleted: any }) => sum + log.unitsCompleted,
+      (sum, log) => sum + log.unitsCompleted,
       0
     );
     const completionRate =

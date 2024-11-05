@@ -140,10 +140,12 @@ function Progress() {
               dailyAverage={parseFloat(item.dailyAverage.toFixed(1))} // Format dailyAverage to 1 decimal place
               skipped={item.skipped}
               failed={item.failed}
-              completionData={item.dailyCompletionRates.map((rate) => ({
-                date: rate.date,
-                count: rate.completionRate,
-              }))}
+              completionData={item.dailyCompletionRates
+                .slice(-7) // Only the last 7 days
+                .map((rate) => ({
+                  date: format(new Date(rate.date), "yyyy-MM-dd"), // Normalize to YYYY-MM-DD format
+                  count: rate.completionRate,
+                }))}
             />
           )}
           keyExtractor={(item) => item._id}

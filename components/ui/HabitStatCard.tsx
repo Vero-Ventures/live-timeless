@@ -34,28 +34,26 @@ interface HabitStatCardProps {
 
 // Helper function to generate the past x days in an 11-11-8 layout
 const generateCompletionData = (
-  completionData: { date: string; count: number }[],
-  days: number
+  completionData: { date: string; count: number }[]
 ) => {
+  const days = 7;
   const today = new Date();
-
-  // Generate past dates starting from today
   const pastDays = Array.from({ length: days }, (_, i) => {
     const date = subDays(today, i);
     return {
-      date: format(date, "yyyy-MM-dd"),
-      count: 0, // Default count of 0 (you can update this based on actual data below)
+      date: format(date, "yyyy-MM-dd"), // Ensure dates are in YYYY-MM-DD format
+      count: 0,
     };
-  }).reverse(); // Reverse to get dates in ascending order
+  }).reverse();
 
-  // Update counts based on actual completionData
   const mappedData = pastDays.map((day) => {
     const matchingData = completionData.find((d) => d.date === day.date);
     return {
       day: day.date,
-      count: matchingData ? matchingData.count : 0, // Use count from completionData if available
+      count: matchingData ? matchingData.count : 0,
     };
   });
+
   return mappedData;
 };
 
@@ -72,7 +70,11 @@ function HabitStatCard({
   completionData,
 }: HabitStatCardProps) {
   // Generate padded data for the past 7 days
-  const data = generateCompletionData(completionData, 7);
+  const data = generateCompletionData(completionData);
+
+  // Log the data being used to display the heatmap
+  console.log("Heatmap Dates and Counts:", data);
+
   // Find the matching icon component from GOAL_ICONS
   const iconComponent = GOAL_ICONS.find((item) => item.name === icon);
   const Icon = iconComponent?.component;
@@ -131,7 +133,7 @@ function HabitStatCard({
           <View className="flex-row gap-0.5">
             {completionData.map((value) => (
               <View
-                key={value.date}
+                key={String(value.date)}
                 className={cn("h-12 w-12", {
                   "bg-slate-800": value.count === 0,
                   "bg-blue-500": value.count > 1,

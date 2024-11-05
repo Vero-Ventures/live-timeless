@@ -69,9 +69,16 @@ export default function LogProgressScreen() {
         });
 
         if (newRemaining <= 0) {
+          const completionDate = new Date();
+          console.log(
+            "Marking goal as complete at:",
+            completionDate.toISOString()
+          );
+
           updateGoalLog({
             goalLogId: goalLog._id,
-            isComplete: true, // Mark the goalLog as complete if finished
+            isComplete: true,
+            targetDate: completionDate.getTime(), // Pass targetDate when marking complete
           }).catch((error) => {
             console.error("Error updating goalLog as complete:", error);
           });
