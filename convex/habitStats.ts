@@ -106,8 +106,8 @@ function calculateTotal(logs: GoalLog[]): number {
 }
 
 const calculateTotalLog = (logs: GoalLog[]): GoalLog[] => {
-  return logs.filter((log) => log.unitsCompleted != 0);
-}
+  return logs.filter((log) => log.unitsCompleted !== 0);
+};
 
 // Calculate the overall completion rate of each individual goal
 function calculateDailyAverage(logs: GoalLog[]): number {
@@ -140,7 +140,7 @@ function calculateSkipped(logs: GoalLog[]): number {
   return skippedDays;
 }
 
-// Return GoalLog of failed days 
+// Return GoalLog of failed days
 function calculateFailed(logs: GoalLog[]): GoalLog[] {
   return logs.filter((log) => !log.isComplete);
 }

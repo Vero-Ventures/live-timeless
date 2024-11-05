@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   FlatList,
   View,
@@ -13,9 +13,9 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { BarChart } from "react-native-chart-kit";
 import { format, isAfter, subDays } from "date-fns";
-import { Menu, Button, Provider } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import { GoalLog } from '~/convex/goalLogs';
+import { Menu, Button, Provider } from "react-native-paper";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import { GoalLog } from "~/convex/goalLogs";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -29,10 +29,18 @@ const Progress: React.FC = () => {
 
   const month = () => {
     const monthNames = [
-      "January", "February", "March", 
-      "April", "May", "June",
-      "July", "August", "September", 
-      "October", "November", "December"
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ];
     return monthNames[new Date().getMonth()];
   };
@@ -43,12 +51,12 @@ const Progress: React.FC = () => {
     "Last 90 days",
     "This Week",
     `${month()} ${year}`,
-    `${year}`
+    `${year}`,
   ];
 
   const generateReferenceDate = (filterIndex: number) => {
     const today = new Date();
-  
+
     switch (filterIndex) {
       case 0: // Last 7 days
         return subDays(today, 6);
@@ -65,12 +73,14 @@ const Progress: React.FC = () => {
       default:
         return subDays(today, 29);
     }
-   };
+  };
 
   // Filter States
   const [filterIndex, setFilterIndex] = useState(1);
   const [filterByTitle, setFilterByTitle] = useState(filterSelections[1]);
-  const [filteredReferenceDate, setFilteredReferenceDate] = useState(generateReferenceDate(filterIndex));
+  const [filteredReferenceDate, setFilteredReferenceDate] = useState(
+    generateReferenceDate(filterIndex)
+  );
   const [visible, setVisible] = useState(false);
 
   const openMenu = () => setVisible(true);
@@ -84,12 +94,12 @@ const Progress: React.FC = () => {
   };
 
   const filterFailedCount = (unfilteredLogs: GoalLog[]) => {
-      const filteredLogs = unfilteredLogs.filter((log) => {
-        const logDate = new Date(log.date);
-        return isAfter(logDate, filteredReferenceDate) && isAfter(today, logDate);
-      });
+    const filteredLogs = unfilteredLogs.filter((log) => {
+      const logDate = new Date(log.date);
+      return isAfter(logDate, filteredReferenceDate) && isAfter(today, logDate);
+    });
 
-      return filteredLogs.length;
+    return filteredLogs.length;
   };
 
   const filterTotalCount = (unfilteredLogs: GoalLog[]) => {
@@ -100,7 +110,7 @@ const Progress: React.FC = () => {
       } else {
         return sum;
       }
-    }, 0); 
+    }, 0);
   };
 
   const labels = Array.from({ length: 5 }, (_, i) =>
@@ -118,7 +128,7 @@ const Progress: React.FC = () => {
   const overallCompletionRate =
     habits && habits.length
       ? habits.reduce((sum, habit) => sum + (habit.dailyAverage || 0), 0) /
-      habits.length
+        habits.length
       : 0;
 
   // Bar chart data
@@ -144,17 +154,20 @@ const Progress: React.FC = () => {
               visible={visible}
               onDismiss={closeMenu}
               anchor={
-                <Button 
-                  labelStyle={ styles.title } 
-                  onPress={openMenu}
-                >
+                <Button labelStyle={styles.title} onPress={openMenu}>
                   {filterByTitle}
                   <Icon name="arrow-drop-down" size={24} color="white" />
                 </Button>
               }
             >
               {filterSelections.map((selection, index) => (
-                <Menu.Item key={index} onPress={() => {handleMenuItemPress(index)}} title={ selection } />
+                <Menu.Item
+                  key={index}
+                  onPress={() => {
+                    handleMenuItemPress(index);
+                  }}
+                  title={selection}
+                />
               ))}
             </Menu>
           </View>
@@ -163,7 +176,7 @@ const Progress: React.FC = () => {
             Avg Completion: {overallCompletionRate.toFixed(1)}%
           </Text>
 
-        {/* Display Bar Chart for Daily Completion Rates */}
+          {/* Display Bar Chart for Daily Completion Rates */}
           <View style={styles.chartWrapper}>
             <BarChart
               data={chartData}
@@ -194,37 +207,37 @@ const Progress: React.FC = () => {
             />
           </View>
 
-        {/* List of Habit Stats - Displayed below the Bar Chart */}
-        <FlatList
-          data={habits}
-          contentContainerStyle={styles.listContentContainer}
-          ListEmptyComponent={() => (
-            <Text style={styles.noDataText}>No habits data available.</Text>
-          )}
-          renderItem={({ item }) => (
-            <View style={styles.cardWrapper}>
-              <HabitStatCard
-                name={item.name}
-                icon={item.icon} // Pass the icon property
-                iconColor={item.iconColor} // Pass the iconColor property
-                duration={item.duration}
-                longestStreak={item.longestStreak}
-                total={filterTotalCount(item.totalLog)}
-                dailyAverage={parseFloat(item.dailyAverage.toFixed(1))} // Format dailyAverage to 1 decimal place
-                skipped={item.skipped}
-                failed={filterFailedCount(item.failed)}
-                completionData={item.dailyCompletionRates.map((rate) => ({
-                  date: rate.date,
-                  count: rate.completionRate,
-                }))}
-                filterIndex={filterIndex}
-              />
-            </View>
-          )}
-          keyExtractor={(item) => item._id}
-        />
-      </View>
-    </SafeAreaView>
+          {/* List of Habit Stats - Displayed below the Bar Chart */}
+          <FlatList
+            data={habits}
+            contentContainerStyle={styles.listContentContainer}
+            ListEmptyComponent={() => (
+              <Text style={styles.noDataText}>No habits data available.</Text>
+            )}
+            renderItem={({ item }) => (
+              <View style={styles.cardWrapper}>
+                <HabitStatCard
+                  name={item.name}
+                  icon={item.icon} // Pass the icon property
+                  iconColor={item.iconColor} // Pass the iconColor property
+                  duration={item.duration}
+                  longestStreak={item.longestStreak}
+                  total={filterTotalCount(item.totalLog)}
+                  dailyAverage={parseFloat(item.dailyAverage.toFixed(1))} // Format dailyAverage to 1 decimal place
+                  skipped={item.skipped}
+                  failed={filterFailedCount(item.failed)}
+                  completionData={item.dailyCompletionRates.map((rate) => ({
+                    date: rate.date,
+                    count: rate.completionRate,
+                  }))}
+                  filterIndex={filterIndex}
+                />
+              </View>
+            )}
+            keyExtractor={(item) => item._id}
+          />
+        </View>
+      </SafeAreaView>
     </Provider>
   );
 };

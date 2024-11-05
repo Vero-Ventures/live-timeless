@@ -38,11 +38,11 @@ const daysByFilterIndex = (filter: number) => {
     case 2: // Last 90 days
       return 90;
     case 3: // This week
-      return 7; 
+      return 7;
     case 4: // This month
       return new Date().getDate();
     case 5: // This year
-      return new Date().getFullYear(); 
+      return new Date().getFullYear();
     default:
       return 30;
   }
@@ -55,7 +55,7 @@ const generatePaddedCompletionData = (
   filter: number
 ) => {
   const today = new Date();
-  
+
   let startDate;
   switch (filter) {
     case 0: // Last 7 days
@@ -82,7 +82,7 @@ const generatePaddedCompletionData = (
   }
 
   // Fitler data within date range
-  const filteredCompletionData = completionData.filter(data => {
+  const filteredCompletionData = completionData.filter((data) => {
     const date = new Date(data.date);
     return isAfter(date, startDate) && isBefore(date, today);
   });
@@ -96,8 +96,10 @@ const generatePaddedCompletionData = (
     };
   }).reverse(); // Reverse to get dates in ascending order
   // Update counts based on actual completionData
-  const mappedData = filteredDays.map(day => {
-    const matchingData = filteredCompletionData.find(d => d.date === day.date);
+  const mappedData = filteredDays.map((day) => {
+    const matchingData = filteredCompletionData.find(
+      (d) => d.date === day.date
+    );
     return {
       ...day,
       count: matchingData ? matchingData.count : 0, // Use count from completionData if available
@@ -120,7 +122,11 @@ function HabitStatCard({
   filterIndex,
 }: HabitStatCardProps) {
   let numberOfDays = daysByFilterIndex(filterIndex);
-  let paddedCompletionData = generatePaddedCompletionData(completionData, numberOfDays, filterIndex);
+  let paddedCompletionData = generatePaddedCompletionData(
+    completionData,
+    numberOfDays,
+    filterIndex
+  );
 
   // Find the matching icon component from GOAL_ICONS
   const IconComponent = GOAL_ICONS.find(
