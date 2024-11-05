@@ -25,7 +25,7 @@ import { Separator } from "~/components/ui/separator";
 
 const screenWidth = Dimensions.get("window").width;
 
-const Progress: React.FC = () => {
+function Progress() {
   // Use useQuery to fetch habit stats for the authenticated user
   const habits = useQuery(api.habitStats.fetchHabitStats);
 
@@ -86,6 +86,7 @@ const Progress: React.FC = () => {
                   Average Completion Rate
                 </CardDescription>
                 <CardTitle
+                  className="text-4xl"
                   style={{
                     fontFamily: fontFamily.openSans.bold,
                   }}
@@ -150,7 +151,7 @@ const Progress: React.FC = () => {
       )}
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   safeArea: {

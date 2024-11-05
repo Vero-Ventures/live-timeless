@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "react-native";
+import { Dimensions, View } from "react-native";
 import { Text } from "./text";
 import {
   Card,
@@ -15,10 +15,9 @@ import { Flame } from "~/lib/icons/Flame";
 import { Infinity } from "~/lib/icons/Infinity";
 import { X } from "~/lib/icons/X";
 import { Separator } from "./separator";
-// @ts-ignore
-import CalendarHeatmap from "react-native-calendar-heatmap";
 import { subDays, format } from "date-fns";
 import { GOAL_ICONS } from "~/constants/goal-icons"; // Import the icon constants
+import { ContributionGraph } from "react-native-chart-kit";
 
 interface HabitStatCardProps {
   name: string;
@@ -33,35 +32,33 @@ interface HabitStatCardProps {
   completionData: { date: string; count: number }[]; // Data format for the heatmap
 }
 
-// Helper function to generate the past 30 days in an 11-11-8 layout
-const generatePaddedCompletionData = (
-  completionData: { date: string; count: number }[]
+const screenWidth = Dimensions.get("window").width;
+
+// Helper function to generate the past x days in an 11-11-8 layout
+const generateCompletionData = (
+  completionData: { date: string; count: number }[],
+  days: number
 ) => {
   const today = new Date();
 
-  // Generate past 30 dates starting from today
-  const past30Days = Array.from({ length: 30 }, (_, i) => {
+  // Generate past dates starting from today
+  const pastDays = Array.from({ length: days }, (_, i) => {
     const date = subDays(today, i);
     return {
       date: format(date, "yyyy-MM-dd"),
       count: 0, // Default count of 0 (you can update this based on actual data below)
     };
   }).reverse(); // Reverse to get dates in ascending order
+
   // Update counts based on actual completionData
-  const mappedData = past30Days.map((day) => {
+  const mappedData = pastDays.map((day) => {
     const matchingData = completionData.find((d) => d.date === day.date);
     return {
-      ...day,
+      day: day.date,
       count: matchingData ? matchingData.count : 0, // Use count from completionData if available
     };
   });
-  // Split into 11-11-8 layout with padding cells as needed
-  const paddedCompletionData = [
-    ...mappedData.slice(0, 11), // First 11 days
-    ...mappedData.slice(11, 22), // Next 11 days
-    ...mappedData.slice(22, 30), // Last 8 days
-  ];
-  return paddedCompletionData;
+  return mappedData;
 };
 
 function HabitStatCard({
@@ -76,16 +73,15 @@ function HabitStatCard({
   failed,
   completionData,
 }: HabitStatCardProps) {
-  // Generate padded data for the past 30 days
-  const paddedCompletionData = generatePaddedCompletionData(completionData);
+  // Generate padded data for the past 7 days
+  const data = generateCompletionData(completionData, 7);
 
   // Find the matching icon component from GOAL_ICONS
-  const IconComponent = GOAL_ICONS.find(
-    (item) => item.name === icon
-  )?.component;
+  const iconComponent = GOAL_ICONS.find((item) => item.name === icon);
+  const Icon = iconComponent?.component;
 
   return (
-    <Card className="border-input bg-background shadow-none">
+    <Card className="mb-4 border-input bg-background shadow-none">
       <CardHeader className="flex-row items-center justify-between pb-4">
         <View>
           <CardTitle
@@ -103,24 +99,38 @@ function HabitStatCard({
             {duration}
           </CardDescription>
         </View>
-        {!!IconComponent && (
-          <IconComponent name={icon} color={iconColor} size={32} />
-        )}
+        {!!icon && <Icon name={icon} color={iconColor} size={32} />}
       </CardHeader>
       <Separator className="mb-4 bg-input" />
-
       <CardContent className="p-0 pb-6">
         <View className="mb-5 items-center">
-          <CalendarHeatmap
+          <ContributionGraph
             endDate={new Date()}
-            numDays={90}
-            values={paddedCompletionData}
             showMonthLabels={false}
-            showOutOfRangeDays={true}
-            gutterSize={2}
-            squareSize={14}
-            horizontal={true} // Set to false to display in rows
-            colorArray={["#eee", "#D44B79", "#6B1928", "#9F3251", "#360000"]}
+            tooltipDataAttrs={(v) => {
+              return {
+                fill:
+                  v.value === 0 ? "rgba(120, 120, 255)" : "rgb(43, 56, 100)",
+              };
+            }}
+            values={data}
+            horizontal={false}
+            numDays={7}
+            squareSize={40}
+            width={screenWidth - 30}
+            height={40}
+            chartConfig={{
+              backgroundColor: "transparent",
+              backgroundGradientFrom: "#082139",
+              backgroundGradientTo: "#082139",
+              color: () => `rgba(120, 120, 255, 1)`,
+              labelColor: () => `rgba(255, 255, 255, 1)`,
+              fillShadowGradientOpacity: 1, // Set opacity for the bars (1 for solid color)
+              propsForLabels: {
+                fill: "#ffffff",
+                fontSize: 10,
+              },
+            }}
           />
         </View>
         <Separator className="mb-4 bg-input" />
