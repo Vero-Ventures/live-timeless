@@ -12,9 +12,10 @@ import { fontFamily } from "~/lib/font";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { BarChart } from "react-native-chart-kit";
-import { format, subDays } from "date-fns";
+import { format, isAfter, subDays } from "date-fns";
 import { Menu, Button, Provider } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { GoalLog } from '~/convex/goalLogs';
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -22,16 +23,20 @@ const Progress: React.FC = () => {
   // Use useQuery to fetch habit stats for the authenticated user
   const habits = useQuery(api.habitStats.fetchHabitStats);
 
-  // Filter Header
-  const [visible, setVisible] = useState(false);
+  // Filter Selection Logic
+  const today = new Date();
   const year = new Date().getFullYear();
+
   const month = () => {
     const monthNames = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
+      "January", "February", "March", 
+      "April", "May", "June",
+      "July", "August", "September", 
+      "October", "November", "December"
     ];
     return monthNames[new Date().getMonth()];
-  }
+  };
+
   const filterSelections = [
     "Last 7 days",
     "Last 30 days",
@@ -40,15 +45,52 @@ const Progress: React.FC = () => {
     `${month()} ${year}`,
     `${year}`
   ];
+
+  const generateReferenceDate = (filterIndex: number) => {
+    const today = new Date();
+  
+    switch (filterIndex) {
+      case 0: // Last 7 days
+        return subDays(today, 6);
+      case 1: // Last 30 days
+        return subDays(today, 29);
+      case 2: // Last 90 days
+        return subDays(today, 89);
+      case 3: // This week
+        return subDays(today, today.getDay());
+      case 4: // This month
+        return new Date(today.getFullYear(), today.getMonth(), 1);
+      case 5: // This year
+        return new Date(today.getFullYear(), 0, 1);
+      default:
+        return subDays(today, 29);
+    }
+   };
+
+  // Filter States
   const [filterIndex, setFilterIndex] = useState(1);
   const [filterByTitle, setFilterByTitle] = useState(filterSelections[1]);
+  const [filteredReferenceDate, setFilteredReferenceDate] = useState(generateReferenceDate(filterIndex));
+  const [visible, setVisible] = useState(false);
+
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
+
   const handleMenuItemPress = (index: number) => {
     setFilterByTitle(filterSelections[index]);
     closeMenu();
     setFilterIndex(index);
-  }
+    setFilteredReferenceDate(generateReferenceDate(index));
+  };
+
+  const filterFailedCount = (failed: GoalLog[]) => {
+      const filteredLogs = failed.filter((log) => {
+        const logDate = new Date(log.date);
+        return isAfter(logDate, filteredReferenceDate) && isAfter(today, logDate);
+      });
+
+      return filteredLogs.length;
+  };
 
   const labels = Array.from({ length: 5 }, (_, i) =>
     format(subDays(new Date(), 4 - i), "MMM dd")
@@ -101,7 +143,7 @@ const Progress: React.FC = () => {
               }
             >
               {filterSelections.map((selection, index) => (
-                <Menu.Item key={index} onPress={() => {handleMenuItemPress(index)}} title={`${selection}`} />
+                <Menu.Item key={index} onPress={() => {handleMenuItemPress(index)}} title={ selection } />
               ))}
             </Menu>
           </View>
@@ -159,11 +201,12 @@ const Progress: React.FC = () => {
                 total={parseFloat(item.total.toFixed(1))} // Format total to 1 decimal place
                 dailyAverage={parseFloat(item.dailyAverage.toFixed(1))} // Format dailyAverage to 1 decimal place
                 skipped={item.skipped}
-                failed={item.failed}
+                failed={filterFailedCount(item.failed)}
                 completionData={item.dailyCompletionRates.map((rate) => ({
                   date: rate.date,
                   count: rate.completionRate,
                 }))}
+                filterIndex={filterIndex}
               />
             </View>
           )}

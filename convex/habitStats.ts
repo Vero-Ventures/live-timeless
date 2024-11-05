@@ -13,7 +13,7 @@ export type HabitStat = {
   total: number;
   dailyAverage: number;
   skipped: number;
-  failed: number;
+  failed: GoalLog[];
   dailyCompletionRates: { date: string; completionRate: number }[];
 };
 
@@ -133,9 +133,9 @@ function calculateSkipped(logs: GoalLog[]): number {
   return skippedDays;
 }
 
-// Calculate the number of failed days (days where the goal was logged but incomplete)
-function calculateFailed(logs: GoalLog[]): number {
-  return logs.filter((log) => !log.isComplete).length;
+// Return GoalLog of failed days 
+function calculateFailed(logs: GoalLog[]): GoalLog[] {
+  return logs.filter((log) => !log.isComplete);
 }
 
 function calculateDailyCompletionRates(logs: GoalLog[], unitValue: number) {

@@ -11,7 +11,7 @@ import { X } from "~/lib/icons/X";
 import { Separator } from "./separator";
 // @ts-ignore
 import CalendarHeatmap from "react-native-calendar-heatmap";
-import { subDays, format } from "date-fns";
+import { subDays, format, isAfter, isBefore } from "date-fns";
 import { GOAL_ICONS } from "~/constants/goal-icons"; // Import the icon constants
 
 interface HabitStatCardProps {
@@ -25,22 +25,24 @@ interface HabitStatCardProps {
   skipped: number;
   failed: number;
   completionData: { date: string; count: number }[]; // Data format for the heatmap
-  filter: number;
+  filterIndex: number; // Index number to determine the number of days to display
 }
 
 // Returns the number of days based on filter index
 const daysByFilterIndex = (filter: number) => {
   switch (filter) {
-    case 0:
-    case 3: 
-      return 7; // Last 7 days, This week
-    case 1:
-    case 4: 
-      return 30; // Last 30 days, This month
-    case 2: 
-      return 90; // Last 90 days
-    case 5: 
-      return 360; // This year
+    case 0: // Last 7 days
+      return 7;
+    case 1: // Last 30 days
+      return 30;
+    case 2: // Last 90 days
+      return 90;
+    case 3: // This week
+      return 7; 
+    case 4: // This month
+      return new Date().getDate();
+    case 5: // This year
+      return new Date().getFullYear(); 
     default:
       return 30;
   }
@@ -54,6 +56,37 @@ const generatePaddedCompletionData = (
 ) => {
   const today = new Date();
   
+  let startDate;
+  switch (filter) {
+    case 0: // Last 7 days
+      startDate = subDays(today, 6);
+      break;
+    case 1: // Last 30 days
+      startDate = subDays(today, 29);
+      break;
+    case 2: // Last 90 days
+      startDate = subDays(today, 89);
+      break;
+    case 3: // This week
+      startDate = subDays(today, today.getDay());
+      break;
+    case 4: // This month
+      startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+      break;
+    case 5: // This year
+      startDate = new Date(today.getFullYear(), 0, 1);
+      break;
+    default:
+      startDate = subDays(today, 29);
+      break;
+  }
+
+  // Fitler data within date range
+  const filteredCompletionData = completionData.filter(data => {
+    const date = new Date(data.date);
+    return isAfter(date, startDate) && isBefore(date, today);
+  });
+
   // Generates array dependant on numberOfDays and filter
   const filteredDays = Array.from({ length: numberOfDays }, (_, i) => {
     const date = subDays(today, i);
@@ -64,19 +97,13 @@ const generatePaddedCompletionData = (
   }).reverse(); // Reverse to get dates in ascending order
   // Update counts based on actual completionData
   const mappedData = filteredDays.map(day => {
-    const matchingData = completionData.find(d => d.date === day.date);
+    const matchingData = filteredCompletionData.find(d => d.date === day.date);
     return {
       ...day,
       count: matchingData ? matchingData.count : 0, // Use count from completionData if available
     };
   });
-  // Split into 11-11-8 layout with padding cells as needed
-  const paddedCompletionData = [
-    ...mappedData.slice(0, 11), // First 11 days
-    ...mappedData.slice(11, 22), // Next 11 days
-    ...mappedData.slice(22, 30), // Last 8 days
-  ];
-  return paddedCompletionData;
+  return mappedData;
 };
 
 function HabitStatCard({
@@ -90,10 +117,10 @@ function HabitStatCard({
   skipped,
   failed,
   completionData,
-  filter,
+  filterIndex,
 }: HabitStatCardProps) {
-  let numberOfDays = daysByFilterIndex(filter);
-  const paddedCompletionData = generatePaddedCompletionData(completionData, numberOfDays, filter);
+  let numberOfDays = daysByFilterIndex(filterIndex);
+  let paddedCompletionData = generatePaddedCompletionData(completionData, numberOfDays, filterIndex);
 
   // Find the matching icon component from GOAL_ICONS
   const IconComponent = GOAL_ICONS.find(
