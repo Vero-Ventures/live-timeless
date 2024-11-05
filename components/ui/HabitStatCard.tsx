@@ -1,5 +1,5 @@
 import React from "react";
-import { Dimensions, View } from "react-native";
+import { View } from "react-native";
 import { Text } from "./text";
 import {
   Card,
@@ -17,7 +17,7 @@ import { X } from "~/lib/icons/X";
 import { Separator } from "./separator";
 import { subDays, format } from "date-fns";
 import { GOAL_ICONS } from "~/constants/goal-icons"; // Import the icon constants
-import { ContributionGraph } from "react-native-chart-kit";
+import { cn } from "~/lib/utils";
 
 interface HabitStatCardProps {
   name: string;
@@ -31,8 +31,6 @@ interface HabitStatCardProps {
   failed: number;
   completionData: { date: string; count: number }[]; // Data format for the heatmap
 }
-
-const screenWidth = Dimensions.get("window").width;
 
 // Helper function to generate the past x days in an 11-11-8 layout
 const generateCompletionData = (
@@ -75,7 +73,6 @@ function HabitStatCard({
 }: HabitStatCardProps) {
   // Generate padded data for the past 7 days
   const data = generateCompletionData(completionData, 7);
-
   // Find the matching icon component from GOAL_ICONS
   const iconComponent = GOAL_ICONS.find((item) => item.name === icon);
   const Icon = iconComponent?.component;
@@ -104,7 +101,7 @@ function HabitStatCard({
       <Separator className="mb-4 bg-input" />
       <CardContent className="p-0 pb-6">
         <View className="mb-5 items-center">
-          <ContributionGraph
+          {/* <ContributionGraph
             endDate={new Date()}
             showMonthLabels={false}
             tooltipDataAttrs={(v) => {
@@ -130,7 +127,18 @@ function HabitStatCard({
                 fontSize: 10,
               },
             }}
-          />
+          /> */}
+          <View className="flex-row gap-0.5">
+            {completionData.map((value) => (
+              <View
+                key={value.date}
+                className={cn("h-12 w-12", {
+                  "bg-slate-800": value.count === 0,
+                  "bg-blue-500": value.count > 1,
+                })}
+              ></View>
+            ))}
+          </View>
         </View>
         <Separator className="mb-4 bg-input" />
         <View className="flex-row justify-between px-6 pb-4">
