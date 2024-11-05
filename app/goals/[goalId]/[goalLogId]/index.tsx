@@ -58,6 +58,13 @@ export default function GoalScreen() {
     });
   };
 
+  const handleLogHistory = () => {
+      router.push({
+        pathname: "/goals/[goalId]/log-history",
+        params: { goalId },
+      });
+    };
+
   return (
     <View className="h-full gap-4 bg-background p-4">
       <Stack.Screen
@@ -91,6 +98,24 @@ export default function GoalScreen() {
                 <DropdownMenu.Item
                   onSelect={() =>
                     router.navigate({
+                      pathname: "/goals/[goalId]/log-history",
+                      params: { goalId },
+                    })
+                  }
+                  key="log-history"
+                  textValue="Log History"
+                  placeholder=""
+                  onPointerEnterCapture={() => {}}
+                  onPointerLeaveCapture={() => {}}
+                >
+                <DropdownMenu.ItemIcon ios={{ name: "list.bullet" }} />
+                </DropdownMenu.Item>
+                
+                <DropdownMenu.Separator />
+
+                <DropdownMenu.Item
+                  onSelect={() =>
+                    router.navigate({
                       pathname: "/goals/[goalId]/edit",
                       params: { goalId },
                     })
@@ -104,6 +129,7 @@ export default function GoalScreen() {
                   <DropdownMenu.ItemIcon ios={{ name: "pencil.line" }} />
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator />
+
                 <DropdownMenu.Item
                   onSelect={handleDelete}
                   destructive
