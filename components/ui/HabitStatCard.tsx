@@ -109,8 +109,7 @@ function HabitStatCard({
             showMonthLabels={false}
             tooltipDataAttrs={(v) => {
               return {
-                fill:
-                  v.value === 0 ? "rgba(120, 120, 255)" : "rgb(43, 56, 100)",
+                fill: v.value > 1 ? "rgba(120, 120, 255)" : "rgb(43, 56, 100)",
               };
             }}
             values={data}
