@@ -6,7 +6,7 @@ import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
 import type { Id } from "~/convex/_generated/dataModel";
 import { fontFamily } from "~/lib/font";
-import * as DropdownMenu from "zeego/dropdown-menu";
+import * as DropdownMenu from "zeego/dropdown-menu"; // TODO: Remove @ts-ignore lines when zeego is fixed
 import { useState, useEffect } from "react";
 
 export default function GoalScreen() {
@@ -82,6 +82,7 @@ export default function GoalScreen() {
                   <FontAwesome5 name="ellipsis-h" size={20} color="#fff" />
                 </Pressable>
               </DropdownMenu.Trigger>
+              {/* @ts-ignore */}
               <DropdownMenu.Content
                 key="actions"
                 role="menu"
@@ -89,6 +90,7 @@ export default function GoalScreen() {
                 onPointerEnterCapture={() => {}}
                 onPointerLeaveCapture={() => {}}
               >
+                {/* @ts-ignore */}
                 <DropdownMenu.Item
                   onSelect={() =>
                     router.navigate({
@@ -123,7 +125,7 @@ export default function GoalScreen() {
                   <DropdownMenu.ItemIcon ios={{ name: "pencil.line" }} />
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator />
-
+                {/* @ts-ignore */}
                 <DropdownMenu.Item
                   onSelect={handleDelete}
                   destructive

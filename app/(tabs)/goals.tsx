@@ -1,6 +1,3 @@
-// TODO: Remove console logging
-// TODO: Remove latestLog var if not needed anymore
-
 import {
   FlatList,
   Pressable,
@@ -29,8 +26,6 @@ import { FontAwesome5 } from "@expo/vector-icons";
 export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
-
-  // Fetch both goals and goalLogs
   const goals = useQuery(api.goals.listGoals);
   const goalLogs = useQuery(api.goalLogs.listGoalLogs);
 
@@ -85,7 +80,7 @@ export default function GoalsPage() {
     return isRepeatDay;
   };
 
-  // Step 1: Filter goalLogs for the selectedDate
+  // Filter goalLogs for the selectedDate
   const filteredGoalLogs = goalLogs
   ? goalLogs.filter((log) => {
       const goal = goals?.find((goal) => goal._id === log.goalId);
@@ -95,7 +90,6 @@ export default function GoalsPage() {
       const logDate = new Date(log.date).toDateString();
       const selectedDateStr = selectedDate.toDateString();
 
-      // Check if log date matches selected date
       if (logDate !== selectedDateStr) return false;
 
       // Apply repeat pattern checks as before
@@ -113,13 +107,7 @@ export default function GoalsPage() {
     })
   : [];
 
-  console.log(
-    "filteredGoalLogs for",
-    selectedDate.toDateString(),
-    filteredGoalLogs
-  ); // Debug log
-
-  // Step 2: Group filteredGoalLogs by goalId
+  // Group filteredGoalLogs by goalId
   const groupedGoals = new Map();
   filteredGoalLogs.forEach((log) => {
     if (!groupedGoals.has(log.goalId)) {
@@ -128,10 +116,10 @@ export default function GoalsPage() {
     groupedGoals.get(log.goalId).push(log);
   });
 
-  // Step 3: Prepare matchedGoals, ensuring each goal has only one log for the selected date
+  // Prepare matchedGoals, ensuring each goal has only one log for the selected date
   const matchedGoals = goals?.map((goal) => ({
     goal,
-    goalLogs: groupedGoals.get(goal._id) || [], // This will provide an empty array if no logs for the date
+    goalLogs: groupedGoals.get(goal._id) || [], // Provide an empty array if no logs for the date
   }));
 
   return (
@@ -176,7 +164,7 @@ export default function GoalsPage() {
               paddingBottom: 60,
             }}
             className="mt-6 border-t border-t-[#fff]/10 pt-6"
-            data={matchedGoals} // This is already correct
+            data={matchedGoals}
             ItemSeparatorComponent={() => (
               <View className="my-4 ml-14 mr-6 h-0.5 bg-[#fff]/10" />
             )}
@@ -214,12 +202,6 @@ interface GoalItemProps {
 function GoalItem({ goal, goalLogs }: GoalItemProps) {
   const router = useRouter();
   const selectedDateLog = goalLogs && goalLogs.length > 0 ? goalLogs[0] : null;
-
-  console.log("Rendering GoalItem for:", goal.name, "with goalLogs:", goalLogs); // Debug log
-
-  // Get the latest log (or some other logic for selecting a log)
-  const latestLog =
-    goalLogs && goalLogs.length > 0 ? goalLogs[goalLogs.length - 1] : null;
 
   const allowedUnits = [
     "steps",
@@ -279,9 +261,9 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
 
   // Check if the goal unit is one of the allowed units for the "Log" button
   const isAllowedUnit = allowedUnits.includes(goal.unit);
-
+  
   const buttonStyles =
-    "w-28 justify-center flex-row items-center rounded-full p-3"; // Shared styles for both buttons
+    "w-28 justify-center flex-row items-center rounded-full p-3";
 
   return (
     <View className="flex-row items-center gap-4">
@@ -386,7 +368,6 @@ function CalendarStrip({
           })}
           onPress={() => {
             setSelectedDate(date);
-            console.log("Updated selectedDate:", date.toDateString()); // Debug log
           }}
         >
           <Text
