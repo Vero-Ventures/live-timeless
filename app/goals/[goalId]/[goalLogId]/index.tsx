@@ -91,6 +91,7 @@ export default function GoalScreen() {
                 onPointerEnterCapture={() => {}}
                 onPointerLeaveCapture={() => {}}
               >
+                {/* @ts-ignore */}
                 <DropdownMenu.Item
                   onSelect={() =>
                     router.navigate({
@@ -108,7 +109,7 @@ export default function GoalScreen() {
                 </DropdownMenu.Item>
 
                 <DropdownMenu.Separator />
-
+                {/* @ts-ignore */}
                 <DropdownMenu.Item
                   onSelect={() =>
                     router.navigate({
@@ -126,7 +127,7 @@ export default function GoalScreen() {
                 </DropdownMenu.Item>
 
                 <DropdownMenu.Separator />
-
+                {/* @ts-ignore */}
                 <DropdownMenu.Item
                   onSelect={() =>
                     router.navigate({
@@ -143,7 +144,7 @@ export default function GoalScreen() {
                   <DropdownMenu.ItemIcon ios={{ name: "pencil.line" }} />
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator />
-
+                {/* @ts-ignore */}
                 <DropdownMenu.Item
                   onSelect={handleDelete}
                   destructive

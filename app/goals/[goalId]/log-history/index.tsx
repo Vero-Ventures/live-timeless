@@ -18,7 +18,7 @@ function formatDate(timestamp: number) {
   const date = new Date(timestamp);
   if (isToday(date)) return "Today";
   if (isYesterday(date)) return "Yesterday";
-  return format(date, "EEEE, MMM d, yyyy"); // Example: Sunday, Nov 4, 2024
+  return format(date, "EEEE, MMM d, yyyy");
 }
 
 export default function LogHistoryPage() {
