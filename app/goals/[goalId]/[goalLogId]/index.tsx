@@ -112,24 +112,6 @@ export default function GoalScreen() {
                 <DropdownMenu.Item
                   onSelect={() =>
                     router.navigate({
-                      pathname: "/goals/[goalId]/log-history",
-                      params: { goalId },
-                    })
-                  }
-                  key="log-history"
-                  textValue="Log History"
-                  placeholder=""
-                  onPointerEnterCapture={() => {}}
-                  onPointerLeaveCapture={() => {}}
-                >
-                  <DropdownMenu.ItemIcon ios={{ name: "list.bullet" }} />
-                </DropdownMenu.Item>
-
-                <DropdownMenu.Separator />
-                {/* @ts-ignore */}
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    router.navigate({
                       pathname: "/goals/[goalId]/edit",
                       params: { goalId },
                     })
