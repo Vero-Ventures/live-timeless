@@ -82,30 +82,34 @@ export default function GoalsPage() {
 
   // Filter goalLogs for the selectedDate
   const filteredGoalLogs = goalLogs
-  ? goalLogs.filter((log) => {
-      const goal = goals?.find((goal) => goal._id === log.goalId);
-      if (!goal) return false;
+    ? goalLogs.filter((log) => {
+        const goal = goals?.find((goal) => goal._id === log.goalId);
+        if (!goal) return false;
 
-      // Convert log date and selectedDate to comparable strings
-      const logDate = new Date(log.date).toDateString();
-      const selectedDateStr = selectedDate.toDateString();
+        // Convert log date and selectedDate to comparable strings
+        const logDate = new Date(log.date).toDateString();
+        const selectedDateStr = selectedDate.toDateString();
 
-      if (logDate !== selectedDateStr) return false;
+        if (logDate !== selectedDateStr) return false;
 
-      // Apply repeat pattern checks as before
-      const startDate = new Date(goal.startDate);
-      switch (goal.repeatType) {
-        case "daily":
-          return isDailyRepeat(goal.dailyRepeat, startDate, selectedDate);
-        case "interval":
-          return isIntervalRepeat(startDate, goal.intervalRepeat, selectedDate);
-        case "monthly":
-          return isMonthlyRepeat(goal.monthlyRepeat, selectedDate);
-        default:
-          return startDate.getTime() === selectedDate.getTime();
-      }
-    })
-  : [];
+        // Apply repeat pattern checks as before
+        const startDate = new Date(goal.startDate);
+        switch (goal.repeatType) {
+          case "daily":
+            return isDailyRepeat(goal.dailyRepeat, startDate, selectedDate);
+          case "interval":
+            return isIntervalRepeat(
+              startDate,
+              goal.intervalRepeat,
+              selectedDate
+            );
+          case "monthly":
+            return isMonthlyRepeat(goal.monthlyRepeat, selectedDate);
+          default:
+            return startDate.getTime() === selectedDate.getTime();
+        }
+      })
+    : [];
 
   // Group filteredGoalLogs by goalId
   const groupedGoals = new Map();
@@ -261,7 +265,7 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
 
   // Check if the goal unit is one of the allowed units for the "Log" button
   const isAllowedUnit = allowedUnits.includes(goal.unit);
-  
+
   const buttonStyles =
     "w-28 justify-center flex-row items-center rounded-full p-3";
 
