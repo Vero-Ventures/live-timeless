@@ -15,10 +15,10 @@ interface LogType {
 }
 
 function formatDate(timestamp: number) {
-  const date = new Date(timestamp);
+const date = new Date(timestamp);
   if (isToday(date)) return "Today";
   if (isYesterday(date)) return "Yesterday";
-  return format(date, "EEEE, MMM d, yyyy");
+    return format(date, "EEEE, MMM d, yyyy h:mm a");
 }
 
 export default function LogHistoryPage() {

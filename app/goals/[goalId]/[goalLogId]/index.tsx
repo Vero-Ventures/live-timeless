@@ -58,7 +58,6 @@ export default function GoalScreen() {
     });
   };
 
-
   return (
     <View className="h-full gap-4 bg-background p-4">
       <Stack.Screen
