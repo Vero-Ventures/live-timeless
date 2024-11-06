@@ -58,13 +58,6 @@ export default function GoalScreen() {
     });
   };
 
-  const handleLogHistory = () => {
-      router.push({
-        pathname: "/goals/[goalId]/log-history",
-        params: { goalId },
-      });
-    };
-
   return (
     <View className="h-full gap-4 bg-background p-4">
       <Stack.Screen
@@ -110,9 +103,9 @@ export default function GoalScreen() {
                   onPointerEnterCapture={() => {}}
                   onPointerLeaveCapture={() => {}}
                 >
-                <DropdownMenu.ItemIcon ios={{ name: "list.bullet" }} />
+                  <DropdownMenu.ItemIcon ios={{ name: "list.bullet" }} />
                 </DropdownMenu.Item>
-                
+
                 <DropdownMenu.Separator />
 
                 <DropdownMenu.Item
