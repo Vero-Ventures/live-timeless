@@ -228,6 +228,7 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
     "feet",
     "yards",
     "miles",
+    "times",
   ];
 
   if (!selectedDateLog) {
