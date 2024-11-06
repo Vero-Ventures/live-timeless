@@ -90,6 +90,7 @@ export default function GoalScreen() {
                 onPointerEnterCapture={() => {}}
                 onPointerLeaveCapture={() => {}}
               >
+                {/* @ts-ignore */}
                 <DropdownMenu.Item
                   onSelect={() =>
                     router.navigate({
