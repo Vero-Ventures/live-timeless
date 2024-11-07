@@ -28,11 +28,9 @@ const StatCard = ({
       <ArrowBigUp size={16} color="green" fill="green" />
     ) : status === "negative" ? (
       <ArrowBigDown size={16} color="red" fill="red" />
-    ) : (
-      <></>
-    );
+    ) : null;
   return (
-    <View className="flex w-[48%] flex-col gap-1 rounded-xl border border-gray-600 p-4">
+    <View className="flex w-[48%] flex-col gap-1 rounded-xl bg-slate-900 p-4">
       <View className="flex flex-row items-center gap-2">
         {titleIcon}
         <Text className="text-sm uppercase text-gray-400">{title}</Text>

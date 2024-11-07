@@ -50,10 +50,10 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#383838",
+    backgroundColor: "#334155",
   },
   selectedOption: {
-    backgroundColor: "gray",
+    backgroundColor: "#475569",
   },
   optionText: {
     color: "#ffffff",

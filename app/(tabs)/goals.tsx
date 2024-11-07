@@ -160,8 +160,8 @@ export default function GoalsPage() {
         </Text>
         {!goals || !goalLogs ? (
           <View className="mt-10 flex flex-row justify-center gap-2">
-            <Text>Loading goals...</Text>
             <ActivityIndicator />
+            <Text>Loading goals...</Text>
           </View>
         ) : (
           <FlatList
@@ -255,7 +255,16 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
 
   return (
     <View className="flex-row items-center gap-4">
-      <Link href={`/goals/${goal._id}/${selectedDateLog._id}`} asChild>
+      <Link
+        href={{
+          pathname: "/goals/[goalId]/[goalLogId]",
+          params: {
+            goalId: goal._id,
+            goalLogId: selectedDateLog._id,
+          },
+        }}
+        asChild
+      >
         <Pressable className="flex-1">
           <View className="flex-row items-center gap-4">
             <View
