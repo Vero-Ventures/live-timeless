@@ -29,7 +29,7 @@ export default function GoalsPage() {
   const [selectedDate, setSelectedDate] = useState(today);
   const goals = useQuery(api.goals.listGoals);
   const goalLogs = useQuery(api.goalLogs.listGoalLogs);
-  
+
   useEffect(() => {
     if (goals && goalLogs) {
       SplashScreen.hideAsync();
@@ -237,15 +237,15 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
 
   const handleLogPress = async (e: any) => {
     e.stopPropagation(); // Prevent parent navigation
-  
+
     if (selectedDateLog.isComplete) {
       Alert.alert("Goal Completed", "This goal has already been completed.");
       return;
     }
-  
+
     const newUnitsCompleted = (selectedDateLog.unitsCompleted ?? 0) + 1;
     const goalComplete = newUnitsCompleted >= goal.unitValue;
-  
+
     try {
       // Update the goalLog in the backend with the incremented units
       await updateGoalLog({
@@ -253,7 +253,7 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
         unitsCompleted: newUnitsCompleted,
         isComplete: goalComplete, // Mark complete if it reaches goal value
       });
-  
+
       if (goalComplete) {
         Alert.alert(
           "Goal Completed",
@@ -264,7 +264,6 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
       console.error("Error updating goal log:", error);
     }
   };
-  
 
   const IconComp = GOAL_ICONS.find(
     (item) => item.name === goal.selectedIcon
@@ -314,52 +313,48 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
       {selectedDateLog.isComplete ? (
         // Render green checkmark icon if goal is complete
         <FontAwesome5 name="check-circle" size={24} color="green" />
-      ) : (
-        // Render the checkmark with "1" icon only if the goal unit is "times"
-        isTimesUnit ? (
-          <Pressable
-            className={cn(
-              "flex-row items-center justify-center rounded-full bg-gray-800 p-2",
-              buttonStyles
-            )}
-            onPress={handleLogPress}
+      ) : // Render the checkmark with "1" icon only if the goal unit is "times"
+      isTimesUnit ? (
+        <Pressable
+          className={cn(
+            "flex-row items-center justify-center rounded-full bg-gray-800 p-2",
+            buttonStyles
+          )}
+          onPress={handleLogPress}
+        >
+          <FontAwesome5 name="check" size={16} color="white" />
+          <Text style={{ color: "white", marginLeft: 4 }}>1</Text>
+        </Pressable>
+      ) : // Render "Log Progress" button if unit is in allowedUnits but not "times"
+      isAllowedUnit ? (
+        <Pressable
+          onPress={handleLogPress}
+          className={cn(buttonStyles, "bg-blue-600")}
+        >
+          <FontAwesome5 name="plus-circle" size={16} color="#fff" />
+          <Text
+            className="ml-2 text-white"
+            style={{ fontFamily: "openSans.bold" }}
           >
-            <FontAwesome5 name="check" size={16} color="white" />
-            <Text style={{ color: "white", marginLeft: 4 }}>1</Text>
-          </Pressable>
-        ) : (
-          // Render "Log Progress" button if unit is in allowedUnits but not "times"
-          isAllowedUnit ? (
-            <Pressable
-              onPress={handleLogPress}
-              className={cn(buttonStyles, "bg-blue-600")}
-            >
-              <FontAwesome5 name="plus-circle" size={16} color="#fff" />
-              <Text
-                className="ml-2 text-white"
-                style={{ fontFamily: "openSans.bold" }}
-              >
-                Log Progress
-              </Text>
-            </Pressable>
-          ) : (
-            // Default button for units not in allowedUnits or "times"
-            <Pressable
-              onPress={handleTimerRedirect}
-              className={cn(buttonStyles, "bg-gray-600")}
-            >
-              {!!AlarmIconComp && (
-                <AlarmIconComp name="alarm" size={20} color="#fff" />
-              )}
-              <Text
-                className="ml-2 text-white"
-                style={{ fontFamily: "openSans.bold" }}
-              >
-                Timer
-              </Text>
-            </Pressable>
-          )
-        )
+            Log Progress
+          </Text>
+        </Pressable>
+      ) : (
+        // Default button for units not in allowedUnits or "times"
+        <Pressable
+          onPress={handleTimerRedirect}
+          className={cn(buttonStyles, "bg-gray-600")}
+        >
+          {!!AlarmIconComp && (
+            <AlarmIconComp name="alarm" size={20} color="#fff" />
+          )}
+          <Text
+            className="ml-2 text-white"
+            style={{ fontFamily: "openSans.bold" }}
+          >
+            Timer
+          </Text>
+        </Pressable>
       )}
     </View>
   );
