@@ -5,11 +5,12 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
+  type GestureResponderEvent,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
-import { Link, SplashScreen } from "expo-router";
+import { Link, router, SplashScreen } from "expo-router";
 import type { Dispatch, SetStateAction } from "react";
 import { useEffect, useRef, useState } from "react";
 import { fontFamily } from "~/lib/font";
@@ -20,8 +21,8 @@ import { useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import type { Doc } from "~/convex/_generated/dataModel";
 import { GOAL_ICONS } from "~/constants/goal-icons";
-import { useRouter } from "expo-router";
-import { FontAwesome5 } from "@expo/vector-icons";
+import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useMutation } from "convex/react";
 
 export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
@@ -170,7 +171,7 @@ export default function GoalsPage() {
             className="mt-6 border-t border-t-[#fff]/10 pt-6"
             data={matchedGoals}
             ItemSeparatorComponent={() => (
-              <View className="my-4 ml-14 mr-6 h-0.5 bg-[#fff]/10" />
+              <Separator className="my-4 h-0.5 bg-[#fff]/10" />
             )}
             ListEmptyComponent={() => (
               <Text className="text-center">No goals found for this date.</Text>
@@ -187,7 +188,7 @@ export default function GoalsPage() {
           selectedDate={selectedDate}
           setSelectedDate={setSelectedDate}
         />
-        <Separator orientation="vertical" className="mx-2" />
+        <Separator className="mr-2" orientation="vertical" />
         <Link href="/goals/create" asChild>
           <Button size="icon" className="h-14 w-14 rounded-full">
             <Plus color="#fff" size={30} />
@@ -204,37 +205,14 @@ interface GoalItemProps {
 }
 
 function GoalItem({ goal, goalLogs }: GoalItemProps) {
-  const router = useRouter();
   const selectedDateLog = goalLogs && goalLogs.length > 0 ? goalLogs[0] : null;
-
-  const allowedUnits = [
-    "steps",
-    "kg",
-    "grams",
-    "mg",
-    "oz",
-    "pounds",
-    "μg",
-    "litres",
-    "mL",
-    "US fl oz",
-    "cups",
-    "kilojoules",
-    "kcal",
-    "cal",
-    "joules",
-    "km",
-    "metres",
-    "feet",
-    "yards",
-    "miles",
-  ];
+  const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
 
   if (!selectedDateLog) {
     return null;
   }
 
-  const handleLogPress = (e: any) => {
+  const handleLogPress = async (e: GestureResponderEvent) => {
     e.stopPropagation(); // Prevent parent navigation
 
     if (selectedDateLog.isComplete) {
@@ -242,13 +220,26 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
       return;
     }
 
-    router.push({
-      pathname: `/goals/[goalId]/[goalLogId]/start/logProgress`,
-      params: {
-        goalId: goal._id,
+    const newUnitsCompleted = (selectedDateLog.unitsCompleted ?? 0) + 1;
+    const goalComplete = newUnitsCompleted >= goal.unitValue;
+
+    try {
+      // Update the goalLog in the backend with the incremented units
+      await updateGoalLog({
         goalLogId: selectedDateLog._id,
-      },
-    });
+        unitsCompleted: newUnitsCompleted,
+        isComplete: goalComplete, // Mark complete if it reaches goal value
+      });
+
+      if (goalComplete) {
+        Alert.alert(
+          "Goal Completed",
+          `Congratulations! You've completed the goal.`
+        );
+      }
+    } catch (error) {
+      console.error("Error updating goal log:", error);
+    }
   };
 
   const IconComp = GOAL_ICONS.find(
@@ -259,15 +250,8 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
     router.push(`/goals/${goal._id}/${selectedDateLog._id}/start`);
   };
 
-  const AlarmIconComp = GOAL_ICONS.find(
-    (icon) => icon.name === "alarm"
-  )?.component;
-
-  // Check if the goal unit is one of the allowed units for the "Log" button
-  const isAllowedUnit = allowedUnits.includes(goal.unit);
-
-  const buttonStyles =
-    "w-28 justify-center flex-row items-center rounded-full p-3";
+  const isCounterUnit = goal.unit === "times";
+  const isTimerUnit = ["minutes", "min", "hours"].includes(goal.unit);
 
   return (
     <View className="flex-row items-center gap-4">
@@ -296,36 +280,36 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
         </Pressable>
       </Link>
 
-      {/* Conditionally render Timer or Log button based on the unit */}
-      {isAllowedUnit ? (
-        // Show Log button for allowed units
-        <Pressable
-          className={cn(
-            buttonStyles,
-            selectedDateLog.isComplete ? "bg-gray-500" : "bg-gray-800"
-          )}
+      {selectedDateLog.isComplete ? (
+        // Render green checkmark icon if goal is complete
+        <View className="pr-5">
+          <FontAwesome5 name="check-circle" size={24} color="green" />
+        </View>
+      ) : // Render the checkmark with "1" icon only if the goal unit is "times"
+      isCounterUnit ? (
+        <Button
+          className="flex flex-row items-end gap-2 rounded-full bg-gray-600"
           onPress={handleLogPress}
-          disabled={selectedDateLog.isComplete}
         >
-          <FontAwesome5 name="keyboard" size={20} color="white" />
-          <Text className="ml-2 text-white">Log</Text>
-        </Pressable>
-      ) : (
-        // Show Timer button for other units
-        <Pressable
+          <FontAwesome5 name="check" size={16} color="white" />
+          <Text className="font-bold">1</Text>
+        </Button>
+      ) : isTimerUnit ? (
+        <Button
           onPress={handleTimerRedirect}
-          className={cn(buttonStyles, "bg-gray-600")}
+          className="flex flex-row items-center gap-2 rounded-full bg-gray-600"
         >
-          {!!AlarmIconComp && (
-            <AlarmIconComp name="alarm" size={20} color="#fff" />
-          )}
-          <Text
-            className="ml-2 text-white"
-            style={{ fontFamily: "openSans.bold" }}
-          >
-            Timer
-          </Text>
-        </Pressable>
+          <MaterialCommunityIcons name="alarm" size={20} color="#fff" />
+          <Text className="font-bold">Timer</Text>
+        </Button>
+      ) : (
+        <Button
+          className="flex flex-row items-center gap-2 rounded-full bg-gray-600"
+          onPress={handleLogPress}
+        >
+          <FontAwesome5 name="plus-circle" size={16} color="#fff" />
+          <Text className="font-bold">Log Progress</Text>
+        </Button>
       )}
     </View>
   );
