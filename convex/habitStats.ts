@@ -159,13 +159,6 @@ function calculateSkipped(logs: GoalLog[], startDate: Date): number {
     }
   }
 
-  // Debugging output
-  console.log("Goal Start Date:", startDate.toISOString());
-  console.log("Counting Start Date:", countingStartDate.toISOString());
-  console.log("Today:", today.toISOString());
-  console.log("Log Dates Set:", Array.from(logDates));
-  console.log("Skipped Days Calculated:", skippedDays);
-
   return skippedDays;
 }
 
