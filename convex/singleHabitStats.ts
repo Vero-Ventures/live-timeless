@@ -3,7 +3,6 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import type { GoalLog } from "./goalLogs";
 
-// Define the HabitStat type for the backend
 export type HabitStat = {
   _id: string;
   name: string;
@@ -30,8 +29,6 @@ export const fetchSingleHabitStats = query({
       throw new Error("User not authenticated");
     }
 
-    console.log("Authenticated User ID:", userId);
-
     // Fetch the goal based on the goal ID
     const goal = await ctx.db.get(goalId);
     if (!goal) {
@@ -45,8 +42,6 @@ export const fetchSingleHabitStats = query({
       .withIndex("by_goal_id", (q) => q.eq("goalId", goal._id))
       .collect();
 
-    console.log("logs", logs);
-
     const total = calculateTotal(logs);
     const dailyAverage = calculateDailyAverage(logs);
     const longestStreak = calculateLongestStreak(logs);
@@ -54,12 +49,18 @@ export const fetchSingleHabitStats = query({
     const skipped = calculateSkipped(logs);
     const failed = calculateFailed(logs);
     const successfulDays = calculateSuccessfulDays(logs);
-    const weeklyAverage = calculateWeeklyAverage(logs);
-    const monthlyAverage = calculateMonthlyAverage(logs);
-    const dailyCompletionRates = calculateDailyCompletionRates(
+    const weeklyAverage = calculateWeeklyAverage(logs).average;
+    const monthlyAverage = calculateMonthlyAverage(logs).average;
+    const dailyCompletionRates = calculateDailyCompletion(
       logs,
       goal.unitValue
-    );
+    ).rates;
+    const dailyAverageData = calculateDailyCompletion(
+      logs,
+      goal.unitValue
+    ).chartData;
+    const weeklyAverageData = calculateWeeklyAverage(logs).chartData;
+    const monthlyAverageData = calculateMonthlyAverage(logs).chartData;
 
     return {
       _id: goal._id,
@@ -75,6 +76,9 @@ export const fetchSingleHabitStats = query({
       failed,
       successfulDays,
       dailyCompletionRates,
+      dailyAverageData,
+      weeklyAverageData,
+      monthlyAverageData,
     };
   },
 });
@@ -119,10 +123,8 @@ function calculateTotal(logs: GoalLog[]): number {
 function calculateDailyAverage(logs: GoalLog[]): number {
   if (logs.length === 0) return 0;
 
-  // Filter logs with units completed
   const logsWithUnits = logs.filter((log) => log.unitsCompleted > 0);
 
-  // Group logs by date
   const logsByDate = logsWithUnits.reduce(
     (acc, log) => {
       const date = new Date(log.date).toISOString().split("T")[0]; // Format date as YYYY-MM-DD
@@ -133,7 +135,6 @@ function calculateDailyAverage(logs: GoalLog[]): number {
     {} as Record<string, GoalLog[]>
   );
 
-  // Calculate the daily average units completed
   const totalUnits = Object.values(logsByDate).reduce((sum, dayLogs) => {
     const dailyTotal = dayLogs.reduce(
       (daySum, log) => daySum + log.unitsCompleted,
@@ -156,15 +157,65 @@ function calculateSkipped(logs: GoalLog[]): number {
 }
 
 function calculateFailed(logs: GoalLog[]): number {
-  return logs.filter((log) => !log.isComplete && log.unitsCompleted > 0).length;
+  return logs.filter((log) => !log.isComplete && !log.unitsCompleted).length;
 }
 
 function calculateSuccessfulDays(logs: GoalLog[]): number {
   return logs.filter((log) => log.isComplete).length;
 }
 
-function calculateWeeklyAverage(logs: GoalLog[]): number {
-  if (logs.length === 0) return 0;
+function calculateDailyCompletion(logs: GoalLog[], unitValue: number) {
+  const daysInMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth() + 1,
+    0
+  ).getDate();
+  const dailyCompletionRates = Array(daysInMonth).fill(0);
+
+  const dailyCompletionData = {
+    labels: Array(daysInMonth).fill(""),
+    data: Array(daysInMonth).fill(0),
+  };
+
+  const dailyLogs = logs.reduce(
+    (acc, log) => {
+      const date = new Date(log.date);
+      const day = date.getDate() - 1;
+      if (!acc[day]) acc[day] = [];
+      acc[day].push(log);
+      return acc;
+    },
+    {} as Record<number, GoalLog[]>
+  );
+
+  // Calculate daily completion rates
+  Object.keys(dailyLogs).forEach((day) => {
+    const dayLogs = dailyLogs[parseInt(day)];
+    const totalCompleted = dayLogs.reduce(
+      (sum: number, log: { unitsCompleted: number }) =>
+        sum + log.unitsCompleted,
+      0
+    );
+    const completionRate =
+      (totalCompleted / (unitValue * dayLogs.length)) * 100;
+    dailyCompletionRates[parseInt(day)] = completionRate;
+    dailyCompletionData.data[parseInt(day)] = totalCompleted;
+  });
+  // Set labels for the first of the month and days divisible by 5
+  for (let i = 0; i < daysInMonth; i++) {
+    if ((i + 1) % 5 === 0) {
+      dailyCompletionData.labels[i] = (i + 1).toString();
+    }
+  }
+  return { rates: dailyCompletionRates, chartData: dailyCompletionData };
+}
+
+function calculateWeeklyAverage(logs: GoalLog[]): {
+  average: number;
+  chartData: { data: number[]; labels: string[] };
+} {
+  if (logs.length === 0)
+    return { average: 0, chartData: { data: [], labels: [] } };
 
   // Filter logs with units completed
   const logsWithUnits = logs.filter((log) => log.unitsCompleted > 0);
@@ -173,11 +224,11 @@ function calculateWeeklyAverage(logs: GoalLog[]): number {
   const logsByWeek = logsWithUnits.reduce(
     (acc, log) => {
       const date = new Date(log.date);
-      const weekStart = new Date(date.setDate(date.getDate() - date.getDay()))
-        .toISOString()
-        .split("T")[0]; // Start of the week (Sunday)
-      if (!acc[weekStart]) acc[weekStart] = [];
-      acc[weekStart].push(log);
+      const weekStart = new Date(date.setDate(date.getDate() - date.getDay()));
+      weekStart.setHours(0, 0, 0, 0); // Ensure the time is set to midnight
+      const weekStartStr = weekStart.toISOString().split("T")[0]; // Start of the week (Sunday)
+      if (!acc[weekStartStr]) acc[weekStartStr] = [];
+      acc[weekStartStr].push(log);
       return acc;
     },
     {} as Record<string, GoalLog[]>
@@ -192,26 +243,51 @@ function calculateWeeklyAverage(logs: GoalLog[]): number {
     return sum + weeklyTotal;
   }, 0);
 
-  // Calculate the number of weeks with logs
   const weeksWithLogs = Object.keys(logsByWeek).length;
+  const average = totalUnits / weeksWithLogs;
 
-  // Calculate the weekly average units completed
-  return totalUnits / weeksWithLogs;
+  const today = new Date();
+  const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  const last4Weeks = [];
+  for (let i = 0; i < 4; i++) {
+    const weekStart = new Date(startOfWeek);
+    weekStart.setDate(startOfWeek.getDate() - i * 7);
+    weekStart.setHours(0, 0, 0, 0);
+    const weekStartStr = weekStart.toISOString().split("T")[0];
+    last4Weeks.push(weekStartStr);
+  }
+  last4Weeks.reverse();
+
+  const weeklyData = last4Weeks.map((weekStart) => {
+    const weekLogs = logsByWeek[weekStart] || [];
+    const totalCompleted = weekLogs.reduce(
+      (sum, log) => sum + log.unitsCompleted,
+      0
+    );
+    const completionRate = weekLogs.length > 0 ? totalCompleted : 0;
+    return completionRate;
+  });
+
+  const weeklyLabels = last4Weeks.map((weekStart) => {
+    const date = new Date(weekStart);
+    return `${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
+  });
+
+  return { average, chartData: { data: weeklyData, labels: weeklyLabels } };
 }
 
-function calculateMonthlyAverage(logs: GoalLog[]): number {
-  if (logs.length === 0) return 0;
-
-  // Filter logs with units completed
-  const logsWithUnits = logs.filter((log) => log.unitsCompleted > 0);
-
-  // Group logs by month
-  const logsByMonth = logsWithUnits.reduce(
+function calculateMonthlyAverage(logs: GoalLog[]): {
+  average: number;
+  chartData: { data: number[]; labels: string[] };
+} {
+  const monthlyLogs = logs.reduce(
     (acc, log) => {
       const date = new Date(log.date);
       const monthStart = new Date(date.getFullYear(), date.getMonth(), 1)
         .toISOString()
-        .split("T")[0]; // Start of the month
+        .split("T")[0];
       if (!acc[monthStart]) acc[monthStart] = [];
       acc[monthStart].push(log);
       return acc;
@@ -219,45 +295,39 @@ function calculateMonthlyAverage(logs: GoalLog[]): number {
     {} as Record<string, GoalLog[]>
   );
 
-  // Calculate the total units completed for months with logs
-  const totalUnits = Object.values(logsByMonth).reduce((sum, monthLogs) => {
-    const monthlyTotal = monthLogs.reduce(
-      (monthSum, log) => monthSum + log.unitsCompleted,
-      0
-    );
-    return sum + monthlyTotal;
-  }, 0);
+  const today = new Date();
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  startOfMonth.setHours(0, 0, 0, 0);
 
-  // Calculate the number of months with logs
-  const monthsWithLogs = Object.keys(logsByMonth).length;
+  const last4Months = [];
+  for (let i = 0; i < 4; i++) {
+    const monthStart = new Date(startOfMonth);
+    monthStart.setMonth(startOfMonth.getMonth() - i);
+    monthStart.setHours(0, 0, 0, 0); // Ensure the time is set to midnight
+    const monthStartStr = monthStart.toISOString().split("T")[0];
+    last4Months.push(monthStartStr);
+  }
 
-  // Calculate the monthly average units completed
-  return totalUnits / monthsWithLogs;
-}
+  const monthlyData = last4Months
+    .map((monthStart) => {
+      const monthLogs = monthlyLogs[monthStart] || [];
+      const totalCompleted = monthLogs.reduce(
+        (sum, log) => sum + log.unitsCompleted,
+        0
+      );
+      return totalCompleted;
+    })
+    .filter((totalCompleted) => totalCompleted > 0);
 
-function calculateDailyCompletionRates(logs: GoalLog[], unitValue: number) {
-  // Group logs by date
-  const dailyLogs = logs.reduce(
-    (acc, log) => {
-      const date = new Date(log.date).toISOString().split("T")[0]; // Format date as YYYY-MM-DD
-      if (!acc[date]) acc[date] = [];
-      acc[date].push(log);
-      return acc;
-    },
-    {} as Record<string, GoalLog[]>
-  );
+  const monthlyLabels = last4Months
+    .map((monthStart) => {
+      const date = new Date(monthStart);
+      return `${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getFullYear()}`;
+    })
+    .filter((_, index) => monthlyData[index] > 0);
 
-  const dailyCompletionRates = Object.keys(dailyLogs).map((date) => {
-    const dayLogs = dailyLogs[date];
-    const totalCompleted = dayLogs.reduce(
-      (sum: number, log: { unitsCompleted: number }) =>
-        sum + log.unitsCompleted,
-      0
-    );
-    const completionRate =
-      (totalCompleted / (unitValue * dayLogs.length)) * 100;
-    return { date, completionRate };
-  });
+  const totalUnits = monthlyData.reduce((sum, units) => sum + units, 0);
+  const average = monthlyData.length > 0 ? totalUnits / monthlyData.length : 0;
 
-  return dailyCompletionRates;
+  return { average, chartData: { data: monthlyData, labels: monthlyLabels } };
 }

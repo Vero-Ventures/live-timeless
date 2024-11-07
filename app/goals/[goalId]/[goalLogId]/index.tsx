@@ -7,28 +7,20 @@ import { api } from "~/convex/_generated/api";
 import type { Id } from "~/convex/_generated/dataModel";
 import { fontFamily } from "~/lib/font";
 import * as DropdownMenu from "zeego/dropdown-menu"; // TODO: Remove @ts-ignore lines when zeego is fixed
-import { useState, useEffect } from "react";
-import { ArrowRight, Check, ChevronDown, X } from "lucide-react-native";
+import { useState } from "react";
+import {
+  ArrowRight,
+  Check,
+  ChevronDown,
+  Loader2,
+  X,
+} from "lucide-react-native";
 import { BarChart } from "react-native-chart-kit";
 import { StatCard } from "~/components/ui/statCard";
 import Calendar from "~/components/ui/calendar";
 import { addDays } from "date-fns";
 import ToggleSwitch from "~/components/ui/ToggleSwitch";
 import { formatDecimalNumber } from "~/lib/utils";
-
-const progressData = [
-  10, 20, 30, 50, 60, 80, 0, 90, 75, 30, 50, 20, 40, 60, 80, 100, 90, 75, 0, 50,
-  20, 40, 60, 80, 100, 90, 75, 30, 0, 0, 0,
-];
-
-const chartData = {
-  labels: [],
-  datasets: [
-    {
-      data: progressData,
-    },
-  ],
-};
 
 type Modes = "day" | "week" | "month";
 
@@ -49,16 +41,38 @@ export default function GoalScreen() {
   // Fetch goal and goal logs
   const goal = useQuery(api.goals.getGoalById, { goalId });
   const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });
-  const goalLogs = useQuery(api.goalLogs.getGoalLogsbyGoalId, { goalId });
+  // const goalLogs = useQuery(api.goalLogs.getGoalLogsbyGoalId, { goalId });
   const habitStats = useQuery(api.singleHabitStats.fetchSingleHabitStats, {
     goalId,
   });
-  console.log("habitStats", habitStats);
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedPeriod, setSelectedPeriod] = useState<Date>(new Date());
   const [modeIndex, setModeIndex] = useState<number>(0);
   const screenWidth = Dimensions.get("window").width;
   const averageLabel = (mode: Modes) => {
     return mode === "day" ? "Daily" : mode === "week" ? "Weekly" : "Monthly";
+  };
+
+  const progressData = habitStats?.dailyCompletionRates ?? [];
+  const selectedData = () => {
+    switch (modeOptions[modeIndex]) {
+      case "day":
+        return habitStats?.dailyAverageData;
+      case "week":
+        return habitStats?.weeklyAverageData;
+      case "month":
+        return habitStats?.monthlyAverageData;
+    }
+  };
+
+  const chartData = {
+    labels: selectedData()?.labels ?? [],
+    datasets: [
+      {
+        data: selectedData()?.data ?? [],
+      },
+    ],
   };
 
   const mode = modeOptions[modeIndex];
@@ -98,16 +112,16 @@ export default function GoalScreen() {
 
   const deleteGoalAndGoalLogs = useMutation(api.goals.deleteGoalAndGoalLogs);
 
-  const [progress, setProgress] = useState<number>(0);
+  // const [progress, setProgress] = useState<number>(0);
 
-  useEffect(() => {
-    if (goalLogs) {
-      const totalLogs = goalLogs.length;
-      const completedLogs = goalLogs.filter((log) => log.isComplete).length;
-      const percentage = totalLogs > 0 ? (completedLogs / totalLogs) * 100 : 0;
-      setProgress(percentage);
-    }
-  }, [goalLogs]);
+  // useEffect(() => {
+  //   if (goalLogs) {
+  //     const totalLogs = goalLogs.length;
+  //     const completedLogs = goalLogs.filter((log) => log.isComplete).length;
+  //     const percentage = totalLogs > 0 ? (completedLogs / totalLogs) * 100 : 0;
+  //     setProgress(percentage);
+  //   }
+  // }, [goalLogs]);
 
   const handleDelete = async () => {
     Alert.alert(
@@ -134,57 +148,46 @@ export default function GoalScreen() {
     });
   };
 
+  if (!habitStats || !chartData) {
+    return (
+      <View className="h-full items-center justify-center">
+        <Loader2 className="size-32 animate-spin" />
+      </View>
+    );
+  }
+
   return (
     <ScrollView className="h-full space-y-4 bg-background p-4">
-    <View className="h-full gap-4 bg-background p-4">
-      <Stack.Screen
-        options={{
-          headerStyle: {
-            backgroundColor: "#0b1a28",
-          },
-          headerTintColor: "#fff",
-          headerTitle: () => (
-            <Text
-              className="text-xl"
-              style={{ fontFamily: fontFamily.openSans.bold }}
-            >
-              {goal ? goal.name : "Goal"}
-            </Text>
-          ),
-          headerBackTitleVisible: false,
-          headerRight: () => (
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger asChild>
-                <Pressable hitSlop={20}>
-                  <FontAwesome5 name="ellipsis-h" size={20} color="#fff" />
-                </Pressable>
-              </DropdownMenu.Trigger>
+      <View className="gap-4 bg-background p-4">
+        <Stack.Screen
+          options={{
+            headerStyle: {
+              backgroundColor: "#0b1a28",
+            },
+            headerTintColor: "#fff",
+            headerTitle: () => (
+              <Text
+                className="text-xl"
+                style={{ fontFamily: fontFamily.openSans.bold }}
+              >
+                {goal ? goal.name : "Goal"}
+              </Text>
+            ),
+            headerBackTitleVisible: false,
+            headerRight: () => (
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger asChild>
+                  <Pressable hitSlop={20}>
+                    <FontAwesome5 name="ellipsis-h" size={20} color="#fff" />
+                  </Pressable>
+                </DropdownMenu.Trigger>
               {/* @ts-ignore */}
               <DropdownMenu.Content
                 key="actions"
-                role="menu"
                 placeholder=""
                 onPointerEnterCapture={() => {}}
                 onPointerLeaveCapture={() => {}}
               >
-                {/* @ts-ignore */}
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    router.navigate({
-                      pathname: "/goals/[goalId]/log-history",
-                      params: { goalId },
-                    })
-                  }
-                  key="log-history"
-                  textValue="Log History"
-                  placeholder=""
-                  onPointerEnterCapture={() => {}}
-                  onPointerLeaveCapture={() => {}}
-                >
-                  <DropdownMenu.ItemIcon ios={{ name: "list.bullet" }} />
-                </DropdownMenu.Item>
-
-                <DropdownMenu.Separator />
                 {/* @ts-ignore */}
                 <DropdownMenu.Item
                   onSelect={() =>
@@ -299,29 +302,29 @@ export default function GoalScreen() {
             width={screenWidth - 60}
             height={220}
             yAxisLabel=""
-            yAxisSuffix="%"
-            xLabelsOffset={-10}
+            yAxisSuffix=""
+            xLabelsOffset={0}
+            fromZero={true}
             chartConfig={{
               backgroundColor: "transparent",
-              backgroundGradientFrom: "#1E202B",
-              backgroundGradientTo: "#1E202B",
+              backgroundGradientFrom: "#082139",
+              backgroundGradientTo: "#082139",
               decimalPlaces: 1,
-              color: () => "green",
+              color: () => `rgba(120, 120, 255, 1)`,
               labelColor: () => `rgba(255, 255, 255, 1)`,
               fillShadowGradientOpacity: 1,
               propsForBackgroundLines: {
-                stroke: "grey",
+                stroke: "white",
                 transform: [{ translateX: 75 }],
               },
               propsForLabels: {
-                fill: "transparent",
+                fill: "ffffff",
                 fontSize: 10,
               },
-              barPercentage: 0.3,
+              barPercentage: modeIndex === 0 ? 0.1 : 1,
             }}
             verticalLabelRotation={0}
           />
-
           <ToggleSwitch
             currentOption={modeIndex}
             onToggle={(option) => setModeIndex(option)}
