@@ -44,7 +44,6 @@ export const fetchHabitStats = query(async (ctx) => {
       const dailyAverage = calculateDailyAverage(
         logs,
         new Date(goal.startDate),
-        goal.unitValue
       );
       const longestStreak = calculateLongestStreak(logs);
       const skipped = calculateSkipped(logs, new Date(goal.startDate));
@@ -112,7 +111,6 @@ function calculateTotal(logs: GoalLog[]): number {
 function calculateDailyAverage(
   logs: GoalLog[],
   startDate: Date,
-  goalUnitValue: number
 ): number {
   if (logs.length === 0) return 0;
 

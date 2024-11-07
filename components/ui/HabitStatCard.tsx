@@ -15,11 +15,9 @@ import { Flame } from "~/lib/icons/Flame";
 import { Infinity } from "~/lib/icons/Infinity";
 import { X } from "~/lib/icons/X";
 import { Separator } from "./separator";
-import { startOfDay, subDays, format } from "date-fns";
+import { startOfDay, subDays } from "date-fns";
 import { GOAL_ICONS } from "~/constants/goal-icons";
 import { cn } from "~/lib/utils";
-import { useQuery } from "convex/react";
-import { api } from "~/convex/_generated/api";
 
 interface HabitStatCardProps {
   name: string;
