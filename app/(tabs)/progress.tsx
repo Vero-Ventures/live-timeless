@@ -63,18 +63,19 @@ function Progress() {
     return <Text style={styles.noDataText}>No habits data available.</Text>;
 
   // Organize goalLogs by goalId for easy lookup
-  const goalLogsByGoalId = goalLogs?.reduce(
-    (acc, log) => {
-      const goalId = log.goalId.toString();
-      if (!acc[goalId]) acc[goalId] = [];
-      acc[goalId].push({
-        date: log.date, // Keep `date` as a timestamp (number)
-        isComplete: log.isComplete,
-      });
-      return acc;
-    },
-    {} as Record<string, { date: number; isComplete: boolean }[]>
-  ) ?? {};
+  const goalLogsByGoalId =
+    goalLogs?.reduce(
+      (acc, log) => {
+        const goalId = log.goalId.toString();
+        if (!acc[goalId]) acc[goalId] = [];
+        acc[goalId].push({
+          date: log.date, // Keep `date` as a timestamp (number)
+          isComplete: log.isComplete,
+        });
+        return acc;
+      },
+      {} as Record<string, { date: number; isComplete: boolean }[]>
+    ) ?? {};
 
   return (
     <SafeAreaView style={styles.safeArea}>

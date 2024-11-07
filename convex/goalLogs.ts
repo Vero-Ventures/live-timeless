@@ -98,7 +98,9 @@ export const updateGoalLog = mutation({
       const targetDateFormatted = format(new Date(targetDate), "MM/dd/yyyy");
 
       if (targetDateFormatted !== existingDateFormatted) {
-        throw new Error("Date mismatch: Cannot update goal log for a different date");
+        throw new Error(
+          "Date mismatch: Cannot update goal log for a different date"
+        );
       }
     }
 
@@ -108,7 +110,9 @@ export const updateGoalLog = mutation({
       const newDateString = format(newDate, "MM/dd/yyyy");
 
       if (existingDateFormatted !== newDateString) {
-        throw new Error("Date mismatch: Cannot update goal log with a different date");
+        throw new Error(
+          "Date mismatch: Cannot update goal log with a different date"
+        );
       }
     }
 
@@ -187,11 +191,15 @@ export const createGoalLogsFromGoal = mutation({
         .first();
 
       if (existingGoalLog) {
-        console.warn(`Goal log already exists for date: ${new Date(date).toISOString()}`);
+        console.warn(
+          `Goal log already exists for date: ${new Date(date).toISOString()}`
+        );
         continue; // Skip if a log for this date already exists
       }
 
-      console.log(`Creating goal log for date: ${new Date(date).toISOString()}`);
+      console.log(
+        `Creating goal log for date: ${new Date(date).toISOString()}`
+      );
 
       await ctx.db.insert("goalLogs", {
         goalId: args.goalId,

@@ -41,7 +41,11 @@ export const fetchHabitStats = query(async (ctx) => {
         .collect();
 
       const total = calculateTotal(logs);
-      const dailyAverage = calculateDailyAverage(logs, new Date(goal.startDate), goal.unitValue);
+      const dailyAverage = calculateDailyAverage(
+        logs,
+        new Date(goal.startDate),
+        goal.unitValue
+      );
       const longestStreak = calculateLongestStreak(logs);
       const skipped = calculateSkipped(logs, new Date(goal.startDate));
       const failed = calculateFailed(logs);
@@ -105,15 +109,24 @@ function calculateTotal(logs: GoalLog[]): number {
 }
 
 // Calculate the daily average based on actual units completed and days with logged progress
-function calculateDailyAverage(logs: GoalLog[], startDate: Date, goalUnitValue: number): number {
+function calculateDailyAverage(
+  logs: GoalLog[],
+  startDate: Date,
+  goalUnitValue: number
+): number {
   if (logs.length === 0) return 0;
 
   // Sum the units completed from logs
-  const totalUnitsCompleted = logs.reduce((sum, log) => sum + log.unitsCompleted, 0);
+  const totalUnitsCompleted = logs.reduce(
+    (sum, log) => sum + log.unitsCompleted,
+    0
+  );
 
   // Determine the number of days between the start date and today where progress was logged
   const today = new Date();
-  const totalDays = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+  const totalDays = Math.ceil(
+    (today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
 
   // Calculate the daily average based on the total units completed and actual days with logs
   return totalUnitsCompleted / totalDays;
