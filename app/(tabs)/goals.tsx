@@ -265,7 +265,7 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
 
   // Check if the goal unit is one of the allowed units for the "Log" button
   const isAllowedUnit = allowedUnits.includes(goal.unit);
-  
+
   const buttonStyles =
     "w-28 justify-center flex-row items-center rounded-full p-3";
 
