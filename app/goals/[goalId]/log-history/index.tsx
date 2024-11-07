@@ -1,24 +1,23 @@
 import { Stack, useLocalSearchParams } from "expo-router";
-import { useEffect } from "react";
-import { View, Text, ActivityIndicator, FlatList } from "react-native";
+import { View, ActivityIndicator, FlatList } from "react-native";
 import { useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import { fontFamily } from "~/lib/font";
 import { format, isToday, isYesterday } from "date-fns";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import type { Id } from "~/convex/_generated/dataModel";
+import type { FunctionReturnType } from "convex/server";
+import { GOAL_ICONS } from "~/constants/goal-icons";
+import { Text } from "~/components/ui/text";
 
-interface LogType {
-  _id: string;
-  date: number;
-  unitsCompleted: number;
-}
+type LogType = FunctionReturnType<
+  typeof api.goalLogs.getGoalLogsbyGoalId
+>[number];
 
 function formatDate(timestamp: number) {
   const date = new Date(timestamp);
   if (isToday(date)) return "Today";
   if (isYesterday(date)) return "Yesterday";
-  return format(date, "EEEE, MMM d, yyyy h:mm a");
+  return format(date, "MMM d, yyyy");
 }
 
 export default function LogHistoryPage() {
@@ -27,39 +26,18 @@ export default function LogHistoryPage() {
     goalId: goalId as Id<"goals">,
   });
 
-  useEffect(() => {
-    if (goalLogs) {
-      console.log(
-        "Fetched goal logs with dates:",
-        goalLogs.map((log) => ({
-          id: log._id,
-          date: new Date(log.date).toUTCString(),
-          rawTimestamp: log.date,
-        }))
-      );
-    }
-  }, [goalLogs]);
+  console.log(JSON.stringify(goalLogs, null, 4));
 
   if (!goalLogs) {
     return (
       <View
+        className="flex-1 items-center justify-center gap-4"
         style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
           backgroundColor: "#082139",
         }}
       >
-        <Text
-          style={{
-            fontFamily: fontFamily.openSans.medium,
-            color: "#ffffff",
-            fontSize: 16,
-          }}
-        >
-          Loading log history...
-        </Text>
         <ActivityIndicator size="large" color="#ffffff" />
+        <Text>Loading log history...</Text>
       </View>
     );
   }
@@ -77,7 +55,7 @@ export default function LogHistoryPage() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#082139", padding: 16 }}>
+    <View className="flex-1 pt-4" style={{ backgroundColor: "#082139" }}>
       <Stack.Screen
         options={{
           headerStyle: {
@@ -85,15 +63,7 @@ export default function LogHistoryPage() {
           },
           headerTintColor: "#fff",
           headerTitle: () => (
-            <Text
-              style={{
-                fontFamily: fontFamily.openSans.bold,
-                color: "#ffffff",
-                fontSize: 18,
-              }}
-            >
-              Log History
-            </Text>
+            <Text className="text-xl font-bold">Log History</Text>
           ),
           headerBackTitleVisible: false,
         }}
@@ -102,19 +72,9 @@ export default function LogHistoryPage() {
         data={Object.keys(logsByDate)}
         keyExtractor={(date) => date}
         renderItem={({ item: date }) => (
-          <View>
+          <View className="mb-4">
             {/* Date Header */}
-            <Text
-              style={{
-                fontFamily: fontFamily.openSans.bold,
-                color: "#ffffff",
-                fontSize: 16,
-                marginTop: 20,
-                marginBottom: 10,
-              }}
-            >
-              {date}
-            </Text>
+            <Text className="mb-2 pl-4 font-bold">{date}</Text>
             {/* Log Entries for this date */}
             {logsByDate[date].map((log) => (
               <LogItem key={log._id} log={log} />
@@ -140,45 +100,29 @@ export default function LogHistoryPage() {
 }
 
 function LogItem({ log }: { log: LogType }) {
+  const icon = GOAL_ICONS.find((icon) => icon.name === log.goal?.selectedIcon);
+  const Icon = icon?.component;
+  const iconName = icon?.name;
+  const iconColor = log.goal?.selectedIconColor;
+
   return (
-    <View
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#0e2942",
-        padding: 12,
-        borderRadius: 8,
-        marginBottom: 8,
-      }}
-    >
-      <View
-        style={{
-          backgroundColor: "#299240",
-          borderRadius: 8,
-          padding: 8,
-          marginRight: 10,
-        }}
-      >
-        <FontAwesome5 name="clock" size={16} color="#fff" />
+    <View className="mb-2 flex flex-row items-center justify-between bg-[#0e2942] p-4">
+      <View className="flex flex-row items-center gap-4">
+        <View
+          className="rounded-lg p-2"
+          style={{
+            backgroundColor: iconColor,
+          }}
+        >
+          {!!Icon && <Icon name={iconName} size={20} color="#fff" />}
+        </View>
+        <Text>
+          {log.unitsCompleted} {log.goal?.unit}
+        </Text>
       </View>
       <View>
-        <Text
-          style={{
-            fontFamily: fontFamily.openSans.medium,
-            color: "#ffffff",
-            fontSize: 14,
-          }}
-        >
+        <Text className="font-semibold">
           {format(new Date(log.date), "h:mm a")}
-        </Text>
-        <Text
-          style={{
-            fontFamily: fontFamily.openSans.medium,
-            color: "#ffffff",
-            fontSize: 14,
-          }}
-        >
-          {log.unitsCompleted} mins
         </Text>
       </View>
     </View>
