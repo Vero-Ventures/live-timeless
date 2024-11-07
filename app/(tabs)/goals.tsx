@@ -229,7 +229,6 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
     "feet",
     "yards",
     "miles",
-    "times"
   ];
 
   if (!selectedDateLog) {
@@ -279,6 +278,7 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
     (icon) => icon.name === "alarm"
   )?.component;
 
+  const isTimesUnit = goal.unit === "times";
   const isAllowedUnit = allowedUnits.includes(goal.unit);
 
   const buttonStyles =
@@ -315,8 +315,8 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
         // Render green checkmark icon if goal is complete
         <FontAwesome5 name="check-circle" size={24} color="green" />
       ) : (
-        // Render the checkmark with "1" icon if the goal is not complete and unit is allowed
-        isAllowedUnit ? (
+        // Render the checkmark with "1" icon only if the goal unit is "times"
+        isTimesUnit ? (
           <Pressable
             className={cn(
               "flex-row items-center justify-center rounded-full bg-gray-800 p-2",
@@ -328,27 +328,42 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
             <Text style={{ color: "white", marginLeft: 4 }}>1</Text>
           </Pressable>
         ) : (
-          <Pressable
-            onPress={handleTimerRedirect}
-            className={cn(buttonStyles, "bg-gray-600")}
-          >
-            {!!AlarmIconComp && (
-              <AlarmIconComp name="alarm" size={20} color="#fff" />
-            )}
-            <Text
-              className="ml-2 text-white"
-              style={{ fontFamily: "openSans.bold" }}
+          // Render "Log Progress" button if unit is in allowedUnits but not "times"
+          isAllowedUnit ? (
+            <Pressable
+              onPress={handleLogPress}
+              className={cn(buttonStyles, "bg-blue-600")}
             >
-              Timer
-            </Text>
-          </Pressable>
+              <FontAwesome5 name="plus-circle" size={16} color="#fff" />
+              <Text
+                className="ml-2 text-white"
+                style={{ fontFamily: "openSans.bold" }}
+              >
+                Log Progress
+              </Text>
+            </Pressable>
+          ) : (
+            // Default button for units not in allowedUnits or "times"
+            <Pressable
+              onPress={handleTimerRedirect}
+              className={cn(buttonStyles, "bg-gray-600")}
+            >
+              {!!AlarmIconComp && (
+                <AlarmIconComp name="alarm" size={20} color="#fff" />
+              )}
+              <Text
+                className="ml-2 text-white"
+                style={{ fontFamily: "openSans.bold" }}
+              >
+                Timer
+              </Text>
+            </Pressable>
+          )
         )
       )}
     </View>
   );
 }
-
-
 
 function CalendarStrip({
   selectedDate,
