@@ -26,8 +26,9 @@ import { Separator } from "~/components/ui/separator";
 const screenWidth = Dimensions.get("window").width;
 
 function Progress() {
-  // Use useQuery to fetch habit stats for the authenticated user
+  // Fetch habit stats and goal logs for the authenticated user
   const habits = useQuery(api.habitStats.fetchHabitStats);
+  const goalLogs = useQuery(api.goalLogs.listGoalLogs);
 
   const labels = Array.from({ length: 5 }, (_, i) =>
     format(subDays(new Date(), 4 - i), "MMM dd")
@@ -60,6 +61,20 @@ function Progress() {
   if (!habits) return <Text style={styles.loadingText}>Loading...</Text>;
   if (habits.length === 0)
     return <Text style={styles.noDataText}>No habits data available.</Text>;
+
+  // Organize goalLogs by goalId for easy lookup
+  const goalLogsByGoalId = goalLogs?.reduce(
+    (acc, log) => {
+      const goalId = log.goalId.toString();
+      if (!acc[goalId]) acc[goalId] = [];
+      acc[goalId].push({
+        date: log.date, // Keep `date` as a timestamp (number)
+        isComplete: log.isComplete,
+      });
+      return acc;
+    },
+    {} as Record<string, { date: number; isComplete: boolean }[]>
+  ) ?? {};
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -140,12 +155,7 @@ function Progress() {
               dailyAverage={parseFloat(item.dailyAverage.toFixed(1))} // Format dailyAverage to 1 decimal place
               skipped={item.skipped}
               failed={item.failed}
-              completionData={item.dailyCompletionRates
-                .slice(-7) // Only the last 7 days
-                .map((rate) => ({
-                  date: format(new Date(rate.date), "yyyy-MM-dd"), // Normalize to YYYY-MM-DD format
-                  count: rate.completionRate,
-                }))}
+              goalLogs={goalLogsByGoalId[item._id] || []} // Pass goal logs specific to this habit
               unit={item.unit}
             />
           )}
