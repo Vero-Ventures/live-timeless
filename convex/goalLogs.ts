@@ -21,9 +21,19 @@ export const getGoalLogsbyGoalId = query({
   handler: async (ctx, { goalId }) => {
     const goalLogs = await ctx.db
       .query("goalLogs")
-      .filter((q) => q.eq(q.field("goalId"), goalId))
+      .withIndex("by_goal_id", (q) => q.eq("goalId", goalId))
       .collect();
-    return goalLogs;
+
+    const goalLogsWithGoals = await Promise.all(
+      goalLogs.map(async (g) => {
+        const goal = await ctx.db.get(g.goalId);
+        return {
+          ...g,
+          goal,
+        };
+      })
+    );
+    return goalLogsWithGoals;
   },
 });
 
