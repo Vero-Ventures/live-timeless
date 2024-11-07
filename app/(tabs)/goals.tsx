@@ -188,7 +188,7 @@ export default function GoalsPage() {
           selectedDate={selectedDate}
           setSelectedDate={setSelectedDate}
         />
-        <Separator orientation="vertical" />
+        <Separator className="mr-2" orientation="vertical" />
         <Link href="/goals/create" asChild>
           <Button size="icon" className="h-14 w-14 rounded-full">
             <Plus color="#fff" size={30} />
