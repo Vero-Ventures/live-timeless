@@ -43,7 +43,7 @@ export const fetchHabitStats = query(async (ctx) => {
       const total = calculateTotal(logs);
       const dailyAverage = calculateDailyAverage(
         logs,
-        new Date(goal.startDate),
+        new Date(goal.startDate)
       );
       const longestStreak = calculateLongestStreak(logs);
       const skipped = calculateSkipped(logs, new Date(goal.startDate));
@@ -108,10 +108,7 @@ function calculateTotal(logs: GoalLog[]): number {
 }
 
 // Calculate the daily average based on actual units completed and days with logged progress
-function calculateDailyAverage(
-  logs: GoalLog[],
-  startDate: Date,
-): number {
+function calculateDailyAverage(logs: GoalLog[], startDate: Date): number {
   if (logs.length === 0) return 0;
 
   // Sum the units completed from logs
