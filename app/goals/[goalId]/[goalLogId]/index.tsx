@@ -181,47 +181,47 @@ export default function GoalScreen() {
                     <FontAwesome5 name="ellipsis-h" size={20} color="#fff" />
                   </Pressable>
                 </DropdownMenu.Trigger>
-              {/* @ts-ignore */}
-              <DropdownMenu.Content
-                key="actions"
-                placeholder=""
-                onPointerEnterCapture={() => {}}
-                onPointerLeaveCapture={() => {}}
-              >
                 {/* @ts-ignore */}
-                <DropdownMenu.Item
-                  onSelect={() =>
-                    router.navigate({
-                      pathname: "/goals/[goalId]/edit",
-                      params: { goalId },
-                    })
-                  }
-                  key="edit-goal"
-                  textValue="Edit Goal"
+                <DropdownMenu.Content
+                  key="actions"
                   placeholder=""
                   onPointerEnterCapture={() => {}}
                   onPointerLeaveCapture={() => {}}
                 >
-                  <DropdownMenu.ItemIcon ios={{ name: "pencil.line" }} />
-                </DropdownMenu.Item>
-                <DropdownMenu.Separator />
-                {/* @ts-ignore */}
-                <DropdownMenu.Item
-                  onSelect={handleDelete}
-                  destructive
-                  key="delete-goal"
-                  textValue="Delete Goal"
-                  placeholder=""
-                  onPointerEnterCapture={() => {}}
-                  onPointerLeaveCapture={() => {}}
-                >
-                  <DropdownMenu.ItemIcon ios={{ name: "trash" }} />
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu.Root>
-          ),
-        }}
-      />
+                  {/* @ts-ignore */}
+                  <DropdownMenu.Item
+                    onSelect={() =>
+                      router.navigate({
+                        pathname: "/goals/[goalId]/edit",
+                        params: { goalId },
+                      })
+                    }
+                    key="edit-goal"
+                    textValue="Edit Goal"
+                    placeholder=""
+                    onPointerEnterCapture={() => {}}
+                    onPointerLeaveCapture={() => {}}
+                  >
+                    <DropdownMenu.ItemIcon ios={{ name: "pencil.line" }} />
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Separator />
+                  {/* @ts-ignore */}
+                  <DropdownMenu.Item
+                    onSelect={handleDelete}
+                    destructive
+                    key="delete-goal"
+                    textValue="Delete Goal"
+                    placeholder=""
+                    onPointerEnterCapture={() => {}}
+                    onPointerLeaveCapture={() => {}}
+                  >
+                    <DropdownMenu.ItemIcon ios={{ name: "trash" }} />
+                  </DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </DropdownMenu.Root>
+            ),
+          }}
+        />
 
         <Pressable className="flex flex-row items-center justify-center gap-4 rounded-xl border border-gray-600 bg-slate-700 p-4">
           <Text className="text-lg font-bold text-white">

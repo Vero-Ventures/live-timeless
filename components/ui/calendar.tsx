@@ -18,7 +18,7 @@ const Calendar = ({ progressData, selectedDate }: CalendarProps) => {
   const startDate = startOfMonth(selectedDate);
   const endDate = endOfMonth(selectedDate);
   const days = eachDayOfInterval({ start: startDate, end: endDate });
-  const firstDayOfMonth = getDay(startDate); 
+  const firstDayOfMonth = getDay(startDate);
 
   return (
     <View style={styles.container}>
