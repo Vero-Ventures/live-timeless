@@ -22,13 +22,14 @@ import type { Doc } from "~/convex/_generated/dataModel";
 import { GOAL_ICONS } from "~/constants/goal-icons";
 import { useRouter } from "expo-router";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { useMutation } from "convex/react";
 
 export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
   const goals = useQuery(api.goals.listGoals);
   const goalLogs = useQuery(api.goalLogs.listGoalLogs);
-
+  
   useEffect(() => {
     if (goals && goalLogs) {
       SplashScreen.hideAsync();
@@ -203,138 +204,10 @@ interface GoalItemProps {
   goalLogs: Doc<"goalLogs">[];
 }
 
-unction GoalItem({ goal, goalLogs }: GoalItemProps) {
-  const router = useRouter();
-  const selectedDateLog = goalLogs && goalLogs.length > 0 ? goalLogs[0] : null;
-
-  const allowedUnits = [
-    "steps",
-    "kg",
-    "grams",
-    "mg",
-    "oz",
-    "pounds",
-    "μg",
-    "litres",
-    "mL",
-    "US fl oz",
-    "cups",
-    "kilojoules",
-    "kcal",
-    "cal",
-    "joules",
-    "km",
-    "metres",
-    "feet",
-    "yards",
-    "miles",
-  ];
-
-  if (!selectedDateLog) {
-    return null;
-  }
-
-  const handleLogPress = (e: any) => {
-    e.stopPropagation(); // Prevent parent navigation
-
-    if (selectedDateLog.isComplete) {
-      Alert.alert("Goal Completed", "This goal has already been completed.");
-      return;
-    }
-
-    router.push({
-      pathname: `/goals/[goalId]/[goalLogId]/start/logProgress`,
-      params: {
-        goalId: goal._id,
-        goalLogId: selectedDateLog._id,
-      },
-    });
-  };
-
-  const IconComp = GOAL_ICONS.find(
-    (item) => item.name === goal.selectedIcon
-  )?.component;
-
-  const handleTimerRedirect = () => {
-    router.push(`/goals/${goal._id}/${selectedDateLog._id}/start`);
-  };
-
-  const AlarmIconComp = GOAL_ICONS.find(
-    (icon) => icon.name === "alarm"
-  )?.component;
-
-  // Check if the goal unit is one of the allowed units for the "Log" button
-  const isAllowedUnit = allowedUnits.includes(goal.unit);
-
-  const buttonStyles =
-    "w-28 justify-center flex-row items-center rounded-full p-3";
-
-  return (
-    <View className="flex-row items-center gap-4">
-      <Link href={`/goals/${goal._id}/${selectedDateLog._id}`} asChild>
-        <Pressable className="flex-1">
-          <View className="flex-row items-center gap-4">
-            <View
-              className={cn(
-                "items-center justify-center rounded-full bg-[#299240]/20 p-1"
-              )}
-            >
-              <IconComp
-                name={goal.selectedIcon}
-                color={goal.selectedIconColor}
-                size={32}
-              />
-            </View>
-
-            <View className="w-full gap-2">
-              <Text style={{ fontFamily: "openSans.medium" }}>{goal.name}</Text>
-              <Text className="text-xs text-muted-foreground">
-                {`${Math.floor(selectedDateLog.unitsCompleted)} / ${Math.floor(goal.unitValue)} ${goal.unit}`}
-              </Text>
-            </View>
-          </View>
-        </Pressable>
-      </Link>
-
-      {/* Conditionally render Timer or Log button based on the unit */}
-      {isAllowedUnit ? (
-        // Show Log button for allowed units
-        <Pressable
-          className={cn(
-            buttonStyles,
-            selectedDateLog.isComplete ? "bg-gray-500" : "bg-gray-800"
-          )}
-          onPress={handleLogPress}
-          disabled={selectedDateLog.isComplete}
-        >
-          <FontAwesome5 name="keyboard" size={20} color="white" />
-          <Text className="ml-2 text-white">Log</Text>
-        </Pressable>
-      ) : (
-        // Show Timer button for other units
-        <Pressable
-          onPress={handleTimerRedirect}
-          className={cn(buttonStyles, "bg-gray-600")}
-        >
-          {!!AlarmIconComp && (
-            <AlarmIconComp name="alarm" size={20} color="#fff" />
-          )}
-          <Text
-            className="ml-2 text-white"
-            style={{ fontFamily: "openSans.bold" }}
-          >
-            Timer
-          </Text>
-        </Pressable>
-      )}
-    </View>
-  );
-}
-
 function GoalItem({ goal, goalLogs }: GoalItemProps) {
   const router = useRouter();
   const selectedDateLog = goalLogs && goalLogs.length > 0 ? goalLogs[0] : null;
-
+  const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
   const allowedUnits = [
     "steps",
     "kg",
@@ -356,28 +229,43 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
     "feet",
     "yards",
     "miles",
+    "times"
   ];
 
   if (!selectedDateLog) {
     return null;
   }
 
-  const handleLogPress = (e: any) => {
+  const handleLogPress = async (e: any) => {
     e.stopPropagation(); // Prevent parent navigation
-
+  
     if (selectedDateLog.isComplete) {
       Alert.alert("Goal Completed", "This goal has already been completed.");
       return;
     }
-
-    router.push({
-      pathname: `/goals/[goalId]/[goalLogId]/start/logProgress`,
-      params: {
-        goalId: goal._id,
+  
+    const newUnitsCompleted = (selectedDateLog.unitsCompleted ?? 0) + 1;
+    const goalComplete = newUnitsCompleted >= goal.unitValue;
+  
+    try {
+      // Update the goalLog in the backend with the incremented units
+      await updateGoalLog({
         goalLogId: selectedDateLog._id,
-      },
-    });
+        unitsCompleted: newUnitsCompleted,
+        isComplete: goalComplete, // Mark complete if it reaches goal value
+      });
+  
+      if (goalComplete) {
+        Alert.alert(
+          "Goal Completed",
+          `Congratulations! You've completed the goal.`
+        );
+      }
+    } catch (error) {
+      console.error("Error updating goal log:", error);
+    }
   };
+  
 
   const IconComp = GOAL_ICONS.find(
     (item) => item.name === goal.selectedIcon
@@ -427,18 +315,17 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
         // Render green checkmark icon if goal is complete
         <FontAwesome5 name="check-circle" size={24} color="green" />
       ) : (
-        // Render Log or Timer button based on the unit
+        // Render the checkmark with "1" icon if the goal is not complete and unit is allowed
         isAllowedUnit ? (
           <Pressable
             className={cn(
-              buttonStyles,
-              "bg-gray-800"
+              "flex-row items-center justify-center rounded-full bg-gray-800 p-2",
+              buttonStyles
             )}
             onPress={handleLogPress}
-            disabled={selectedDateLog.isComplete}
           >
-            <FontAwesome5 name="keyboard" size={20} color="white" />
-            <Text className="ml-2 text-white">Log</Text>
+            <FontAwesome5 name="check" size={16} color="white" />
+            <Text style={{ color: "white", marginLeft: 4 }}>1</Text>
           </Pressable>
         ) : (
           <Pressable
@@ -460,6 +347,8 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
     </View>
   );
 }
+
+
 
 function CalendarStrip({
   selectedDate,
