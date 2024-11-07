@@ -30,22 +30,26 @@ interface HabitStatCardProps {
   skipped: number;
   failed: number;
   completionData: { date: string; count: number }[]; // Data format for the heatmap
+  unit: string;
 }
 
-// Helper function to generate the past x days in an 11-11-8 layout
+// Helper function to generate the past x days in a 7-day layout, including today
 const generateCompletionData = (
   completionData: { date: string; count: number }[]
 ) => {
   const days = 7;
   const today = new Date();
+
+  // Generate the past 7 days, including today
   const pastDays = Array.from({ length: days }, (_, i) => {
     const date = subDays(today, i);
     return {
-      date: format(date, "yyyy-MM-dd"), // Ensure dates are in YYYY-MM-DD format
+      date: format(date, "yyyy-MM-dd"), // Format as YYYY-MM-DD for consistency
       count: 0,
     };
   }).reverse();
 
+  // Map completion data to ensure counts reflect `isComplete` status
   const mappedData = pastDays.map((day) => {
     const matchingData = completionData.find((d) => d.date === day.date);
     return {
@@ -68,12 +72,10 @@ function HabitStatCard({
   skipped,
   failed,
   completionData,
+  unit,
 }: HabitStatCardProps) {
   // Generate padded data for the past 7 days
   const data = generateCompletionData(completionData);
-
-  // Log the data being used to display the heatmap
-  console.log("Heatmap Dates and Counts:", data);
 
   // Find the matching icon component from GOAL_ICONS
   const iconComponent = GOAL_ICONS.find((item) => item.name === icon);
@@ -156,7 +158,9 @@ function HabitStatCard({
             <Infinity size={20} className="text-muted-foreground" />
             <Text className="font-bold">Total:</Text>
           </View>
-          <Text>{total} mins</Text>
+          <Text>
+            {total} {unit}
+          </Text>
         </View>
         <Separator className="mb-4 bg-input" />
         <View className="flex-row justify-between px-6 pb-4">
@@ -164,7 +168,9 @@ function HabitStatCard({
             <Calendar size={20} className="text-muted-foreground" />
             <Text className="font-bold">Daily Average:</Text>
           </View>
-          <Text>{dailyAverage.toFixed(1)} mins</Text>
+          <Text>
+            {dailyAverage.toFixed(1)} {unit}
+          </Text>
         </View>
         <Separator className="mb-4 bg-input" />
         <View className="flex-row justify-between px-6 pb-4">

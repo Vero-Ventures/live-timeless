@@ -9,6 +9,7 @@ export type HabitStat = {
   icon: string; // New field for selectedIcon
   iconColor: string; // New field for selectedIconColor
   duration: string;
+  unit: string;
   longestStreak: number;
   total: number;
   dailyAverage: number;
@@ -40,9 +41,9 @@ export const fetchHabitStats = query(async (ctx) => {
         .collect();
 
       const total = calculateTotal(logs);
-      const dailyAverage = calculateDailyAverage(logs);
+      const dailyAverage = calculateDailyAverage(logs, new Date(goal.startDate), goal.unitValue);
       const longestStreak = calculateLongestStreak(logs);
-      const skipped = calculateSkipped(logs);
+      const skipped = calculateSkipped(logs, new Date(goal.startDate));
       const failed = calculateFailed(logs);
       const dailyCompletionRates = calculateDailyCompletionRates(
         logs,
@@ -54,7 +55,8 @@ export const fetchHabitStats = query(async (ctx) => {
         name: goal.name,
         icon: goal.selectedIcon, // Fetch selectedIcon from goal
         iconColor: goal.selectedIconColor, // Fetch selectedIconColor from goal
-        duration: `${goal.unitValue} mins per day`,
+        duration: `${goal.unitValue} ${goal.unit} per day`,
+        unit: goal.unit,
         longestStreak,
         total,
         dailyAverage,
@@ -102,40 +104,74 @@ function calculateTotal(logs: GoalLog[]): number {
   return logs.reduce((sum, log) => sum + log.unitsCompleted, 0);
 }
 
-// Calculate the overall completion rate of each individual goal
-function calculateDailyAverage(logs: GoalLog[]): number {
+// Calculate the daily average based on actual units completed and days with logged progress
+function calculateDailyAverage(logs: GoalLog[], startDate: Date, goalUnitValue: number): number {
   if (logs.length === 0) return 0;
 
-  const completedLogs = logs.filter((log) => log.isComplete).length;
-  return (completedLogs / logs.length) * 100; // Return as percentage
+  // Sum the units completed from logs
+  const totalUnitsCompleted = logs.reduce((sum, log) => sum + log.unitsCompleted, 0);
+
+  // Determine the number of days between the start date and today where progress was logged
+  const today = new Date();
+  const totalDays = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+
+  // Calculate the daily average based on the total units completed and actual days with logs
+  return totalUnitsCompleted / totalDays;
 }
 
-// Calculate the number of skipped days in the past 30 days
-function calculateSkipped(logs: GoalLog[]): number {
+// Calculate skipped days based on the goal's start date up to yesterday
+// Calculate skipped days based on the goal's start date up to yesterday
+function calculateSkipped(logs: GoalLog[], startDate: Date): number {
   const today = new Date();
+  today.setUTCHours(0, 0, 0, 0); // Set to midnight UTC to avoid timezone discrepancies
+
+  // If the goal starts today, return 0 skipped days since there's no possible skipped days yet
+  if (startDate >= today) {
+    return 0;
+  }
+
   let skippedDays = 0;
 
-  for (let i = 0; i < 30; i++) {
-    const dateToCheck = new Date(today);
-    dateToCheck.setDate(today.getDate() - i);
-    const formattedDate = dateToCheck.toISOString().split("T")[0];
+  // Normalize log dates to a set in "YYYY-MM-DD" format for quick comparison
+  const logDates = new Set(
+    logs.map((log) => {
+      const logDate = new Date(log.date * 1000); // Convert timestamp to date
+      logDate.setUTCHours(0, 0, 0, 0); // Normalize to midnight UTC
+      return logDate.toISOString().split("T")[0]; // Format as "YYYY-MM-DD"
+    })
+  );
 
-    const logForDate = logs.find((log) => {
-      const logDate = new Date(log.date * 1000).toISOString().split("T")[0];
-      return logDate === formattedDate;
-    });
+  // Start counting from the day after the start date
+  const countingStartDate = new Date(startDate);
+  countingStartDate.setDate(startDate.getDate() + 1);
 
-    if (!logForDate) {
+  // Iterate from the day after the start date up to, but not including, today
+  for (
+    let date = new Date(countingStartDate);
+    date < today;
+    date.setDate(date.getDate() + 1)
+  ) {
+    date.setUTCHours(0, 0, 0, 0); // Normalize each date to midnight UTC
+    const dateString = date.toISOString().split("T")[0];
+
+    if (!logDates.has(dateString)) {
       skippedDays++;
     }
   }
 
+  // Debugging output
+  console.log("Goal Start Date:", startDate.toISOString());
+  console.log("Counting Start Date:", countingStartDate.toISOString());
+  console.log("Today:", today.toISOString());
+  console.log("Log Dates Set:", Array.from(logDates));
+  console.log("Skipped Days Calculated:", skippedDays);
+
   return skippedDays;
 }
 
-// Calculate the number of failed days (days where the goal was logged but incomplete)
+// Calculate failed days where progress was started but goal wasn't completed
 function calculateFailed(logs: GoalLog[]): number {
-  return logs.filter((log) => !log.isComplete).length;
+  return logs.filter((log) => log.unitsCompleted > 0 && !log.isComplete).length;
 }
 
 function calculateDailyCompletionRates(logs: GoalLog[], unitValue: number) {

@@ -146,6 +146,7 @@ function Progress() {
                   date: format(new Date(rate.date), "yyyy-MM-dd"), // Normalize to YYYY-MM-DD format
                   count: rate.completionRate,
                 }))}
+              unit={item.unit}
             />
           )}
           keyExtractor={(item) => item._id}
