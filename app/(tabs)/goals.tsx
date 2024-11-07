@@ -26,8 +26,6 @@ import { FontAwesome5 } from "@expo/vector-icons";
 export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
-
-  // Fetch both goals and goalLogs
   const goals = useQuery(api.goals.listGoals);
   const goalLogs = useQuery(api.goalLogs.listGoalLogs);
 
@@ -88,6 +86,13 @@ export default function GoalsPage() {
         const goal = goals?.find((goal) => goal._id === log.goalId);
         if (!goal) return false;
 
+        // Convert log date and selectedDate to comparable strings
+        const logDate = new Date(log.date).toDateString();
+        const selectedDateStr = selectedDate.toDateString();
+
+        if (logDate !== selectedDateStr) return false;
+
+        // Apply repeat pattern checks as before
         const startDate = new Date(goal.startDate);
         switch (goal.repeatType) {
           case "daily":
@@ -101,29 +106,25 @@ export default function GoalsPage() {
           case "monthly":
             return isMonthlyRepeat(goal.monthlyRepeat, selectedDate);
           default:
-            const selectedDateStart = selectedDate.getTime();
-            return startDate.getTime() === selectedDateStart;
+            return startDate.getTime() === selectedDate.getTime();
         }
       })
     : [];
 
-  // Match filtered goalLogs to their corresponding goals
-  const groupedGoals = new Map<
-    string,
-    { goal: Doc<"goals">; goalLogs: Doc<"goalLogs">[] }
-  >();
-
+  // Group filteredGoalLogs by goalId
+  const groupedGoals = new Map();
   filteredGoalLogs.forEach((log) => {
-    const goal = goals?.find((goal) => goal._id === log.goalId);
-    if (!goal) return;
-
-    if (!groupedGoals.has(goal._id)) {
-      groupedGoals.set(goal._id, { goal, goalLogs: [] });
+    if (!groupedGoals.has(log.goalId)) {
+      groupedGoals.set(log.goalId, []);
     }
-    groupedGoals.get(goal._id)?.goalLogs.push(log);
+    groupedGoals.get(log.goalId).push(log);
   });
 
-  const matchedGoals = Array.from(groupedGoals.values());
+  // Prepare matchedGoals, ensuring each goal has only one log for the selected date
+  const matchedGoals = goals?.map((goal) => ({
+    goal,
+    goalLogs: groupedGoals.get(goal._id) || [], // Provide an empty array if no logs for the date
+  }));
 
   return (
     <SafeAreaView
@@ -204,10 +205,7 @@ interface GoalItemProps {
 
 function GoalItem({ goal, goalLogs }: GoalItemProps) {
   const router = useRouter();
-
-  // Get the latest log (or some other logic for selecting a log)
-  const latestLog =
-    goalLogs && goalLogs.length > 0 ? goalLogs[goalLogs.length - 1] : null;
+  const selectedDateLog = goalLogs && goalLogs.length > 0 ? goalLogs[0] : null;
 
   const allowedUnits = [
     "steps",
@@ -232,14 +230,14 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
     "miles",
   ];
 
-  if (!latestLog) {
+  if (!selectedDateLog) {
     return null;
   }
 
   const handleLogPress = (e: any) => {
     e.stopPropagation(); // Prevent parent navigation
 
-    if (latestLog.isComplete) {
+    if (selectedDateLog.isComplete) {
       Alert.alert("Goal Completed", "This goal has already been completed.");
       return;
     }
@@ -248,7 +246,7 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
       pathname: `/goals/[goalId]/[goalLogId]/start/logProgress`,
       params: {
         goalId: goal._id,
-        goalLogId: latestLog._id,
+        goalLogId: selectedDateLog._id,
       },
     });
   };
@@ -258,7 +256,7 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
   )?.component;
 
   const handleTimerRedirect = () => {
-    router.push(`/goals/${goal._id}/${latestLog._id}/start`);
+    router.push(`/goals/${goal._id}/${selectedDateLog._id}/start`);
   };
 
   const AlarmIconComp = GOAL_ICONS.find(
@@ -269,11 +267,11 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
   const isAllowedUnit = allowedUnits.includes(goal.unit);
 
   const buttonStyles =
-    "w-28 justify-center flex-row items-center rounded-full p-3"; // Shared styles for both buttons
+    "w-28 justify-center flex-row items-center rounded-full p-3";
 
   return (
     <View className="flex-row items-center gap-4">
-      <Link href={`/goals/${goal._id}/${latestLog._id}`} asChild>
+      <Link href={`/goals/${goal._id}/${selectedDateLog._id}`} asChild>
         <Pressable className="flex-1">
           <View className="flex-row items-center gap-4">
             <View
@@ -291,7 +289,7 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
             <View className="w-full gap-2">
               <Text style={{ fontFamily: "openSans.medium" }}>{goal.name}</Text>
               <Text className="text-xs text-muted-foreground">
-                {`${Math.floor(latestLog.unitsCompleted)} / ${Math.floor(goal.unitValue)} ${goal.unit}`}
+                {`${Math.floor(selectedDateLog.unitsCompleted)} / ${Math.floor(goal.unitValue)} ${goal.unit}`}
               </Text>
             </View>
           </View>
@@ -304,10 +302,10 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
         <Pressable
           className={cn(
             buttonStyles,
-            latestLog.isComplete ? "bg-gray-500" : "bg-gray-800"
+            selectedDateLog.isComplete ? "bg-gray-500" : "bg-gray-800"
           )}
           onPress={handleLogPress}
-          disabled={latestLog.isComplete}
+          disabled={selectedDateLog.isComplete}
         >
           <FontAwesome5 name="keyboard" size={20} color="white" />
           <Text className="ml-2 text-white">Log</Text>
@@ -372,7 +370,9 @@ function CalendarStrip({
               date.toDateString() === selectedDate.toDateString(),
             "p-2": date.toDateString() !== selectedDate.toDateString(),
           })}
-          onPress={() => setSelectedDate(date)}
+          onPress={() => {
+            setSelectedDate(date);
+          }}
         >
           <Text
             style={{
