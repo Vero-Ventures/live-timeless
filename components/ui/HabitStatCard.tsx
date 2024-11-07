@@ -83,7 +83,7 @@ function HabitStatCard({
   const Icon = iconComponent?.component;
 
   return (
-    <Card className="mb-4 border-input bg-background shadow-none">
+    <Card className="mb-4 bg-slate-900 shadow-none">
       <CardHeader className="flex-row items-center justify-between pb-4">
         <View>
           <CardTitle
@@ -103,7 +103,6 @@ function HabitStatCard({
         </View>
         {!!icon && <Icon name={icon} color={iconColor} size={32} />}
       </CardHeader>
-      <Separator className="mb-4 bg-input" />
       <CardContent className="p-0 pb-6">
         <View className="mb-5 items-center">
           <View className="flex-row gap-0.5">
@@ -118,15 +117,14 @@ function HabitStatCard({
             ))}
           </View>
         </View>
-        <Separator className="mb-4 bg-input" />
-        <View className="flex-row justify-between px-6 pb-4">
+        <View className="flex-row justify-between px-6 py-4">
           <View className="flex flex-row items-center gap-2">
             <Flame size={20} className="text-muted-foreground" />
             <Text className="font-bold">Longest Streak:</Text>
           </View>
           <Text>{longestStreak} days</Text>
         </View>
-        <Separator className="mb-4 bg-input" />
+        <Separator className="mb-4 bg-slate-800" />
         <View className="flex-row justify-between px-6 pb-4">
           <View className="flex flex-row items-center gap-2">
             <Infinity size={20} className="text-muted-foreground" />
@@ -136,7 +134,7 @@ function HabitStatCard({
             {total} {unit}
           </Text>
         </View>
-        <Separator className="mb-4 bg-input" />
+        <Separator className="mb-4 bg-slate-800" />
         <View className="flex-row justify-between px-6 pb-4">
           <View className="flex flex-row items-center gap-2">
             <Calendar size={20} className="text-muted-foreground" />
@@ -146,7 +144,7 @@ function HabitStatCard({
             {dailyAverage.toFixed(1)} {unit}
           </Text>
         </View>
-        <Separator className="mb-4 bg-input" />
+        <Separator className="mb-4 bg-slate-800" />
         <View className="flex-row justify-between px-6 pb-4">
           <View className="flex flex-row items-center gap-2">
             <ArrowRight size={20} className="text-muted-foreground" />
@@ -154,7 +152,7 @@ function HabitStatCard({
           </View>
           <Text>{skipped} days</Text>
         </View>
-        <Separator className="mb-4 bg-input" />
+        <Separator className="mb-4 bg-slate-800" />
         <View className="flex-row justify-between px-6">
           <View className="flex flex-row items-center gap-2">
             <X size={20} className="text-muted-foreground" />

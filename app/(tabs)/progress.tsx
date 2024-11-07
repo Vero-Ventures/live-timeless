@@ -21,7 +21,6 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { Separator } from "~/components/ui/separator";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -91,7 +90,7 @@ function Progress() {
           className="px-4"
           data={habits}
           ListHeaderComponent={() => (
-            <Card className="mb-4 border-input bg-background shadow-none">
+            <Card className="mb-4 bg-slate-900 shadow-none">
               <CardHeader className="pb-4">
                 <CardDescription
                   className="mb-4"
@@ -110,7 +109,7 @@ function Progress() {
                   {overallCompletionRate.toFixed(1)}%
                 </CardTitle>
               </CardHeader>
-              <Separator className="mb-4 bg-input" />
+
               <CardContent className="p-1">
                 <BarChart
                   data={chartData}
@@ -121,8 +120,8 @@ function Progress() {
                   xLabelsOffset={0}
                   chartConfig={{
                     backgroundColor: "transparent",
-                    backgroundGradientFrom: "#082139",
-                    backgroundGradientTo: "#082139",
+                    backgroundGradientFrom: "#0f172a",
+                    backgroundGradientTo: "#0f172a",
                     decimalPlaces: 0,
                     color: () => `rgba(120, 120, 255, 1)`,
                     labelColor: () => `rgba(255, 255, 255, 1)`,
