@@ -21,13 +21,15 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { Separator } from "~/components/ui/separator";
+import { Button } from "~/components/ui/button";
+import { Link } from "expo-router";
 
 const screenWidth = Dimensions.get("window").width;
 
 function Progress() {
-  // Use useQuery to fetch habit stats for the authenticated user
+  // Fetch habit stats and goal logs for the authenticated user
   const habits = useQuery(api.habitStats.fetchHabitStats);
+  const goalLogs = useQuery(api.goalLogs.listGoalLogs);
 
   const labels = Array.from({ length: 5 }, (_, i) =>
     format(subDays(new Date(), 4 - i), "MMM dd")
@@ -39,7 +41,7 @@ function Progress() {
       ? habits[0].dailyCompletionRates
           .slice(-5)
           .map((rate) => rate.completionRate || 0)
-      : Array(7).fill(0); // Fallback to zeros if data isn't available
+      : Array(5).fill(0); // Fallback to zeros if data isn't available
 
   const overallCompletionRate =
     habits && habits.length
@@ -57,6 +59,21 @@ function Progress() {
     ],
   };
 
+  // Organize goalLogs by goalId for easy lookup
+  const goalLogsByGoalId =
+    goalLogs?.reduce(
+      (acc, log) => {
+        const goalId = log.goalId.toString();
+        if (!acc[goalId]) acc[goalId] = [];
+        acc[goalId].push({
+          date: log.date, // Keep `date` as a timestamp (number)
+          isComplete: log.isComplete,
+        });
+        return acc;
+      },
+      {} as Record<string, { date: number; isComplete: boolean }[]>
+    ) ?? {};
+
   return (
     <SafeAreaView style={styles.safeArea}>
       {!habits ? (
@@ -65,13 +82,20 @@ function Progress() {
           <Text>Loading...</Text>
         </View>
       ) : habits.length === 0 ? (
-        <Text style={styles.noDataText}>No habits data available.</Text>
+        <View className="flex-1 justify-center gap-4 p-4">
+          <Text style={styles.noDataText}>You have no habits added.</Text>
+          <Link href="/goals" asChild>
+            <Button>
+              <Text>Add a habit</Text>
+            </Button>
+          </Link>
+        </View>
       ) : (
         <FlatList
           className="px-4"
           data={habits}
           ListHeaderComponent={() => (
-            <Card className="mb-4 border-input bg-background shadow-none">
+            <Card className="mb-4 bg-slate-900 shadow-none">
               <CardHeader className="pb-4">
                 <CardDescription
                   className="mb-4"
@@ -82,6 +106,7 @@ function Progress() {
                   Average Completion Rate
                 </CardDescription>
                 <CardTitle
+                  className="text-4xl"
                   style={{
                     fontFamily: fontFamily.openSans.bold,
                   }}
@@ -89,7 +114,7 @@ function Progress() {
                   {overallCompletionRate.toFixed(1)}%
                 </CardTitle>
               </CardHeader>
-              <Separator className="mb-4 bg-input" />
+
               <CardContent className="p-1">
                 <BarChart
                   data={chartData}
@@ -100,8 +125,8 @@ function Progress() {
                   xLabelsOffset={0}
                   chartConfig={{
                     backgroundColor: "transparent",
-                    backgroundGradientFrom: "#082139",
-                    backgroundGradientTo: "#082139",
+                    backgroundGradientFrom: "#0f172a",
+                    backgroundGradientTo: "#0f172a",
                     decimalPlaces: 0,
                     color: () => `rgba(120, 120, 255, 1)`,
                     labelColor: () => `rgba(255, 255, 255, 1)`,
@@ -127,12 +152,16 @@ function Progress() {
           renderItem={({ item }) => (
             <HabitStatCard
               name={item.name}
+              icon={item.icon} // Pass the icon property
+              iconColor={item.iconColor} // Pass the iconColor property
               duration={item.duration}
               longestStreak={item.longestStreak}
-              total={item.total}
-              dailyAverage={item.dailyAverage}
+              total={parseFloat(item.total.toFixed(1))} // Format total to 1 decimal place
+              dailyAverage={parseFloat(item.dailyAverage.toFixed(1))} // Format dailyAverage to 1 decimal place
               skipped={item.skipped}
               failed={item.failed}
+              goalLogs={goalLogsByGoalId[item._id] || []} // Pass goal logs specific to this habit
+              unit={item.unit}
             />
           )}
           keyExtractor={(item) => item._id}
@@ -148,11 +177,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#082139",
   },
   listContentContainer: {
-    paddingBottom: 40,
+    paddingBottom: 60,
   },
   noDataText: {
     fontFamily: fontFamily.openSans.medium,
     fontSize: 16,
+    color: "#ffffff",
     textAlign: "center",
     marginTop: 20,
   },
