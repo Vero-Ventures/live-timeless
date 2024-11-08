@@ -157,9 +157,8 @@ export const createGoalLogsFromGoal = mutation({
       throw new Error("Goal not found");
     }
 
-    const { weeks, dailyRepeat } = goal;
-    const currentDate = new Date();
-    const currentDayOfWeek = currentDate.getDay();
+    const { weeks, dailyRepeat, startDate } = goal; // Get startDate from the goal
+    const goalStartDate = new Date(startDate); // Use startDate as the base for goal logs
     const dayOfWeekMap = {
       Sunday: 0,
       Monday: 1,
@@ -170,53 +169,24 @@ export const createGoalLogsFromGoal = mutation({
       Saturday: 6,
     };
 
-    // Array to store all dates before sorting
-    const goalDates = [];
+    const createGoalsWithDate = async () => {
+      for (let week = 0; week < weeks; week++) {
+        for (let day of dailyRepeat) {
+          const targetDay = dayOfWeekMap[day as keyof typeof dayOfWeekMap];
+          const goalDate = new Date(goalStartDate); // Start from goal's start date
+          const dayOffset = (targetDay - goalStartDate.getDay() + 7) % 7;
+          goalDate.setDate(goalStartDate.getDate() + week * 7 + dayOffset); // Calculate the exact day
 
-    // Generate dates for each week and day
-    for (let week = 0; week < weeks; week++) {
-      for (let day of dailyRepeat) {
-        const targetDay = dayOfWeekMap[day as keyof typeof dayOfWeekMap];
-        const goalDate = new Date(currentDate);
-        const dayOffset = (targetDay - currentDayOfWeek + 7) % 7;
-        goalDate.setDate(currentDate.getDate() + week * 7 + dayOffset);
-
-        goalDates.push(goalDate.getTime()); // Store as a timestamp
+          await ctx.db.insert("goalLogs", {
+            goalId: args.goalId,
+            isComplete: false,
+            date: goalDate.getTime(), // Store the timestamp
+            unitsCompleted: 0,
+          });
+        }
       }
-    }
+    };
 
-    // Sort the dates in ascending order
-    goalDates.sort((a, b) => a - b);
-
-    // Insert each date sequentially
-    for (let date of goalDates) {
-      const existingGoalLog = await ctx.db
-        .query("goalLogs")
-        .filter((q) =>
-          q.and(
-            q.eq(q.field("goalId"), args.goalId),
-            q.eq(q.field("date"), date)
-          )
-        )
-        .first();
-
-      if (existingGoalLog) {
-        console.warn(
-          `Goal log already exists for date: ${new Date(date).toISOString()}`
-        );
-        continue; // Skip if a log for this date already exists
-      }
-
-      console.log(
-        `Creating goal log for date: ${new Date(date).toISOString()}`
-      );
-
-      await ctx.db.insert("goalLogs", {
-        goalId: args.goalId,
-        isComplete: false,
-        date: date, // Insert in sequential order
-        unitsCompleted: 0,
-      });
-    }
+    await createGoalsWithDate();
   },
 });

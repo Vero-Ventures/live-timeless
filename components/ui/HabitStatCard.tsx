@@ -52,11 +52,10 @@ const generateCompletionData = (
     const isComplete = logForDay ? logForDay.isComplete : false;
 
     const dayData = { date, isComplete };
-    console.log("Heatmap Day Data:", dayData); // Log each day's data for debugging
+
     return dayData;
   }).reverse();
 
-  console.log("Final Heatmap Data for Past 7 Days:", pastDays); // Log full array for verification
   return pastDays;
 };
 
@@ -75,8 +74,6 @@ function HabitStatCard({
 }: HabitStatCardProps) {
   // Generate the heatmap data using the completion status in goalLogs
   const data = generateCompletionData(goalLogs);
-
-  console.log("Data passed to HabitStatCard for heatmap rendering:", data); // Log heatmap data
 
   // Find the matching icon component from GOAL_ICONS
   const iconComponent = GOAL_ICONS.find((item) => item.name === icon);
