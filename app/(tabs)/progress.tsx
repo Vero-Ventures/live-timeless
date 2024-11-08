@@ -21,6 +21,8 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import { Button } from "~/components/ui/button";
+import { Link } from "expo-router";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -57,10 +59,6 @@ function Progress() {
     ],
   };
 
-  if (!habits) return <Text style={styles.loadingText}>Loading...</Text>;
-  if (habits.length === 0)
-    return <Text style={styles.noDataText}>No habits data available.</Text>;
-
   // Organize goalLogs by goalId for easy lookup
   const goalLogsByGoalId =
     goalLogs?.reduce(
@@ -84,7 +82,14 @@ function Progress() {
           <Text>Loading...</Text>
         </View>
       ) : habits.length === 0 ? (
-        <Text style={styles.noDataText}>No habits data available.</Text>
+        <View className="flex-1 justify-center gap-4 p-4">
+          <Text style={styles.noDataText}>You have no habits added.</Text>
+          <Link href="/goals" asChild>
+            <Button>
+              <Text>Add a habit</Text>
+            </Button>
+          </Link>
+        </View>
       ) : (
         <FlatList
           className="px-4"
@@ -173,13 +178,6 @@ const styles = StyleSheet.create({
   },
   listContentContainer: {
     paddingBottom: 60,
-  },
-  loadingText: {
-    fontFamily: fontFamily.openSans.medium,
-    fontSize: 16,
-    color: "#ffffff",
-    textAlign: "center",
-    marginTop: 20,
   },
   noDataText: {
     fontFamily: fontFamily.openSans.medium,
