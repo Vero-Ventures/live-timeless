@@ -54,7 +54,7 @@ const generateCompletionData = (
       days = 7;
       break;
     case 4: // This month
-      days =  new Date().getDate();
+      days = new Date().getDate();
       break;
     case 5: // This year
       days = new Date().getFullYear();
@@ -139,7 +139,7 @@ function HabitStatCard({
       <CardContent className="p-0 pb-6">
         <View className="mb-5 items-center">
           {chunkedData.map((chunk, rowIndex) => (
-            <View key={rowIndex} className="flex-row gap-0.5 mb-2">
+            <View key={rowIndex} className="mb-2 flex-row gap-0.5">
               {chunk.map((value) => (
                 <View
                   key={String(value.date)}

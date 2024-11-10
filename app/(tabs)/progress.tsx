@@ -34,7 +34,7 @@ function Progress() {
   const habits = useQuery(api.habitStats.fetchHabitStats);
   const goalLogs = useQuery(api.goalLogs.listGoalLogs);
 
-  // State for filter menu options 
+  // State for filter menu options
   const [visible, setVisible] = useState(false);
   const openFilterMenu = () => setVisible(true);
   const closeFilterMenu = () => setVisible(false);
@@ -60,7 +60,7 @@ function Progress() {
     return monthNames[new Date().getMonth()];
   };
 
-  // filter option selections 
+  // filter option selections
   const filterSelections = [
     "Last 7 days",
     "Last 30 days",
@@ -106,7 +106,9 @@ function Progress() {
 
   // Logic for filter option and selection
   const [filterIndex, setFilterIndex] = useState(0);
-  const [filterTitleSelection, setFilterTitleSelection] = useState(filterSelections[filterIndex]);
+  const [filterTitleSelection, setFilterTitleSelection] = useState(
+    filterSelections[filterIndex]
+  );
   const [filteredReferenceDate, setFilteredReferenceDate] = useState(
     generateFilterReferenceDate(filterIndex)
   );
@@ -116,12 +118,14 @@ function Progress() {
     setFilterIndex(index);
     setFilteredReferenceDate(generateFilterReferenceDate(index));
   };
-  
+
   function calculateFilteredCount(fetchedLogs: GoalLog[]): number {
     return fetchedLogs.filter((log) => {
       const logDate = new Date(log.date);
-      return isAfter(logDate, filteredReferenceDate) && isBefore(logDate, today);
-    }).length;  
+      return (
+        isAfter(logDate, filteredReferenceDate) && isBefore(logDate, today)
+      );
+    }).length;
   }
 
   const labels = Array.from({ length: 5 }, (_, i) =>
@@ -132,14 +136,14 @@ function Progress() {
   const dailyCompletionRates =
     habits && habits[0]?.dailyCompletionRates
       ? habits[0].dailyCompletionRates
-        .slice(-5)
-        .map((rate) => rate.completionRate || 0)
+          .slice(-5)
+          .map((rate) => rate.completionRate || 0)
       : Array(5).fill(0); // Fallback to zeros if data isn't available
 
   const overallCompletionRate =
     habits && habits.length
       ? habits.reduce((sum, habit) => sum + (habit.dailyAverage || 0), 0) /
-      habits.length
+        habits.length
       : 0;
 
   // Bar chart data
@@ -180,7 +184,8 @@ function Progress() {
                   fontFamily: fontFamily.openSans.semiBold,
                   color: "white",
                 }}
-                onPress={openFilterMenu}>
+                onPress={openFilterMenu}
+              >
                 {filterTitleSelection}
                 <Icon name="arrow-drop-down" size={20} color="white" />
               </FilterButton>
