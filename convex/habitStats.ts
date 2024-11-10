@@ -15,8 +15,8 @@ export type HabitStat = {
   currentStreak: number;
   total: number;
   dailyAverage: number;
-  skipped: number;
-  failed: number;
+  skipped: GoalLog[];
+  failed: GoalLog[];
   dailyCompletionRates: { date: string; completionRate: number }[];
 };
 
@@ -53,8 +53,8 @@ export const fetchHabitStats = query({
         const dailyAverage = calculateDailyAverage(logs);
         const longestStreak = calculateLongestStreak(logs);
         const currentStreak = calculateCurrentStreak(logs);
-        const skipped = calculateSkipped(logs);
-        const failed = calculateFailed(logs);
+        const skipped = returnSkippedLogs(logs);
+        const failed = returnFailedLogs(logs);
         const dailyCompletionRates = calculateDailyCompletion(
           logs,
           goal.unitValue
@@ -140,17 +140,17 @@ function calculateDailyAverage(logs: GoalLog[]): number {
     : 0;
 }
 
-function calculateSkipped(logs: GoalLog[]): number {
+function returnSkippedLogs(logs: GoalLog[]): GoalLog[] {
   const today = new Date().setHours(0, 0, 0, 0);
   return logs.filter((log) => {
     const logDate = new Date(log.date).setHours(0, 0, 0, 0);
     return logDate < today && !log.isComplete && log.unitsCompleted === 0;
-  }).length;
+  });
 }
 
 // Calculate failed days where progress was started but goal wasn't completed
-function calculateFailed(logs: GoalLog[]): number {
-  return logs.filter((log) => log.unitsCompleted > 0 && !log.isComplete).length;
+function returnFailedLogs(logs: GoalLog[]): GoalLog[] {
+  return logs.filter((log) => log.unitsCompleted > 0 && !log.isComplete);
 }
 
 function calculateDailyCompletion(logs: GoalLog[], unitValue: number) {

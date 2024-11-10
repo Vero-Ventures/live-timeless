@@ -12,7 +12,7 @@ import { fontFamily } from "~/lib/font";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { BarChart } from "react-native-chart-kit";
-import { format, subDays } from "date-fns";
+import { format, subDays, isAfter, isBefore } from "date-fns";
 import { Text } from "~/components/ui/text";
 import {
   Card,
@@ -25,6 +25,7 @@ import { Button } from "~/components/ui/button";
 import { Link } from "expo-router";
 import { Menu, Provider, Button as FilterButton } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import type { GoalLog } from "~/convex/goalLogs";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -38,7 +39,8 @@ function Progress() {
   const openFilterMenu = () => setVisible(true);
   const closeFilterMenu = () => setVisible(false);
 
-  // Relevent month and year for filter options
+  // Relevent month, year, and today for filter options
+  const today = new Date();
   const year = new Date().getFullYear();
   const month = () => {
     const monthNames = [
@@ -68,15 +70,59 @@ function Progress() {
     `${year}`,
   ];
 
+  const generateFilterReferenceDate = (filterIndex: number) => {
+    let referenceDate: Date;
+
+    switch (filterIndex) {
+      case 0: // Last 7 days
+        referenceDate = subDays(today, 7);
+        break;
+      case 1: // Last 30 days
+        referenceDate = subDays(today, 30);
+        break;
+      case 2: // Last 90 days
+        referenceDate = subDays(today, 90);
+        break;
+      case 3: // This week
+        referenceDate = subDays(today, today.getDay() + 1);
+        break;
+      case 4: // This month
+        referenceDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        break;
+      case 5: // This year
+        referenceDate = new Date(today.getFullYear(), 0, 1);
+        break;
+      default:
+        referenceDate = subDays(today, 29);
+        break;
+    }
+
+    // Adjust for local time zone
+    const offset = today.getTimezoneOffset() * 60000; // Offset in milliseconds
+    const localReferenceDate = new Date(referenceDate.getTime() - offset);
+
+    return localReferenceDate;
+  };
+
   // Logic for filter option and selection
   const [filterIndex, setFilterIndex] = useState(0);
   const [filterTitleSelection, setFilterTitleSelection] = useState(filterSelections[filterIndex]);
+  const [filteredReferenceDate, setFilteredReferenceDate] = useState(
+    generateFilterReferenceDate(filterIndex)
+  );
   const handleMenuItemPress = (index: number) => {
     setFilterTitleSelection(filterSelections[index]);
     closeFilterMenu();
     setFilterIndex(index);
+    setFilteredReferenceDate(generateFilterReferenceDate(index));
   };
-
+  
+  function calculateFilteredCount(fetchedLogs: GoalLog[]): number {
+    return fetchedLogs.filter((log) => {
+      const logDate = new Date(log.date);
+      return isAfter(logDate, filteredReferenceDate) && isBefore(logDate, today);
+    }).length;  
+  }
 
   const labels = Array.from({ length: 5 }, (_, i) =>
     format(subDays(new Date(), 4 - i), "MMM dd")
@@ -233,8 +279,8 @@ function Progress() {
                 longestStreak={item.longestStreak}
                 total={parseFloat(item.total.toFixed(1))} // Format total to 1 decimal place
                 dailyAverage={parseFloat(item.dailyAverage.toFixed(1))} // Format dailyAverage to 1 decimal place
-                skipped={item.skipped}
-                failed={item.failed}
+                skipped={calculateFilteredCount(item.skipped)}
+                failed={calculateFilteredCount(item.failed)}
                 goalLogs={goalLogsByGoalId[item._id] || []} // Pass goal logs specific to this habit
                 unit={item.unit}
                 filterIndex={filterIndex}

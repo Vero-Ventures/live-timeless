@@ -65,7 +65,7 @@ const generateCompletionData = (
   }
   const today = new Date();
 
-  // Generate past 7 days in normalized day format
+  // Generate past days in normalized day format
   const pastDays = Array.from({ length: days }, (_, i) => {
     const date = startOfDay(subDays(today, i)).getTime(); // Normalize each past day to start of day timestamp
 
