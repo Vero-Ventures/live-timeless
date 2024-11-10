@@ -31,13 +31,38 @@ interface HabitStatCardProps {
   failed: number;
   goalLogs: { date: number; isComplete: boolean }[]; // Accept goalLogs with date as number (timestamp) and isComplete as boolean
   unit: string;
+  filterIndex: number;
 }
 
 // Adjusted function to generate completion data based on daily matching
 const generateCompletionData = (
-  goalLogs: { date: number; isComplete: boolean }[]
+  goalLogs: { date: number; isComplete: boolean }[],
+  filterIndex: number
 ) => {
-  const days = 7;
+  let days = 7;
+  switch (filterIndex) {
+    case 0: // Last 7 days
+      days = 7;
+      break;
+    case 1: // Last 30 days
+      days = 30;
+      break;
+    case 2: // Last 90 days
+      days = 90;
+      break;
+    case 3: // This week
+      days = 7;
+      break;
+    case 4: // This month
+      days =  new Date().getDate();
+      break;
+    case 5: // This year
+      days = new Date().getFullYear();
+      break;
+    default:
+      days = 7;
+      break;
+  }
   const today = new Date();
 
   // Generate past 7 days in normalized day format
@@ -59,6 +84,15 @@ const generateCompletionData = (
   return pastDays;
 };
 
+// Chunk array into rows of 7 squares for heatmap
+function chunkArray(array: { date: number; isComplete: boolean }[]) {
+  const chunks = [];
+  for (let i = 0; i < array.length; i += 7) {
+    chunks.push(array.slice(i, i + 7));
+  }
+  return chunks;
+}
+
 function HabitStatCard({
   name,
   icon,
@@ -71,9 +105,11 @@ function HabitStatCard({
   failed,
   goalLogs,
   unit,
+  filterIndex,
 }: HabitStatCardProps) {
   // Generate the heatmap data using the completion status in goalLogs
-  const data = generateCompletionData(goalLogs);
+  const data = generateCompletionData(goalLogs, filterIndex);
+  const chunkedData = chunkArray(data); // Split data into chunks of 7 days for heatmap
 
   // Find the matching icon component from GOAL_ICONS
   const iconComponent = GOAL_ICONS.find((item) => item.name === icon);
@@ -102,17 +138,19 @@ function HabitStatCard({
       </CardHeader>
       <CardContent className="p-0 pb-6">
         <View className="mb-5 items-center">
-          <View className="flex-row gap-0.5">
-            {data.map((value) => (
-              <View
-                key={String(value.date)}
-                className={cn("h-12 w-12", {
-                  "bg-slate-800": !value.isComplete, // Not completed
-                  "bg-blue-500": value.isComplete, // Completed
-                })}
-              ></View>
-            ))}
-          </View>
+          {chunkedData.map((chunk, rowIndex) => (
+            <View key={rowIndex} className="flex-row gap-0.5 mb-2">
+              {chunk.map((value) => (
+                <View
+                  key={String(value.date)}
+                  className={cn("h-12 w-12", {
+                    "bg-slate-800": !value.isComplete, // Not completed
+                    "bg-blue-500": value.isComplete, // Completed
+                  })}
+                ></View>
+              ))}
+            </View>
+          ))}
         </View>
         <View className="flex-row justify-between px-6 py-4">
           <View className="flex flex-row items-center gap-2">
