@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Dimensions,
   ActivityIndicator,
+  Pressable,
 } from "react-native";
 import HabitStatCard from "../../components/ui/HabitStatCard";
 import { fontFamily } from "~/lib/font";
@@ -22,9 +23,9 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
-import { Link } from "expo-router";
-import { Menu, Provider, Button as FilterButton } from "react-native-paper";
+import { Link, Stack } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import * as DropdownMenu from "zeego/dropdown-menu";
 
 import type { GoalLog } from "~/convex/goalLogs";
 
@@ -34,11 +35,6 @@ function Progress() {
   // Fetch habit stats and goal logs for the authenticated user
   const habits = useQuery(api.habitStats.fetchHabitStats, {});
   const goalLogs = useQuery(api.goalLogs.listGoalLogs);
-
-  // State for filter menu options
-  const [visible, setVisible] = useState(false);
-  const openFilterMenu = () => setVisible(true);
-  const closeFilterMenu = () => setVisible(false);
 
   // Relevent month, year, and today for filter options
   const today = new Date();
@@ -115,7 +111,6 @@ function Progress() {
   );
   const handleMenuItemPress = (index: number) => {
     setFilterTitleSelection(filterSelections[index]);
-    closeFilterMenu();
     setFilterIndex(index);
     setFilteredReferenceDate(generateFilterReferenceDate(index));
   };
@@ -173,9 +168,58 @@ function Progress() {
     ) ?? {};
 
   return (
-    <Provider>
-      <SafeAreaView style={styles.safeArea}>
-        <View className="mt-10 flex flex-row justify-center gap-2">
+    <SafeAreaView style={styles.safeArea}>
+      <Stack.Screen
+        options={{
+          headerStyle: {
+            backgroundColor: "#0b1a28",
+          },
+          headerTintColor: "#fff",
+          headerTitle: () => (
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
+                <Pressable
+                  className="flex flex-row items-center gap-4"
+                  hitSlop={20}
+                >
+                  <Text className="text-xl font-bold">
+                    {filterTitleSelection}
+                  </Text>
+                  <AntDesign name="caretdown" size={20} color="white" />
+                </Pressable>
+              </DropdownMenu.Trigger>
+
+              {/* @ts-expect-error */}
+              <DropdownMenu.Content
+                key="actions"
+                placeholder=""
+                onPointerEnterCapture={() => {}}
+                onPointerLeaveCapture={() => {}}
+              >
+                {filterSelections.map((selection, index) => {
+                  {
+                    return (
+                      /* @ts-expect-error */
+                      <DropdownMenu.Item
+                        onSelect={() => {
+                          handleMenuItemPress(index);
+                        }}
+                        key={selection}
+                        textValue={selection}
+                        placeholder=""
+                        onPointerEnterCapture={() => {}}
+                        onPointerLeaveCapture={() => {}}
+                      ></DropdownMenu.Item>
+                    );
+                  }
+                })}
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+          ),
+          headerBackTitleVisible: false,
+        }}
+      />
+      {/* <View className="mt-10 flex flex-row justify-center gap-2">
           <Menu
             visible={visible}
             onDismiss={closeFilterMenu}
@@ -202,101 +246,102 @@ function Progress() {
               />
             ))}
           </Menu>
+        </View> */}
+      {!habits ? (
+        <View className="mt-10 flex flex-row justify-center gap-2">
+          <ActivityIndicator />
+          <Text>Loading...</Text>
         </View>
-        {!habits ? (
-          <View className="mt-10 flex flex-row justify-center gap-2">
-            <ActivityIndicator />
-            <Text>Loading...</Text>
-          </View>
-        ) : habits.length === 0 ? (
-          <View className="flex-1 justify-center gap-4 p-4">
-            <Text style={styles.noDataText}>You have no habits added.</Text>
-            <Link href="/goals" asChild>
-              <Button>
-                <Text>Add a habit</Text>
-              </Button>
-            </Link>
-          </View>
-        ) : (
-          <FlatList
-            className="px-4"
-            data={habits}
-            ListHeaderComponent={() => (
-              <Card className="mb-4 bg-slate-900 shadow-none">
-                <CardHeader className="pb-4">
-                  <CardDescription
-                    className="mb-4"
-                    style={{
-                      fontFamily: fontFamily.openSans.semiBold,
-                    }}
-                  >
-                    Average Completion Rate
-                  </CardDescription>
-                  <CardTitle
-                    className="text-4xl"
-                    style={{
-                      fontFamily: fontFamily.openSans.bold,
-                    }}
-                  >
-                    {overallCompletionRate.toFixed(1)}%
-                  </CardTitle>
-                </CardHeader>
+      ) : habits.length === 0 ? (
+        <View className="flex-1 justify-center gap-4 p-4">
+          <Text className="mt-4 text-center font-medium">
+            You have no habits added.
+          </Text>
+          <Link href="/goals" asChild>
+            <Button>
+              <Text>Add a habit</Text>
+            </Button>
+          </Link>
+        </View>
+      ) : (
+        <FlatList
+          className="px-4 pt-4"
+          data={habits}
+          ListHeaderComponent={() => (
+            <Card className="mb-4 bg-slate-900 shadow-none">
+              <CardHeader className="pb-4">
+                <CardDescription
+                  className="mb-4"
+                  style={{
+                    fontFamily: fontFamily.openSans.semiBold,
+                  }}
+                >
+                  Average Completion Rate
+                </CardDescription>
+                <CardTitle
+                  className="text-4xl"
+                  style={{
+                    fontFamily: fontFamily.openSans.bold,
+                  }}
+                >
+                  {overallCompletionRate.toFixed(1)}%
+                </CardTitle>
+              </CardHeader>
 
-                <CardContent className="p-1">
-                  <BarChart
-                    data={chartData}
-                    width={screenWidth - 60} // Adjusted width to give more space on the right side
-                    height={220}
-                    yAxisLabel=""
-                    yAxisSuffix="%"
-                    xLabelsOffset={0}
-                    chartConfig={{
-                      backgroundColor: "transparent",
-                      backgroundGradientFrom: "#0f172a",
-                      backgroundGradientTo: "#0f172a",
-                      decimalPlaces: 0,
-                      color: () => `rgba(120, 120, 255, 1)`,
-                      labelColor: () => `rgba(255, 255, 255, 1)`,
-                      fillShadowGradientOpacity: 1, // Set opacity for the bars (1 for solid color)
-                      propsForBackgroundLines: {
-                        stroke: "#ffffff", // White grid lines
-                        transform: [{ translateX: 75 }], // Shift grid lines to the right
-                      },
-                      propsForLabels: {
-                        fill: "#ffffff",
-                        fontSize: 10,
-                      },
-                    }}
-                    verticalLabelRotation={0}
-                  />
-                </CardContent>
-              </Card>
-            )}
-            contentContainerStyle={styles.listContentContainer}
-            ListEmptyComponent={() => (
-              <Text style={styles.noDataText}>No habits data available.</Text>
-            )}
-            renderItem={({ item }) => (
-              <HabitStatCard
-                name={item.name}
-                icon={item.icon} // Pass the icon property
-                iconColor={item.iconColor} // Pass the iconColor property
-                duration={item.duration}
-                longestStreak={item.longestStreak}
-                total={parseFloat(item.total.toFixed(1))} // Format total to 1 decimal place
-                dailyAverage={parseFloat(item.dailyAverage.toFixed(1))} // Format dailyAverage to 1 decimal place
-                skipped={calculateFilteredCount(item.skipped)}
-                failed={calculateFilteredCount(item.failed)}
-                goalLogs={goalLogsByGoalId[item._id] || []} // Pass goal logs specific to this habit
-                unit={item.unit}
-                filterIndex={filterIndex}
-              />
-            )}
-            keyExtractor={(item) => item._id}
-          />
-        )}
-      </SafeAreaView>
-    </Provider>
+              <CardContent className="p-1">
+                <BarChart
+                  data={chartData}
+                  width={screenWidth - 60} // Adjusted width to give more space on the right side
+                  height={220}
+                  yAxisLabel=""
+                  yAxisSuffix="%"
+                  xLabelsOffset={0}
+                  chartConfig={{
+                    backgroundColor: "transparent",
+                    backgroundGradientFrom: "#0f172a",
+                    backgroundGradientTo: "#0f172a",
+                    decimalPlaces: 0,
+                    color: () => `rgba(120, 120, 255, 1)`,
+                    labelColor: () => `rgba(255, 255, 255, 1)`,
+                    fillShadowGradientOpacity: 1, // Set opacity for the bars (1 for solid color)
+                    propsForBackgroundLines: {
+                      stroke: "#ffffff", // White grid lines
+                      transform: [{ translateX: 75 }], // Shift grid lines to the right
+                    },
+                    propsForLabels: {
+                      fill: "#ffffff",
+                      fontSize: 10,
+                    },
+                  }}
+                  verticalLabelRotation={0}
+                />
+              </CardContent>
+            </Card>
+          )}
+          contentContainerStyle={styles.listContentContainer}
+          ListEmptyComponent={() => (
+            <Text className="">No habits data available.</Text>
+          )}
+          renderItem={({ item }) => (
+            <HabitStatCard
+              name={item.name}
+              icon={item.icon} // Pass the icon property
+              iconColor={item.iconColor} // Pass the iconColor property
+              duration={item.duration}
+              longestStreak={item.longestStreak}
+              total={parseFloat(item.total.toFixed(1))} // Format total to 1 decimal place
+              dailyAverage={parseFloat(item.dailyAverage.toFixed(1))} // Format dailyAverage to 1 decimal place
+              skipped={calculateFilteredCount(item.skipped)}
+              failed={calculateFilteredCount(item.failed)}
+              goalLogs={goalLogsByGoalId[item._id] || []} // Pass goal logs specific to this habit
+              unit={item.unit}
+              filterIndex={filterIndex}
+            />
+          )}
+          keyExtractor={(item) => item._id}
+        />
+      )}
+    </SafeAreaView>
   );
 }
 
@@ -307,13 +352,6 @@ const styles = StyleSheet.create({
   },
   listContentContainer: {
     paddingBottom: 60,
-  },
-  noDataText: {
-    fontFamily: fontFamily.openSans.medium,
-    fontSize: 16,
-    color: "#ffffff",
-    textAlign: "center",
-    marginTop: 20,
   },
 });
 

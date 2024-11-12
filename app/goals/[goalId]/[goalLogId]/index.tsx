@@ -13,7 +13,7 @@ import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
 import type { Id } from "~/convex/_generated/dataModel";
 import { fontFamily } from "~/lib/font";
-import * as DropdownMenu from "zeego/dropdown-menu"; // TODO: Remove @ts-ignore lines when zeego is fixed
+import * as DropdownMenu from "zeego/dropdown-menu"; // TODO: Remove @ts-expect-error lines when zeego is fixed
 import { useState } from "react";
 import { ArrowRight, Check, ChevronDown, X } from "lucide-react-native";
 import { BarChart } from "react-native-chart-kit";
@@ -173,14 +173,14 @@ export default function GoalScreen() {
                   <FontAwesome5 name="ellipsis-h" size={20} color="#fff" />
                 </Pressable>
               </DropdownMenu.Trigger>
-              {/* @ts-ignore */}
+              {/* @ts-expect-error */}
               <DropdownMenu.Content
                 key="actions"
                 placeholder=""
                 onPointerEnterCapture={() => {}}
                 onPointerLeaveCapture={() => {}}
               >
-                {/* @ts-ignore */}
+                {/* @ts-expect-error */}
                 <DropdownMenu.Item
                   onSelect={() =>
                     router.navigate({
@@ -197,7 +197,7 @@ export default function GoalScreen() {
                   <DropdownMenu.ItemIcon ios={{ name: "pencil.line" }} />
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator />
-                {/* @ts-ignore */}
+                {/* @ts-expect-error */}
                 <DropdownMenu.Item
                   onSelect={handleDelete}
                   destructive
