@@ -13,7 +13,7 @@ import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
 import type { Id } from "~/convex/_generated/dataModel";
 import { fontFamily } from "~/lib/font";
-import * as DropdownMenu from "zeego/dropdown-menu"; // TODO: Remove @ts-ignore lines when zeego is fixed
+import * as DropdownMenu from "zeego/dropdown-menu";
 import { useState } from "react";
 import { ArrowRight, Check, ChevronDown, X } from "lucide-react-native";
 import { BarChart } from "react-native-chart-kit";
@@ -173,14 +173,7 @@ export default function GoalScreen() {
                   <FontAwesome5 name="ellipsis-h" size={20} color="#fff" />
                 </Pressable>
               </DropdownMenu.Trigger>
-              {/* @ts-ignore */}
-              <DropdownMenu.Content
-                key="actions"
-                placeholder=""
-                onPointerEnterCapture={() => {}}
-                onPointerLeaveCapture={() => {}}
-              >
-                {/* @ts-ignore */}
+              <DropdownMenu.Content key="actions">
                 <DropdownMenu.Item
                   onSelect={() =>
                     router.navigate({
@@ -190,22 +183,15 @@ export default function GoalScreen() {
                   }
                   key="edit-goal"
                   textValue="Edit Goal"
-                  placeholder=""
-                  onPointerEnterCapture={() => {}}
-                  onPointerLeaveCapture={() => {}}
                 >
                   <DropdownMenu.ItemIcon ios={{ name: "pencil.line" }} />
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator />
-                {/* @ts-ignore */}
                 <DropdownMenu.Item
                   onSelect={handleDelete}
                   destructive
                   key="delete-goal"
                   textValue="Delete Goal"
-                  placeholder=""
-                  onPointerEnterCapture={() => {}}
-                  onPointerLeaveCapture={() => {}}
                 >
                   <DropdownMenu.ItemIcon ios={{ name: "trash" }} />
                 </DropdownMenu.Item>
