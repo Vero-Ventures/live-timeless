@@ -39,35 +39,22 @@ const today = new Date();
 const year = today.getFullYear();
 const month = today.toLocaleString("default", { month: "long" });
 
+const constants: Record<Selection, number> = {
+  last_7_days: 7,
+  last_30_days: 30,
+  last_90_days: 90,
+  this_week: 7,
+};
+
+constants[`${month.toLowerCase()}_${year}`] = 30;
+constants[`${year}`] = 365;
+
 // Adjusted function to generate completion data based on daily matching
 const generateCompletionData = (
   goalLogs: { date: number; isComplete: boolean }[],
   selection: Selection
 ) => {
-  let days: number;
-  switch (selection) {
-    case "last_7_days":
-      days = 7;
-      break;
-    case "last_30_days": // Last 30 days
-      days = 30;
-      break;
-    case "last_90_days": // Last 90 days
-      days = 90;
-      break;
-    case "this_week": // This week
-      days = 7;
-      break;
-    case `${month.toLowerCase()}_${year}`:
-      days = 30;
-      break;
-    case `${year}`:
-      days = 365;
-      break;
-    default:
-      days = 7;
-      break;
-  }
+  const days = constants[selection];
 
   // Generate past days in normalized day format
   const pastDays = Array.from({ length: days }, (_, i) => {
