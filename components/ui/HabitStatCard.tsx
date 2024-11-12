@@ -18,6 +18,7 @@ import { Separator } from "./separator";
 import { startOfDay, subDays } from "date-fns";
 import { GOAL_ICONS } from "~/constants/goal-icons";
 import { cn } from "~/lib/utils";
+import type { Selection } from "~/app/(tabs)/progress";
 
 interface HabitStatCardProps {
   name: string;
@@ -31,39 +32,42 @@ interface HabitStatCardProps {
   failed: number;
   goalLogs: { date: number; isComplete: boolean }[]; // Accept goalLogs with date as number (timestamp) and isComplete as boolean
   unit: string;
-  filterIndex: number;
+  selectionId: Selection;
 }
+
+const today = new Date();
+const year = today.getFullYear();
+const month = today.toLocaleString("default", { month: "long" });
 
 // Adjusted function to generate completion data based on daily matching
 const generateCompletionData = (
   goalLogs: { date: number; isComplete: boolean }[],
-  filterIndex: number
+  selectionId: Selection
 ) => {
-  let days = 7;
-  switch (filterIndex) {
-    case 0: // Last 7 days
+  let days: number;
+  switch (selectionId) {
+    case "last_7_days":
       days = 7;
       break;
-    case 1: // Last 30 days
+    case "last_30_days": // Last 30 days
       days = 30;
       break;
-    case 2: // Last 90 days
+    case "last_90_days": // Last 90 days
       days = 90;
       break;
-    case 3: // This week
+    case "this_week": // This week
       days = 7;
       break;
-    case 4: // This month
+    case `${month.toLowerCase()}_${year}`:
       days = new Date().getDate();
       break;
-    case 5: // This year
+    case `${year}`:
       days = new Date().getFullYear();
       break;
     default:
       days = 7;
       break;
   }
-  const today = new Date();
 
   // Generate past days in normalized day format
   const pastDays = Array.from({ length: days }, (_, i) => {
@@ -105,10 +109,10 @@ function HabitStatCard({
   failed,
   goalLogs,
   unit,
-  filterIndex,
+  selectionId,
 }: HabitStatCardProps) {
   // Generate the heatmap data using the completion status in goalLogs
-  const data = generateCompletionData(goalLogs, filterIndex);
+  const data = generateCompletionData(goalLogs, selectionId);
   const chunkedData = chunkArray(data); // Split data into chunks of 7 days for heatmap
 
   // Find the matching icon component from GOAL_ICONS

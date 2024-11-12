@@ -23,95 +23,74 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
-import { Link, Stack } from "expo-router";
+import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import * as DropdownMenu from "zeego/dropdown-menu";
 import type { GoalLog } from "~/convex/goalLogs";
 
 const screenWidth = Dimensions.get("window").width;
 
-function Progress() {
+const today = new Date();
+const year = today.getFullYear();
+const month = today.toLocaleString("default", { month: "long" });
+
+const selections = [
+  {
+    id: "last_7_days",
+    label: "Last 7 Days",
+    referenceDate: subDays(today, 7),
+  },
+  {
+    id: "last_30_days",
+    label: "Last 30 Days",
+    referenceDate: subDays(today, 30),
+  },
+  {
+    id: "last_90_days",
+    label: "Last 90 Days",
+    referenceDate: subDays(today, 90),
+  },
+  {
+    id: "this_week",
+    label: "This Week",
+    referenceDate: subDays(today, today.getDay() + 1),
+  },
+  {
+    id: `${month.toLowerCase()}_${year}`,
+    label: `${month} ${year}`,
+    referenceDate: new Date(year, today.getMonth(), 1),
+  },
+  {
+    id: `${year}`,
+    label: `${year}`,
+    referenceDate: new Date(year, 0, 1),
+  },
+] as const;
+
+export type Selection = (typeof selections)[number]["id"];
+
+export default function Progress() {
+  const router = useRouter();
+  const params = useLocalSearchParams<{
+    filter?: Selection;
+  }>();
+  const [filter, setFilter] = useState(params.filter ?? "last_7_days");
+
+  const selection =
+    selections.find((selection) => selection.id === filter) ?? selections[0];
+
   // Fetch habit stats and goal logs for the authenticated user
   const habits = useQuery(api.habitStats.fetchHabitStats, {});
   const goalLogs = useQuery(api.goalLogs.listGoalLogs);
 
-  // Relevent month, year, and today for filter options
-  const today = new Date();
-  const year = new Date().getFullYear();
-  const month = () => {
-    const monthNames = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-    return monthNames[new Date().getMonth()];
-  };
+  const referenceDate = selection.referenceDate;
 
-  // filter option selections
-  const filterSelections = [
-    "Last 7 days",
-    "Last 30 days",
-    "Last 90 days",
-    "This Week",
-    `${month()} ${year}`,
-    `${year}`,
-  ];
+  const offset = today.getTimezoneOffset() * 60000;
+  const filteredReferenceDate = new Date(referenceDate.getTime() - offset);
 
-  const generateFilterReferenceDate = (filterIndex: number) => {
-    let referenceDate: Date;
-
-    switch (filterIndex) {
-      case 0: // Last 7 days
-        referenceDate = subDays(today, 7);
-        break;
-      case 1: // Last 30 days
-        referenceDate = subDays(today, 30);
-        break;
-      case 2: // Last 90 days
-        referenceDate = subDays(today, 90);
-        break;
-      case 3: // This week
-        referenceDate = subDays(today, today.getDay() + 1);
-        break;
-      case 4: // This month
-        referenceDate = new Date(today.getFullYear(), today.getMonth(), 1);
-        break;
-      case 5: // This year
-        referenceDate = new Date(today.getFullYear(), 0, 1);
-        break;
-      default:
-        referenceDate = subDays(today, 29);
-        break;
-    }
-
-    // Adjust for local time zone
-    const offset = today.getTimezoneOffset() * 60000; // Offset in milliseconds
-    const localReferenceDate = new Date(referenceDate.getTime() - offset);
-
-    return localReferenceDate;
-  };
-
-  // Logic for filter option and selection
-  const [filterIndex, setFilterIndex] = useState(0);
-  const [filterTitleSelection, setFilterTitleSelection] = useState(
-    filterSelections[filterIndex]
-  );
-  const [filteredReferenceDate, setFilteredReferenceDate] = useState(
-    generateFilterReferenceDate(filterIndex)
-  );
-  const handleMenuItemPress = (index: number) => {
-    setFilterTitleSelection(filterSelections[index]);
-    setFilterIndex(index);
-    setFilteredReferenceDate(generateFilterReferenceDate(index));
+  const handleMenuItemPress = (selectionId: Selection) => {
+    setFilter(selectionId);
+    router.setParams({ filter: selectionId });
   };
 
   function calculateFilteredCount(fetchedLogs: GoalLog[]): number {
@@ -125,15 +104,14 @@ function Progress() {
 
   const labels = Array.from({ length: 5 }, (_, i) =>
     format(subDays(new Date(), 4 - i), "MMM dd")
-  ); // Correct order: oldest to today
+  );
 
-  // Extract the last 5 days' completion rates from the first habit's dailyCompletionRates
   const dailyCompletionRates =
     habits && habits[0]?.dailyCompletionRates
       ? habits[0].dailyCompletionRates
           .slice(-5)
           .map((rate) => rate.completionRate || 0)
-      : Array(5).fill(0); // Fallback to zeros if data isn't available
+      : Array(5).fill(0);
 
   const overallCompletionRate =
     habits && habits.length
@@ -141,26 +119,17 @@ function Progress() {
         habits.length
       : 0;
 
-  // Bar chart data
   const chartData = {
     labels,
-    datasets: [
-      {
-        data: dailyCompletionRates,
-      },
-    ],
+    datasets: [{ data: dailyCompletionRates }],
   };
 
-  // Organize goalLogs by goalId for easy lookup
   const goalLogsByGoalId =
     goalLogs?.reduce(
       (acc, log) => {
         const goalId = log.goalId.toString();
         if (!acc[goalId]) acc[goalId] = [];
-        acc[goalId].push({
-          date: log.date, // Keep `date` as a timestamp (number)
-          isComplete: log.isComplete,
-        });
+        acc[goalId].push({ date: log.date, isComplete: log.isComplete });
         return acc;
       },
       {} as Record<string, { date: number; isComplete: boolean }[]>
@@ -170,9 +139,7 @@ function Progress() {
     <SafeAreaView style={styles.safeArea}>
       <Stack.Screen
         options={{
-          headerStyle: {
-            backgroundColor: "#0b1a28",
-          },
+          headerStyle: { backgroundColor: "#0b1a28" },
           headerTintColor: "#fff",
           headerTitle: () => (
             <DropdownMenu.Root>
@@ -181,20 +148,16 @@ function Progress() {
                   className="flex flex-row items-center gap-4"
                   hitSlop={20}
                 >
-                  <Text className="text-xl font-bold">
-                    {filterTitleSelection}
-                  </Text>
+                  <Text className="text-xl font-bold">{selection.label}</Text>
                   <AntDesign name="caretdown" size={20} color="white" />
                 </Pressable>
               </DropdownMenu.Trigger>
               <DropdownMenu.Content key="actions">
-                {filterSelections.map((selection, index) => (
+                {selections.map((selection) => (
                   <DropdownMenu.Item
-                    onSelect={() => {
-                      handleMenuItemPress(index);
-                    }}
-                    key={selection}
-                    textValue={selection}
+                    onSelect={() => handleMenuItemPress(selection.id)}
+                    key={selection.id}
+                    textValue={selection.label}
                   >
                     <DropdownMenu.ItemIcon />
                   </DropdownMenu.Item>
@@ -230,26 +193,21 @@ function Progress() {
               <CardHeader className="pb-4">
                 <CardDescription
                   className="mb-4"
-                  style={{
-                    fontFamily: fontFamily.openSans.semiBold,
-                  }}
+                  style={{ fontFamily: fontFamily.openSans.semiBold }}
                 >
                   Average Completion Rate
                 </CardDescription>
                 <CardTitle
                   className="text-4xl"
-                  style={{
-                    fontFamily: fontFamily.openSans.bold,
-                  }}
+                  style={{ fontFamily: fontFamily.openSans.bold }}
                 >
                   {overallCompletionRate.toFixed(1)}%
                 </CardTitle>
               </CardHeader>
-
               <CardContent className="p-1">
                 <BarChart
                   data={chartData}
-                  width={screenWidth - 60} // Adjusted width to give more space on the right side
+                  width={screenWidth - 60}
                   height={220}
                   yAxisLabel=""
                   yAxisSuffix="%"
@@ -261,15 +219,12 @@ function Progress() {
                     decimalPlaces: 0,
                     color: () => `rgba(120, 120, 255, 1)`,
                     labelColor: () => `rgba(255, 255, 255, 1)`,
-                    fillShadowGradientOpacity: 1, // Set opacity for the bars (1 for solid color)
+                    fillShadowGradientOpacity: 1,
                     propsForBackgroundLines: {
-                      stroke: "#ffffff", // White grid lines
-                      transform: [{ translateX: 75 }], // Shift grid lines to the right
+                      stroke: "#ffffff",
+                      transform: [{ translateX: 75 }],
                     },
-                    propsForLabels: {
-                      fill: "#ffffff",
-                      fontSize: 10,
-                    },
+                    propsForLabels: { fill: "#ffffff", fontSize: 10 },
                   }}
                   verticalLabelRotation={0}
                 />
@@ -277,23 +232,21 @@ function Progress() {
             </Card>
           )}
           contentContainerStyle={styles.listContentContainer}
-          ListEmptyComponent={() => (
-            <Text className="">No habits data available.</Text>
-          )}
+          ListEmptyComponent={() => <Text>No habits data available.</Text>}
           renderItem={({ item }) => (
             <HabitStatCard
               name={item.name}
-              icon={item.icon} // Pass the icon property
-              iconColor={item.iconColor} // Pass the iconColor property
+              icon={item.icon}
+              iconColor={item.iconColor}
               duration={item.duration}
               longestStreak={item.longestStreak}
-              total={parseFloat(item.total.toFixed(1))} // Format total to 1 decimal place
-              dailyAverage={parseFloat(item.dailyAverage.toFixed(1))} // Format dailyAverage to 1 decimal place
+              total={parseFloat(item.total.toFixed(1))}
+              dailyAverage={parseFloat(item.dailyAverage.toFixed(1))}
               skipped={calculateFilteredCount(item.skipped)}
               failed={calculateFilteredCount(item.failed)}
-              goalLogs={goalLogsByGoalId[item._id] || []} // Pass goal logs specific to this habit
+              goalLogs={goalLogsByGoalId[item._id] || []}
               unit={item.unit}
-              filterIndex={filterIndex}
+              selectionId={selection.id}
             />
           )}
           keyExtractor={(item) => item._id}
@@ -304,13 +257,6 @@ function Progress() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#082139",
-  },
-  listContentContainer: {
-    paddingBottom: 60,
-  },
+  safeArea: { flex: 1, backgroundColor: "#082139" },
+  listContentContainer: { paddingBottom: 60 },
 });
-
-export default Progress;
