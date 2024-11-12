@@ -40,7 +40,7 @@ export const createGoal = mutation({
     unitValue: v.number(),
     unit: v.string(),
     recurrence: v.string(),
-    weeks: v.number(),
+    weeks: v.optional(v.number())
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -50,6 +50,7 @@ export const createGoal = mutation({
     const goalId = await ctx.db.insert("goals", {
       ...args,
       userId,
+      weeks: args.weeks || 99999,
     });
 
     return goalId;
@@ -73,7 +74,6 @@ export const updateGoal = mutation({
     unitValue: v.float64(),
     unit: v.string(),
     recurrence: v.string(),
-    weeks: v.number(),
   },
   handler: async (ctx, args) => {
     const { goalId, ...updateData } = args;
