@@ -32,7 +32,7 @@ interface HabitStatCardProps {
   failed: number;
   goalLogs: { date: number; isComplete: boolean }[]; // Accept goalLogs with date as number (timestamp) and isComplete as boolean
   unit: string;
-  selectionId: Selection;
+  selection: Selection;
 }
 
 const today = new Date();
@@ -42,10 +42,10 @@ const month = today.toLocaleString("default", { month: "long" });
 // Adjusted function to generate completion data based on daily matching
 const generateCompletionData = (
   goalLogs: { date: number; isComplete: boolean }[],
-  selectionId: Selection
+  selection: Selection
 ) => {
   let days: number;
-  switch (selectionId) {
+  switch (selection) {
     case "last_7_days":
       days = 7;
       break;
@@ -59,10 +59,10 @@ const generateCompletionData = (
       days = 7;
       break;
     case `${month.toLowerCase()}_${year}`:
-      days = new Date().getDate();
+      days = 30;
       break;
     case `${year}`:
-      days = new Date().getFullYear();
+      days = 365;
       break;
     default:
       days = 7;
@@ -88,15 +88,6 @@ const generateCompletionData = (
   return pastDays;
 };
 
-// Chunk array into rows of 7 squares for heatmap
-function chunkArray(array: { date: number; isComplete: boolean }[]) {
-  const chunks = [];
-  for (let i = 0; i < array.length; i += 7) {
-    chunks.push(array.slice(i, i + 7));
-  }
-  return chunks;
-}
-
 function HabitStatCard({
   name,
   icon,
@@ -109,11 +100,10 @@ function HabitStatCard({
   failed,
   goalLogs,
   unit,
-  selectionId,
+  selection,
 }: HabitStatCardProps) {
   // Generate the heatmap data using the completion status in goalLogs
-  const data = generateCompletionData(goalLogs, selectionId);
-  const chunkedData = chunkArray(data); // Split data into chunks of 7 days for heatmap
+  const data = generateCompletionData(goalLogs, selection);
 
   // Find the matching icon component from GOAL_ICONS
   const iconComponent = GOAL_ICONS.find((item) => item.name === icon);
@@ -141,19 +131,22 @@ function HabitStatCard({
         {!!icon && <Icon name={icon} color={iconColor} size={32} />}
       </CardHeader>
       <CardContent className="p-0 pb-6">
-        <View className="mb-5 items-center">
-          {chunkedData.map((chunk, rowIndex) => (
-            <View key={rowIndex} className="mb-2 flex-row gap-0.5">
-              {chunk.map((value) => (
-                <View
-                  key={String(value.date)}
-                  className={cn("h-12 w-12", {
-                    "bg-slate-800": !value.isComplete, // Not completed
-                    "bg-blue-500": value.isComplete, // Completed
-                  })}
-                ></View>
-              ))}
-            </View>
+        <View className="mx-auto flex flex-row flex-wrap items-center gap-0.5 p-4">
+          {data.map((value) => (
+            <View
+              key={value.date.toLocaleString()}
+              className={cn({
+                "h-[46px] w-[46px]":
+                  selection === "last_7_days" || selection === "this_week",
+                "h-10 w-10":
+                  selection === "last_30_days" ||
+                  selection === `${month} ${year}`,
+                "h-8 w-8": selection === "last_90_days",
+                "h-4 w-4": selection === `${year}`,
+                "bg-slate-800": !value.isComplete,
+                "bg-blue-500": value.isComplete,
+              })}
+            ></View>
           ))}
         </View>
         <View className="flex-row justify-between px-6 py-4">

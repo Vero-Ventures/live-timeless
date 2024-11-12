@@ -246,7 +246,7 @@ export default function Progress() {
               failed={calculateFilteredCount(item.failed)}
               goalLogs={goalLogsByGoalId[item._id] || []}
               unit={item.unit}
-              selectionId={selection.id}
+              selection={selection.id}
             />
           )}
           keyExtractor={(item) => item._id}
