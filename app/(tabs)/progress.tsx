@@ -24,14 +24,15 @@ import {
 import { Button } from "~/components/ui/button";
 import { Link } from "expo-router";
 import { Menu, Provider, Button as FilterButton } from "react-native-paper";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import AntDesign from "@expo/vector-icons/AntDesign";
+
 import type { GoalLog } from "~/convex/goalLogs";
 
 const screenWidth = Dimensions.get("window").width;
 
 function Progress() {
   // Fetch habit stats and goal logs for the authenticated user
-  const habits = useQuery(api.habitStats.fetchHabitStats);
+  const habits = useQuery(api.habitStats.fetchHabitStats, {});
   const goalLogs = useQuery(api.goalLogs.listGoalLogs);
 
   // State for filter menu options
@@ -187,7 +188,7 @@ function Progress() {
                 onPress={openFilterMenu}
               >
                 {filterTitleSelection}
-                <Icon name="arrow-drop-down" size={20} color="white" />
+                <AntDesign name="caretdown" size={20} color="white" />
               </FilterButton>
             }
           >
