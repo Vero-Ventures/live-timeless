@@ -157,36 +157,23 @@ export const createGoalLogsFromGoal = mutation({
       throw new Error("Goal not found");
     }
 
-    const { weeks, dailyRepeat, startDate } = goal; // Get startDate from the goal
-    const goalStartDate = new Date(startDate); // Use startDate as the base for goal logs
-    const dayOfWeekMap = {
-      Sunday: 0,
-      Monday: 1,
-      Tuesday: 2,
-      Wednesday: 3,
-      Thursday: 4,
-      Friday: 5,
-      Saturday: 6,
-    };
+    const { dailyRepeat, startDate } = goal;
+    const goalStartDate = new Date(startDate);
+    const maxDate = new Date(goalStartDate);
+    maxDate.setFullYear(maxDate.getFullYear() + 100);
 
-    const createGoalsWithDate = async () => {
-      for (let week = 0; week < weeks; week++) {
-        for (let day of dailyRepeat) {
-          const targetDay = dayOfWeekMap[day as keyof typeof dayOfWeekMap];
-          const goalDate = new Date(goalStartDate); // Start from goal's start date
-          const dayOffset = (targetDay - goalStartDate.getDay() + 7) % 7;
-          goalDate.setDate(goalStartDate.getDate() + week * 7 + dayOffset); // Calculate the exact day
-
-          await ctx.db.insert("goalLogs", {
-            goalId: args.goalId,
-            isComplete: false,
-            date: goalDate.getTime(), // Store the timestamp
-            unitsCompleted: 0,
-          });
-        }
+    let currentDate = new Date(goalStartDate);
+    while (currentDate <= maxDate) {
+      const dayName = currentDate.toLocaleString("en-US", { weekday: "long" });
+      if (dailyRepeat.includes(dayName)) {
+        await ctx.db.insert("goalLogs", {
+          goalId: args.goalId,
+          isComplete: false,
+          date: currentDate.getTime(),
+          unitsCompleted: 0,
+        });
       }
-    };
-
-    await createGoalsWithDate();
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
   },
 });
