@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {
   FlatList,
   View,
@@ -74,7 +73,7 @@ export default function Progress() {
   const params = useLocalSearchParams<{
     filter?: Selection;
   }>();
-  const [filter, setFilter] = useState(params.filter ?? "last_7_days");
+  const filter = params.filter ?? "last_7_days";
 
   const selection =
     selections.find((selection) => selection.id === filter) ?? selections[0];
@@ -89,7 +88,6 @@ export default function Progress() {
   const filteredReferenceDate = new Date(referenceDate.getTime() - offset);
 
   const handleMenuItemPress = (selectionId: Selection) => {
-    setFilter(selectionId);
     router.setParams({ filter: selectionId });
   };
 
