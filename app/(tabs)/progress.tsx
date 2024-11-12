@@ -26,7 +26,6 @@ import { Button } from "~/components/ui/button";
 import { Link, Stack } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import * as DropdownMenu from "zeego/dropdown-menu";
-
 import type { GoalLog } from "~/convex/goalLogs";
 
 const screenWidth = Dimensions.get("window").width;
@@ -188,65 +187,24 @@ function Progress() {
                   <AntDesign name="caretdown" size={20} color="white" />
                 </Pressable>
               </DropdownMenu.Trigger>
-
-              {/* @ts-expect-error */}
-              <DropdownMenu.Content
-                key="actions"
-                placeholder=""
-                onPointerEnterCapture={() => {}}
-                onPointerLeaveCapture={() => {}}
-              >
-                {filterSelections.map((selection, index) => {
-                  {
-                    return (
-                      /* @ts-expect-error */
-                      <DropdownMenu.Item
-                        onSelect={() => {
-                          handleMenuItemPress(index);
-                        }}
-                        key={selection}
-                        textValue={selection}
-                        placeholder=""
-                        onPointerEnterCapture={() => {}}
-                        onPointerLeaveCapture={() => {}}
-                      ></DropdownMenu.Item>
-                    );
-                  }
-                })}
+              <DropdownMenu.Content key="actions">
+                {filterSelections.map((selection, index) => (
+                  <DropdownMenu.Item
+                    onSelect={() => {
+                      handleMenuItemPress(index);
+                    }}
+                    key={selection}
+                    textValue={selection}
+                  >
+                    <DropdownMenu.ItemIcon />
+                  </DropdownMenu.Item>
+                ))}
               </DropdownMenu.Content>
             </DropdownMenu.Root>
           ),
           headerBackTitleVisible: false,
         }}
       />
-      {/* <View className="mt-10 flex flex-row justify-center gap-2">
-          <Menu
-            visible={visible}
-            onDismiss={closeFilterMenu}
-            anchor={
-              <FilterButton
-                labelStyle={{
-                  fontFamily: fontFamily.openSans.semiBold,
-                  color: "white",
-                }}
-                onPress={openFilterMenu}
-              >
-                {filterTitleSelection}
-                <AntDesign name="caretdown" size={20} color="white" />
-              </FilterButton>
-            }
-          >
-            {filterSelections.map((selection, index) => (
-              <Menu.Item
-                key={index}
-                onPress={() => {
-                  handleMenuItemPress(index);
-                }}
-                title={selection}
-              />
-            ))}
-          </Menu>
-        </View> */}
       {!habits ? (
         <View className="mt-10 flex flex-row justify-center gap-2">
           <ActivityIndicator />
