@@ -1,7 +1,8 @@
 import { useQuery } from "convex/react";
 import { FlatList, Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import { Button } from "~/components/ui/button";
+import { Plus } from "lucide-react-native";
 import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
 import { fontFamily } from "~/lib/font";
@@ -49,6 +50,13 @@ export default function ChallengesScreen() {
         >
           Challenges
         </Text>
+
+        {/* TODO: Allow only admin to create challenges */}
+        <Link href="/challenges/create" asChild>
+          <Button size="icon" className="h-14 w-14 rounded-full">
+            <Plus color="#fff" size={30} />
+          </Button>
+        </Link>
 
         <FlatList
           contentContainerStyle={{
