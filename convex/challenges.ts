@@ -94,6 +94,7 @@ export const createChallenge = mutation({
     recurrence: v.string(),
     startDate: v.number(),
     endDate: v.number(),
+    points: v.number(),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);

@@ -19,6 +19,7 @@ export default defineSchema({
     organizationId: v.id("organizations"),
     role: v.string(),
     hasOnboarded: v.optional(v.boolean()),
+    points: v.optional(v.number()),
   }).index("email", ["email"]),
   goals: defineTable({
     _id: v.id("goals"),
@@ -38,6 +39,8 @@ export default defineSchema({
     unit: v.string(),
     recurrence: v.string(),
     weeks: v.number(),
+    rate: v.optional(v.number()),
+    challengeID: v.optional(v.id("challenges")),
   }).index("by_user_id", ["userId"]),
   goalLogs: defineTable({
     _id: v.id("goalLogs"),
@@ -58,6 +61,7 @@ export default defineSchema({
     startDate: v.number(),
     endDate: v.number(),
     organizationId: v.id("organizations"),
+    points: v.number(),
   }).index("by_organization_id", ["organizationId"]),
   challengeParticipants: defineTable({
     _id: v.id("challengeParticipants"),
