@@ -177,3 +177,42 @@ export const createGoalLogsFromGoal = mutation({
     }
   },
 });
+
+export const createWeeklyLogFromGoal = mutation ({
+  args: {
+    goalId: v.id("goals"),
+  }, 
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      throw new Error("User not found");
+    }
+    if (args.goalId === null) {
+      throw new Error("Goal Id not found");
+    }
+
+    const goal = await ctx.db.get(args.goalId);
+    if (goal === null) {
+      throw new Error("Goal not found");
+    }
+
+    const { dailyRepeat, startDate } = goal;
+    const goalStartDate = new Date(startDate);
+    const maxDate = new Date(goalStartDate);
+    maxDate.setDate(maxDate.getDate() + 7);
+
+    let currentDate = new Date(goalStartDate);
+    while (currentDate <= maxDate) {
+      const dayName = currentDate.toLocaleString("en-US", { weekday: "long" });
+      if (dailyRepeat.includes(dayName)) {
+        await ctx.db.insert("goalLogs", {
+          goalId: args.goalId,
+          isComplete: false,
+          date: currentDate.getTime(),
+          unitsCompleted: 0,
+        });
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+  },
+});

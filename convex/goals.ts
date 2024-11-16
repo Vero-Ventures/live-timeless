@@ -41,7 +41,6 @@ export const createGoal = mutation({
     unitValue: v.number(),
     unit: v.string(),
     recurrence: v.string(),
-    weeks: v.optional(v.number())
     rate: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
@@ -51,8 +50,7 @@ export const createGoal = mutation({
     }
     const goalId = await ctx.db.insert("goals", {
       ...args,
-      userId,
-      weeks: args.weeks || 99999,
+      userId
     });
 
     return goalId;
