@@ -15,8 +15,8 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
-import type * as ResendOTP from "../ResendOTP.js";
 import type * as auth from "../auth.js";
+import type * as challengeGoals from "../challengeGoals.js";
 import type * as challenges from "../challenges.js";
 import type * as emails_LTLoginOTP from "../emails/LTLoginOTP.js";
 import type * as emails_LTUserInvitation from "../emails/LTUserInvitation.js";
@@ -27,6 +27,7 @@ import type * as habitStats from "../habitStats.js";
 import type * as http from "../http.js";
 import type * as invitations from "../invitations.js";
 import type * as organizations from "../organizations.js";
+import type * as ResendOTP from "../ResendOTP.js";
 import type * as singleHabitStats from "../singleHabitStats.js";
 import type * as users from "../users.js";
 
@@ -39,8 +40,8 @@ import type * as users from "../users.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
-  ResendOTP: typeof ResendOTP;
   auth: typeof auth;
+  challengeGoals: typeof challengeGoals;
   challenges: typeof challenges;
   "emails/LTLoginOTP": typeof emails_LTLoginOTP;
   "emails/LTUserInvitation": typeof emails_LTUserInvitation;
@@ -51,6 +52,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   invitations: typeof invitations;
   organizations: typeof organizations;
+  ResendOTP: typeof ResendOTP;
   singleHabitStats: typeof singleHabitStats;
   users: typeof users;
 }>;
