@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "convex/react";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, Link } from "expo-router";
 import { Target } from "~/lib/icons/Target";
 import { Infinity } from "~/lib/icons/Infinity";
 import { Calendar } from "~/lib/icons/Calendar";
@@ -50,6 +50,16 @@ export default function ChallengeScreen() {
         <>
           <View className="flex-1 gap-8 p-4">
             <View className="gap-4">
+              <Link
+              href={{ pathname: "/challenges/goal", params: {id: challenge._id} }}
+              asChild
+              >
+                <Button>
+                  <Text className="text-bold text-primary-foreground">
+                    Create Challenge Goals
+                  </Text>
+                </Button>
+              </Link>
               <View className="flex-row items-center gap-2">
                 <Target className="stroke-gray-400" />
                 <Text className="text-gray-400">
