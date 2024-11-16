@@ -1,16 +1,16 @@
 import { Stack } from "expo-router";
-import { SafeAreaView, StyleSheet} from "react-native";
+import { SafeAreaView, StyleSheet, View } from "react-native";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
-// import { useShallow } from "zustand/react/shallow";
 import { useMutation } from "convex/react";
-// import { useChallengeStore } from "./challenge-store";
 import { fontFamily } from "~/lib/font";
+import { Input } from "~/components/ui/input";
+import { useChallengeFormStore } from "./challenge-store";
+import { useShallow } from "zustand/react/shallow";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export default function CreateChallengePage() {
-  const createChallenge = useMutation(api.challenges.createChallenge);
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <Stack.Screen
@@ -27,8 +27,39 @@ export default function CreateChallengePage() {
           headerBackTitleVisible: false,
         }}
       />
-      <Button onPress={() => createChallenge({
-          name: "Sample Challenge",
+      <CreateChallengeForm />
+    </SafeAreaView>
+  );
+}
+
+function CreateChallengeForm() {
+  const [
+    name,
+    setName,
+  ] = useChallengeFormStore(
+    useShallow((s) => [
+      s.name,
+      s.setName,
+    ])
+  )
+
+  const createChallenge = useMutation(api.challenges.createChallenge);
+
+  return (
+    <KeyboardAwareScrollView>
+
+      <View className="flex flex-row items-center gap-2">
+        <Input
+          className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+          placeholder="Name of Challenge"
+          value={name}
+          onChangeText={setName}
+        />
+      </View>
+
+      <Button onPress={async () => {
+        const newChallenge = {
+          name,
           description: "Sample description",
           repeat: ["daily"],
           unitType: "General",
@@ -38,13 +69,17 @@ export default function CreateChallengePage() {
           startDate: new Date().getTime(),
           endDate: new Date().getTime(),
           points: 10,
-      })}>
+        };
+        const challengeId = await createChallenge(newChallenge);
+        if (!challengeId) {
+          throw new Error("Failed to create challenge");
+        }
+      }}>
         <Text>Add a sample challenge</Text>
-      </Button> 
-
-    </SafeAreaView>
-  )
-};
+      </Button>
+    </KeyboardAwareScrollView>
+  );
+}
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#082139" },
