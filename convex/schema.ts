@@ -69,9 +69,8 @@ export default defineSchema({
     challengeId: v.id("challenges"),
   }).index("by_challenge_id_user_id", ["challengeId", "userId"]),
   challengeGoals: defineTable({
-    _id: v.id("challengeGoalModel"),
+    _id: v.id("challengeGoals"),
     challengeId: v.id("challenges"),
-    goalId: v.id("goals"),
     dailyRepeat: v.array(v.string()),
     intervalRepeat: v.float64(),
     monthlyRepeat: v.array(v.float64()),
@@ -87,7 +86,7 @@ export default defineSchema({
     unit: v.string(),
     recurrence: v.string(),
     weeks: v.number(),
-    rate: v.optional(v.number()),
+    rate: v.number(),
   }).index("by_challenge_id", ["challengeId"]),
   organizations: defineTable({
     _id: v.id("organizations"),

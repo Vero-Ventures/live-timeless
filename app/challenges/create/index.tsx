@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Stack, router } from "expo-router";
 import { SafeAreaView, StyleSheet, View } from "react-native";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
@@ -83,14 +83,14 @@ function CreateChallengeForm() {
       <ScheduleEndDate />
 
       <View className="gap-2">
-          <Label nativeID="points">Points</Label>
-          <Input
-            placeholder="Enter point value"
-            value={points}
-            onChangeText={setPoints}
-            keyboardType="numeric"
-          />
-        </View>
+        <Label nativeID="points">Points</Label>
+        <Input
+          placeholder="Enter point value"
+          value={points}
+          onChangeText={setPoints}
+          keyboardType="numeric"
+        />
+      </View>
      
       <Button onPress={async () => {
         const newChallenge = {
@@ -109,6 +109,7 @@ function CreateChallengeForm() {
         if (!challengeId) {
           throw new Error("Failed to create challenge");
         }
+        router.navigate("/challenges");
       }}>
         <Text>Add a sample challenge</Text>
       </Button>

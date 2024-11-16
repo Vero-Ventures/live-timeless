@@ -4,6 +4,7 @@ import { v } from "convex/values";
 
 export const createChallengeGoal = mutation({
   args: {
+    challengeId: v.id("challenges"),
     dailyRepeat: v.array(v.string()),
     intervalRepeat: v.float64(),
     monthlyRepeat: v.array(v.float64()),
@@ -19,15 +20,16 @@ export const createChallengeGoal = mutation({
     unit: v.string(),
     recurrence: v.string(),
     weeks: v.number(),
+    rate: v.number(),
 },
 handler: async (ctx, args) => {
   const userId = await getAuthUserId(ctx);
     if (userId === null) {
       return null;
     }
-    const goalId = await ctx.db.insert("goals", {
+    const goalId = await ctx.db.insert("challengeGoals", {
       ...args,
-      userId,
+      challengeId: args.challengeId,
     });
 
     return goalId;
