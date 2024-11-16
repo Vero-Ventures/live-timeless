@@ -22,13 +22,16 @@ export default function ChallengeScreen() {
   const joinChallenge = useMutation(api.challenges.joinChallenge);
   const leaveChallenge = useMutation(api.challenges.leaveChallenge);
   const createGoal = useMutation(api.goals.createGoal);
-  const deleteGoal = useMutation(api.goals.deleteGoal);
+  const deleteGoalAndGoalLogs = useMutation(api.goals.deleteGoalAndGoalLogs);
   const userGoals = useQuery(api.goals.listGoals);
   const challengeGoals = useQuery(api.challengeGoals.listChallengeGoals)
   const filteredChallengeGoals = challengeGoals?.filter((goal) => goal.challengeId === id);
+  const createGoalLogsFromGoal = useMutation(
+    api.goalLogs.createGoalLogsFromGoal
+  );
 
   const importChallengeGoalsToUserGoals = () => {
-    filteredChallengeGoals?.map((goal) => {
+    filteredChallengeGoals?.map(async (goal) => {
       const challengeGoal = {
         challengeId: goal.challengeId,
         dailyRepeat: goal.dailyRepeat,
@@ -48,14 +51,21 @@ export default function ChallengeScreen() {
         weeks: goal.weeks,
         rate: goal.rate,
       }
-      createGoal(challengeGoal)
+      const goalId = await createGoal(challengeGoal)
+      if (!goalId) {
+        throw new Error("Failed to create goal");
+      }
+
+      await createGoalLogsFromGoal({
+        goalId,
+      });
     })
   }
 
   const deleteChallengeGoalsFromUserGoals = () => {
     const filteredUserGoals = userGoals?.filter((goal) => goal.challengeId === id);
     filteredUserGoals?.map((goal) => {
-      deleteGoal({ goalId: goal._id });
+      deleteGoalAndGoalLogs({ goalId: goal._id });
     })
   }
 
