@@ -178,33 +178,59 @@ export const createGoalLogsFromGoal = mutation({
   },
 });
 
-export const createWeeklyLogFromGoal = mutation ({
+export const createWeeklyLogFromGoal = mutation({
   args: {
     goalId: v.id("goals"),
-  }, 
+  },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) {
       throw new Error("User not found");
     }
-    if (args.goalId === null) {
+    if (!args.goalId) {
       throw new Error("Goal Id not found");
     }
 
     const goal = await ctx.db.get(args.goalId);
-    if (goal === null) {
+    if (!goal) {
       throw new Error("Goal not found");
     }
 
-    const { dailyRepeat, startDate } = goal;
-    const goalStartDate = new Date(startDate);
-    const maxDate = new Date(goalStartDate);
-    maxDate.setDate(maxDate.getDate() + 7);
+    const { dailyRepeat, intervalRepeat, monthlyRepeat, startDate, repeatType } = goal;
 
-    let currentDate = new Date(goalStartDate);
+    // Get the date range (from tomorrow to 7 days after tomorrow)
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    const maxDate = new Date(tomorrow);
+    maxDate.setDate(maxDate.getDate() + 6);
+
+    let currentDate = new Date(tomorrow);
+
     while (currentDate <= maxDate) {
       const dayName = currentDate.toLocaleString("en-US", { weekday: "long" });
-      if (dailyRepeat.includes(dayName)) {
+
+      const shouldCreateLog = (() => {
+        switch (repeatType) {
+          case "daily":
+            return dailyRepeat.includes(dayName);
+          case "interval":
+            const diffInDays = Math.floor(
+              (currentDate.getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)
+            );
+            return diffInDays >= 0 && diffInDays % intervalRepeat === 0;
+          case "monthly":
+            return monthlyRepeat.includes(currentDate.getDate());
+          default:
+            // No repeat type, create only on the exact start date
+            return (
+              currentDate.toDateString() === new Date(startDate).toDateString()
+            );
+        }
+      })();
+
+      if (shouldCreateLog) {
         await ctx.db.insert("goalLogs", {
           goalId: args.goalId,
           isComplete: false,
@@ -212,6 +238,7 @@ export const createWeeklyLogFromGoal = mutation ({
           unitsCompleted: 0,
         });
       }
+
       currentDate.setDate(currentDate.getDate() + 1);
     }
   },

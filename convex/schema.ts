@@ -85,7 +85,7 @@ export default defineSchema({
     unitValue: v.number(),
     unit: v.string(),
     recurrence: v.string(),
-    weeks: v.number(),
+    weeks: v.optional(v.number()),
     rate: v.number(),
   }).index("by_challenge_id", ["challengeId"]),
   organizations: defineTable({

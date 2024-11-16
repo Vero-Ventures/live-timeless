@@ -41,6 +41,7 @@ export const createGoal = mutation({
     unitValue: v.number(),
     unit: v.string(),
     recurrence: v.string(),
+    weeks: v.optional(v.number()),
     rate: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
