@@ -35,3 +35,17 @@ handler: async (ctx, args) => {
     return goalId;
   },
 });
+
+export const listChallengeGoals = query({
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
+    const goals = await ctx.db
+      .query("challengeGoals")
+      .collect();
+
+    return goals;
+  },
+});

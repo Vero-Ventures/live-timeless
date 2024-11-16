@@ -26,6 +26,7 @@ export const listGoals = query({
 
 export const createGoal = mutation({
   args: {
+    challengeId: v.optional(v.id("challenges")),
     dailyRepeat: v.array(v.string()),
     intervalRepeat: v.float64(),
     monthlyRepeat: v.array(v.float64()),
@@ -41,6 +42,7 @@ export const createGoal = mutation({
     unit: v.string(),
     recurrence: v.string(),
     weeks: v.number(),
+    rate: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
