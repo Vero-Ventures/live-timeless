@@ -1,14 +1,16 @@
 import { useMutation, useQuery } from "convex/react";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, Link } from "expo-router";
 import { Target } from "~/lib/icons/Target";
 import { Infinity } from "~/lib/icons/Infinity";
 import { Calendar } from "~/lib/icons/Calendar";
-import { ActivityIndicator, SafeAreaView, View } from "react-native";
+import { ActivityIndicator, SafeAreaView, View, FlatList } from "react-native";
 import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
 import type { Id } from "~/convex/_generated/dataModel";
 import { fontFamily } from "~/lib/font";
 import { Button } from "~/components/ui/button";
+import { Separator } from "~/components/ui/separator";
+
 export default function ChallengeScreen() {
   const { id } = useLocalSearchParams<{
     id: Id<"challenges">;
@@ -19,12 +21,61 @@ export default function ChallengeScreen() {
   });
   const joinChallenge = useMutation(api.challenges.joinChallenge);
   const leaveChallenge = useMutation(api.challenges.leaveChallenge);
+  const createGoal = useMutation(api.goals.createGoal);
+  const deleteGoalAndGoalLogs = useMutation(api.goals.deleteGoalAndGoalLogs);
+  const userGoals = useQuery(api.goals.listGoals);
+  const challengeGoals = useQuery(api.challengeGoals.listChallengeGoals)
+  const filteredChallengeGoals = challengeGoals?.filter((goal) => goal.challengeId === id);
+  const createGoalLogsFromGoal = useMutation(
+    api.goalLogs.createGoalLogsFromGoal
+  );
+
+  const importChallengeGoalsToUserGoals = () => {
+    filteredChallengeGoals?.map(async (goal) => {
+      const challengeGoal = {
+        challengeId: goal.challengeId,
+        dailyRepeat: goal.dailyRepeat,
+        intervalRepeat: goal.intervalRepeat,
+        monthlyRepeat: goal.monthlyRepeat,
+        name: goal.name,
+        repeatType: goal.repeatType,
+        selectedIcon: goal.selectedIcon,
+        selectedIconColor: goal.selectedIconColor,
+        timeOfDay: goal.timeOfDay,
+        timeReminder: goal.timeReminder,
+        startDate: goal.startDate,
+        unitType: goal.unitType,
+        unitValue: goal.unitValue,
+        unit: goal.unit,
+        recurrence: goal.recurrence,
+        weeks: goal.weeks,
+        rate: goal.rate,
+      }
+      const goalId = await createGoal(challengeGoal)
+      if (!goalId) {
+        throw new Error("Failed to create goal");
+      }
+
+      await createGoalLogsFromGoal({
+        goalId,
+      });
+    })
+  }
+
+  const deleteChallengeGoalsFromUserGoals = () => {
+    const filteredUserGoals = userGoals?.filter((goal) => goal.challengeId === id);
+    filteredUserGoals?.map((goal) => {
+      deleteGoalAndGoalLogs({ goalId: goal._id });
+    })
+  }
 
   const handleJoinChallenge = async (challengeId: Id<"challenges">) => {
     await joinChallenge({ challengeId });
+    importChallengeGoalsToUserGoals();
   };
   const handleLeaveChallenge = async (challengeId: Id<"challenges">) => {
     await leaveChallenge({ challengeId });
+    deleteChallengeGoalsFromUserGoals();
   };
 
   return (
@@ -50,6 +101,16 @@ export default function ChallengeScreen() {
         <>
           <View className="flex-1 gap-8 p-4">
             <View className="gap-4">
+              <Link
+              href={{ pathname: "/challenges/goal", params: {id: challenge._id} }}
+              asChild
+              >
+                <Button>
+                  <Text className="text-bold text-primary-foreground">
+                    Create Challenge Goals
+                  </Text>
+                </Button>
+              </Link>
               <View className="flex-row items-center gap-2">
                 <Target className="stroke-gray-400" />
                 <Text className="text-gray-400">
@@ -93,6 +154,25 @@ export default function ChallengeScreen() {
               <Text className="text-2xl font-bold">Leaderboard</Text>
               <Text className="leading-relaxed">Coming Soon</Text>
             </View>
+            <View>
+              <Text className="text-2xl font-bold">Challenge Goals</Text>
+            </View>
+            <FlatList
+            contentContainerStyle={{
+              paddingBottom: 60,
+            }}
+            className="mt-6 border-t border-t-[#fff]/10 pt-6"
+            data={filteredChallengeGoals}
+            ItemSeparatorComponent={() => (
+              <Separator className="my-4 h-0.5 bg-[#fff]/10" />
+            )}
+            ListEmptyComponent={() => (
+              <Text className="text-center">No goals found for this challenge.</Text>
+            )}
+            renderItem={({ item }) => (
+              <Text>{item.name}</Text>
+            )}
+          />
           </View>
           <View className="justify-center p-4">
             {!challenge.hasJoined ? (
