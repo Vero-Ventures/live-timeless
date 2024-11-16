@@ -39,7 +39,7 @@ export default function TabLayout() {
           name="progress"
           options={{
             title: "Progress",
-            headerShown: false,
+            headerShown: true,
             tabBarIcon: ({ color }) => (
               <View style={{ alignItems: "center" }}>
                 <TrendingUp color={color} />
