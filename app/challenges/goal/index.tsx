@@ -1,5 +1,5 @@
 import { Stack, Link, router, useLocalSearchParams } from "expo-router";
-import { AlertCircle, RadioTower, type LucideIcon } from "lucide-react-native";
+import { AlertCircle, type LucideIcon } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 import FormSubmitButton from "~/components/form-submit-button";
