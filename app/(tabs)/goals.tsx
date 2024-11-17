@@ -29,18 +29,10 @@ export default function GoalsPage() {
   const [selectedDate, setSelectedDate] = useState(today);
   const goals = useQuery(api.goals.listGoals);
   const goalLogs = useQuery(api.goalLogs.listGoalLogs);
-  const createGoalLogs = useMutation(api.goalLogs.createWeeklyLogFromGoal);
 
   useEffect(() => {
     if (goals && goalLogs) {
       SplashScreen.hideAsync();
-  
-      // Call createWeeklyLogFromGoal for each goal
-      goals.forEach((goal) => {
-        createGoalLogs({ goalId: goal._id }).catch((error) => {
-          console.error(`Failed to create goal logs for goal ${goal._id}:`, error);
-        });
-      });
     }
   }, [goals, goalLogs]);
 

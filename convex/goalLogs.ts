@@ -160,7 +160,7 @@ export const createGoalLogsFromGoal = mutation({
     const { dailyRepeat, startDate } = goal;
     const goalStartDate = new Date(startDate);
     const maxDate = new Date(goalStartDate);
-    maxDate.setFullYear(maxDate.getFullYear() + 100);
+    maxDate.setDate(maxDate.getDate() + 7); // Limit to 7 days    
 
     let currentDate = new Date(goalStartDate);
     while (currentDate <= maxDate) {
@@ -184,11 +184,8 @@ export const createWeeklyLogFromGoal = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (userId === null) {
+    if (!userId) {
       throw new Error("User not found");
-    }
-    if (!args.goalId) {
-      throw new Error("Goal Id not found");
     }
 
     const goal = await ctx.db.get(args.goalId);
@@ -196,19 +193,16 @@ export const createWeeklyLogFromGoal = mutation({
       throw new Error("Goal not found");
     }
 
-    const { dailyRepeat, intervalRepeat, monthlyRepeat, startDate, repeatType } = goal;
+    const { dailyRepeat, startDate, repeatType, intervalRepeat, monthlyRepeat } = goal;
 
-    // Get the date range (from tomorrow to 7 days after tomorrow)
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const maxDate = new Date(tomorrow);
-    maxDate.setDate(maxDate.getDate() + 6);
+    const endDate = new Date(tomorrow);
+    endDate.setDate(tomorrow.getDate() + 6); // 7 days from tomorrow
 
     let currentDate = new Date(tomorrow);
-
-    while (currentDate <= maxDate) {
+    while (currentDate <= endDate) {
       const dayName = currentDate.toLocaleString("en-US", { weekday: "long" });
 
       const shouldCreateLog = (() => {
@@ -223,10 +217,7 @@ export const createWeeklyLogFromGoal = mutation({
           case "monthly":
             return monthlyRepeat.includes(currentDate.getDate());
           default:
-            // No repeat type, create only on the exact start date
-            return (
-              currentDate.toDateString() === new Date(startDate).toDateString()
-            );
+            return false;
         }
       })();
 
