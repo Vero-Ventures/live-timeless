@@ -21,9 +21,9 @@ export const createChallengeGoal = mutation({
     recurrence: v.string(),
     weeks: v.optional(v.number()),
     rate: v.number(),
-},
-handler: async (ctx, args) => {
-  const userId = await getAuthUserId(ctx);
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
     if (userId === null) {
       return null;
     }
@@ -42,9 +42,7 @@ export const listChallengeGoals = query({
     if (userId === null) {
       return null;
     }
-    const goals = await ctx.db
-      .query("challengeGoals")
-      .collect();
+    const goals = await ctx.db.query("challengeGoals").collect();
 
     return goals;
   },

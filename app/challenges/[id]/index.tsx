@@ -24,8 +24,10 @@ export default function ChallengeScreen() {
   const createGoal = useMutation(api.goals.createGoal);
   const deleteGoalAndGoalLogs = useMutation(api.goals.deleteGoalAndGoalLogs);
   const userGoals = useQuery(api.goals.listGoals);
-  const challengeGoals = useQuery(api.challengeGoals.listChallengeGoals)
-  const filteredChallengeGoals = challengeGoals?.filter((goal) => goal.challengeId === id);
+  const challengeGoals = useQuery(api.challengeGoals.listChallengeGoals);
+  const filteredChallengeGoals = challengeGoals?.filter(
+    (goal) => goal.challengeId === id
+  );
   const createGoalLogsFromGoal = useMutation(
     api.goalLogs.createGoalLogsFromGoal
   );
@@ -50,8 +52,8 @@ export default function ChallengeScreen() {
         recurrence: goal.recurrence,
         weeks: goal.weeks,
         rate: goal.rate,
-      }
-      const goalId = await createGoal(challengeGoal)
+      };
+      const goalId = await createGoal(challengeGoal);
       if (!goalId) {
         throw new Error("Failed to create goal");
       }
@@ -59,15 +61,17 @@ export default function ChallengeScreen() {
       await createGoalLogsFromGoal({
         goalId,
       });
-    })
-  }
+    });
+  };
 
   const deleteChallengeGoalsFromUserGoals = () => {
-    const filteredUserGoals = userGoals?.filter((goal) => goal.challengeId === id);
+    const filteredUserGoals = userGoals?.filter(
+      (goal) => goal.challengeId === id
+    );
     filteredUserGoals?.map((goal) => {
       deleteGoalAndGoalLogs({ goalId: goal._id });
-    })
-  }
+    });
+  };
 
   const handleJoinChallenge = async (challengeId: Id<"challenges">) => {
     await joinChallenge({ challengeId });
@@ -102,8 +106,11 @@ export default function ChallengeScreen() {
           <View className="flex-1 gap-8 p-4">
             <View className="gap-4">
               <Link
-              href={{ pathname: "/challenges/goal", params: {id: challenge._id} }}
-              asChild
+                href={{
+                  pathname: "/challenges/goal",
+                  params: { id: challenge._id },
+                }}
+                asChild
               >
                 <Button>
                   <Text className="text-bold text-primary-foreground">
@@ -158,21 +165,21 @@ export default function ChallengeScreen() {
               <Text className="text-2xl font-bold">Challenge Goals</Text>
             </View>
             <FlatList
-            contentContainerStyle={{
-              paddingBottom: 60,
-            }}
-            className="mt-6 border-t border-t-[#fff]/10 pt-6"
-            data={filteredChallengeGoals}
-            ItemSeparatorComponent={() => (
-              <Separator className="my-4 h-0.5 bg-[#fff]/10" />
-            )}
-            ListEmptyComponent={() => (
-              <Text className="text-center">No goals found for this challenge.</Text>
-            )}
-            renderItem={({ item }) => (
-              <Text>{item.name}</Text>
-            )}
-          />
+              contentContainerStyle={{
+                paddingBottom: 60,
+              }}
+              className="mt-6 border-t border-t-[#fff]/10 pt-6"
+              data={filteredChallengeGoals}
+              ItemSeparatorComponent={() => (
+                <Separator className="my-4 h-0.5 bg-[#fff]/10" />
+              )}
+              ListEmptyComponent={() => (
+                <Text className="text-center">
+                  No goals found for this challenge.
+                </Text>
+              )}
+              renderItem={({ item }) => <Text>{item.name}</Text>}
+            />
           </View>
           <View className="justify-center p-4">
             {!challenge.hasJoined ? (

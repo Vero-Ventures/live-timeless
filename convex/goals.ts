@@ -51,7 +51,7 @@ export const createGoal = mutation({
     }
     const goalId = await ctx.db.insert("goals", {
       ...args,
-      userId
+      userId,
     });
 
     return goalId;

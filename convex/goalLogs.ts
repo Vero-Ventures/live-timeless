@@ -160,7 +160,7 @@ export const createGoalLogsFromGoal = mutation({
     const { dailyRepeat, startDate } = goal;
     const goalStartDate = new Date(startDate);
     const maxDate = new Date(goalStartDate);
-    maxDate.setDate(maxDate.getDate() + 7); // Limit to 7 days    
+    maxDate.setDate(maxDate.getDate() + 7); // Limit to 7 days
 
     let currentDate = new Date(goalStartDate);
     while (currentDate <= maxDate) {
@@ -201,14 +201,22 @@ export const checkAndCreateWeeklyLogs = mutation({
         .collect();
 
       if (existingLogs.length === 0) {
-        const { dailyRepeat, startDate, repeatType, intervalRepeat, monthlyRepeat } = goal;
+        const {
+          dailyRepeat,
+          startDate,
+          repeatType,
+          intervalRepeat,
+          monthlyRepeat,
+        } = goal;
 
         let currentDate = new Date(dayAfterTomorrow);
         const endDate = new Date(dayAfterTomorrow);
         endDate.setDate(endDate.getDate() + 6);
 
         while (currentDate <= endDate) {
-          const dayName = currentDate.toLocaleString("en-US", { weekday: "long" });
+          const dayName = currentDate.toLocaleString("en-US", {
+            weekday: "long",
+          });
 
           const shouldCreateLog = (() => {
             switch (repeatType) {

@@ -8,7 +8,7 @@ import { fontFamily } from "~/lib/font";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { useChallengeFormStore } from "./challenge-store";
-import { ScheduleStartDate, ScheduleEndDate} from "../schedule-date";
+import { ScheduleStartDate, ScheduleEndDate } from "../schedule-date";
 import { useShallow } from "zustand/react/shallow";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
@@ -53,15 +53,14 @@ function CreateChallengeForm() {
       s.startDate,
       s.endDate,
       s.points,
-      s.setPoints
+      s.setPoints,
     ])
-  )
+  );
 
   const createChallenge = useMutation(api.challenges.createChallenge);
 
   return (
     <KeyboardAwareScrollView>
-
       <View className="flex flex-row items-center gap-2">
         <Input
           className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
@@ -72,11 +71,11 @@ function CreateChallengeForm() {
       </View>
       <View className="flex flex-row items-center gap-2">
         <Input
-            className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
-            placeholder="Description of Challenge"
-            value={description}
-            onChangeText={setDescription}
-          />
+          className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
+          placeholder="Description of Challenge"
+          value={description}
+          onChangeText={setDescription}
+        />
       </View>
 
       <ScheduleStartDate />
@@ -91,26 +90,28 @@ function CreateChallengeForm() {
           keyboardType="numeric"
         />
       </View>
-     
-      <Button onPress={async () => {
-        const newChallenge = {
-          name,
-          description,
-          repeat: ["daily"],
-          unitType: "General",
-          unitValue: 1,
-          unit: "times",
-          recurrence: "per day",
-          startDate: startDate.getTime(),
-          endDate: endDate.getTime(),
-          points: points ? parseInt(points) : 0,
-        };
-        const challengeId = await createChallenge(newChallenge);
-        if (!challengeId) {
-          throw new Error("Failed to create challenge");
-        }
-        router.navigate("/challenges");
-      }}>
+
+      <Button
+        onPress={async () => {
+          const newChallenge = {
+            name,
+            description,
+            repeat: ["daily"],
+            unitType: "General",
+            unitValue: 1,
+            unit: "times",
+            recurrence: "per day",
+            startDate: startDate.getTime(),
+            endDate: endDate.getTime(),
+            points: points ? parseInt(points) : 0,
+          };
+          const challengeId = await createChallenge(newChallenge);
+          if (!challengeId) {
+            throw new Error("Failed to create challenge");
+          }
+          router.navigate("/challenges");
+        }}
+      >
         <Text>Add a sample challenge</Text>
       </Button>
     </KeyboardAwareScrollView>

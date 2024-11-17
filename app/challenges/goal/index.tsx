@@ -94,19 +94,15 @@ function CreateGoalForm() {
     ])
   );
 
-  const [
-    rate,
-    setRate,
-  ] = useChallengeGoalFormStore(
-    useShallow((s) => [
-      s.rate,
-      s.setRate,
-    ])
+  const [rate, setRate] = useChallengeGoalFormStore(
+    useShallow((s) => [s.rate, s.setRate])
   );
 
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
-  const createChallengeGoal = useMutation(api.challengeGoals.createChallengeGoal);
+  const createChallengeGoal = useMutation(
+    api.challengeGoals.createChallengeGoal
+  );
   useEffect(() => {
     return () => resetForm();
   }, [resetForm]);
@@ -214,7 +210,7 @@ function CreateGoalForm() {
         <ScheduleStartDate />
 
         <View className="gap-2">
-        <Label nativeID="rate">Rate</Label>
+          <Label nativeID="rate">Rate</Label>
           <Input
             placeholder="Enter point value"
             value={rate}
