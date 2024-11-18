@@ -79,7 +79,10 @@ export const createGoal = mutation({
       return null;
     }
 
-    const rate = await getRate(ctx, { unit: args.unit });
+    const rate =
+      typeof args.rate !== "undefined"
+        ? args.rate
+        : await getRate(ctx, { unit: args.unit });
 
     const goalId = await ctx.db.insert("goals", {
       ...args,
@@ -112,7 +115,11 @@ export const updateGoal = mutation({
   },
   handler: async (ctx, args) => {
     const { goalId, unit, ...updateData } = args;
-    const rate = await getRate(ctx, { unit });
+    
+    const rate =
+      typeof args.rate !== "undefined"
+        ? args.rate
+        : await getRate(ctx, { unit: args.unit });
     updateData.rate = rate;
     
     await ctx.db.patch(goalId, updateData);
