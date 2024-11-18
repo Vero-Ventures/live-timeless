@@ -11,6 +11,7 @@ import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { User2 } from "lucide-react-native";
+import { GOAL_ICONS } from "~/constants/goal-icons";
 
 export default function ChallengeScreen() {
   const { id } = useLocalSearchParams<{
@@ -121,7 +122,7 @@ export default function ChallengeScreen() {
       />
       {challenge ? (
         <>
-          <View className="flex-1 gap-8 p-4">
+          <View className="flex-1 gap-4 p-4">
             <View className="gap-4">
               <Link
               href={{ pathname: "/challenges/goal", params: {id: challenge._id} }}
@@ -133,44 +134,44 @@ export default function ChallengeScreen() {
                   </Text>
                 </Button>
               </Link>
-              <View className="flex-row items-center gap-2">
-                <Target className="stroke-gray-400" />
-                <Text className="text-gray-400">
-                  {challenge.unitValue} {challenge.unit} {challenge.recurrence}
-                </Text>
-              </View>
-
-              <View className="flex-row items-center gap-2">
-                <Calendar className="stroke-gray-400" />
-                <Text className="text-gray-400">
-                  {`${new Date(challenge.startDate).toLocaleDateString(
-                    "en-US",
-                    {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    }
-                  )} - ${new Date(challenge.endDate).toLocaleDateString(
-                    "en-US",
-                    {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    }
-                  )}`}
-                </Text>
-              </View>
             </View>
+            <View className="flex-row items-center gap-2">
+              <Target className="stroke-gray-400" />
+              <Text className="text-gray-400">
+                {challenge.unitValue} {challenge.unit} {challenge.recurrence}
+              </Text>
+            </View>
+
+            <View className="flex-row items-center gap-2">
+              <Calendar className="stroke-gray-400" />
+              <Text className="text-gray-400">
+                {`${new Date(challenge.startDate).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })} - ${new Date(challenge.endDate).toLocaleDateString(
+                  "en-US",
+                  {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  }
+                )}`}
+              </Text>
+            </View>
+
             <View className="gap-2">
               <Text className="text-2xl font-bold">This challenge has</Text>
               {getChallengeStatus(challenge.startDate, challenge.endDate)}
             </View>
-            <View className="gap-2">
+
+            <View className="">
               <Text className="text-2xl font-bold">Leaderboard</Text>
               <FlatList
                 contentContainerStyle={{
-                  paddingBottom: 60,
+                  paddingBottom: 8,
                 }}
+                ListHeaderComponentStyle={{ marginBottom: 8 }}
                 className="mt-6 border-t border-t-[#fff]/10 pt-6"
                 data={challenge.participants}
                 ItemSeparatorComponent={() => (
@@ -205,9 +206,7 @@ export default function ChallengeScreen() {
                 )}
               />
             </View>
-            <View>
-              <Text className="text-2xl font-bold">Challenge Goals</Text>
-            </View>
+            <Text className="text-2xl font-bold">Challenge Goals</Text>
             <FlatList
               contentContainerStyle={{
                 paddingBottom: 60,
@@ -222,9 +221,35 @@ export default function ChallengeScreen() {
                   No goals found for this challenge.
                 </Text>
               )}
-              renderItem={({ item }) => <Text>{item.name}</Text>}
+              renderItem={({ item }) => {
+                const IconComp = GOAL_ICONS.find(
+                  (icon) => icon.name === item.selectedIcon
+                )?.component;
+                return (
+                  <View className="flex-row items-center gap-4">
+                    <View
+                      className={
+                        "items-center justify-center rounded-full bg-[#299240]/20 p-1"
+                      }
+                    >
+                      <IconComp
+                        name={item.selectedIcon}
+                        color={item.selectedIconColor}
+                        size={32}
+                      />
+                    </View>
+
+                    <View className="w-full gap-2">
+                      <Text style={{ fontFamily: "openSans.medium" }}>
+                        {item.name}
+                      </Text>
+                    </View>
+                  </View>
+                );
+              }}
             />
           </View>
+
           <View className="justify-center p-4">
             {!challenge.hasJoined ? (
               <Button
