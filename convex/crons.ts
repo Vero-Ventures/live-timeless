@@ -5,10 +5,10 @@ const crons = cronJobs();
 
 console.log("Setting up cron jobs...");
 
-crons.interval(
-  "check and create weekly goal logs", // A unique identifier for the cron job
-  { minutes: 10 },
-  api.goalLogs.checkAndCreateWeeklyLogs // The function to execute
+crons.weekly(
+  "check and create weekly goal logs",
+  { dayOfWeek: "monday", hourUTC: 8, minuteUTC: 0 },
+  api.goalLogs.checkAndCreateWeeklyLogs
 );
 
 console.log("Cron job registered.");

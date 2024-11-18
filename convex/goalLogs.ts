@@ -160,7 +160,7 @@ export const createGoalLogsFromGoal = mutation({
     const { dailyRepeat, startDate } = goal;
     const goalStartDate = new Date(startDate);
     const maxDate = new Date(goalStartDate);
-    maxDate.setDate(maxDate.getDate() + 7); // Limit to 7 days
+    maxDate.setDate(maxDate.getDate() + 7);
 
     let currentDate = new Date(goalStartDate);
     while (currentDate <= maxDate) {
@@ -180,38 +180,40 @@ export const createGoalLogsFromGoal = mutation({
 
 export const checkAndCreateWeeklyLogs = mutation({
   handler: async (ctx) => {
-    const BATCH_SIZE = 1; // Define the batch size for users
+    const BATCH_SIZE = 50;
     let lastUserId: string | null = null;
 
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+
+    const dayAfterTomorrow = new Date();
+    dayAfterTomorrow.setDate(tomorrow.getDate() + 1);
+
+    const endRange = new Date(dayAfterTomorrow);
+    endRange.setDate(endRange.getDate() + 6);
+
     while (true) {
-      // Fetch a batch of users
       const users = await ctx.db
         .query("users")
         .filter((q) => (lastUserId ? q.gt(q.field("_id"), lastUserId) : true))
         .order("asc")
-        .take(BATCH_SIZE); // `take` directly returns an array
+        .take(BATCH_SIZE);
 
       if (users.length === 0) {
-        break; // Stop when no more users are left
+        break;
       }
 
       for (const user of users) {
         const userId = user._id;
-
-        // Fetch a batch of goals for the user
         const goals = await ctx.db
           .query("goals")
           .filter((q) => q.eq(q.field("userId"), userId))
           .collect();
 
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-
-        const dayAfterTomorrow = new Date();
-        dayAfterTomorrow.setDate(tomorrow.getDate() + 1);
+        const newGoalLogs = [];
 
         for (const goal of goals) {
-          // Check for existing logs for the goal in the next 7 days
           const existingLogs = await ctx.db
             .query("goalLogs")
             .filter((q) =>
@@ -223,7 +225,6 @@ export const checkAndCreateWeeklyLogs = mutation({
             )
             .collect();
 
-          // If no logs exist, create them
           if (existingLogs.length === 0) {
             const {
               dailyRepeat,
@@ -233,12 +234,20 @@ export const checkAndCreateWeeklyLogs = mutation({
               monthlyRepeat,
             } = goal;
 
-            let currentDate = new Date(dayAfterTomorrow);
-            const endDate = new Date(dayAfterTomorrow);
-            endDate.setDate(endDate.getDate() + 6); // 7 days from day after tomorrow
+            // let currentDate = new Date(dayAfterTomorrow);
+            // while (currentDate <= endRange) {
+            //   const dayName = currentDate.toLocaleString("en-US", {
+            //     weekday: "long",
+            //   });
 
-            while (currentDate <= endDate) {
-              const dayName = currentDate.toLocaleString("en-US", {
+            const startDateObject = new Date(dayAfterTomorrow);
+            const adjustedDate = new Date(
+              Math.max(tomorrow.getTime(), startDateObject.getTime())
+            );
+
+            let today = adjustedDate;
+            while (today <= endRange) {
+              const dayName = today.toLocaleString("en-US", {
                 weekday: "long",
               });
 
@@ -248,34 +257,50 @@ export const checkAndCreateWeeklyLogs = mutation({
                     return dailyRepeat.includes(dayName);
                   case "interval":
                     const diffInDays = Math.floor(
-                      (currentDate.getTime() - new Date(startDate).getTime()) /
+                      (today.getTime() - new Date(startDate).getTime()) /
                         (1000 * 60 * 60 * 24)
                     );
                     return diffInDays >= 0 && diffInDays % intervalRepeat === 0;
                   case "monthly":
-                    return monthlyRepeat.includes(currentDate.getDate());
+                    return monthlyRepeat.includes(today.getDate());
                   default:
                     return false;
                 }
               })();
 
+              // if (shouldCreateLog) {
+              //   await ctx.db.insert("goalLogs", {
+              //     goalId: goal._id,
+              //     isComplete: false,
+              //     date: today.getTime(),
+              //     unitsCompleted: 0,
+              //   });
+              // }
+
               if (shouldCreateLog) {
-                await ctx.db.insert("goalLogs", {
+                newGoalLogs.push({
                   goalId: goal._id,
                   isComplete: false,
-                  date: currentDate.getTime(),
+                  date: today.getTime(),
                   unitsCompleted: 0,
                 });
               }
 
-              currentDate.setDate(currentDate.getDate() + 1);
+              today.setDate(today.getDate() + 1);
             }
           }
-        }
-      }
 
-      // Update the lastUserId for pagination
-      lastUserId = users[users.length - 1]._id;
+          if (newGoalLogs.length > 0) {
+            await Promise.all(
+              newGoalLogs.map(async (log) => {
+                await ctx.db.insert("goalLogs", log);
+              })
+            );
+          }
+        }
+
+        lastUserId = users[users.length - 1]._id;
+      }
     }
   },
 });
