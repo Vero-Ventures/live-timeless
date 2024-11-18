@@ -1,7 +1,6 @@
 import { useMutation, useQuery } from "convex/react";
 import { Stack, useLocalSearchParams, Link } from "expo-router";
 import { Target } from "~/lib/icons/Target";
-import { Infinity } from "~/lib/icons/Infinity";
 import { Calendar } from "~/lib/icons/Calendar";
 import { ActivityIndicator, SafeAreaView, View, FlatList } from "react-native";
 import { Text } from "~/components/ui/text";
@@ -10,6 +9,8 @@ import type { Id } from "~/convex/_generated/dataModel";
 import { fontFamily } from "~/lib/font";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
+import { Avatar, AvatarImage } from "~/components/ui/avatar";
+import { User2 } from "lucide-react-native";
 
 export default function ChallengeScreen() {
   const { id } = useLocalSearchParams<{
@@ -82,6 +83,27 @@ export default function ChallengeScreen() {
     deleteChallengeGoalsFromUserGoals();
   };
 
+  const getChallengeStatus = (
+    startDate: number,
+    endDate: number
+  ): React.ReactNode => {
+    const currentDate = new Date();
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (currentDate < start) {
+      return (
+        <Text className="leading-relaxed text-primary-foreground">
+          Not Started
+        </Text>
+      );
+    } else if (currentDate > end) {
+      return <Text className="leading-relaxed text-red-600">Ended</Text>;
+    } else {
+      return <Text className="leading-relaxed text-green-500">Started</Text>;
+    }
+  };
+
   return (
     <SafeAreaView className="h-full bg-background">
       <Stack.Screen
@@ -124,14 +146,7 @@ export default function ChallengeScreen() {
                   {challenge.unitValue} {challenge.unit} {challenge.recurrence}
                 </Text>
               </View>
-              <View className="flex-row items-center gap-2">
-                <Infinity className="stroke-gray-400" />
-                <Text className="text-gray-400">
-                  {challenge.repeat.length === 7
-                    ? "Everyday"
-                    : challenge.repeat.map((day) => day.slice(0, 3)).join(", ")}
-                </Text>
-              </View>
+
               <View className="flex-row items-center gap-2">
                 <Calendar className="stroke-gray-400" />
                 <Text className="text-gray-400">
@@ -154,12 +169,48 @@ export default function ChallengeScreen() {
               </View>
             </View>
             <View className="gap-2">
-              <Text className="text-2xl font-bold">About</Text>
-              <Text className="leading-relaxed">{challenge.description}</Text>
+              <Text className="text-2xl font-bold">This challenge has</Text>
+              {getChallengeStatus(challenge.startDate, challenge.endDate)}
             </View>
             <View className="gap-2">
               <Text className="text-2xl font-bold">Leaderboard</Text>
-              <Text className="leading-relaxed">Coming Soon</Text>
+              <FlatList
+                contentContainerStyle={{
+                  paddingBottom: 60,
+                }}
+                className="mt-6 border-t border-t-[#fff]/10 pt-6"
+                data={challenge.participants}
+                ItemSeparatorComponent={() => (
+                  <Separator className="my-4 h-0.5 bg-[#fff]/10" />
+                )}
+                ListEmptyComponent={() => (
+                  <Text className="text-center">No users found.</Text>
+                )}
+                renderItem={({ item }) => (
+                  <View className="flex-row items-center justify-between px-4">
+                    <View className="flex-row items-center gap-2">
+                      {!!item?.image ? (
+                        <Avatar
+                          className="h-32 w-32"
+                          alt={`${item?.name}'s Avatar`}
+                        >
+                          <AvatarImage
+                            source={{
+                              uri: item.image,
+                            }}
+                          />
+                        </Avatar>
+                      ) : (
+                        <View className="h-16 w-16 items-center justify-center rounded-full bg-input">
+                          <User2 size={30} className="stroke-foreground" />
+                        </View>
+                      )}
+                      <Text>{item?.name}</Text>
+                    </View>
+                    <Text>{item?.points ?? 0} POINTS</Text>
+                  </View>
+                )}
+              />
             </View>
             <View>
               <Text className="text-2xl font-bold">Challenge Goals</Text>
@@ -168,7 +219,7 @@ export default function ChallengeScreen() {
               contentContainerStyle={{
                 paddingBottom: 60,
               }}
-              className="mt-6 border-t border-t-[#fff]/10 pt-6"
+              className="border-t border-t-[#fff]/10 pt-6"
               data={filteredChallengeGoals}
               ItemSeparatorComponent={() => (
                 <Separator className="my-4 h-0.5 bg-[#fff]/10" />
