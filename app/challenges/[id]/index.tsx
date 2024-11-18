@@ -194,16 +194,26 @@ export default function ChallengeScreen() {
                 keyExtractor={(item) => item.userId}
                 renderItem={({ item }) => (
                   <View className="flex-row items-center justify-between px-4">
-                    {/* User Info */}
                     <View className="flex-row items-center gap-2">
-                      <Text className="text-lg font-bold">
-                        {item.name || "Unknown User"} {/* Display user name */}
-                      </Text>
+                      {!!item?.image ? (
+                        <Avatar
+                          className="h-32 w-32"
+                          alt={`${item?.name}'s Avatar`}
+                        >
+                          <AvatarImage
+                            source={{
+                              uri: item.image,
+                            }}
+                          />
+                        </Avatar>
+                      ) : (
+                        <View className="h-16 w-16 items-center justify-center rounded-full bg-input">
+                          <User2 size={30} className="stroke-foreground" />
+                        </View>
+                      )}
+                      <Text>{item?.name}</Text>
                     </View>
-                    {/* Points */}
-                    <Text className="text-lg font-bold">
-                      {item.points || 0} pts
-                    </Text>
+                    <Text>{item?.points ?? 0} POINTS</Text>
                   </View>
                 )}
               />
