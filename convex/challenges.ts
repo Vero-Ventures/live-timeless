@@ -333,14 +333,19 @@ export const getChallengeParticipants = query({
 export const sortParticipantsByPoints = query({
   args: { userIds: v.array(v.id("users")) },
   handler: async (ctx, { userIds }) => {
-    // Fetch points for each user
+    // Fetch points, image, and name for each user
     const usersWithPoints = await Promise.all(
       userIds.map(async (userId) => {
         const user = await ctx.db.get(userId);
         if (!user) {
           throw new Error(`User not found: ${userId}`);
         }
-        return { userId, points: user.points || 0 }; // Default points to 0 if not set
+        return {
+          userId,
+          points: user.points || 0, // Default points to 0 if not set
+          image: user.image || null, // Include the image column, default to null if not set
+          name: user.name || "Unknown User", // Include the name column, default to "Unknown User" if not set
+        };
       })
     );
 

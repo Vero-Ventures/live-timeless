@@ -21,6 +21,17 @@ export default function ChallengeScreen() {
   const challenge = useQuery(api.challenges.getChallengeByIdWthHasJoined, {
     challengeId: id,
   });
+
+  const challengeParticipants =
+    useQuery(api.challenges.getChallengeParticipants, {
+      challengeId: id,
+    }) || [];
+
+  const sortedParticipants =
+    useQuery(api.challenges.sortParticipantsByPoints, {
+      userIds: challengeParticipants,
+    }) || [];
+
   const joinChallenge = useMutation(api.challenges.joinChallenge);
   const leaveChallenge = useMutation(api.challenges.leaveChallenge);
   const createGoal = useMutation(api.goals.createGoal);
@@ -173,35 +184,26 @@ export default function ChallengeScreen() {
                 }}
                 ListHeaderComponentStyle={{ marginBottom: 8 }}
                 className="mt-6 border-t border-t-[#fff]/10 pt-6"
-                data={challenge.participants}
+                data={sortedParticipants} // Use sorted participants
                 ItemSeparatorComponent={() => (
                   <Separator className="my-4 h-0.5 bg-[#fff]/10" />
                 )}
                 ListEmptyComponent={() => (
                   <Text className="text-center">No users found.</Text>
                 )}
+                keyExtractor={(item) => item.userId}
                 renderItem={({ item }) => (
                   <View className="flex-row items-center justify-between px-4">
+                    {/* User Info */}
                     <View className="flex-row items-center gap-2">
-                      {!!item?.image ? (
-                        <Avatar
-                          className="h-32 w-32"
-                          alt={`${item?.name}'s Avatar`}
-                        >
-                          <AvatarImage
-                            source={{
-                              uri: item.image,
-                            }}
-                          />
-                        </Avatar>
-                      ) : (
-                        <View className="h-16 w-16 items-center justify-center rounded-full bg-input">
-                          <User2 size={30} className="stroke-foreground" />
-                        </View>
-                      )}
-                      <Text>{item?.name}</Text>
+                      <Text className="text-lg font-bold">
+                        {item.name || "Unknown User"} {/* Display user name */}
+                      </Text>
                     </View>
-                    <Text>{item?.points ?? 0} POINTS</Text>
+                    {/* Points */}
+                    <Text className="text-lg font-bold">
+                      {item.points || 0} pts
+                    </Text>
                   </View>
                 )}
               />
