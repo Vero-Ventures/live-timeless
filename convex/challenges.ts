@@ -315,3 +315,38 @@ export const removeFromChallenge = mutation({
     await ctx.db.delete(challengeParticipant._id);
   },
 });
+
+export const getChallengeParticipants = query({
+  args: { challengeId: v.id("challenges") },
+  handler: async (ctx, { challengeId }) => {
+    const challengeParticipants = await ctx.db
+      .query("challengeParticipants")
+      .withIndex("by_challenge_id_user_id", (q) =>
+        q.eq("challengeId", challengeId)
+      )
+      .collect();
+
+    return challengeParticipants.map((participant) => participant.userId);
+  },
+});
+
+export const sortParticipantsByPoints = query({
+  args: { userIds: v.array(v.id("users")) },
+  handler: async (ctx, { userIds }) => {
+    // Fetch points for each user
+    const usersWithPoints = await Promise.all(
+      userIds.map(async (userId) => {
+        const user = await ctx.db.get(userId);
+        if (!user) {
+          throw new Error(`User not found: ${userId}`);
+        }
+        return { userId, points: user.points || 0 }; // Default points to 0 if not set
+      })
+    );
+
+    // Sort users by points in descending order
+    usersWithPoints.sort((a, b) => b.points - a.points);
+
+    return usersWithPoints;
+  },
+});

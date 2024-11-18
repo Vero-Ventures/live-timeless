@@ -110,7 +110,7 @@ export const updateGoal = mutation({
   handler: async (ctx, args) => {
     const { goalId, unit, ...updateData } = args;
 
-    const rate = args.rate !== undefined ? args.rate : getRate(args.unit);
+    const rate = args.rate !== undefined ? args.rate : getRate(unit);
     updateData.rate = rate;
 
     await ctx.db.patch(goalId, updateData);
