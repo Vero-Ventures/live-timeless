@@ -24,12 +24,9 @@ const unitRates: Record<string, number> = {
   metres: 0.5,
 };
 
-export const getRate = query({
-  args: { unit: v.string() },
-  handler: async (ctx, { unit }) => {
-    return unitRates[unit] || 0;
-  },
-});
+export const getRate = (unit: string): number => {
+  return unitRates[unit] || 0; // Return the rate or default to 0
+};
 
 export const getGoalById = query({
   args: { goalId: v.id("goals") },
@@ -79,10 +76,7 @@ export const createGoal = mutation({
       return null;
     }
 
-    const rate =
-      typeof args.rate !== "undefined"
-        ? args.rate
-        : await getRate(ctx, { unit: args.unit });
+    const rate = args.rate !== undefined ? args.rate : getRate(args.unit);
 
     const goalId = await ctx.db.insert("goals", {
       ...args,
@@ -115,13 +109,10 @@ export const updateGoal = mutation({
   },
   handler: async (ctx, args) => {
     const { goalId, unit, ...updateData } = args;
-    
-    const rate =
-      typeof args.rate !== "undefined"
-        ? args.rate
-        : await getRate(ctx, { unit: args.unit });
+
+    const rate = args.rate !== undefined ? args.rate : getRate(args.unit);
     updateData.rate = rate;
-    
+
     await ctx.db.patch(goalId, updateData);
   },
 });
