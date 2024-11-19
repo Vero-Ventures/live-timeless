@@ -37,8 +37,7 @@ export default function ChallengeScreen() {
   const createGoal = useMutation(api.goals.createGoal);
   const deleteGoalAndGoalLogs = useMutation(api.goals.deleteGoalAndGoalLogs);
   const userGoals = useQuery(api.goals.listGoals);
-  const challengeGoals = useQuery(api.challengeGoals.listChallengeGoals)
-  const filteredChallengeGoals = challengeGoals?.filter((goal) => goal.challengeId === id);
+  const filteredChallengeGoals = useQuery(api.challengeGoals.listChallengeGoalsById, { goalId: id });
   const createGoalLogsFromGoal = useMutation(
     api.goalLogs.createGoalLogsFromGoal
   );

@@ -132,8 +132,8 @@ export default function GoalScreen() {
         {
           text: "Yes",
           onPress: async () => {
+            router.dismiss(); // Dismiss first, page will break if goal does not exist before exit. Read nonexistent data
             await deleteGoalAndGoalLogs({ goalId });
-            router.dismiss();
           },
           style: "destructive",
         },

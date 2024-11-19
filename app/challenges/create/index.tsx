@@ -91,26 +91,30 @@ function CreateChallengeForm() {
           keyboardType="numeric"
         />
       </View>
-     
-      <Button onPress={async () => {
-        const newChallenge = {
-          name,
-          description,
-          repeat: ["daily"],
-          unitType: "General",
-          unitValue: 1,
-          unit: "times",
-          recurrence: "per day",
-          startDate: startDate.getTime(),
-          endDate: endDate.getTime(),
-          points: points ? parseInt(points) : 0,
-        };
-        const challengeId = await createChallenge(newChallenge);
-        if (!challengeId) {
-          throw new Error("Failed to create challenge");
-        }
-        router.navigate("/challenges");
-      }}>
+
+      <Button
+        onPress={async () => {
+          try {
+            const newChallenge = {
+              name,
+              description,
+              repeat: ["daily"],
+              unitType: "General",
+              unitValue: 1,
+              unit: "times",
+              recurrence: "per day",
+              startDate: startDate.getTime(),
+              endDate: endDate.getTime(),
+              points: points ? parseInt(points) : 0,
+            };
+
+            await createChallenge(newChallenge);
+            router.dismiss();
+          } catch (error) {
+            throw new Error("Failed to create challenge");
+          }
+        }}
+      >
         <Text>Add a sample challenge</Text>
       </Button>
     </KeyboardAwareScrollView>
