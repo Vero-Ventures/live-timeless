@@ -15,28 +15,28 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
 
 export default function AdvisorChatbot() {
-  const sessionId = useSessionId();
-  const remoteMessages = useQuery(api.messages.list, { sessionId });
-  const sendMessage = useMutation(api.messages.send);
-  const messages = useMemo(
-    () =>
-      [
-        {
-          isViewer: false,
-          text: "Hey there, I'm your personal AI Advisor. What can I help you with?",
-          _id: "0",
-        },
-      ].concat(remoteMessages ?? []),
-    [remoteMessages]
-  );
+  // const sessionId = useSessionId();
+  // const remoteMessages = useQuery(api.messages.list, { sessionId });
+  // const sendMessage = useMutation(api.messages.send);
+  // const messages = useMemo(
+  //   () =>
+  //     [
+  //       {
+  //         isViewer: false,
+  //         text: "Hey there, I'm your personal AI Advisor. What can I help you with?",
+  //         _id: "0",
+  //       },
+  //     ].concat(remoteMessages ?? []),
+  //   [remoteMessages]
+  // );
 
   const [inputText, setInputText] = useState("");
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const handleSend = async () => {
-    await sendMessage({ message: inputText, sessionId });
-    setInputText("");
-  };
+  // const handleSend = async () => {
+  //   await sendMessage({ message: inputText, sessionId });
+  //   setInputText("");
+  // };
 
   return (
     <SafeAreaView style={{ height: "100%", backgroundColor: "#082139" }}>
@@ -53,14 +53,20 @@ export default function AdvisorChatbot() {
             }
           }}
         >
-          {!!remoteMessages &&
+          {/* {!!remoteMessages &&
             messages.map((message) => (
               <Message
                 key={message._id}
                 text={message.text}
                 isViewer={message.isViewer}
               />
-            ))}
+            ))} */}
+          <Message
+            text="Hey there, I'm your personal AI Advisor. What can I help you with?"
+            isViewer={false}
+          />
+          <Message text="What is the capital of Canada?" isViewer={true} />
+          <Message text="The capital of Canada is Ottawa." isViewer={false} />
         </ScrollView>
 
         <View className="flex-row border-t border-gray-200 bg-white p-2">
@@ -74,7 +80,7 @@ export default function AdvisorChatbot() {
           />
           <Button
             className="items-center justify-center rounded-full bg-blue-500 p-3"
-            onPress={handleSend}
+            // onPress={handleSend}
           >
             <Text className="text-base font-bold text-white">Send</Text>
           </Button>
