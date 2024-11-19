@@ -58,9 +58,9 @@ export const listChallengeGoalsById = query({
       return null;
     }
     const goals = await ctx.db
-    .query("challengeGoals")
-    .filter((q) => q.eq(q.field("challengeId"), goalId))
-    .collect();
+      .query("challengeGoals")
+      .filter((q) => q.eq(q.field("challengeId"), goalId))
+      .collect();
 
     return goals;
   },

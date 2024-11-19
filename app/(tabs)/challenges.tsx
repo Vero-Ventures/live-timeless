@@ -52,8 +52,8 @@ export default function ChallengesScreen() {
         </Text>
 
         {/* TODO: Allow only admin to create challenges */}
-        <Button 
-          size="icon" 
+        <Button
+          size="icon"
           className="h-14 w-14 rounded-full"
           onPress={() => router.push("/challenges/create")}
         >
