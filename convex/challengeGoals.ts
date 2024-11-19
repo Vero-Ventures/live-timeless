@@ -47,3 +47,19 @@ export const listChallengeGoals = query({
     return goals;
   },
 });
+
+export const listChallengeGoalsById = query({
+  args: { goalId: v.id("challenges") },
+  handler: async (ctx, { goalId }) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
+    const goals = await ctx.db
+    .query("challengeGoals")
+    .filter((q) => q.eq(q.field("challengeId"), goalId))
+    .collect();
+
+    return goals;
+  },
+});

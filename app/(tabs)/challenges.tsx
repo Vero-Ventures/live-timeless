@@ -12,7 +12,7 @@ import {
   isBefore,
   isAfter,
 } from "date-fns";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 
 const getChallengeStatus = (startDate: Date, endDate: Date) => {
   const currentDate = new Date();
@@ -52,11 +52,13 @@ export default function ChallengesScreen() {
         </Text>
 
         {/* TODO: Allow only admin to create challenges */}
-        <Link href="/challenges/create" asChild>
-          <Button size="icon" className="h-14 w-14 rounded-full">
-            <Plus color="#fff" size={30} />
-          </Button>
-        </Link>
+        <Button 
+          size="icon" 
+          className="h-14 w-14 rounded-full"
+          onPress={() => router.push("/challenges/create")}
+        >
+          <Plus color="#fff" size={30} />
+        </Button>
 
         <FlatList
           contentContainerStyle={{
