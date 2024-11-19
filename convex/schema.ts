@@ -79,4 +79,13 @@ export default defineSchema({
     status: v.string(),
     expiresAt: v.number(),
   }).index("by_organization_id", ["organizationId"]),
+  messages: defineTable({
+    isViewer: v.boolean(),
+    sessionId: v.string(),
+    text: v.string(),
+  }).index("bySessionId", ["sessionId"]),
+  threads: defineTable({
+    sessionId: v.string(),
+    threadId: v.string(),
+  }).index("bySessionId", ["sessionId"]),
 });
