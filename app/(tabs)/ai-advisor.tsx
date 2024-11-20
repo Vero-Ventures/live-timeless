@@ -2,17 +2,46 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { useState, useRef, useEffect, useMemo } from "react";
+import type { ScrollView } from "react-native";
 import {
   View,
   TextInput,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
+  FlatList,
 } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
+import { cn } from "~/lib/utils";
+import { Send } from "~/lib/icons/Send";
+import { Input } from "~/components/ui/input";
+import { Separator } from "~/components/ui/separator";
+
+interface Message {
+  isViewer: boolean;
+  text: string;
+  _id: string;
+}
+
+const messages: Message[] = [
+  {
+    isViewer: false,
+    text: "Hey there, I'm your personal AI Advisor. What can I help you with?",
+    _id: "0",
+  },
+  {
+    isViewer: true,
+    text: "What is the capital of Canada?",
+    _id: "1",
+  },
+  {
+    isViewer: false,
+    text: "The capital of Canada is Ottawa.",
+    _id: "2",
+  },
+];
 
 export default function AdvisorChatbot() {
   // const sessionId = useSessionId();
@@ -31,7 +60,7 @@ export default function AdvisorChatbot() {
   // );
 
   const [inputText, setInputText] = useState("");
-  const scrollViewRef = useRef<ScrollView>(null);
+  const flatListRef = useRef<FlatList>(null);
 
   // const handleSend = async () => {
   //   await sendMessage({ message: inputText, sessionId });
@@ -39,50 +68,40 @@ export default function AdvisorChatbot() {
   // };
 
   return (
-    <SafeAreaView style={{ height: "100%", backgroundColor: "#082139" }}>
+    <SafeAreaView className="h-full bg-background">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
-        <ScrollView
-          ref={scrollViewRef}
-          className="flex-1 px-3 py-2"
+        <FlatList
+          ref={flatListRef}
+          data={messages}
           onContentSizeChange={() => {
-            if (scrollViewRef.current) {
-              scrollViewRef.current.scrollToEnd({ animated: true });
+            if (flatListRef.current) {
+              flatListRef.current.scrollToEnd({ animated: true });
             }
           }}
-        >
-          {/* {!!remoteMessages &&
-            messages.map((message) => (
-              <Message
-                key={message._id}
-                text={message.text}
-                isViewer={message.isViewer}
-              />
-            ))} */}
-          <Message
-            text="Hey there, I'm your personal AI Advisor. What can I help you with?"
-            isViewer={false}
-          />
-          <Message text="What is the capital of Canada?" isViewer={true} />
-          <Message text="The capital of Canada is Ottawa." isViewer={false} />
-        </ScrollView>
+          renderItem={({ item }) => (
+            <MessageComp isViewer={item.isViewer} text={item.text} />
+          )}
+          contentContainerStyle={{ flexGrow: 1 }}
+          ItemSeparatorComponent={() => <Separator />}
+        />
 
-        <View className="flex-row border-t border-gray-200 bg-white p-2">
-          <TextInput
-            className="mr-2 max-h-24 flex-1 rounded-full border border-gray-300 bg-white px-4 py-2"
+        <View className="relative">
+          <Input
+            className="native:h-20 rounded-none border-0 bg-card py-6"
             value={inputText}
             onChangeText={setInputText}
             placeholder="Type your message..."
-            placeholderTextColor="#666666"
             multiline
           />
           <Button
-            className="items-center justify-center rounded-full bg-blue-500 p-3"
+            variant="ghost"
+            className="absolute right-1 top-5 items-center justify-center p-3"
             // onPress={handleSend}
           >
-            <Text className="text-base font-bold text-white">Send</Text>
+            <Send className="text-white" />
           </Button>
         </View>
       </KeyboardAvoidingView>
@@ -90,20 +109,10 @@ export default function AdvisorChatbot() {
   );
 }
 
-function Message({ text, isViewer }: { text: string; isViewer: boolean }) {
+function MessageComp({ text, isViewer }: { text: string; isViewer: boolean }) {
   return (
-    <View
-      className={`my-1 max-w-[80%] rounded-2xl p-3 ${
-        isViewer
-          ? "self-end rounded-br-sm bg-blue-500"
-          : "self-start rounded-bl-sm bg-blue-100"
-      }`}
-    >
-      <Text
-        className={`text-base ${isViewer ? "text-white" : "text-gray-800"}`}
-      >
-        {text}
-      </Text>
+    <View className={cn("p-4", isViewer && "bg-card")}>
+      <Text className={cn(!isViewer && "font-semibold")}>{text}</Text>
     </View>
   );
 }
