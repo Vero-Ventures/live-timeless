@@ -1,15 +1,7 @@
-import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { useState, useRef, useEffect, useMemo } from "react";
-import type { ScrollView } from "react-native";
-import {
-  View,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
-  FlatList,
-} from "react-native";
+import { View, KeyboardAvoidingView, Platform, FlatList } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { useMutation, useQuery } from "convex/react";
@@ -19,53 +11,32 @@ import { Send } from "~/lib/icons/Send";
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
 
-interface Message {
-  isViewer: boolean;
-  text: string;
-  _id: string;
-}
-
-const messages: Message[] = [
-  {
-    isViewer: false,
-    text: "Hey there, I'm your personal AI Advisor. What can I help you with?",
-    _id: "0",
-  },
-  {
-    isViewer: true,
-    text: "What is the capital of Canada?",
-    _id: "1",
-  },
-  {
-    isViewer: false,
-    text: "The capital of Canada is Ottawa.",
-    _id: "2",
-  },
-];
-
 export default function AdvisorChatbot() {
-  // const sessionId = useSessionId();
-  // const remoteMessages = useQuery(api.messages.list, { sessionId });
-  // const sendMessage = useMutation(api.messages.send);
-  // const messages = useMemo(
-  //   () =>
-  //     [
-  //       {
-  //         isViewer: false,
-  //         text: "Hey there, I'm your personal AI Advisor. What can I help you with?",
-  //         _id: "0",
-  //       },
-  //     ].concat(remoteMessages ?? []),
-  //   [remoteMessages]
-  // );
+  const sessionId = useSessionId();
+  const remoteMessages = useQuery(api.messages.list, { sessionId });
+  const sendMessage = useMutation(api.messages.send);
+  const messages = useMemo(
+    () =>
+      [
+        {
+          isViewer: false,
+          text: "Hey there, I'm your personal AI Advisor. What can I help you with?",
+          _id: "0",
+        },
+      ].concat(remoteMessages ?? []),
+    [remoteMessages]
+  );
 
   const [inputText, setInputText] = useState("");
   const flatListRef = useRef<FlatList>(null);
 
-  // const handleSend = async () => {
-  //   await sendMessage({ message: inputText, sessionId });
-  //   setInputText("");
-  // };
+  const handleSend = async () => {
+    if (!inputText) {
+      return;
+    }
+    await sendMessage({ message: inputText, sessionId });
+    setInputText("");
+  };
 
   return (
     <View className="h-full bg-background pt-16">
@@ -98,7 +69,7 @@ export default function AdvisorChatbot() {
           <Button
             variant="ghost"
             className="absolute right-1 top-5 items-center justify-center p-3"
-            // onPress={handleSend}
+            onPress={handleSend}
           >
             <Send className="text-white" />
           </Button>
