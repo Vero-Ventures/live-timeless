@@ -68,7 +68,7 @@ export default function AdvisorChatbot() {
   // };
 
   return (
-    <SafeAreaView className="h-full bg-background">
+    <View className="h-full bg-background pt-16">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
@@ -105,7 +105,7 @@ export default function AdvisorChatbot() {
           </Button>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
