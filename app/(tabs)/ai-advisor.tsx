@@ -84,7 +84,6 @@ export default function AdvisorChatbot() {
           renderItem={({ item }) => (
             <MessageComp isViewer={item.isViewer} text={item.text} />
           )}
-          contentContainerStyle={{ flexGrow: 1 }}
           ItemSeparatorComponent={() => <Separator />}
         />
 
