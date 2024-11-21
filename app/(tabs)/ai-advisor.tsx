@@ -1,3 +1,4 @@
+import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { useState, useRef, useEffect, useMemo } from "react";
@@ -39,7 +40,10 @@ export default function AdvisorChatbot() {
   };
 
   return (
-    <View className="h-full bg-background pt-16">
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: "#082139" }}
+      edges={["top", "left", "right"]}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
@@ -75,7 +79,7 @@ export default function AdvisorChatbot() {
           </Button>
         </View>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 }
 
