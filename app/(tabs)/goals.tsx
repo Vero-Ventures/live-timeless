@@ -29,12 +29,25 @@ export default function GoalsPage() {
   const [selectedDate, setSelectedDate] = useState(today);
   const goals = useQuery(api.goals.listGoals);
   const goalLogs = useQuery(api.goalLogs.listGoalLogs);
+  const createGoalLogs = useMutation(api.goalLogs.checkAndCreateWeeklyLogs);
 
   useEffect(() => {
     if (goals && goalLogs) {
       SplashScreen.hideAsync();
     }
-  }, [goals, goalLogs]);
+    (async () => {
+      try {
+        await createGoalLogs();
+        console.log("Goal logs generated successfully!");
+      } catch (e) {
+        console.error("Error generating goal logs:", e);
+        Alert.alert(
+          "Error",
+          "There was an issue generating the goal logs. Please try again later."
+        );
+      }
+    })();
+  }, [goals, goalLogs, createGoalLogs]);
 
   const isDailyRepeat = (
     dailyRepeat: string[],

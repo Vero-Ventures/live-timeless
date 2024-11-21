@@ -113,8 +113,6 @@ export const updateGoalLog = mutation({
         );
       }
     }
-
-    // If date is provided, make sure it matches the existing date
     if (date !== undefined) {
       const newDate = new Date(date);
       const newDateString = format(newDate, "MM/dd/yyyy");
@@ -182,7 +180,9 @@ export const checkAndCreateWeeklyLogs = mutation({
   handler: async (ctx) => {
     const BATCH_SIZE = 50;
     let lastUserId: string | null = null;
-
+    console.log(
+      "checkAndCreateWeeklyLogs: Starting check and create weekly logs..."
+    );
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
@@ -192,6 +192,10 @@ export const checkAndCreateWeeklyLogs = mutation({
 
     const endRange = new Date(dayAfterTomorrow);
     endRange.setDate(endRange.getDate() + 6);
+
+    console.log(
+      `Date range set: tomorrow=${tomorrow}, dayAfterTomorrow=${dayAfterTomorrow}, endRange=${endRange}`
+    );
 
     while (true) {
       const users = await ctx.db
@@ -224,7 +228,7 @@ export const checkAndCreateWeeklyLogs = mutation({
               )
             )
             .collect();
-
+          console.log(`Found ${goals.length} goals for user ${userId}.`);
           if (existingLogs.length === 0) {
             const {
               dailyRepeat,
@@ -233,12 +237,6 @@ export const checkAndCreateWeeklyLogs = mutation({
               intervalRepeat,
               monthlyRepeat,
             } = goal;
-
-            // let currentDate = new Date(dayAfterTomorrow);
-            // while (currentDate <= endRange) {
-            //   const dayName = currentDate.toLocaleString("en-US", {
-            //     weekday: "long",
-            //   });
 
             const startDateObject = new Date(dayAfterTomorrow);
             const adjustedDate = new Date(
@@ -268,15 +266,6 @@ export const checkAndCreateWeeklyLogs = mutation({
                 }
               })();
 
-              // if (shouldCreateLog) {
-              //   await ctx.db.insert("goalLogs", {
-              //     goalId: goal._id,
-              //     isComplete: false,
-              //     date: today.getTime(),
-              //     unitsCompleted: 0,
-              //   });
-              // }
-
               if (shouldCreateLog) {
                 newGoalLogs.push({
                   goalId: goal._id,
@@ -284,6 +273,9 @@ export const checkAndCreateWeeklyLogs = mutation({
                   date: today.getTime(),
                   unitsCompleted: 0,
                 });
+                console.log(
+                  `Scheduled log creation for goal ${goal._id} on date ${today}.`
+                );
               }
 
               today.setDate(today.getDate() + 1);
@@ -294,6 +286,9 @@ export const checkAndCreateWeeklyLogs = mutation({
             await Promise.all(
               newGoalLogs.map(async (log) => {
                 await ctx.db.insert("goalLogs", log);
+                console.log(
+                  `Inserted log for goal ${log.goalId} on date ${new Date(log.date)}.`
+                );
               })
             );
           }
@@ -302,5 +297,6 @@ export const checkAndCreateWeeklyLogs = mutation({
         lastUserId = users[users.length - 1]._id;
       }
     }
+    console.log("checkAndCreateWeeklyLogs: Log creation process completed.");
   },
 });
