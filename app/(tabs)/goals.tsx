@@ -127,6 +127,15 @@ export default function GoalsPage() {
     goalLogs: groupedGoals.get(goal._id) || [], // Provide an empty array if no logs for the date
   }));
 
+  const goalsWithLogs = goals?.map((goal) => { 
+    const logsForGoal = goalLogs?.filter((log) => log.goalId === goal._id) || [];
+    const progress = logsForGoal.length > 0 ? logsForGoal[0].unitsCompleted : 0;
+  
+    return {
+      ...goal,
+      progress, // Add progress based on existing goal logs
+    };
+  });
   return (
     <SafeAreaView
       style={{
