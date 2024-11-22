@@ -129,7 +129,8 @@ export default function GoalsPage() {
 
   const goalsWithLogs = goals?.map((goal) => { 
     const logsForGoal = goalLogs?.filter((log) => log.goalId === goal._id) || [];
-    const progress = logsForGoal.length > 0 ? logsForGoal[0].unitsCompleted : 0;
+    const progress = logsForGoal.reduce((sum, log) => sum + (log.unitsCompleted || 0), 0);
+
   
     return {
       ...goal,
@@ -209,21 +210,25 @@ export default function GoalsPage() {
 
 interface GoalItemProps {
   goal: Doc<"goals">;
-  goalLogs: Doc<"goalLogs">[];
 }
 
-function GoalItem({ goal, goalLogs }: GoalItemProps) {
-  const selectedDateLog = goalLogs && goalLogs.length > 0 ? goalLogs[0] : null;
+function GoalItem({ goal }: GoalItemProps) {
+  // const selectedDateLog = goalLogs && goalLogs.length > 0 ? goalLogs[0] : null;
   const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
 
-  if (!selectedDateLog) {
-    return null;
-  }
+  // if (!selectedDateLog) {
+  //   return null;
+  // }
 
   const handleLogPress = async (e: GestureResponderEvent) => {
     e.stopPropagation(); // Prevent parent navigation
 
-    if (selectedDateLog.isComplete) {
+    // if (selectedDateLog.isComplete) {
+    //   Alert.alert("Goal Completed", "This goal has already been completed.");
+    //   return;
+    // }
+
+    if (goal.progress >= goal.unitValue) {
       Alert.alert("Goal Completed", "This goal has already been completed.");
       return;
     }
