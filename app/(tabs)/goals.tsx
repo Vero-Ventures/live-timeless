@@ -9,7 +9,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
-import { Link, SplashScreen } from "expo-router";
+import { Link, SplashScreen, router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { fontFamily } from "~/lib/font";
 import { Plus } from "lucide-react-native";
@@ -179,10 +179,10 @@ function GoalItem({
   goal: Doc<"goals">;
   selectedDate: Date;
 }) {
-  const createGoalLog = useMutation(api.goalLogs.createGoalLog); // Mutation to create a goal log
-  const listGoalLogs = useQuery(api.goalLogs.listGoalLogs); // Query for existing goal logs
+  const createGoalLog = useMutation(api.goalLogs.createGoalLog);
+  const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
+  const listGoalLogs = useQuery(api.goalLogs.listGoalLogs);
 
-  // Find the icon component dynamically based on the selectedIcon
   const IconComp = GOAL_ICONS.find(
     (item) => item.name === goal.selectedIcon
   )?.component;
@@ -193,44 +193,105 @@ function GoalItem({
       return;
     }
 
-    // Filter goal logs for the selected date and current goal
     const existingLog = listGoalLogs.find(
       (log) =>
         log.goalId === goal._id &&
         new Date(log.date).toDateString() === selectedDate.toDateString()
     );
 
-    if (existingLog) {
+    if (!existingLog) {
+      // Create a new log if one doesn't exist
+      try {
+        await createGoalLog({
+          goalId: goal._id,
+          isComplete: false,
+          date: selectedDate.getTime(),
+          unitsCompleted: 0, // Initialize with zero units completed
+        });
+
+        Alert.alert("Success", "A new goal log has been created.");
+      } catch (error) {
+        console.error("Error creating goal log:", error);
+        Alert.alert("Error", "Failed to log goal progress.");
+      }
+    } else if (goal.unit === "times") {
+      // For "times" goals, directly increment the units
+      if (existingLog.isComplete) {
+        Alert.alert(
+          "Already Completed",
+          "You have already completed this goal today."
+        );
+        return;
+      }
+
+      try {
+        const newUnitsCompleted = (existingLog.unitsCompleted || 0) + 1;
+        const isGoalComplete = newUnitsCompleted >= goal.unitValue;
+
+        await updateGoalLog({
+          goalLogId: existingLog._id,
+          unitsCompleted: newUnitsCompleted,
+          isComplete: isGoalComplete,
+        });
+
+        if (isGoalComplete) {
+          Alert.alert(
+            "Goal Completed",
+            "Congratulations! You’ve completed this goal."
+          );
+        } else {
+          Alert.alert("Progress Logged", "Your progress has been updated.");
+        }
+      } catch (error) {
+        console.error("Error updating goal log:", error);
+        Alert.alert("Error", "Failed to log goal progress.");
+      }
+    } else {
+      // Navigate to `logProgress` for other goal types
+      router.push(`/goals/${goal._id}/${existingLog._id}/start/logProgress`);
+    }
+  };
+
+  const handleNavigation = async () => {
+    if (!listGoalLogs) {
+      Alert.alert("Error", "Unable to fetch goal logs.");
+      return;
+    }
+
+    const existingLog = listGoalLogs.find(
+      (log) =>
+        log.goalId === goal._id &&
+        new Date(log.date).toDateString() === selectedDate.toDateString()
+    );
+
+    if (!existingLog) {
       Alert.alert(
-        "Already Logged",
-        "You have already logged progress for this goal today."
+        "No Log Found",
+        "Please create a goal log before proceeding."
       );
       return;
     }
 
+    // Navigate based on unit type
     try {
-      await createGoalLog({
-        goalId: goal._id,
-        isComplete: false,
-        date: selectedDate.getTime(), // Store timestamp
-        unitsCompleted: 0,
-      });
-
-      Alert.alert("Success", "Goal progress logged successfully.");
+      if (["hours", "minutes", "min"].includes(goal.unit)) {
+        router.push(`/goals/${goal._id}/${existingLog._id}/start`);
+      } else {
+        router.push(`/goals/${goal._id}/${existingLog._id}/start/logProgress`);
+      }
     } catch (error) {
-      console.error("Error creating goal log:", error);
-      Alert.alert("Error", "Failed to log goal progress.");
+      console.error("Error navigating to page:", error);
+      Alert.alert("Error", "Failed to navigate to the goal page.");
     }
   };
 
   const buttonType = determineButtonType(goal);
 
   const buttonStyles =
-    "w-20 h-10 justify-center flex-row items-center rounded-md"; // Small button styles
+    "w-20 h-10 justify-center flex-row items-center rounded-md";
 
   return (
     <View className="flex-row items-center gap-4">
-      {/* Goal Details */}
       <Link
         href={{
           pathname: `/goals/[goalId]`,
@@ -270,10 +331,9 @@ function GoalItem({
         </Pressable>
       </Link>
 
-      {/* Log Button */}
       <Pressable
         className={cn(buttonStyles, "bg-gray-600")}
-        onPress={handleLogPress}
+        onPress={buttonType === "keyboard" ? handleLogPress : handleNavigation}
       >
         <Text className="mr-2 text-white">Log</Text>
         {buttonType === "keyboard" && (
@@ -294,8 +354,9 @@ function GoalItem({
   );
 }
 
-// Helper Function to Determine Button Type
-function determineButtonType(goal: Doc<"goals">): "keyboard" | "alarm" | "checkmark" {
+function determineButtonType(
+  goal: Doc<"goals">
+): "keyboard" | "alarm" | "checkmark" {
   const allowedUnits = [
     "steps",
     "kg",
