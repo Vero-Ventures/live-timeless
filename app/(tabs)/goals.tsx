@@ -4,21 +4,22 @@ import {
   View,
   ScrollView,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Link, SplashScreen } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { fontFamily } from "~/lib/font";
 import { Plus } from "lucide-react-native";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import type { Doc } from "~/convex/_generated/dataModel";
 import { GOAL_ICONS } from "~/constants/goal-icons";
-import { FontAwesome5 } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
@@ -144,7 +145,9 @@ export default function GoalsPage() {
             ListEmptyComponent={() => (
               <Text className="text-center">No goals found for this date.</Text>
             )}
-            renderItem={({ item }) => <GoalItem goal={item} />}
+            renderItem={({ item }) => (
+              <GoalItem goal={item} selectedDate={selectedDate} />
+            )}
             keyExtractor={(item) => item._id.toString()}
           />
         )}
@@ -169,23 +172,61 @@ interface GoalItemProps {
   goal: Doc<"goals">;
 }
 
-function GoalItem({ goal }: GoalItemProps) {
+function GoalItem({
+  goal,
+  selectedDate,
+}: {
+  goal: Doc<"goals">;
+  selectedDate: Date;
+}) {
+  const createGoalLog = useMutation(api.goalLogs.createGoalLog); // Mutation to create a goal log
+  const listGoalLogs = useQuery(api.goalLogs.listGoalLogs); // Query for existing goal logs
+
+  // Find the icon component dynamically based on the selectedIcon
   const IconComp = GOAL_ICONS.find(
     (item) => item.name === goal.selectedIcon
   )?.component;
 
-  const KeyboardIconComp = GOAL_ICONS.find(
-    (icon) => icon.name === "keyboard"
-  )?.component;
+  const handleLogPress = async () => {
+    if (!listGoalLogs) {
+      Alert.alert("Error", "Unable to fetch goal logs.");
+      return;
+    }
 
-  const AlarmIconComp = GOAL_ICONS.find(
-    (icon) => icon.name === "alarm"
-  )?.component;
+    // Filter goal logs for the selected date and current goal
+    const existingLog = listGoalLogs.find(
+      (log) =>
+        log.goalId === goal._id &&
+        new Date(log.date).toDateString() === selectedDate.toDateString()
+    );
+
+    if (existingLog) {
+      Alert.alert(
+        "Already Logged",
+        "You have already logged progress for this goal today."
+      );
+      return;
+    }
+
+    try {
+      await createGoalLog({
+        goalId: goal._id,
+        isComplete: false,
+        date: selectedDate.getTime(), // Store timestamp
+        unitsCompleted: 0,
+      });
+
+      Alert.alert("Success", "Goal progress logged successfully.");
+    } catch (error) {
+      console.error("Error creating goal log:", error);
+      Alert.alert("Error", "Failed to log goal progress.");
+    }
+  };
 
   const buttonType = determineButtonType(goal);
 
   const buttonStyles =
-    "w-20 h-10 justify-center flex-row items-center rounded-md"; // Adjusted styles for a smaller button
+    "w-20 h-10 justify-center flex-row items-center rounded-md"; // Small button styles
 
   return (
     <View className="flex-row items-center gap-4">
@@ -204,11 +245,19 @@ function GoalItem({ goal }: GoalItemProps) {
                 "items-center justify-center rounded-full bg-[#299240]/20 p-1"
               )}
             >
-              <IconComp
-                name={goal.selectedIcon}
-                color={goal.selectedIconColor}
-                size={32}
-              />
+              {IconComp ? (
+                <IconComp
+                  name={goal.selectedIcon}
+                  color={goal.selectedIconColor}
+                  size={32}
+                />
+              ) : (
+                <MaterialCommunityIcons
+                  name="alert-circle-outline"
+                  color="gray"
+                  size={32}
+                />
+              )}
             </View>
 
             <View className="w-full gap-2">
@@ -221,17 +270,24 @@ function GoalItem({ goal }: GoalItemProps) {
         </Pressable>
       </Link>
 
-      {/* Action Button */}
-      <Pressable className={cn(buttonStyles, "bg-gray-600")} onPress={() => {}}>
+      {/* Log Button */}
+      <Pressable
+        className={cn(buttonStyles, "bg-gray-600")}
+        onPress={handleLogPress}
+      >
         <Text className="mr-2 text-white">Log</Text>
-        {buttonType === "keyboard" && KeyboardIconComp && (
-          <KeyboardIconComp name="keyboard" size={16} color="white" />
+        {buttonType === "keyboard" && (
+          <MaterialCommunityIcons name="keyboard" size={16} color="white" />
         )}
-        {buttonType === "alarm" && AlarmIconComp && (
-          <AlarmIconComp name="alarm" size={16} color="white" />
+        {buttonType === "alarm" && (
+          <MaterialCommunityIcons name="alarm" size={16} color="white" />
         )}
         {buttonType === "checkmark" && (
-          <FontAwesome5 name="check-circle" size={16} color="white" />
+          <MaterialCommunityIcons
+            name="check-circle-outline"
+            size={16}
+            color="white"
+          />
         )}
       </Pressable>
     </View>
