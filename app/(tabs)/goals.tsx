@@ -178,7 +178,7 @@ export default function GoalsPage() {
               paddingBottom: 60,
             }}
             className="mt-6 border-t border-t-[#fff]/10 pt-6"
-            data={matchedGoals}
+            data={goalsWithLogs}
             ItemSeparatorComponent={() => (
               <Separator className="my-4 h-0.5 bg-[#fff]/10" />
             )}
@@ -186,9 +186,8 @@ export default function GoalsPage() {
               <Text className="text-center">No goals found for this date.</Text>
             )}
             renderItem={({ item }) => (
-              <GoalItem goal={item.goal} goalLogs={item.goalLogs} />
-            )}
-            keyExtractor={(item) => item.goal._id.toString()}
+              <GoalItem goal={item} />}
+            keyExtractor={(item) => item._id.toString()}
           />
         )}
       </View>
