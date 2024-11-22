@@ -90,9 +90,6 @@ function CreateGoalForm() {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
   const createGoal = useMutation(api.goals.createGoal);
-  const createGoalLogsFromGoal = useMutation(
-    api.goalLogs.createGoalLogsFromGoal
-  );
   useEffect(() => {
     return () => resetForm();
   }, [resetForm]);
@@ -236,9 +233,6 @@ function CreateGoalForm() {
                 throw new Error("Failed to create goal");
               }
 
-              await createGoalLogsFromGoal({
-                goalId,
-              });
               router.navigate("/goals");
               resetForm();
             } catch (error) {
