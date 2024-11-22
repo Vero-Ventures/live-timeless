@@ -4,14 +4,11 @@ import {
   View,
   ScrollView,
   ActivityIndicator,
-  Alert,
-  type GestureResponderEvent,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
-import { Link, router, SplashScreen } from "expo-router";
-import type { Dispatch, SetStateAction } from "react";
+import { Link, SplashScreen } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { fontFamily } from "~/lib/font";
 import { Plus } from "lucide-react-native";
@@ -21,20 +18,18 @@ import { useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import type { Doc } from "~/convex/_generated/dataModel";
 import { GOAL_ICONS } from "~/constants/goal-icons";
-import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useMutation } from "convex/react";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
   const goals = useQuery(api.goals.listGoals);
-  const goalLogs = useQuery(api.goalLogs.listGoalLogs);
 
   useEffect(() => {
-    if (goals && goalLogs) {
+    if (goals) {
       SplashScreen.hideAsync();
     }
-  }, [goals, goalLogs]);
+  }, [goals]);
 
   const isDailyRepeat = (
     dailyRepeat: string[],
@@ -54,7 +49,6 @@ export default function GoalsPage() {
 
     const isRepeatDay = dailyRepeat.includes(days[dayOfWeek]);
 
-    // Convert both dates to timestamps for comparison
     const isAfterStartDate =
       selectedDate.getTime() >= new Date(startDate).getTime();
 
@@ -81,19 +75,8 @@ export default function GoalsPage() {
     return isRepeatDay;
   };
 
-  // Filter goalLogs for the selectedDate
-  const filteredGoalLogs = goalLogs
-    ? goalLogs.filter((log) => {
-        const goal = goals?.find((goal) => goal._id === log.goalId);
-        if (!goal) return false;
-
-        // Convert log date and selectedDate to comparable strings
-        const logDate = new Date(log.date).toDateString();
-        const selectedDateStr = selectedDate.toDateString();
-
-        if (logDate !== selectedDateStr) return false;
-
-        // Apply repeat pattern checks as before
+  const filteredGoals = goals
+    ? goals.filter((goal) => {
         const startDate = new Date(goal.startDate);
         switch (goal.repeatType) {
           case "daily":
@@ -107,25 +90,10 @@ export default function GoalsPage() {
           case "monthly":
             return isMonthlyRepeat(goal.monthlyRepeat, selectedDate);
           default:
-            return startDate.getTime() === selectedDate.getTime();
+            return startDate.toDateString() === selectedDate.toDateString();
         }
       })
     : [];
-
-  // Group filteredGoalLogs by goalId
-  const groupedGoals = new Map();
-  filteredGoalLogs.forEach((log) => {
-    if (!groupedGoals.has(log.goalId)) {
-      groupedGoals.set(log.goalId, []);
-    }
-    groupedGoals.get(log.goalId).push(log);
-  });
-
-  // Prepare matchedGoals, ensuring each goal has only one log for the selected date
-  const matchedGoals = goals?.map((goal) => ({
-    goal,
-    goalLogs: groupedGoals.get(goal._id) || [], // Provide an empty array if no logs for the date
-  }));
 
   return (
     <SafeAreaView
@@ -158,7 +126,7 @@ export default function GoalsPage() {
         >
           Goals
         </Text>
-        {!goals || !goalLogs ? (
+        {!goals ? (
           <View className="mt-10 flex flex-row justify-center gap-2">
             <ActivityIndicator />
             <Text>Loading goals...</Text>
@@ -169,17 +137,15 @@ export default function GoalsPage() {
               paddingBottom: 60,
             }}
             className="mt-6 border-t border-t-[#fff]/10 pt-6"
-            data={matchedGoals}
+            data={filteredGoals}
             ItemSeparatorComponent={() => (
               <Separator className="my-4 h-0.5 bg-[#fff]/10" />
             )}
             ListEmptyComponent={() => (
               <Text className="text-center">No goals found for this date.</Text>
             )}
-            renderItem={({ item }) => (
-              <GoalItem goal={item.goal} goalLogs={item.goalLogs} />
-            )}
-            keyExtractor={(item) => item.goal._id.toString()}
+            renderItem={({ item }) => <GoalItem goal={item} />}
+            keyExtractor={(item) => item._id.toString()}
           />
         )}
       </View>
@@ -201,67 +167,33 @@ export default function GoalsPage() {
 
 interface GoalItemProps {
   goal: Doc<"goals">;
-  goalLogs: Doc<"goalLogs">[];
 }
 
-function GoalItem({ goal, goalLogs }: GoalItemProps) {
-  const selectedDateLog = goalLogs && goalLogs.length > 0 ? goalLogs[0] : null;
-  const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
-
-  if (!selectedDateLog) {
-    return null;
-  }
-
-  const handleLogPress = async (e: GestureResponderEvent) => {
-    e.stopPropagation(); // Prevent parent navigation
-
-    if (selectedDateLog.isComplete) {
-      Alert.alert("Goal Completed", "This goal has already been completed.");
-      return;
-    }
-
-    const newUnitsCompleted = (selectedDateLog.unitsCompleted ?? 0) + 1;
-    const goalComplete = newUnitsCompleted >= goal.unitValue;
-
-    try {
-      // Update the goalLog in the backend with the incremented units
-      await updateGoalLog({
-        goalLogId: selectedDateLog._id,
-        unitsCompleted: newUnitsCompleted,
-        isComplete: goalComplete, // Mark complete if it reaches goal value
-      });
-
-      if (goalComplete) {
-        Alert.alert(
-          "Goal Completed",
-          `Congratulations! You've completed the goal.`
-        );
-      }
-    } catch (error) {
-      console.error("Error updating goal log:", error);
-    }
-  };
-
+function GoalItem({ goal }: GoalItemProps) {
   const IconComp = GOAL_ICONS.find(
     (item) => item.name === goal.selectedIcon
   )?.component;
 
-  const handleTimerRedirect = () => {
-    router.push(`/goals/${goal._id}/${selectedDateLog._id}/start`);
-  };
+  const KeyboardIconComp = GOAL_ICONS.find(
+    (icon) => icon.name === "keyboard"
+  )?.component;
 
-  const isCounterUnit = goal.unit === "times";
-  const isTimerUnit = ["minutes", "min", "hours"].includes(goal.unit);
+  const AlarmIconComp = GOAL_ICONS.find(
+    (icon) => icon.name === "alarm"
+  )?.component;
+
+  const buttonType = determineButtonType(goal);
+
+  const buttonStyles =
+    "w-20 h-10 justify-center flex-row items-center rounded-md"; // Adjusted styles for a smaller button
 
   return (
     <View className="flex-row items-center gap-4">
+      {/* Goal Details */}
       <Link
         href={{
-          pathname: "/goals/[goalId]/[goalLogId]",
-          params: {
-            goalId: goal._id,
-            goalLogId: selectedDateLog._id,
-          },
+          pathname: `/goals/[goalId]`,
+          params: { goalId: goal._id },
         }}
         asChild
       >
@@ -282,46 +214,64 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
             <View className="w-full gap-2">
               <Text style={{ fontFamily: "openSans.medium" }}>{goal.name}</Text>
               <Text className="text-xs text-muted-foreground">
-                {`${Math.floor(selectedDateLog.unitsCompleted)} / ${Math.floor(goal.unitValue)} ${goal.unit}`}
+                {goal.unitValue} {goal.unit}
               </Text>
             </View>
           </View>
         </Pressable>
       </Link>
 
-      {selectedDateLog.isComplete ? (
-        // Render green checkmark icon if goal is complete
-        <View className="pr-5">
-          <FontAwesome5 name="check-circle" size={24} color="green" />
-        </View>
-      ) : // Render the checkmark with "1" icon only if the goal unit is "times"
-      isCounterUnit ? (
-        <Button
-          className="flex flex-row items-end gap-2 rounded-full bg-gray-600"
-          onPress={handleLogPress}
-        >
-          <FontAwesome5 name="check" size={16} color="white" />
-          <Text className="font-bold">1</Text>
-        </Button>
-      ) : isTimerUnit ? (
-        <Button
-          onPress={handleTimerRedirect}
-          className="flex flex-row items-center gap-2 rounded-full bg-gray-600"
-        >
-          <MaterialCommunityIcons name="alarm" size={20} color="#fff" />
-          <Text className="font-bold">Timer</Text>
-        </Button>
-      ) : (
-        <Button
-          className="flex flex-row items-center gap-2 rounded-full bg-gray-600"
-          onPress={handleLogPress}
-        >
-          <FontAwesome5 name="plus-circle" size={16} color="#fff" />
-          <Text className="font-bold">Log Progress</Text>
-        </Button>
-      )}
+      {/* Action Button */}
+      <Pressable className={cn(buttonStyles, "bg-gray-600")} onPress={() => {}}>
+        <Text className="mr-2 text-white">Log</Text>
+        {buttonType === "keyboard" && KeyboardIconComp && (
+          <KeyboardIconComp name="keyboard" size={16} color="white" />
+        )}
+        {buttonType === "alarm" && AlarmIconComp && (
+          <AlarmIconComp name="alarm" size={16} color="white" />
+        )}
+        {buttonType === "checkmark" && (
+          <FontAwesome5 name="check-circle" size={16} color="white" />
+        )}
+      </Pressable>
     </View>
   );
+}
+
+// Helper Function to Determine Button Type
+function determineButtonType(goal: Doc<"goals">): "keyboard" | "alarm" | "checkmark" {
+  const allowedUnits = [
+    "steps",
+    "kg",
+    "grams",
+    "mg",
+    "oz",
+    "pounds",
+    "μg",
+    "litres",
+    "mL",
+    "US fl oz",
+    "cups",
+    "kilojoules",
+    "kcal",
+    "cal",
+    "joules",
+    "km",
+    "metres",
+    "feet",
+    "yards",
+    "miles",
+  ];
+
+  if (goal.unit === "times") {
+    return "checkmark"; // Show the checkmark for "times" unit
+  } else if (["hours", "minutes"].includes(goal.unit)) {
+    return "alarm"; // Show the alarm clock for duration-based units
+  } else if (allowedUnits.includes(goal.unit)) {
+    return "keyboard"; // Show the keyboard for specific allowed units
+  }
+
+  return "keyboard"; // Default to keyboard
 }
 
 function CalendarStrip({
@@ -329,7 +279,7 @@ function CalendarStrip({
   setSelectedDate,
 }: {
   selectedDate: Date;
-  setSelectedDate: Dispatch<SetStateAction<Date>>;
+  setSelectedDate: React.Dispatch<React.SetStateAction<Date>>;
 }) {
   const scrollViewRef = useRef<ScrollView>(null);
   const { tomorrow } = getTodayYesterdayTomorrow();
