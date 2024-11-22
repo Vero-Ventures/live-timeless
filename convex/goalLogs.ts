@@ -87,45 +87,48 @@ export const updateGoalLog = mutation({
   args: {
     goalLogId: v.id("goalLogs"),
     isComplete: v.optional(v.boolean()),
-    date: v.optional(v.number()),
-    targetDate: v.optional(v.number()), // Make targetDate optional
-    goalId: v.optional(v.id("goals")),
+    // date: v.optional(v.number()),
+    // targetDate: v.optional(v.number()), // Make targetDate optional
+    // goalId: v.optional(v.id("goals")),
     unitsCompleted: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const { goalLogId, targetDate, date, ...updateData } = args;
+    const { goalLogId, ...updateData } = args;
     const existingGoalLog = await ctx.db.get(goalLogId);
 
     if (existingGoalLog === null) {
       throw new Error("Goal log not found");
     }
 
+    //Removing date validation as we are creating new logs if none exist
+    //and it only patches the existing log
+    
     // Format the existing date once and use it for both date checks
-    const existingDate = new Date(existingGoalLog.date);
-    const existingDateFormatted = format(existingDate, "MM/dd/yyyy");
+    // const existingDate = new Date(existingGoalLog.date);
+    // const existingDateFormatted = format(existingDate, "MM/dd/yyyy");
 
-    if (targetDate !== undefined) {
-      const targetDateFormatted = format(new Date(targetDate), "MM/dd/yyyy");
+    // if (targetDate !== undefined) {
+    //   const targetDateFormatted = format(new Date(targetDate), "MM/dd/yyyy");
 
-      if (targetDateFormatted !== existingDateFormatted) {
-        throw new Error(
-          "Date mismatch: Cannot update goal log for a different date"
-        );
-      }
-    }
+    //   if (targetDateFormatted !== existingDateFormatted) {
+    //     throw new Error(
+    //       "Date mismatch: Cannot update goal log for a different date"
+    //     );
+    //   }
+    // }
 
-    // If date is provided, make sure it matches the existing date
-    if (date !== undefined) {
-      const newDate = new Date(date);
-      const newDateString = format(newDate, "MM/dd/yyyy");
+    // // If date is provided, make sure it matches the existing date
+    // if (date !== undefined) {
+    //   const newDate = new Date(date);
+    //   const newDateString = format(newDate, "MM/dd/yyyy");
 
-      if (existingDateFormatted !== newDateString) {
-        throw new Error(
-          "Date mismatch: Cannot update goal log with a different date"
-        );
-      }
-    }
-
+    //   if (existingDateFormatted !== newDateString) {
+    //     throw new Error(
+    //       "Date mismatch: Cannot update goal log with a different date"
+    //     );
+    //   }
+    // }
+    
     await ctx.db.patch(goalLogId, updateData);
   },
 });
