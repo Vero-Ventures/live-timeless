@@ -19,7 +19,7 @@ import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
 import { useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
-import type { Doc } from "~/convex/_generated/dataModel";
+import type { Doc, Id } from "~/convex/_generated/dataModel";
 import { GOAL_ICONS } from "~/constants/goal-icons";
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useMutation } from "convex/react";
@@ -122,16 +122,19 @@ export default function GoalsPage() {
   });
 
   const matchedGoals = goals?.map((goal) => {
+    // find the goal log for this goal
     const goalLog = goalLogs?.find(
       (log) =>
         log.goalId === goal._id &&
         new Date(log.date).toDateString() === selectedDate.toDateString()
     );
-
+    // iclude progress from the goal log (if found)
     return {
       goal,
-      progress: goalLog ? goalLog.unitsCompleted : 0, 
-      isComplete: goalLog ? goalLog.isComplete : false, 
+      progress: goalLog ? goalLog.unitsCompleted : 0,
+      isComplete: goalLog ? goalLog.isComplete : false,
+      unit: goal.unit,
+      goalLogId: goalLog ? goalLog._id : "",
     };
   });
 
@@ -185,7 +188,13 @@ export default function GoalsPage() {
               <Text className="text-center">No goals found for this date.</Text>
             )}
             renderItem={({ item }) => (
-              <GoalItem goal={item.goal} goalLogs={item.goalLogs} />
+              <GoalItem
+                goal={item.goal}
+                isComplete={item.isComplete}
+                progress={item.progress}
+                unit={item.unit}
+                goalLogId={item.goalLogId}
+              />
             )}
             keyExtractor={(item) => item.goal._id.toString()}
           />
@@ -209,34 +218,32 @@ export default function GoalsPage() {
 
 interface GoalItemProps {
   goal: Doc<"goals">;
-  goalLogs: Doc<"goalLogs">[];
+  isComplete: boolean;
+  progress: number;
+  unit: string;
+  goalLogId: string;
 }
 
-function GoalItem({ goal, goalLogs }: GoalItemProps) {
-  const selectedDateLog = goalLogs && goalLogs.length > 0 ? goalLogs[0] : null;
+function GoalItem({
+  goal,
+  progress,
+  isComplete,
+  unit,
+  goalLogId,
+}: GoalItemProps) {
   const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
 
-  if (!selectedDateLog) {
-    return null;
-  }
-
   const handleLogPress = async (e: GestureResponderEvent) => {
-    e.stopPropagation(); // Prevent parent navigation
+    e.stopPropagation();
 
-    if (selectedDateLog.isComplete) {
-      Alert.alert("Goal Completed", "This goal has already been completed.");
-      return;
-    }
-
-    const newUnitsCompleted = (selectedDateLog.unitsCompleted ?? 0) + 1;
+    const newUnitsCompleted = (progress ?? 0) + 1;
     const goalComplete = newUnitsCompleted >= goal.unitValue;
 
     try {
-      // Update the goalLog in the backend with the incremented units
       await updateGoalLog({
-        goalLogId: selectedDateLog._id,
+        goalLogId: goalLogId as Id<"goalLogs">,
         unitsCompleted: newUnitsCompleted,
-        isComplete: goalComplete, // Mark complete if it reaches goal value
+        isComplete: goalComplete, 
       });
 
       if (goalComplete) {
@@ -250,14 +257,20 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
     }
   };
 
+  //TODO: create a new log if no log exists on selected date
+  const handleTimerRedirect = () => {
+    if (!goalLogId) {
+      Alert.alert(
+        "No goal log",
+        "No goal log exists yet. Please log progress for this goal."
+      );
+      return;
+    }
+    router.push(`/goals/${goal._id}/${goalLogId}/start`);
+  };
   const IconComp = GOAL_ICONS.find(
     (item) => item.name === goal.selectedIcon
   )?.component;
-
-  const handleTimerRedirect = () => {
-    router.push(`/goals/${goal._id}/${selectedDateLog._id}/start`);
-  };
-
   const isCounterUnit = goal.unit === "times";
   const isTimerUnit = ["minutes", "min", "hours"].includes(goal.unit);
 
@@ -265,11 +278,8 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
     <View className="flex-row items-center gap-4">
       <Link
         href={{
-          pathname: "/goals/[goalId]/[goalLogId]",
-          params: {
-            goalId: goal._id,
-            goalLogId: selectedDateLog._id,
-          },
+          pathname: "/goals/[goalId]",
+          params: { goalId: goal._id },
         }}
         asChild
       >
@@ -290,14 +300,15 @@ function GoalItem({ goal, goalLogs }: GoalItemProps) {
             <View className="w-full gap-2">
               <Text style={{ fontFamily: "openSans.medium" }}>{goal.name}</Text>
               <Text className="text-xs text-muted-foreground">
-                {`${Math.floor(selectedDateLog.unitsCompleted)} / ${Math.floor(goal.unitValue)} ${goal.unit}`}
+                {/* {`${Math.floor(selectedDateLog.unitsCompleted)} / ${Math.floor(goal.unitValue)} ${goal.unit}`} */}
+                {`${Math.floor(progress)} / ${Math.floor(goal.unitValue)} ${unit}`}
               </Text>
             </View>
           </View>
         </Pressable>
       </Link>
 
-      {selectedDateLog.isComplete ? (
+      {isComplete ? (
         // Render green checkmark icon if goal is complete
         <View className="pr-5">
           <FontAwesome5 name="check-circle" size={24} color="green" />
