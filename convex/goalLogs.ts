@@ -91,8 +91,9 @@ export const createGoalLog = mutation({
       throw new Error("A goal log already exists for this goal and date.");
     }
 
-    // Create the goal log if none exists
-    await ctx.db.insert("goalLogs", args);
+    // Create the goal log if none exists and return its ID
+    const newLogId = await ctx.db.insert("goalLogs", args);
+    return newLogId; // Return the ID of the newly created goal log
   },
 });
 

@@ -110,14 +110,14 @@ export default function GoalsPage() {
           {selectedDate.toDateString() === today.toDateString()
             ? "Today"
             : selectedDate.toDateString() === yesterday.toDateString()
-              ? "Yesterday"
-              : selectedDate.toDateString() === tomorrow.toDateString()
-                ? "Tomorrow"
-                : selectedDate.toLocaleDateString("en-US", {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
+            ? "Yesterday"
+            : selectedDate.toDateString() === tomorrow.toDateString()
+            ? "Tomorrow"
+            : selectedDate.toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
         </Text>
         <Text
           className="text-2xl"
@@ -168,10 +168,6 @@ export default function GoalsPage() {
   );
 }
 
-interface GoalItemProps {
-  goal: Doc<"goals">;
-}
-
 function GoalItem({
   goal,
   selectedDate,
@@ -180,20 +176,21 @@ function GoalItem({
   selectedDate: Date;
 }) {
   const createGoalLog = useMutation(api.goalLogs.createGoalLog);
-  const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
   const listGoalLogs = useQuery(api.goalLogs.listGoalLogs);
+  const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
 
   const IconComp = GOAL_ICONS.find(
     (item) => item.name === goal.selectedIcon
   )?.component;
 
-  const handleLogPress = async () => {
+  async function handleLogPress() {
     if (!listGoalLogs) {
       Alert.alert("Error", "Unable to fetch goal logs.");
       return;
     }
 
-    const existingLog = listGoalLogs.find(
+    // Check if a log already exists for this goal and selected date
+    let existingLog = listGoalLogs.find(
       (log) =>
         log.goalId === goal._id &&
         new Date(log.date).toDateString() === selectedDate.toDateString()
@@ -202,30 +199,42 @@ function GoalItem({
     if (!existingLog) {
       // Create a new log if one doesn't exist
       try {
-        await createGoalLog({
+        const newLogId = await createGoalLog({
           goalId: goal._id,
           isComplete: false,
           date: selectedDate.getTime(),
           unitsCompleted: 0, // Initialize with zero units completed
         });
 
-        Alert.alert("Success", "A new goal log has been created.");
+        if (!newLogId) {
+          throw new Error("Failed to create a new goal log.");
+        }
+
+        // Mock the log to use it in navigation
+        existingLog = {
+          _id: newLogId,
+          goalId: goal._id,
+          date: selectedDate.getTime(),
+          unitsCompleted: 0,
+          isComplete: false,
+          _creationTime: Date.now(), // Simulate creation time
+        };
       } catch (error) {
         console.error("Error creating goal log:", error);
         Alert.alert("Error", "Failed to log goal progress.");
+        return;
       }
-    } else if (goal.unit === "times") {
-      // For "times" goals, directly increment the units
+    }
+
+    if (goal.unit === "times") {
+      // For "times" goals, increment the units
       if (existingLog.isComplete) {
-        Alert.alert(
-          "Already Completed",
-          "You have already completed this goal today."
-        );
+        Alert.alert("Goal Completed", "This goal has already been completed.");
         return;
       }
 
       try {
-        const newUnitsCompleted = (existingLog.unitsCompleted || 0) + 1;
+        const newUnitsCompleted = (existingLog.unitsCompleted ?? 0) + 1;
         const isGoalComplete = newUnitsCompleted >= goal.unitValue;
 
         await updateGoalLog({
@@ -239,40 +248,15 @@ function GoalItem({
             "Goal Completed",
             "Congratulations! You’ve completed this goal."
           );
-        } else {
-          Alert.alert("Progress Logged", "Your progress has been updated.");
         }
       } catch (error) {
         console.error("Error updating goal log:", error);
         Alert.alert("Error", "Failed to log goal progress.");
       }
-    } else {
-      // Navigate to `logProgress` for other goal types
-      router.push(`/goals/${goal._id}/${existingLog._id}/start/logProgress`);
-    }
-  };
-
-  const handleNavigation = async () => {
-    if (!listGoalLogs) {
-      Alert.alert("Error", "Unable to fetch goal logs.");
-      return;
+      return; // Stop further execution for "times" goals
     }
 
-    const existingLog = listGoalLogs.find(
-      (log) =>
-        log.goalId === goal._id &&
-        new Date(log.date).toDateString() === selectedDate.toDateString()
-    );
-
-    if (!existingLog) {
-      Alert.alert(
-        "No Log Found",
-        "Please create a goal log before proceeding."
-      );
-      return;
-    }
-
-    // Navigate based on unit type
+    // Redirect to the appropriate logging screen for other goal types
     try {
       if (["hours", "minutes", "min"].includes(goal.unit)) {
         router.push(`/goals/${goal._id}/${existingLog._id}/start`);
@@ -280,10 +264,10 @@ function GoalItem({
         router.push(`/goals/${goal._id}/${existingLog._id}/start/logProgress`);
       }
     } catch (error) {
-      console.error("Error navigating to page:", error);
-      Alert.alert("Error", "Failed to navigate to the goal page.");
+      console.error("Error navigating to form:", error);
+      Alert.alert("Error", "Failed to navigate to the logging form.");
     }
-  };
+  }
 
   const buttonType = determineButtonType(goal);
 
@@ -294,8 +278,16 @@ function GoalItem({
     <View className="flex-row items-center gap-4">
       <Link
         href={{
-          pathname: `/goals/[goalId]`,
-          params: { goalId: goal._id },
+          pathname: `/goals/[goalId]/[goalLogId]`,
+          params: {
+            goalId: goal._id,
+            goalLogId: listGoalLogs?.find(
+              (log) =>
+                log.goalId === goal._id &&
+                new Date(log.date).toDateString() ===
+                  selectedDate.toDateString()
+            )?._id ?? '', // Provide a default value of an empty string
+          },
         }}
         asChild
       >
@@ -333,7 +325,7 @@ function GoalItem({
 
       <Pressable
         className={cn(buttonStyles, "bg-gray-600")}
-        onPress={buttonType === "keyboard" ? handleLogPress : handleNavigation}
+        onPress={handleLogPress}
       >
         <Text className="mr-2 text-white">Log</Text>
         {buttonType === "keyboard" && (
