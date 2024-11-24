@@ -121,11 +121,19 @@ export default function GoalsPage() {
     groupedGoals.get(log.goalId).push(log);
   });
 
-  // Prepare matchedGoals, ensuring each goal has only one log for the selected date
-  const matchedGoals = goals?.map((goal) => ({
-    goal,
-    goalLogs: groupedGoals.get(goal._id) || [], // Provide an empty array if no logs for the date
-  }));
+  const matchedGoals = goals?.map((goal) => {
+    const goalLog = goalLogs?.find(
+      (log) =>
+        log.goalId === goal._id &&
+        new Date(log.date).toDateString() === selectedDate.toDateString()
+    );
+
+    return {
+      goal,
+      progress: goalLog ? goalLog.unitsCompleted : 0, 
+      isComplete: goalLog ? goalLog.isComplete : false, 
+    };
+  });
 
   return (
     <SafeAreaView
