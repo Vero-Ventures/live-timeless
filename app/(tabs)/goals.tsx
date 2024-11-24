@@ -25,12 +25,13 @@ export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
   const goals = useQuery(api.goals.listGoals);
+  const goalLogs = useQuery(api.goalLogs.listGoalLogs);
 
   useEffect(() => {
-    if (goals) {
+    if (goals && goalLogs) {
       SplashScreen.hideAsync();
     }
-  }, [goals]);
+  }, [goals, goalLogs]);
 
   const isDailyRepeat = (
     dailyRepeat: string[],
@@ -77,22 +78,19 @@ export default function GoalsPage() {
   };
 
   const filteredGoals = goals
-    ? goals.filter((goal) => {
-        const startDate = new Date(goal.startDate);
-        switch (goal.repeatType) {
-          case "daily":
-            return isDailyRepeat(goal.dailyRepeat, startDate, selectedDate);
-          case "interval":
-            return isIntervalRepeat(
-              startDate,
-              goal.intervalRepeat,
-              selectedDate
-            );
-          case "monthly":
-            return isMonthlyRepeat(goal.monthlyRepeat, selectedDate);
-          default:
-            return startDate.toDateString() === selectedDate.toDateString();
-        }
+    ? goals.map((goal) => {
+        const logForDate = goalLogs?.find(
+          (log) =>
+            log.goalId === goal._id &&
+            new Date(log.date).toDateString() === selectedDate.toDateString()
+        );
+
+        return {
+          ...goal,
+          progress: logForDate ? logForDate.unitsCompleted : 0,
+          isComplete: logForDate ? logForDate.isComplete : false,
+          goalLogId: logForDate ? logForDate._id : null,
+        };
       })
     : [];
 
@@ -110,14 +108,14 @@ export default function GoalsPage() {
           {selectedDate.toDateString() === today.toDateString()
             ? "Today"
             : selectedDate.toDateString() === yesterday.toDateString()
-            ? "Yesterday"
-            : selectedDate.toDateString() === tomorrow.toDateString()
-            ? "Tomorrow"
-            : selectedDate.toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })}
+              ? "Yesterday"
+              : selectedDate.toDateString() === tomorrow.toDateString()
+                ? "Tomorrow"
+                : selectedDate.toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
         </Text>
         <Text
           className="text-2xl"
@@ -127,7 +125,7 @@ export default function GoalsPage() {
         >
           Goals
         </Text>
-        {!goals ? (
+        {!goals || !goalLogs ? (
           <View className="mt-10 flex flex-row justify-center gap-2">
             <ActivityIndicator />
             <Text>Loading goals...</Text>
@@ -183,21 +181,23 @@ function GoalItem({
     (item) => item.name === goal.selectedIcon
   )?.component;
 
+  // Find existing log for this goal and date
+  const existingLog = listGoalLogs?.find(
+    (log) =>
+      log.goalId === goal._id &&
+      new Date(log.date).toDateString() === selectedDate.toDateString()
+  );
+
   async function handleLogPress() {
     if (!listGoalLogs) {
       Alert.alert("Error", "Unable to fetch goal logs.");
       return;
     }
 
-    // Check if a log already exists for this goal and selected date
-    let existingLog = listGoalLogs.find(
-      (log) =>
-        log.goalId === goal._id &&
-        new Date(log.date).toDateString() === selectedDate.toDateString()
-    );
+    let log = existingLog;
 
-    if (!existingLog) {
-      // Create a new log if one doesn't exist
+    // Create a new log if one doesn't exist
+    if (!log) {
       try {
         const newLogId = await createGoalLog({
           goalId: goal._id,
@@ -211,7 +211,7 @@ function GoalItem({
         }
 
         // Mock the log to use it in navigation
-        existingLog = {
+        log = {
           _id: newLogId,
           goalId: goal._id,
           date: selectedDate.getTime(),
@@ -228,17 +228,17 @@ function GoalItem({
 
     if (goal.unit === "times") {
       // For "times" goals, increment the units
-      if (existingLog.isComplete) {
+      if (log.isComplete) {
         Alert.alert("Goal Completed", "This goal has already been completed.");
         return;
       }
 
       try {
-        const newUnitsCompleted = (existingLog.unitsCompleted ?? 0) + 1;
+        const newUnitsCompleted = (log.unitsCompleted ?? 0) + 1;
         const isGoalComplete = newUnitsCompleted >= goal.unitValue;
 
         await updateGoalLog({
-          goalLogId: existingLog._id,
+          goalLogId: log._id,
           unitsCompleted: newUnitsCompleted,
           isComplete: isGoalComplete,
         });
@@ -259,9 +259,9 @@ function GoalItem({
     // Redirect to the appropriate logging screen for other goal types
     try {
       if (["hours", "minutes", "min"].includes(goal.unit)) {
-        router.push(`/goals/${goal._id}/${existingLog._id}/start`);
+        router.push(`/goals/${goal._id}/${log._id}/start`);
       } else {
-        router.push(`/goals/${goal._id}/${existingLog._id}/start/logProgress`);
+        router.push(`/goals/${goal._id}/${log._id}/start/logProgress`);
       }
     } catch (error) {
       console.error("Error navigating to form:", error);
@@ -281,12 +281,7 @@ function GoalItem({
           pathname: `/goals/[goalId]/[goalLogId]`,
           params: {
             goalId: goal._id,
-            goalLogId: listGoalLogs?.find(
-              (log) =>
-                log.goalId === goal._id &&
-                new Date(log.date).toDateString() ===
-                  selectedDate.toDateString()
-            )?._id ?? '', // Provide a default value of an empty string
+            goalLogId: existingLog?._id ?? "", // Provide a default value of an empty string
           },
         }}
         asChild
@@ -316,7 +311,9 @@ function GoalItem({
             <View className="w-full gap-2">
               <Text style={{ fontFamily: "openSans.medium" }}>{goal.name}</Text>
               <Text className="text-xs text-muted-foreground">
-                {goal.unitValue} {goal.unit}
+                {existingLog
+                  ? `${Number.isInteger(existingLog.unitsCompleted) ? existingLog.unitsCompleted : existingLog.unitsCompleted.toFixed(1)} / ${Number.isInteger(goal.unitValue) ? goal.unitValue : goal.unitValue.toFixed(1)} ${goal.unit}`
+                  : `${Number.isInteger(goal.unitValue) ? goal.unitValue : goal.unitValue.toFixed(1)} ${goal.unit}`}
               </Text>
             </View>
           </View>
