@@ -236,6 +236,19 @@ function GoalItem({
   const handleLogPress = async (e: GestureResponderEvent) => {
     e.stopPropagation();
 
+    if (!goalLogId) {
+      Alert.alert(
+        "Goal Log Missing",
+        "No goal logs yet. Please log progress"
+      );
+      return;
+    }
+
+    if (isComplete) {
+      Alert.alert("Goal Completed", "This goal has already been completed.");
+      return;
+    }
+  
     const newUnitsCompleted = (progress ?? 0) + 1;
     const goalComplete = newUnitsCompleted >= goal.unitValue;
 
