@@ -78,7 +78,13 @@ export default function GoalsPage() {
   };
 
   const filteredGoals = goals
-    ? goals.map((goal) => {
+  ? goals
+      .filter((goal) => {
+        const startDate = new Date(goal.startDate);
+
+        return selectedDate >= startDate;
+      })
+      .map((goal) => {
         const logForDate = goalLogs?.find(
           (log) =>
             log.goalId === goal._id &&
@@ -92,7 +98,7 @@ export default function GoalsPage() {
           goalLogId: logForDate ? logForDate._id : null,
         };
       })
-    : [];
+  : [];
 
   return (
     <SafeAreaView
