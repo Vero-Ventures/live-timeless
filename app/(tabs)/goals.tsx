@@ -78,27 +78,27 @@ export default function GoalsPage() {
   };
 
   const filteredGoals = goals
-  ? goals
-      .filter((goal) => {
-        const startDate = new Date(goal.startDate);
+    ? goals
+        .filter((goal) => {
+          const startDate = new Date(goal.startDate);
 
-        return selectedDate >= startDate;
-      })
-      .map((goal) => {
-        const logForDate = goalLogs?.find(
-          (log) =>
-            log.goalId === goal._id &&
-            new Date(log.date).toDateString() === selectedDate.toDateString()
-        );
+          return selectedDate >= startDate;
+        })
+        .map((goal) => {
+          const logForDate = goalLogs?.find(
+            (log) =>
+              log.goalId === goal._id &&
+              new Date(log.date).toDateString() === selectedDate.toDateString()
+          );
 
-        return {
-          ...goal,
-          progress: logForDate ? logForDate.unitsCompleted : 0,
-          isComplete: logForDate ? logForDate.isComplete : false,
-          goalLogId: logForDate ? logForDate._id : null,
-        };
-      })
-  : [];
+          return {
+            ...goal,
+            progress: logForDate ? logForDate.unitsCompleted : 0,
+            isComplete: logForDate ? logForDate.isComplete : false,
+            goalLogId: logForDate ? logForDate._id : null,
+          };
+        })
+    : [];
 
   return (
     <SafeAreaView
@@ -315,7 +315,14 @@ function GoalItem({
             </View>
 
             <View className="w-full gap-2">
-              <Text style={{ fontFamily: "openSans.medium" }}>{goal.name}</Text>
+              <Text style={{ fontFamily: "openSans.medium" }}>
+                {!!goal.challengeId && <IconComp
+                  name={'trophy'}
+                  color={'#FFD700'}
+                  size={15}
+                />}{' '}
+                {goal.name}
+              </Text>
               <Text className="text-xs text-muted-foreground">
                 {existingLog
                   ? `${Number.isInteger(existingLog.unitsCompleted) ? existingLog.unitsCompleted : existingLog.unitsCompleted.toFixed(1)} / ${Number.isInteger(goal.unitValue) ? goal.unitValue : goal.unitValue.toFixed(1)} ${goal.unit}`
