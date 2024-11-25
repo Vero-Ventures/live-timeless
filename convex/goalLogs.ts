@@ -171,36 +171,125 @@ export const createGoalLogsFromGoal = mutation({
       throw new Error("Goal not found");
     }
 
-    const { weeks, dailyRepeat, startDate } = goal; // Get startDate from the goal
-    const goalStartDate = new Date(startDate); // Use startDate as the base for goal logs
-    const dayOfWeekMap = {
-      Sunday: 0,
-      Monday: 1,
-      Tuesday: 2,
-      Wednesday: 3,
-      Thursday: 4,
-      Friday: 5,
-      Saturday: 6,
-    };
+    const { dailyRepeat, startDate } = goal;
+    const goalStartDate = new Date(startDate);
+    const maxDate = new Date(goalStartDate);
+    maxDate.setDate(maxDate.getDate() + 7); // Limit to 7 days
 
-    const createGoalsWithDate = async () => {
-      for (let week = 0; week < weeks; week++) {
-        for (let day of dailyRepeat) {
-          const targetDay = dayOfWeekMap[day as keyof typeof dayOfWeekMap];
-          const goalDate = new Date(goalStartDate); // Start from goal's start date
-          const dayOffset = (targetDay - goalStartDate.getDay() + 7) % 7;
-          goalDate.setDate(goalStartDate.getDate() + week * 7 + dayOffset); // Calculate the exact day
+    let currentDate = new Date(goalStartDate);
+    while (currentDate <= maxDate) {
+      const dayName = currentDate.toLocaleString("en-US", { weekday: "long" });
+      if (dailyRepeat.includes(dayName)) {
+        await ctx.db.insert("goalLogs", {
+          goalId: args.goalId,
+          isComplete: false,
+          date: currentDate.getTime(),
+          unitsCompleted: 0,
+        });
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+  },
+});
 
-          await ctx.db.insert("goalLogs", {
-            goalId: args.goalId,
-            isComplete: false,
-            date: goalDate.getTime(), // Store the timestamp
-            unitsCompleted: 0,
-          });
+export const checkAndCreateWeeklyLogs = mutation({
+  handler: async (ctx) => {
+    const BATCH_SIZE = 1; // Define the batch size for users
+    let lastUserId: string | null = null;
+
+    while (true) {
+      // Fetch a batch of users
+      const users = await ctx.db
+        .query("users")
+        .filter((q) => (lastUserId ? q.gt(q.field("_id"), lastUserId) : true))
+        .order("asc")
+        .take(BATCH_SIZE); // `take` directly returns an array
+
+      if (users.length === 0) {
+        break; // Stop when no more users are left
+      }
+
+      for (const user of users) {
+        const userId = user._id;
+
+        // Fetch a batch of goals for the user
+        const goals = await ctx.db
+          .query("goals")
+          .filter((q) => q.eq(q.field("userId"), userId))
+          .collect();
+
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        const dayAfterTomorrow = new Date();
+        dayAfterTomorrow.setDate(tomorrow.getDate() + 1);
+
+        for (const goal of goals) {
+          // Check for existing logs for the goal in the next 7 days
+          const existingLogs = await ctx.db
+            .query("goalLogs")
+            .filter((q) =>
+              q.and(
+                q.eq(q.field("goalId"), goal._id),
+                q.gte(q.field("date"), dayAfterTomorrow.getTime()),
+                q.lt(q.field("date"), dayAfterTomorrow.getTime() + 7 * 86400000)
+              )
+            )
+            .collect();
+
+          // If no logs exist, create them
+          if (existingLogs.length === 0) {
+            const {
+              dailyRepeat,
+              startDate,
+              repeatType,
+              intervalRepeat,
+              monthlyRepeat,
+            } = goal;
+
+            let currentDate = new Date(dayAfterTomorrow);
+            const endDate = new Date(dayAfterTomorrow);
+            endDate.setDate(endDate.getDate() + 6); // 7 days from day after tomorrow
+
+            while (currentDate <= endDate) {
+              const dayName = currentDate.toLocaleString("en-US", {
+                weekday: "long",
+              });
+
+              const shouldCreateLog = (() => {
+                switch (repeatType) {
+                  case "daily":
+                    return dailyRepeat.includes(dayName);
+                  case "interval":
+                    const diffInDays = Math.floor(
+                      (currentDate.getTime() - new Date(startDate).getTime()) /
+                        (1000 * 60 * 60 * 24)
+                    );
+                    return diffInDays >= 0 && diffInDays % intervalRepeat === 0;
+                  case "monthly":
+                    return monthlyRepeat.includes(currentDate.getDate());
+                  default:
+                    return false;
+                }
+              })();
+
+              if (shouldCreateLog) {
+                await ctx.db.insert("goalLogs", {
+                  goalId: goal._id,
+                  isComplete: false,
+                  date: currentDate.getTime(),
+                  unitsCompleted: 0,
+                });
+              }
+
+              currentDate.setDate(currentDate.getDate() + 1);
+            }
+          }
         }
       }
-    };
 
-    await createGoalsWithDate();
+      // Update the lastUserId for pagination
+      lastUserId = users[users.length - 1]._id;
+    }
   },
 });

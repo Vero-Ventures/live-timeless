@@ -1,4 +1,4 @@
-import { Stack, Link, router } from "expo-router";
+import { Stack, Link, router, useLocalSearchParams } from "expo-router";
 import { AlertCircle, type LucideIcon } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
@@ -12,14 +12,17 @@ import { Crosshair } from "~/lib/icons/Crosshair";
 import { Sun } from "~/lib/icons/Sun";
 import { Bell } from "~/lib/icons/Bell";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
-import ScheduleStartDate from "../schedule-start-date";
-import { useGoalFormStore } from "./goal-store";
+import { ScheduleStartDate } from "../schedule-date";
+import { useGoalFormStore } from "~/app/goals/create/goal-store";
+import { useChallengeGoalFormStore } from "./challenge-goal-store";
+import { Label } from "~/components/ui/label";
 import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { cn } from "~/lib/utils";
 import { useShallow } from "zustand/react/shallow";
 import { api } from "~/convex/_generated/api";
+import type { Id } from "~/convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { GOAL_ICONS } from "~/constants/goal-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -35,7 +38,7 @@ export default function CreateGoalPage() {
           headerTintColor: "#fff",
           headerTitle: () => (
             <Text style={{ fontFamily: fontFamily.openSans.bold }}>
-              Create Goal
+              Create Challenge Goal
             </Text>
           ),
           headerBackTitleVisible: false,
@@ -47,6 +50,10 @@ export default function CreateGoalPage() {
 }
 
 function CreateGoalForm() {
+  const { id } = useLocalSearchParams<{
+    id: Id<"challenges">;
+  }>();
+
   const [
     name,
     setName,
@@ -63,6 +70,7 @@ function CreateGoalForm() {
     unitValue,
     unit,
     recurrence,
+    weeks,
     resetForm,
   ] = useGoalFormStore(
     useShallow((s) => [
@@ -81,13 +89,20 @@ function CreateGoalForm() {
       s.unitValue,
       s.unit,
       s.recurrence,
+      s.weeks,
       s.resetForm,
     ])
   );
 
+  const [rate, setRate] = useChallengeGoalFormStore(
+    useShallow((s) => [s.rate, s.setRate])
+  );
+
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
-  const createGoal = useMutation(api.goals.createGoal);
+  const createChallengeGoal = useMutation(
+    api.challengeGoals.createChallengeGoal
+  );
   useEffect(() => {
     return () => resetForm();
   }, [resetForm]);
@@ -194,6 +209,16 @@ function CreateGoalForm() {
 
         <ScheduleStartDate />
 
+        <View className="gap-2">
+          <Label nativeID="rate">Rate</Label>
+          <Input
+            placeholder="Enter point value"
+            value={rate}
+            onChangeText={setRate}
+            keyboardType="numeric"
+          />
+        </View>
+
         <FormSubmitButton
           size="lg"
           isPending={isPending}
@@ -210,6 +235,7 @@ function CreateGoalForm() {
               }
 
               const newGoal = {
+                challengeId: id,
                 name,
                 selectedIcon,
                 selectedIconColor,
@@ -224,13 +250,15 @@ function CreateGoalForm() {
                 unitValue,
                 unit,
                 recurrence,
+                weeks,
+                rate: rate ? parseInt(rate) : 0,
               };
-              const goalId = await createGoal(newGoal);
+              const goalId = await createChallengeGoal(newGoal);
               if (!goalId) {
                 throw new Error("Failed to create goal");
               }
 
-              router.navigate("/goals");
+              router.navigate("/challenges");
               resetForm();
             } catch (error) {
               if (error instanceof Error) {

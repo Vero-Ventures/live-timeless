@@ -2,6 +2,32 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+// TODO: Replace placeholder multipliers with real values
+const unitRates: Record<string, number> = {
+  // Multipliers for each unit
+  steps: 0.5,
+  kilojoules: 0.5,
+  calories: 0.5,
+  minutes: 0.5,
+  milliliters: 0.5,
+  feet: 0.5,
+  kilometers: 0.5,
+  miles: 0.5,
+  litres: 0.5,
+  times: 0.5,
+  hours: 0.5,
+  joules: 0.5,
+  cups: 0.5,
+  kilocalories: 0.5,
+  yards: 0.5,
+  "fluid ounce": 0.5,
+  metres: 0.5,
+};
+
+export const getRate = (unit: string): number => {
+  return unitRates[unit] || 0; // Return the rate or default to 0
+};
+
 export const getGoalById = query({
   args: { goalId: v.id("goals") },
   handler: async (ctx, { goalId }) => {
@@ -26,6 +52,7 @@ export const listGoals = query({
 
 export const createGoal = mutation({
   args: {
+    challengeId: v.optional(v.id("challenges")),
     dailyRepeat: v.array(v.string()),
     intervalRepeat: v.float64(),
     monthlyRepeat: v.array(v.float64()),
@@ -40,15 +67,20 @@ export const createGoal = mutation({
     unitValue: v.number(),
     unit: v.string(),
     recurrence: v.string(),
-    weeks: v.number(),
+    weeks: v.optional(v.number()),
+    rate: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) {
       return null;
     }
+
+    const rate = args.rate !== undefined ? args.rate : getRate(args.unit);
+
     const goalId = await ctx.db.insert("goals", {
       ...args,
+      rate,
       userId,
     });
 
@@ -73,10 +105,14 @@ export const updateGoal = mutation({
     unitValue: v.float64(),
     unit: v.string(),
     recurrence: v.string(),
-    weeks: v.number(),
+    rate: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const { goalId, ...updateData } = args;
+    const { goalId, unit, ...updateData } = args;
+
+    const rate = args.rate !== undefined ? args.rate : getRate(unit);
+    updateData.rate = rate;
+
     await ctx.db.patch(goalId, updateData);
   },
 });

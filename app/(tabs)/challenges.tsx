@@ -1,7 +1,8 @@
 import { useQuery } from "convex/react";
 import { FlatList, Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import { Button } from "~/components/ui/button";
+import { Plus } from "lucide-react-native";
 import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
 import { fontFamily } from "~/lib/font";
@@ -11,7 +12,7 @@ import {
   isBefore,
   isAfter,
 } from "date-fns";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 
 const getChallengeStatus = (startDate: Date, endDate: Date) => {
   const currentDate = new Date();
@@ -49,6 +50,15 @@ export default function ChallengesScreen() {
         >
           Challenges
         </Text>
+
+        {/* TODO: Allow only admin to create challenges */}
+        <Button
+          size="icon"
+          className="h-14 w-14 rounded-full"
+          onPress={() => router.push("/challenges/create")}
+        >
+          <Plus color="#fff" size={30} />
+        </Button>
 
         <FlatList
           contentContainerStyle={{
