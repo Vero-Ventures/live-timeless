@@ -69,7 +69,7 @@ export const listGoalLogs = query({
 
 export const createGoalLog = mutation({
   args: {
-    goalId: v.id("goals"),
+    goalId: v.id("goals"), // Ensure this matches the schema type
     isComplete: v.boolean(),
     date: v.number(),
     unitsCompleted: v.number(),
@@ -77,9 +77,23 @@ export const createGoalLog = mutation({
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) {
-      return null;
+      throw new Error("User not found");
     }
-    await ctx.db.insert("goalLogs", args);
+
+    // Check if a log already exists for the given goal and date
+    const existingLog = await ctx.db
+      .query("goalLogs")
+      .withIndex("by_goal_id", (q) => q.eq("goalId", args.goalId)) // Use index to query by goalId
+      .filter((q) => q.eq(q.field("date"), args.date)) // Filter by date
+      .first();
+
+    if (existingLog) {
+      throw new Error("A goal log already exists for this goal and date.");
+    }
+
+    // Create the goal log if none exists and return its ID
+    const newLogId = await ctx.db.insert("goalLogs", args);
+    return newLogId; // Return the ID of the newly created goal log
   },
 });
 
