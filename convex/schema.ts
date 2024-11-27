@@ -39,7 +39,6 @@ export default defineSchema({
     unitValue: v.number(),
     unit: v.string(),
     recurrence: v.string(),
-    weeks: v.number(),
     rate: v.optional(v.number()),
   }).index("by_user_id", ["userId"]),
   goalLogs: defineTable({

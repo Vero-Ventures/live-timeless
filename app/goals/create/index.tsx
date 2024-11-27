@@ -63,7 +63,6 @@ function CreateGoalForm() {
     unitValue,
     unit,
     recurrence,
-    weeks,
     resetForm,
   ] = useGoalFormStore(
     useShallow((s) => [
@@ -82,7 +81,6 @@ function CreateGoalForm() {
       s.unitValue,
       s.unit,
       s.recurrence,
-      s.weeks,
       s.resetForm,
     ])
   );
@@ -226,7 +224,6 @@ function CreateGoalForm() {
                 unitValue,
                 unit,
                 recurrence,
-                weeks,
               };
               const goalId = await createGoal(newGoal);
               if (!goalId) {
