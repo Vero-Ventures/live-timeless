@@ -285,10 +285,9 @@ function GoalItem({
     <View className="flex-row items-center gap-4">
       <Link
         href={{
-          pathname: `/goals/[goalId]/[goalLogId]`,
+          pathname: `/goals/[goalId]`,
           params: {
             goalId: goal._id,
-            goalLogId: existingLog?._id ?? "", // Provide a default value of an empty string
           },
         }}
         asChild
