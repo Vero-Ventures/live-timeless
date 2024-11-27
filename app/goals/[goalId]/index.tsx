@@ -36,12 +36,12 @@ const modeOptions: Modes[] = ["day", "week", "month"];
 export default function GoalScreen() {
   const { goalId, goalLogId } = useLocalSearchParams<{
     goalId: Id<"goals">;
-    goalLogId: Id<"goalLogs">;
+    // goalLogId: Id<"goalLogs">;
   }>();
 
   // Fetch goal and goal logs
   const goal = useQuery(api.goals.getGoalById, { goalId });
-  const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });
+  // const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });
   // const goalLogs = useQuery(api.goalLogs.getGoalLogsbyGoalId, { goalId });
   const habitStats = useQuery(api.singleHabitStats.fetchSingleHabitStats, {
     goalId,
@@ -142,12 +142,12 @@ export default function GoalScreen() {
     );
   };
 
-  const handleStartGoal = () => {
-    router.push({
-      pathname: "/goals/[goalId]/[goalLogId]/start",
-      params: { goalId, goalLogId },
-    });
-  };
+  // const handleStartGoal = () => {
+  //   router.push({
+  //     pathname: "/goals/[goalId]/[goalLogId]/start",
+  //     params: { goalId, goalLogId },
+  //   });
+  // };
 
   return (
     <ScrollView className="flex-1 bg-background p-4">
@@ -326,7 +326,7 @@ export default function GoalScreen() {
               options={Object.values(modeLabels)}
             />
           </View>
-          <Pressable
+          {/* <Pressable
             className={cn(
               "mt-5 items-center rounded-lg p-3",
               goalLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"
@@ -340,7 +340,7 @@ export default function GoalScreen() {
             >
               {goalLog?.isComplete ? "Goal Log Completed" : "Log Progress"}
             </Text>
-          </Pressable>
+          </Pressable> */}
         </View>
       )}
     </ScrollView>

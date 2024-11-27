@@ -46,19 +46,20 @@ export const fetchSingleHabitStats = query({
     const dailyAverage = calculateDailyAverage(logs);
     const longestStreak = calculateLongestStreak(logs);
     const currentStreak = calculateCurrentStreak(logs);
-    const skipped = calculateSkipped(logs);
-    const failed = calculateFailed(logs);
+    const skipped = calculateSkipped(logs); //TODO: Implement skipped calculation
+    const failed = calculateFailed(logs); //TODO: Implement failed calculation
     const successfulDays = calculateSuccessfulDays(logs);
     const weeklyAverage = calculateWeeklyAverage(logs).average;
     const monthlyAverage = calculateMonthlyAverage(logs).average;
     const dailyCompletionRates = calculateDailyCompletion(
       logs,
       goal.unitValue
-    ).rates;
+    ).rates; //TODO: Implement daily completion rates (needs to include skipped and failed)
+    //this is for the calendar progress with the circle progress ring, needs to show days where 
     const dailyAverageData = calculateDailyCompletion(
       logs,
       goal.unitValue
-    ).chartData;
+    ).chartData; //TODO: Implement daily completion rates (needs to include skipped and failed)
     const weeklyAverageData = calculateWeeklyAverage(logs).chartData;
     const monthlyAverageData = calculateMonthlyAverage(logs).chartData;
 
