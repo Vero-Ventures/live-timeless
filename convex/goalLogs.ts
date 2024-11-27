@@ -90,10 +90,8 @@ export const createGoalLog = mutation({
     if (existingLog) {
       throw new Error("A goal log already exists for this goal and date.");
     }
-
-    // Create the goal log if none exists and return its ID
     const newLogId = await ctx.db.insert("goalLogs", args);
-    return newLogId; // Return the ID of the newly created goal log
+    return newLogId;
   },
 });
 
@@ -153,54 +151,3 @@ export const deleteGoalLog = mutation({
   },
 });
 
-export const createGoalLogsFromGoal = mutation({
-  args: {
-    goalId: v.id("goals"),
-  },
-  handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) {
-      throw new Error("User not found");
-    }
-    if (args.goalId === null) {
-      throw new Error("Goal Id not found");
-    }
-
-    const goal = await ctx.db.get(args.goalId);
-    if (goal === null) {
-      throw new Error("Goal not found");
-    }
-
-    const { weeks, dailyRepeat, startDate } = goal; // Get startDate from the goal
-    const goalStartDate = new Date(startDate); // Use startDate as the base for goal logs
-    const dayOfWeekMap = {
-      Sunday: 0,
-      Monday: 1,
-      Tuesday: 2,
-      Wednesday: 3,
-      Thursday: 4,
-      Friday: 5,
-      Saturday: 6,
-    };
-
-    const createGoalsWithDate = async () => {
-      for (let week = 0; week < weeks; week++) {
-        for (let day of dailyRepeat) {
-          const targetDay = dayOfWeekMap[day as keyof typeof dayOfWeekMap];
-          const goalDate = new Date(goalStartDate); // Start from goal's start date
-          const dayOffset = (targetDay - goalStartDate.getDay() + 7) % 7;
-          goalDate.setDate(goalStartDate.getDate() + week * 7 + dayOffset); // Calculate the exact day
-
-          await ctx.db.insert("goalLogs", {
-            goalId: args.goalId,
-            isComplete: false,
-            date: goalDate.getTime(), // Store the timestamp
-            unitsCompleted: 0,
-          });
-        }
-      }
-    };
-
-    await createGoalsWithDate();
-  },
-});

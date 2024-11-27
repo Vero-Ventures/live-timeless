@@ -40,7 +40,6 @@ export const createGoal = mutation({
     unitValue: v.number(),
     unit: v.string(),
     recurrence: v.string(),
-    weeks: v.number(),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -73,7 +72,6 @@ export const updateGoal = mutation({
     unitValue: v.float64(),
     unit: v.string(),
     recurrence: v.string(),
-    weeks: v.number(),
   },
   handler: async (ctx, args) => {
     const { goalId, ...updateData } = args;

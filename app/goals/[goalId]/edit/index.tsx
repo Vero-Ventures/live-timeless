@@ -85,8 +85,6 @@ function EditGoalForm() {
     setUnit,
     recurrence,
     setRecurrence,
-    weeks,
-    setWeeks,
     resetForm,
   ] = useGoalFormStore(
     useShallow((s) => [
@@ -118,8 +116,6 @@ function EditGoalForm() {
       s.setUnit,
       s.recurrence,
       s.setRecurrence,
-      s.weeks,
-      s.setWeeks,
       s.resetForm,
     ])
   );
@@ -165,7 +161,6 @@ function EditGoalForm() {
       setUnitValue(goal.unitValue);
       setUnit(goal.unit);
       setRecurrence(goal.recurrence as Recurrence);
-      setWeeks(goal.weeks);
     }
 
     return () => resetForm();
@@ -185,7 +180,6 @@ function EditGoalForm() {
     setUnitValue,
     setUnit,
     setRecurrence,
-    setWeeks,
     resetForm,
   ]);
 
@@ -322,7 +316,6 @@ function EditGoalForm() {
                 unitValue,
                 unit,
                 recurrence,
-                weeks,
               };
 
               await updateGoal(updatedGoal);
