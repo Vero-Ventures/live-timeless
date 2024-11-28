@@ -7,11 +7,12 @@ import { CalendarDays } from "~/lib/icons/CalendarDays";
 import { fontFamily } from "~/lib/font";
 import { getRelativeDateLabel } from "~/lib/date";
 import { useChallengeFormStore } from "./create/challenge-store";
+import { useGoalFormStore } from "~/app/goals/create/goal-store";
 import { useShallow } from "zustand/react/shallow";
 
 export function ScheduleStartDate() {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [startDate, setStartDate] = useChallengeFormStore(
+  const [startDate, setStartDate] = useGoalFormStore(
     useShallow((s) => [s.startDate, s.setStartDate])
   );
 
