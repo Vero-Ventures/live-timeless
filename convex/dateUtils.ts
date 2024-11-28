@@ -1,4 +1,4 @@
-import { Goal } from "./goals";
+import type { Goal } from "./goals";
 
 /**
   Generates valid dates up to current date.
@@ -7,7 +7,8 @@ import { Goal } from "./goals";
   @returns - Valid dates for Goal Logs to generate on.
 */
 export function generateValidDates(goal: Goal): Date[] {
-  const { startDate, repeatType, dailyRepeat, intervalRepeat, monthlyRepeat } = goal;
+  const { startDate, repeatType, dailyRepeat, intervalRepeat, monthlyRepeat } =
+    goal;
   const validDates: Date[] = [];
 
   const currentDate = new Date();
@@ -27,10 +28,14 @@ export function generateValidDates(goal: Goal): Date[] {
     } else if (repeatType === "interval") {
       // Interval recurrence: Match intervals from the start date
       const daysSinceStart = Math.floor(
-        (pointer.getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)
+        (pointer.getTime() - new Date(startDate).getTime()) /
+          (1000 * 60 * 60 * 24)
       );
       isValid = daysSinceStart % intervalRepeat === 0;
-    } else if (repeatType === "monthly" && monthlyRepeat.includes(pointer.getDate())) {
+    } else if (
+      repeatType === "monthly" &&
+      monthlyRepeat.includes(pointer.getDate())
+    ) {
       // Monthly recurrence: Match days of the month
       isValid = true;
     }

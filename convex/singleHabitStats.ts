@@ -1,9 +1,8 @@
 import { query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import type { Goal } from "./goals"
+import type { Goal } from "./goals";
 import type { GoalLog } from "./goalLogs";
-import { getGoalLogsbyGoalId } from "./goalLogs";
 import { generateValidDates } from "./dateUtils";
 
 export type HabitStat = {
@@ -58,7 +57,7 @@ export const fetchSingleHabitStats = query({
       logs,
       goal.unitValue
     ).rates; //TODO: Implement daily completion rates (needs to include skipped and failed)
-    //this is for the calendar progress with the circle progress ring, needs to show days where 
+    //this is for the calendar progress with the circle progress ring, needs to show days where
     const dailyAverageData = calculateDailyCompletion(
       logs,
       goal.unitValue
@@ -165,7 +164,10 @@ export function calculateSkipped(goal: Goal, logs: GoalLog[]): number {
   const skippedDates = validDates.filter((validDate) => {
     const log = logs.find((log) => {
       const logDate = new Date(log.date);
-      return logDate.toISOString().split("T")[0] === validDate.toISOString().split("T")[0];
+      return (
+        logDate.toISOString().split("T")[0] ===
+        validDate.toISOString().split("T")[0]
+      );
     });
 
     // Skipped if no log exists or unitsCompleted is 0
@@ -183,7 +185,9 @@ export function calculateSkipped(goal: Goal, logs: GoalLog[]): number {
  */
 export function calculateFailed(logs: GoalLog[]): number {
   // Filter logs where unitsCompleted is non-zero but isComplete is false
-  const failedLogs = logs.filter((log) => log.unitsCompleted > 0 && !log.isComplete);
+  const failedLogs = logs.filter(
+    (log) => log.unitsCompleted > 0 && !log.isComplete
+  );
 
   return failedLogs.length;
 }
