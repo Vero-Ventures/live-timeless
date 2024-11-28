@@ -41,9 +41,9 @@ export default function ChallengeScreen() {
     api.challengeGoals.listChallengeGoalsById,
     { goalId: id }
   );
-  const createGoalLogsFromGoal = useMutation(
-    api.goalLogs.createGoalLogsFromGoal
-  );
+  // const createGoalLogsFromGoal = useMutation(
+  //   api.goalLogs.createGoalLogsFromGoal
+  // );
 
   const importChallengeGoalsToUserGoals = () => {
     filteredChallengeGoals?.map(async (goal) => {
@@ -63,7 +63,6 @@ export default function ChallengeScreen() {
         unitValue: goal.unitValue,
         unit: goal.unit,
         recurrence: goal.recurrence,
-        weeks: goal.weeks,
         rate: goal.rate,
       }
       const goalId = await createGoal(challengeGoal)
@@ -71,9 +70,9 @@ export default function ChallengeScreen() {
         throw new Error("Failed to create goal");
       }
 
-      await createGoalLogsFromGoal({
-        goalId,
-      });
+      // await createGoalLogsFromGoal({
+      //   goalId,
+      // });
     })
   }
 

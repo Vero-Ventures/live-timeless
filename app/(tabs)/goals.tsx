@@ -25,6 +25,7 @@ export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
   const goals = useQuery(api.goals.listGoals);
+  const challengeGoals = useQuery(api.challengeGoals.listChallengeGoals);
   const goalLogs = useQuery(api.goalLogs.listGoalLogs);
 
   useEffect(() => {

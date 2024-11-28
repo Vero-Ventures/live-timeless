@@ -19,7 +19,6 @@ export const createChallengeGoal = mutation({
     unitValue: v.number(),
     unit: v.string(),
     recurrence: v.string(),
-    weeks: v.number(),
     rate: v.number(),
 },
 handler: async (ctx, args) => {
