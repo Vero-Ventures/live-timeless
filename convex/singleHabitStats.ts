@@ -50,7 +50,7 @@ export const fetchSingleHabitStats = query({
     const longestStreak = calculateLongestStreak(logs);
     const currentStreak = calculateCurrentStreak(logs);
     const skipped = calculateSkipped(goal, logs);
-    const failed = calculateFailed(logs); //TODO: Implement failed calculation
+    const failed = calculateFailed(logs);
     const successfulDays = calculateSuccessfulDays(logs);
     const weeklyAverage = calculateWeeklyAverage(logs).average;
     const monthlyAverage = calculateMonthlyAverage(logs).average;
@@ -160,10 +160,8 @@ function calculateDailyAverage(logs: GoalLog[]): number {
  * @returns The total number of skipped dates.
  */
 export function calculateSkipped(goal: Goal, logs: GoalLog[]): number {
-  // Step 1: Generate all valid dates up to today (excluding today)
   const validDates = generateValidDates(goal);
 
-  // Step 2: Determine skipped dates
   const skippedDates = validDates.filter((validDate) => {
     const log = logs.find((log) => {
       const logDate = new Date(log.date);
@@ -174,12 +172,20 @@ export function calculateSkipped(goal: Goal, logs: GoalLog[]): number {
     return !log || log.unitsCompleted === 0;
   });
 
-  // Step 3: Return the total number of skipped dates
   return skippedDates.length;
 }
 
-function calculateFailed(logs: GoalLog[]): number {
-  return logs.filter((log) => !log.isComplete && !log.unitsCompleted).length;
+/**
+ * Calculates the number of failed logs for a goal.
+ *
+ * @param logs - The array of GoalLogs for the goal.
+ * @returns The total number of failed logs.
+ */
+export function calculateFailed(logs: GoalLog[]): number {
+  // Filter logs where unitsCompleted is non-zero but isComplete is false
+  const failedLogs = logs.filter((log) => log.unitsCompleted > 0 && !log.isComplete);
+
+  return failedLogs.length;
 }
 
 function calculateSuccessfulDays(logs: GoalLog[]): number {
