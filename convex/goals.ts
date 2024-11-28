@@ -2,6 +2,28 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+export type Goal = {
+  _id: string;
+  userId: string;
+  challengeId?: string;
+  dailyRepeat: string[];
+  intervalRepeat: number;
+  monthlyRepeat: number[];
+  name: string;
+  repeatType: string;
+  selectedIcon: string;
+  selectedIconColor: string;
+  timeOfDay: string[];
+  timeReminder: number;
+  startDate: number;
+  unitType: string;
+  unitValue: number;
+  unit: string;
+  recurrence: string;
+  weeks?: number;
+  rate?: number;
+};
+
 // TODO: Replace placeholder multipliers with real values
 const unitRates: Record<string, number> = {
   // Multipliers for each unit

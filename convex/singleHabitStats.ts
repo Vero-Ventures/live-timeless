@@ -1,7 +1,10 @@
 import { query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
+import type { Goal } from "./goals"
 import type { GoalLog } from "./goalLogs";
+import { getGoalLogsbyGoalId } from "./goalLogs";
+import { generateValidDates } from "./dateUtils";
 
 export type HabitStat = {
   _id: string;
@@ -46,7 +49,7 @@ export const fetchSingleHabitStats = query({
     const dailyAverage = calculateDailyAverage(logs);
     const longestStreak = calculateLongestStreak(logs);
     const currentStreak = calculateCurrentStreak(logs);
-    const skipped = calculateSkipped(logs); //TODO: Implement skipped calculation
+    const skipped = calculateSkipped(goal, logs);
     const failed = calculateFailed(logs); //TODO: Implement failed calculation
     const successfulDays = calculateSuccessfulDays(logs);
     const weeklyAverage = calculateWeeklyAverage(logs).average;
@@ -149,12 +152,30 @@ function calculateDailyAverage(logs: GoalLog[]): number {
   return totalUnits / daysWithLogs;
 }
 
-function calculateSkipped(logs: GoalLog[]): number {
-  const today = new Date().setHours(0, 0, 0, 0);
-  return logs.filter((log) => {
-    const logDate = new Date(log.date).setHours(0, 0, 0, 0);
-    return logDate < today && !log.isComplete && log.unitsCompleted === 0;
-  }).length;
+/**
+ * Calculates the number of skipped dates for a goal.
+ *
+ * @param goal - The Goal object containing recurrence details.
+ * @param logs - The array of GoalLogs already retrieved for the goal.
+ * @returns The total number of skipped dates.
+ */
+export function calculateSkipped(goal: Goal, logs: GoalLog[]): number {
+  // Step 1: Generate all valid dates up to today (excluding today)
+  const validDates = generateValidDates(goal);
+
+  // Step 2: Determine skipped dates
+  const skippedDates = validDates.filter((validDate) => {
+    const log = logs.find((log) => {
+      const logDate = new Date(log.date);
+      return logDate.toISOString().split("T")[0] === validDate.toISOString().split("T")[0];
+    });
+
+    // Skipped if no log exists or unitsCompleted is 0
+    return !log || log.unitsCompleted === 0;
+  });
+
+  // Step 3: Return the total number of skipped dates
+  return skippedDates.length;
 }
 
 function calculateFailed(logs: GoalLog[]): number {
