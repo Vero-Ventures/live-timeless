@@ -184,9 +184,12 @@ export function calculateSkipped(goal: Goal, logs: GoalLog[]): number {
  * @returns The total number of failed logs.
  */
 export function calculateFailed(logs: GoalLog[]): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset time to midnight
   // Filter logs where unitsCompleted is non-zero but isComplete is false
   const failedLogs = logs.filter(
-    (log) => log.unitsCompleted > 0 && !log.isComplete
+    (log) =>
+      log.unitsCompleted > 0 && !log.isComplete && log.date < today.getTime()
   );
 
   return failedLogs.length;
