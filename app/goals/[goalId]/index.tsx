@@ -34,9 +34,8 @@ const modeLabels: Record<Modes, string> = {
 const modeOptions: Modes[] = ["day", "week", "month"];
 
 export default function GoalScreen() {
-  const { goalId, goalLogId } = useLocalSearchParams<{
+  const { goalId } = useLocalSearchParams<{
     goalId: Id<"goals">;
-    // goalLogId: Id<"goalLogs">;
   }>();
 
   // Fetch goal and goal logs

@@ -1,7 +1,6 @@
 import { query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import type { Goal } from "./goals";
 import type { GoalLog } from "./goalLogs";
 import { generateValidDates } from "./dateUtils";
 
@@ -44,24 +43,26 @@ export const fetchSingleHabitStats = query({
       .withIndex("by_goal_id", (q) => q.eq("goalId", goal._id))
       .collect();
 
+    const validDates = generateValidDates(goal);
     const total = calculateTotal(logs);
     const dailyAverage = calculateDailyAverage(logs);
     const longestStreak = calculateLongestStreak(logs);
     const currentStreak = calculateCurrentStreak(logs);
-    const skipped = calculateSkipped(goal, logs);
+    const skipped = calculateSkipped(validDates, logs);
     const failed = calculateFailed(logs);
     const successfulDays = calculateSuccessfulDays(logs);
     const weeklyAverage = calculateWeeklyAverage(logs).average;
     const monthlyAverage = calculateMonthlyAverage(logs).average;
     const dailyCompletionRates = calculateDailyCompletion(
+      validDates,
       logs,
       goal.unitValue
-    ).rates; //TODO: Implement daily completion rates (needs to include skipped and failed)
-    //this is for the calendar progress with the circle progress ring, needs to show days where
+    ).rates;
     const dailyAverageData = calculateDailyCompletion(
+      validDates,
       logs,
       goal.unitValue
-    ).chartData; //TODO: Implement daily completion rates (needs to include skipped and failed)
+    ).chartData;
     const weeklyAverageData = calculateWeeklyAverage(logs).chartData;
     const monthlyAverageData = calculateMonthlyAverage(logs).chartData;
 
@@ -86,7 +87,6 @@ export const fetchSingleHabitStats = query({
   },
 });
 
-// Placeholder functions for calculations
 function calculateLongestStreak(logs: GoalLog[]): number {
   let longestStreak = 0;
   let currentStreak = 0;
@@ -158,9 +158,7 @@ function calculateDailyAverage(logs: GoalLog[]): number {
  * @param logs - The array of GoalLogs already retrieved for the goal.
  * @returns The total number of skipped dates.
  */
-export function calculateSkipped(goal: Goal, logs: GoalLog[]): number {
-  const validDates = generateValidDates(goal);
-
+export function calculateSkipped(validDates: Date[], logs: GoalLog[]): number {
   const skippedDates = validDates.filter((validDate) => {
     const log = logs.find((log) => {
       const logDate = new Date(log.date);
@@ -199,23 +197,27 @@ function calculateSuccessfulDays(logs: GoalLog[]): number {
   return logs.filter((log) => log.isComplete).length;
 }
 
-function calculateDailyCompletion(logs: GoalLog[], unitValue: number) {
+function calculateDailyCompletion(
+  validDates: Date[],
+  logs: GoalLog[],
+  unitValue: number
+) {
   const daysInMonth = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth() + 1,
+    new Date().getUTCFullYear(),
+    new Date().getUTCMonth() + 1,
     0
-  ).getDate();
-  const dailyCompletionRates = Array(daysInMonth).fill(0);
+  ).getUTCDate();
+  const dailyCompletionRates = Array(daysInMonth).fill(null); // Initialize with null for days that should not have logs
 
   const dailyCompletionData = {
     labels: Array(daysInMonth).fill(""),
-    data: Array(daysInMonth).fill(0),
+    data: Array(daysInMonth).fill(null),
   };
 
   const dailyLogs = logs.reduce(
     (acc, log) => {
       const date = new Date(log.date);
-      const day = date.getDate() - 1;
+      const day = date.getUTCDate() - 1;
       if (!acc[day]) acc[day] = [];
       acc[day].push(log);
       return acc;
@@ -224,17 +226,20 @@ function calculateDailyCompletion(logs: GoalLog[], unitValue: number) {
   );
 
   // Calculate daily completion rates
-  Object.keys(dailyLogs).forEach((day) => {
-    const dayLogs = dailyLogs[parseInt(day)];
+  validDates.forEach((validDate) => {
+    const day = validDate.getUTCDate() - 1;
+    const dayLogs = dailyLogs[day] || [];
     const totalCompleted = dayLogs.reduce(
       (sum: number, log: { unitsCompleted: number }) =>
         sum + log.unitsCompleted,
       0
     );
     const completionRate =
-      (totalCompleted / (unitValue * dayLogs.length)) * 100;
-    dailyCompletionRates[parseInt(day)] = completionRate;
-    dailyCompletionData.data[parseInt(day)] = totalCompleted;
+      dayLogs.length > 0
+        ? (totalCompleted / (unitValue * dayLogs.length)) * 100
+        : 0;
+    dailyCompletionRates[day] = completionRate;
+    dailyCompletionData.data[day] = totalCompleted;
   });
   // Set labels for the first of the month and days divisible by 5
   for (let i = 0; i < daysInMonth; i++) {

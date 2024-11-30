@@ -17,7 +17,7 @@ export function generateValidDates(goal: Goal): Date[] {
   let pointer = new Date(startDate);
   pointer.setHours(0, 0, 0, 0); // Normalize startDate to midnight
 
-  while (pointer < currentDate) {
+  while (pointer <= currentDate) {
     const dayName = pointer.toLocaleString("en-US", { weekday: "long" });
 
     let isValid = false;
@@ -46,6 +46,5 @@ export function generateValidDates(goal: Goal): Date[] {
 
     pointer.setDate(pointer.getDate() + 1); // Move to the next day
   }
-
   return validDates;
 }

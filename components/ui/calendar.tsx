@@ -15,6 +15,7 @@ interface CalendarProps {
 }
 
 const Calendar = ({ progressData, selectedDate }: CalendarProps) => {
+console.log("progressData", progressData);
   const startDate = startOfMonth(selectedDate);
   const endDate = endOfMonth(selectedDate);
   const days = eachDayOfInterval({ start: startDate, end: endDate });
@@ -39,11 +40,12 @@ const Calendar = ({ progressData, selectedDate }: CalendarProps) => {
         {days.map((day) => {
           const dayNumber = format(day, "d"); // Get day of the month
           const index = day.getDate() - 1; // Get index for progress data
-          const progress = progressData[index] || 0; // Default to 0 if no data
-
+          const progress = progressData[index]; // Default to 0 if no data
           return (
             <View key={`${index}`} style={styles.dayContainer}>
-              {progress > 0 ? (
+              {progress === null ? (
+                <View style={styles.emptyCircle} />
+              ) : progress > 0 ? (
                 <Svg height="40" width="40" viewBox="0 0 40 40">
                   <Circle
                     cx="20"
@@ -66,13 +68,24 @@ const Calendar = ({ progressData, selectedDate }: CalendarProps) => {
                     origin="20, 20"
                   />
                 </Svg>
+              ) : progress === 0 ? (
+                <Svg height="40" width="40" viewBox="0 0 40 40">
+                  <Circle
+                    cx="20"
+                    cy="20"
+                    r="18"
+                    stroke="#0D451E"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                </Svg>
               ) : (
                 <View style={styles.emptyCircle} />
               )}
               <Text
                 style={[
                   styles.dayNumber,
-                  { color: progress > 0 ? "white" : "gray" },
+                  { color: progress !== null && progress > 0 ? "white" : "gray" },
                 ]}
               >
                 {dayNumber}
