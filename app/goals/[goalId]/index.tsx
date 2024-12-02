@@ -53,6 +53,7 @@ export default function GoalScreen() {
   });
   const createGoalLog = useMutation(api.goalLogs.createGoalLog);
   const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
+  const updatePoints = useMutation(api.challenges.updatePoints);
 
   const handleCompleteGoal = async () => {
     if (!goalLog) {
@@ -62,12 +63,24 @@ export default function GoalScreen() {
         date: currentGoalLogDate,
         unitsCompleted: goal?.unitValue ?? 1,
       });
+      if (goal?.challengeId) {
+        await updatePoints({
+          unitsCompleted: goal?.unitValue ?? 1,
+          rate: goal?.rate || 1,
+        });
+      }
     } else {
       await updateGoalLog({
         goalLogId: goalLog._id,
         isComplete: true,
         unitsCompleted: goal?.unitValue ?? 1,
       });
+      if (goal?.challengeId) {
+        await updatePoints({
+          unitsCompleted: goal?.unitValue ?? 1,
+          rate: goal?.rate || 1,
+        });
+      }
     }
   };
 

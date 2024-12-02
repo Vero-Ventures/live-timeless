@@ -355,3 +355,19 @@ export const sortParticipantsByPoints = query({
     return usersWithPoints;
   },
 });
+
+export const updatePoints = mutation({
+  args: { unitsCompleted: v.number(), rate: v.number() },
+  handler: async (ctx, { unitsCompleted, rate }) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Not logged in");
+    }
+    const newPoints = unitsCompleted * rate;
+    const currentPoints = (await ctx.db.get(userId))?.points || 0;
+    const totalPoints = currentPoints + newPoints;
+    await ctx.db.patch(userId, {
+      points: totalPoints,
+    });
+  },
+});

@@ -183,6 +183,7 @@ function GoalItem({
   const createGoalLog = useMutation(api.goalLogs.createGoalLog);
   const listGoalLogs = useQuery(api.goalLogs.listGoalLogs);
   const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
+  const updatePoints = useMutation(api.challenges.updatePoints);
 
   const IconComp = GOAL_ICONS.find(
     (item) => item.name === goal.selectedIcon
@@ -249,6 +250,13 @@ function GoalItem({
           unitsCompleted: newUnitsCompleted,
           isComplete: isGoalComplete,
         });
+
+        if (goal.challengeId) {
+          await updatePoints({
+            unitsCompleted: newUnitsCompleted,
+            rate: goal.rate || 1,
+          });
+        }
 
         if (isGoalComplete) {
           Alert.alert(
