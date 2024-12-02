@@ -34,24 +34,23 @@ const modeLabels: Record<Modes, string> = {
 const modeOptions: Modes[] = ["day", "week", "month"];
 
 export default function GoalScreen() {
-  const { goalId } = useLocalSearchParams<{
+  const { goalId, selectedGoalLogDate } = useLocalSearchParams<{
     goalId: Id<"goals">;
+    selectedGoalLogDate: string;
   }>();
+
+  const decodedGoalLogDate = decodeURIComponent(selectedGoalLogDate);
+  let initialGoalLogDate = new Date(decodedGoalLogDate);
+  // initialGoalLogDate.setUTCHours(0, 0, 0, 0); // Normalize to midnight UTC
+  initialGoalLogDate.setHours(0, 0, 0, 0); // Normalize to midnight Local
+  const currentGoalLogDate = initialGoalLogDate.getTime();
 
   // Fetch goal and goal logs
   const goal = useQuery(api.goals.getGoalById, { goalId });
-  // Use a stable date value for the query
-  const [currentDate] = useState(() => {
-    const date = new Date();
-    date.setHours(0, 0, 0, 0); // Normalize to midnight
-    return date.getTime();
-  });
-  console.log("currentDate", new Date(currentDate).toLocaleDateString());
   const goalLog = useQuery(api.goalLogs.getGoalLogByDate, {
     goalId,
-    date: currentDate,
+    date: currentGoalLogDate,
   });
-  console.log("goalLog", goalLog);
   const createGoalLog = useMutation(api.goalLogs.createGoalLog);
   const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
 
@@ -60,7 +59,7 @@ export default function GoalScreen() {
       await createGoalLog({
         goalId,
         isComplete: true,
-        date: currentDate,
+        date: currentGoalLogDate,
         unitsCompleted: goal?.unitValue ?? 1,
       });
     } else {
@@ -77,7 +76,8 @@ export default function GoalScreen() {
   });
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [selectedPeriod, setSelectedPeriod] = useState<Date>(new Date());
+  const [selectedPeriod, setSelectedPeriod] =
+    useState<Date>(initialGoalLogDate);
   const [modeIndex, setModeIndex] = useState<number>(0);
   const screenWidth = Dimensions.get("window").width;
   const averageLabel = (mode: Modes) => {

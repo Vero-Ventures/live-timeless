@@ -151,23 +151,26 @@ export const deleteGoalLog = mutation({
   },
 });
 
-//TODO: Implement getGoalLogByDate
 export const getGoalLogByDate = query({
   args: {
     goalId: v.id("goals"),
     date: v.number(),
   },
   handler: async (ctx, { goalId, date }) => {
-    // Normalize the date to midnight
     const normalizedDate = new Date(date);
-    normalizedDate.setHours(0, 0, 0, 0);
+    normalizedDate.setHours(0, 0, 0, 0); // Normalize the date to midnight local
     const startOfDay = normalizedDate.getTime();
     const endOfDay = startOfDay + 24 * 60 * 60 * 1000 - 1;
 
     const goalLog = await ctx.db
       .query("goalLogs")
       .withIndex("by_goal_id", (q) => q.eq("goalId", goalId))
-      .filter((q) => q.gte(q.field("date"), startOfDay))
+      .filter((q) =>
+        q.and(
+          q.gte(q.field("date"), startOfDay),
+          q.lte(q.field("date"), endOfDay)
+        )
+      )
       .first();
 
     return goalLog;

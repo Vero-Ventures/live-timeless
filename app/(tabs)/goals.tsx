@@ -288,6 +288,7 @@ function GoalItem({
           pathname: `/goals/[goalId]`,
           params: {
             goalId: goal._id,
+            selectedGoalLogDate: encodeURIComponent(selectedDate.toISOString()),
           },
         }}
         asChild
@@ -316,11 +317,9 @@ function GoalItem({
 
             <View className="w-full gap-2">
               <Text style={{ fontFamily: "openSans.medium" }}>
-                {!!goal.challengeId && <IconComp
-                  name={'trophy'}
-                  color={'#FFD700'}
-                  size={15}
-                />}{' '}
+                {!!goal.challengeId && (
+                  <IconComp name={"trophy"} color={"#FFD700"} size={15} />
+                )}{" "}
                 {goal.name}
               </Text>
               <Text className="text-xs text-muted-foreground">
