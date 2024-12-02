@@ -202,22 +202,26 @@ function calculateDailyCompletion(
   logs: GoalLog[],
   unitValue: number
 ) {
-  const daysInMonth = new Date(
-    new Date().getUTCFullYear(),
-    new Date().getUTCMonth() + 1,
-    0
-  ).getUTCDate();
-  const dailyCompletionRates = Array(daysInMonth).fill(null); // Initialize with null for days that should not have logs
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const dailyCompletionRates = Array(daysInMonth).fill(null);
 
   const dailyCompletionData = {
     labels: Array(daysInMonth).fill(""),
     data: Array(daysInMonth).fill(null),
   };
 
-  const dailyLogs = logs.reduce(
+  // Filter logs to include only those in the current month
+  const filteredLogs = logs.filter((log) => {
+    const date = new Date(log.date);
+    return date.getFullYear() === currentYear && date.getMonth() === currentMonth;
+  });
+
+  const dailyLogs = filteredLogs.reduce(
     (acc, log) => {
       const date = new Date(log.date);
-      const day = date.getUTCDate() - 1;
+      const day = date.getDate() - 1;
       if (!acc[day]) acc[day] = [];
       acc[day].push(log);
       return acc;
@@ -225,9 +229,12 @@ function calculateDailyCompletion(
     {} as Record<number, GoalLog[]>
   );
 
-  // Calculate daily completion rates
-  validDates.forEach((validDate) => {
-    const day = validDate.getUTCDate() - 1;
+  const filteredValidDates = validDates.filter(
+    (date) => date.getFullYear() === currentYear && date.getMonth() === currentMonth
+  );
+
+  filteredValidDates.forEach((validDate) => {
+    const day = validDate.getDate() - 1;
     const dayLogs = dailyLogs[day] || [];
     const totalCompleted = dayLogs.reduce(
       (sum: number, log: { unitsCompleted: number }) =>
@@ -241,12 +248,14 @@ function calculateDailyCompletion(
     dailyCompletionRates[day] = completionRate;
     dailyCompletionData.data[day] = totalCompleted;
   });
+
   // Set labels for the first of the month and days divisible by 5
   for (let i = 0; i < daysInMonth; i++) {
     if ((i + 1) % 5 === 0) {
       dailyCompletionData.labels[i] = (i + 1).toString();
     }
   }
+
   return { rates: dailyCompletionRates, chartData: dailyCompletionData };
 }
 
