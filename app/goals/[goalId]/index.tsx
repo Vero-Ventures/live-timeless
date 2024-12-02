@@ -40,8 +40,38 @@ export default function GoalScreen() {
 
   // Fetch goal and goal logs
   const goal = useQuery(api.goals.getGoalById, { goalId });
-  // const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });
-  // const goalLogs = useQuery(api.goalLogs.getGoalLogsbyGoalId, { goalId });
+  // Use a stable date value for the query
+  const [currentDate] = useState(() => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0); // Normalize to midnight
+    return date.getTime();
+  });
+  console.log("currentDate", new Date(currentDate).toLocaleDateString());
+  const goalLog = useQuery(api.goalLogs.getGoalLogByDate, {
+    goalId,
+    date: currentDate,
+  });
+  console.log("goalLog", goalLog);
+  const createGoalLog = useMutation(api.goalLogs.createGoalLog);
+  const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
+
+  const handleCompleteGoal = async () => {
+    if (!goalLog) {
+      await createGoalLog({
+        goalId,
+        isComplete: true,
+        date: currentDate,
+        unitsCompleted: goal?.unitValue ?? 1,
+      });
+    } else {
+      await updateGoalLog({
+        goalLogId: goalLog._id,
+        isComplete: true,
+        unitsCompleted: goal?.unitValue ?? 1,
+      });
+    }
+  };
+
   const habitStats = useQuery(api.singleHabitStats.fetchSingleHabitStats, {
     goalId,
   });
@@ -112,17 +142,6 @@ export default function GoalScreen() {
 
   const deleteGoalAndGoalLogs = useMutation(api.goals.deleteGoalAndGoalLogs);
 
-  // const [progress, setProgress] = useState<number>(0);
-
-  // useEffect(() => {
-  //   if (goalLogs) {
-  //     const totalLogs = goalLogs.length;
-  //     const completedLogs = goalLogs.filter((log) => log.isComplete).length;
-  //     const percentage = totalLogs > 0 ? (completedLogs / totalLogs) * 100 : 0;
-  //     setProgress(percentage);
-  //   }
-  // }, [goalLogs]);
-
   const handleDelete = async () => {
     Alert.alert(
       `Are you sure you want to delete ${goal?.name}?`,
@@ -140,13 +159,6 @@ export default function GoalScreen() {
       ]
     );
   };
-
-  // const handleStartGoal = () => {
-  //   router.push({
-  //     pathname: "/goals/[goalId]/[goalLogId]/start",
-  //     params: { goalId, goalLogId },
-  //   });
-  // };
 
   return (
     <ScrollView className="flex-1 bg-background p-4">
@@ -222,6 +234,23 @@ export default function GoalScreen() {
               {periodSelectorString(selectedPeriod, mode)}
             </Text>
             <ChevronDown size={24} color="white" />
+          </Pressable>
+          <Pressable
+            className={cn(
+              "mt-5 items-center rounded-lg p-3",
+              goalLog && goalLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"
+            )}
+            onPress={handleCompleteGoal}
+            disabled={goalLog?.isComplete}
+          >
+            <Text
+              className="text-base text-white"
+              style={{ fontFamily: fontFamily.openSans.bold }}
+            >
+              {!!goalLog && goalLog?.isComplete
+                ? "Goal completed"
+                : "Complete Goal"}
+            </Text>
           </Pressable>
 
           <View className="flex flex-row items-center gap-4 rounded-xl bg-slate-900 p-6">
@@ -325,21 +354,6 @@ export default function GoalScreen() {
               options={Object.values(modeLabels)}
             />
           </View>
-          {/* <Pressable
-            className={cn(
-              "mt-5 items-center rounded-lg p-3",
-              goalLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"
-            )}
-            onPress={goalLog?.isComplete ? null : handleStartGoal}
-            disabled={goalLog?.isComplete}
-          >
-            <Text
-              className="text-base text-white"
-              style={{ fontFamily: fontFamily.openSans.bold }}
-            >
-              {goalLog?.isComplete ? "Goal Log Completed" : "Log Progress"}
-            </Text>
-          </Pressable> */}
         </View>
       )}
     </ScrollView>
