@@ -15,7 +15,6 @@ interface CalendarProps {
 }
 
 const Calendar = ({ progressData, selectedDate }: CalendarProps) => {
-console.log("progressData", progressData);
   const startDate = startOfMonth(selectedDate);
   const endDate = endOfMonth(selectedDate);
   const days = eachDayOfInterval({ start: startDate, end: endDate });

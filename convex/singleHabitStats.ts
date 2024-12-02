@@ -159,6 +159,9 @@ function calculateDailyAverage(logs: GoalLog[]): number {
  * @returns The total number of skipped dates.
  */
 export function calculateSkipped(validDates: Date[], logs: GoalLog[]): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize today to midnight
+
   const skippedDates = validDates.filter((validDate) => {
     const log = logs.find((log) => {
       const logDate = new Date(log.date);
@@ -168,8 +171,11 @@ export function calculateSkipped(validDates: Date[], logs: GoalLog[]): number {
       );
     });
 
-    // Skipped if no log exists or unitsCompleted is 0
-    return !log || log.unitsCompleted === 0;
+    // Check if the validDate is today
+    const isToday = validDate.toISOString().split("T")[0] === today.toISOString().split("T")[0];
+
+    // Skipped if no log exists or unitsCompleted is 0, and today is not over
+    return (!log || log.unitsCompleted === 0) && !isToday;
   });
 
   return skippedDates.length;
@@ -215,7 +221,9 @@ function calculateDailyCompletion(
   // Filter logs to include only those in the current month
   const filteredLogs = logs.filter((log) => {
     const date = new Date(log.date);
-    return date.getFullYear() === currentYear && date.getMonth() === currentMonth;
+    return (
+      date.getFullYear() === currentYear && date.getMonth() === currentMonth
+    );
   });
 
   const dailyLogs = filteredLogs.reduce(
@@ -230,7 +238,8 @@ function calculateDailyCompletion(
   );
 
   const filteredValidDates = validDates.filter(
-    (date) => date.getFullYear() === currentYear && date.getMonth() === currentMonth
+    (date) =>
+      date.getFullYear() === currentYear && date.getMonth() === currentMonth
   );
 
   filteredValidDates.forEach((validDate) => {
