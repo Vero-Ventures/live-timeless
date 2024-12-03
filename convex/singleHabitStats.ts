@@ -172,7 +172,9 @@ export function calculateSkipped(validDates: Date[], logs: GoalLog[]): number {
     });
 
     // Check if the validDate is today
-    const isToday = validDate.toISOString().split("T")[0] === today.toISOString().split("T")[0];
+    const isToday =
+      validDate.toISOString().split("T")[0] ===
+      today.toISOString().split("T")[0];
 
     // Skipped if no log exists or unitsCompleted is 0, and today is not over
     return (!log || log.unitsCompleted === 0) && !isToday;

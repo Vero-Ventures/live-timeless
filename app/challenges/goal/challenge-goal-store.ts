@@ -12,7 +12,9 @@ export const initialFormState: FormState = {
   rate: "",
 };
 
-export const useChallengeGoalFormStore = create<FormState & FormActions>()((set) => ({
-  rate: initialFormState.rate,
-  setRate: (rate) => set({ rate }),
-}));
+export const useChallengeGoalFormStore = create<FormState & FormActions>()(
+  (set) => ({
+    rate: initialFormState.rate,
+    setRate: (rate) => set({ rate }),
+  })
+);

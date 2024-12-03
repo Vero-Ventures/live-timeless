@@ -64,8 +64,8 @@ export default function ChallengeScreen() {
         unit: goal.unit,
         recurrence: goal.recurrence,
         rate: goal.rate,
-      }
-      const goalId = await createGoal(challengeGoal)
+      };
+      const goalId = await createGoal(challengeGoal);
       if (!goalId) {
         throw new Error("Failed to create goal");
       }
@@ -73,15 +73,17 @@ export default function ChallengeScreen() {
       // await createGoalLogsFromGoal({
       //   goalId,
       // });
-    })
-  }
+    });
+  };
 
   const deleteChallengeGoalsFromUserGoals = () => {
-    const filteredUserGoals = userGoals?.filter((goal) => goal.challengeId === id);
+    const filteredUserGoals = userGoals?.filter(
+      (goal) => goal.challengeId === id
+    );
     filteredUserGoals?.map((goal) => {
       deleteGoalAndGoalLogs({ goalId: goal._id });
-    })
-  }
+    });
+  };
 
   const handleJoinChallenge = async (challengeId: Id<"challenges">) => {
     await joinChallenge({ challengeId });
@@ -137,8 +139,11 @@ export default function ChallengeScreen() {
           <View className="flex-1 gap-4 p-4">
             <View className="gap-4">
               <Link
-              href={{ pathname: "/challenges/goal", params: {id: challenge._id} }}
-              asChild
+                href={{
+                  pathname: "/challenges/goal",
+                  params: { id: challenge._id },
+                }}
+                asChild
               >
                 <Button>
                   <Text className="text-bold text-primary-foreground">

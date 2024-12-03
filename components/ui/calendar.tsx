@@ -84,7 +84,9 @@ const Calendar = ({ progressData, selectedDate }: CalendarProps) => {
               <Text
                 style={[
                   styles.dayNumber,
-                  { color: progress !== null && progress > 0 ? "white" : "gray" },
+                  {
+                    color: progress !== null && progress > 0 ? "white" : "gray",
+                  },
                 ]}
               >
                 {dayNumber}
