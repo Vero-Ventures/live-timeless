@@ -122,5 +122,4 @@ function CreateChallengeForm() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#082139" },
-  listContentContainer: { paddingBottom: 60 },
 });

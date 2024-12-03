@@ -25,7 +25,6 @@ export default function GoalsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
   const goals = useQuery(api.goals.listGoals);
-  const challengeGoals = useQuery(api.challengeGoals.listChallengeGoals);
   const goalLogs = useQuery(api.goalLogs.listGoalLogs);
 
   useEffect(() => {
@@ -34,49 +33,49 @@ export default function GoalsPage() {
     }
   }, [goals, goalLogs]);
 
-  const isDailyRepeat = (
-    dailyRepeat: string[],
-    startDate: Date,
-    selectedDate: Date
-  ) => {
-    const dayOfWeek = selectedDate.getDay();
-    const days = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-    ];
+  // const isDailyRepeat = (
+  //   dailyRepeat: string[],
+  //   startDate: Date,
+  //   selectedDate: Date
+  // ) => {
+  //   const dayOfWeek = selectedDate.getDay();
+  //   const days = [
+  //     "Sunday",
+  //     "Monday",
+  //     "Tuesday",
+  //     "Wednesday",
+  //     "Thursday",
+  //     "Friday",
+  //     "Saturday",
+  //   ];
 
-    const isRepeatDay = dailyRepeat.includes(days[dayOfWeek]);
+  //   const isRepeatDay = dailyRepeat.includes(days[dayOfWeek]);
 
-    const isAfterStartDate =
-      selectedDate.getTime() >= new Date(startDate).getTime();
+  //   const isAfterStartDate =
+  //     selectedDate.getTime() >= new Date(startDate).getTime();
 
-    return isRepeatDay && isAfterStartDate;
-  };
+  //   return isRepeatDay && isAfterStartDate;
+  // };
 
-  const isIntervalRepeat = (
-    startDate: string | Date,
-    intervalRepeat: number,
-    selectedDate: Date
-  ) => {
-    const diffInDays = Math.floor(
-      (selectedDate.getTime() - new Date(startDate).getTime()) /
-        (1000 * 60 * 60 * 24)
-    );
-    const isRepeatInterval =
-      diffInDays >= 0 && diffInDays % intervalRepeat === 0;
+  // const isIntervalRepeat = (
+  //   startDate: string | Date,
+  //   intervalRepeat: number,
+  //   selectedDate: Date
+  // ) => {
+  //   const diffInDays = Math.floor(
+  //     (selectedDate.getTime() - new Date(startDate).getTime()) /
+  //       (1000 * 60 * 60 * 24)
+  //   );
+  //   const isRepeatInterval =
+  //     diffInDays >= 0 && diffInDays % intervalRepeat === 0;
 
-    return isRepeatInterval;
-  };
+  //   return isRepeatInterval;
+  // };
 
-  const isMonthlyRepeat = (monthlyRepeat: number[], selectedDate: Date) => {
-    const isRepeatDay = monthlyRepeat.includes(selectedDate.getDate());
-    return isRepeatDay;
-  };
+  // const isMonthlyRepeat = (monthlyRepeat: number[], selectedDate: Date) => {
+  //   const isRepeatDay = monthlyRepeat.includes(selectedDate.getDate());
+  //   return isRepeatDay;
+  // };
 
   const filteredGoals = goals
     ? goals
