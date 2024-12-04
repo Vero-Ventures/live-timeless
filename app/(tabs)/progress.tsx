@@ -163,7 +163,7 @@ export default function Progress() {
               </DropdownMenu.Content>
             </DropdownMenu.Root>
           ),
-          headerBackTitleVisible: false,
+          headerBackVisible: false,
         }}
       />
       {!habits ? (
