@@ -34,21 +34,63 @@ const modeLabels: Record<Modes, string> = {
 const modeOptions: Modes[] = ["day", "week", "month"];
 
 export default function GoalScreen() {
-  const { goalId, goalLogId } = useLocalSearchParams<{
+  const { goalId, selectedGoalLogDate } = useLocalSearchParams<{
     goalId: Id<"goals">;
-    goalLogId: Id<"goalLogs">;
+    selectedGoalLogDate: string;
   }>();
+
+  const decodedGoalLogDate = decodeURIComponent(selectedGoalLogDate);
+  let initialGoalLogDate = new Date(decodedGoalLogDate);
+  // initialGoalLogDate.setUTCHours(0, 0, 0, 0); // Normalize to midnight UTC
+  initialGoalLogDate.setHours(0, 0, 0, 0); // Normalize to midnight Local
+  const currentGoalLogDate = initialGoalLogDate.getTime();
 
   // Fetch goal and goal logs
   const goal = useQuery(api.goals.getGoalById, { goalId });
-  const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });
-  // const goalLogs = useQuery(api.goalLogs.getGoalLogsbyGoalId, { goalId });
+  const goalLog = useQuery(api.goalLogs.getGoalLogByDate, {
+    goalId,
+    date: currentGoalLogDate,
+  });
+  const createGoalLog = useMutation(api.goalLogs.createGoalLog);
+  const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
+  const updatePoints = useMutation(api.challenges.updatePoints);
+
+  const handleCompleteGoal = async () => {
+    if (!goalLog) {
+      await createGoalLog({
+        goalId,
+        isComplete: true,
+        date: currentGoalLogDate,
+        unitsCompleted: goal?.unitValue ?? 1,
+      });
+      if (goal?.challengeId) {
+        await updatePoints({
+          unitsCompleted: goal?.unitValue ?? 1,
+          rate: goal?.rate || 1,
+        });
+      }
+    } else {
+      await updateGoalLog({
+        goalLogId: goalLog._id,
+        isComplete: true,
+        unitsCompleted: goal?.unitValue ?? 1,
+      });
+      if (goal?.challengeId) {
+        await updatePoints({
+          unitsCompleted: goal?.unitValue ?? 1,
+          rate: goal?.rate || 1,
+        });
+      }
+    }
+  };
+
   const habitStats = useQuery(api.singleHabitStats.fetchSingleHabitStats, {
     goalId,
   });
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [selectedPeriod, setSelectedPeriod] = useState<Date>(new Date());
+  const [selectedPeriod, setSelectedPeriod] =
+    useState<Date>(initialGoalLogDate);
   const [modeIndex, setModeIndex] = useState<number>(0);
   const screenWidth = Dimensions.get("window").width;
   const averageLabel = (mode: Modes) => {
@@ -113,17 +155,6 @@ export default function GoalScreen() {
 
   const deleteGoalAndGoalLogs = useMutation(api.goals.deleteGoalAndGoalLogs);
 
-  // const [progress, setProgress] = useState<number>(0);
-
-  // useEffect(() => {
-  //   if (goalLogs) {
-  //     const totalLogs = goalLogs.length;
-  //     const completedLogs = goalLogs.filter((log) => log.isComplete).length;
-  //     const percentage = totalLogs > 0 ? (completedLogs / totalLogs) * 100 : 0;
-  //     setProgress(percentage);
-  //   }
-  // }, [goalLogs]);
-
   const handleDelete = async () => {
     Alert.alert(
       `Are you sure you want to delete ${goal?.name}?`,
@@ -132,21 +163,14 @@ export default function GoalScreen() {
         {
           text: "Yes",
           onPress: async () => {
+            router.dismiss(); // Dismiss first, page will break if goal does not exist before exit. Read nonexistent data
             await deleteGoalAndGoalLogs({ goalId });
-            router.dismiss();
           },
           style: "destructive",
         },
         { text: "Cancel", style: "cancel" },
       ]
     );
-  };
-
-  const handleStartGoal = () => {
-    router.push({
-      pathname: "/goals/[goalId]/[goalLogId]/start",
-      params: { goalId, goalLogId },
-    });
   };
 
   return (
@@ -223,6 +247,23 @@ export default function GoalScreen() {
               {periodSelectorString(selectedPeriod, mode)}
             </Text>
             <ChevronDown size={24} color="white" />
+          </Pressable>
+          <Pressable
+            className={cn(
+              "mt-5 items-center rounded-lg p-3",
+              goalLog && goalLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"
+            )}
+            onPress={handleCompleteGoal}
+            disabled={goalLog?.isComplete}
+          >
+            <Text
+              className="text-base text-white"
+              style={{ fontFamily: fontFamily.openSans.bold }}
+            >
+              {!!goalLog && goalLog?.isComplete
+                ? "Goal completed"
+                : "Complete Goal"}
+            </Text>
           </Pressable>
 
           <View className="flex flex-row items-center gap-4 rounded-xl bg-slate-900 p-6">
@@ -326,21 +367,6 @@ export default function GoalScreen() {
               options={Object.values(modeLabels)}
             />
           </View>
-          <Pressable
-            className={cn(
-              "mt-5 items-center rounded-lg p-3",
-              goalLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"
-            )}
-            onPress={goalLog?.isComplete ? null : handleStartGoal}
-            disabled={goalLog?.isComplete}
-          >
-            <Text
-              className="text-base text-white"
-              style={{ fontFamily: fontFamily.openSans.bold }}
-            >
-              {goalLog?.isComplete ? "Goal Log Completed" : "Log Progress"}
-            </Text>
-          </Pressable>
         </View>
       )}
     </ScrollView>

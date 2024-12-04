@@ -69,7 +69,7 @@ export const listGoalLogs = query({
 
 export const createGoalLog = mutation({
   args: {
-    goalId: v.id("goals"),
+    goalId: v.id("goals"), // Ensure this matches the schema type
     isComplete: v.boolean(),
     date: v.number(),
     unitsCompleted: v.number(),
@@ -77,9 +77,21 @@ export const createGoalLog = mutation({
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) {
-      return null;
+      throw new Error("User not found");
     }
-    await ctx.db.insert("goalLogs", args);
+
+    // Check if a log already exists for the given goal and date
+    const existingLog = await ctx.db
+      .query("goalLogs")
+      .withIndex("by_goal_id", (q) => q.eq("goalId", args.goalId)) // Use index to query by goalId
+      .filter((q) => q.eq(q.field("date"), args.date)) // Filter by date
+      .first();
+
+    if (existingLog) {
+      throw new Error("A goal log already exists for this goal and date.");
+    }
+    const newLogId = await ctx.db.insert("goalLogs", args);
+    return newLogId;
   },
 });
 
@@ -139,54 +151,28 @@ export const deleteGoalLog = mutation({
   },
 });
 
-export const createGoalLogsFromGoal = mutation({
+export const getGoalLogByDate = query({
   args: {
     goalId: v.id("goals"),
+    date: v.number(),
   },
-  handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) {
-      throw new Error("User not found");
-    }
-    if (args.goalId === null) {
-      throw new Error("Goal Id not found");
-    }
+  handler: async (ctx, { goalId, date }) => {
+    const normalizedDate = new Date(date);
+    normalizedDate.setHours(0, 0, 0, 0); // Normalize the date to midnight local
+    const startOfDay = normalizedDate.getTime();
+    const endOfDay = startOfDay + 24 * 60 * 60 * 1000 - 1;
 
-    const goal = await ctx.db.get(args.goalId);
-    if (goal === null) {
-      throw new Error("Goal not found");
-    }
+    const goalLog = await ctx.db
+      .query("goalLogs")
+      .withIndex("by_goal_id", (q) => q.eq("goalId", goalId))
+      .filter((q) =>
+        q.and(
+          q.gte(q.field("date"), startOfDay),
+          q.lte(q.field("date"), endOfDay)
+        )
+      )
+      .first();
 
-    const { weeks, dailyRepeat, startDate } = goal; // Get startDate from the goal
-    const goalStartDate = new Date(startDate); // Use startDate as the base for goal logs
-    const dayOfWeekMap = {
-      Sunday: 0,
-      Monday: 1,
-      Tuesday: 2,
-      Wednesday: 3,
-      Thursday: 4,
-      Friday: 5,
-      Saturday: 6,
-    };
-
-    const createGoalsWithDate = async () => {
-      for (let week = 0; week < weeks; week++) {
-        for (let day of dailyRepeat) {
-          const targetDay = dayOfWeekMap[day as keyof typeof dayOfWeekMap];
-          const goalDate = new Date(goalStartDate); // Start from goal's start date
-          const dayOffset = (targetDay - goalStartDate.getDay() + 7) % 7;
-          goalDate.setDate(goalStartDate.getDate() + week * 7 + dayOffset); // Calculate the exact day
-
-          await ctx.db.insert("goalLogs", {
-            goalId: args.goalId,
-            isComplete: false,
-            date: goalDate.getTime(), // Store the timestamp
-            unitsCompleted: 0,
-          });
-        }
-      }
-    };
-
-    await createGoalsWithDate();
+    return goalLog;
   },
 });

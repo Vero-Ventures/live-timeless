@@ -2,6 +2,7 @@ import { query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import type { GoalLog } from "./goalLogs";
+import { generateValidDates } from "./dateUtils";
 
 export type HabitStat = {
   _id: string;
@@ -42,20 +43,23 @@ export const fetchSingleHabitStats = query({
       .withIndex("by_goal_id", (q) => q.eq("goalId", goal._id))
       .collect();
 
+    const validDates = generateValidDates(goal);
     const total = calculateTotal(logs);
     const dailyAverage = calculateDailyAverage(logs);
     const longestStreak = calculateLongestStreak(logs);
     const currentStreak = calculateCurrentStreak(logs);
-    const skipped = calculateSkipped(logs);
+    const skipped = calculateSkipped(validDates, logs);
     const failed = calculateFailed(logs);
     const successfulDays = calculateSuccessfulDays(logs);
     const weeklyAverage = calculateWeeklyAverage(logs).average;
     const monthlyAverage = calculateMonthlyAverage(logs).average;
     const dailyCompletionRates = calculateDailyCompletion(
+      validDates,
       logs,
       goal.unitValue
     ).rates;
     const dailyAverageData = calculateDailyCompletion(
+      validDates,
       logs,
       goal.unitValue
     ).chartData;
@@ -83,7 +87,6 @@ export const fetchSingleHabitStats = query({
   },
 });
 
-// Placeholder functions for calculations
 function calculateLongestStreak(logs: GoalLog[]): number {
   let longestStreak = 0;
   let currentStreak = 0;
@@ -148,36 +151,84 @@ function calculateDailyAverage(logs: GoalLog[]): number {
   return totalUnits / daysWithLogs;
 }
 
-function calculateSkipped(logs: GoalLog[]): number {
-  const today = new Date().setHours(0, 0, 0, 0);
-  return logs.filter((log) => {
-    const logDate = new Date(log.date).setHours(0, 0, 0, 0);
-    return logDate < today && !log.isComplete && log.unitsCompleted === 0;
-  }).length;
+/**
+ * Calculates the number of skipped dates for a goal.
+ *
+ * @param goal - The Goal object containing recurrence details.
+ * @param logs - The array of GoalLogs already retrieved for the goal.
+ * @returns The total number of skipped dates.
+ */
+export function calculateSkipped(validDates: Date[], logs: GoalLog[]): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize today to midnight
+
+  const skippedDates = validDates.filter((validDate) => {
+    const log = logs.find((log) => {
+      const logDate = new Date(log.date);
+      return (
+        logDate.toISOString().split("T")[0] ===
+        validDate.toISOString().split("T")[0]
+      );
+    });
+
+    // Check if the validDate is today
+    const isToday =
+      validDate.toISOString().split("T")[0] ===
+      today.toISOString().split("T")[0];
+
+    // Skipped if no log exists or unitsCompleted is 0, and today is not over
+    return (!log || log.unitsCompleted === 0) && !isToday;
+  });
+
+  return skippedDates.length;
 }
 
-function calculateFailed(logs: GoalLog[]): number {
-  return logs.filter((log) => !log.isComplete && !log.unitsCompleted).length;
+/**
+ * Calculates the number of failed logs for a goal.
+ *
+ * @param logs - The array of GoalLogs for the goal.
+ * @returns The total number of failed logs.
+ */
+export function calculateFailed(logs: GoalLog[]): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset time to midnight
+  // Filter logs where unitsCompleted is non-zero but isComplete is false
+  const failedLogs = logs.filter(
+    (log) =>
+      log.unitsCompleted > 0 && !log.isComplete && log.date < today.getTime()
+  );
+
+  return failedLogs.length;
 }
 
 function calculateSuccessfulDays(logs: GoalLog[]): number {
   return logs.filter((log) => log.isComplete).length;
 }
 
-function calculateDailyCompletion(logs: GoalLog[], unitValue: number) {
-  const daysInMonth = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth() + 1,
-    0
-  ).getDate();
-  const dailyCompletionRates = Array(daysInMonth).fill(0);
+function calculateDailyCompletion(
+  validDates: Date[],
+  logs: GoalLog[],
+  unitValue: number
+) {
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const dailyCompletionRates = Array(daysInMonth).fill(null);
 
   const dailyCompletionData = {
     labels: Array(daysInMonth).fill(""),
-    data: Array(daysInMonth).fill(0),
+    data: Array(daysInMonth).fill(null),
   };
 
-  const dailyLogs = logs.reduce(
+  // Filter logs to include only those in the current month
+  const filteredLogs = logs.filter((log) => {
+    const date = new Date(log.date);
+    return (
+      date.getFullYear() === currentYear && date.getMonth() === currentMonth
+    );
+  });
+
+  const dailyLogs = filteredLogs.reduce(
     (acc, log) => {
       const date = new Date(log.date);
       const day = date.getDate() - 1;
@@ -188,25 +239,34 @@ function calculateDailyCompletion(logs: GoalLog[], unitValue: number) {
     {} as Record<number, GoalLog[]>
   );
 
-  // Calculate daily completion rates
-  Object.keys(dailyLogs).forEach((day) => {
-    const dayLogs = dailyLogs[parseInt(day)];
+  const filteredValidDates = validDates.filter(
+    (date) =>
+      date.getFullYear() === currentYear && date.getMonth() === currentMonth
+  );
+
+  filteredValidDates.forEach((validDate) => {
+    const day = validDate.getDate() - 1;
+    const dayLogs = dailyLogs[day] || [];
     const totalCompleted = dayLogs.reduce(
       (sum: number, log: { unitsCompleted: number }) =>
         sum + log.unitsCompleted,
       0
     );
     const completionRate =
-      (totalCompleted / (unitValue * dayLogs.length)) * 100;
-    dailyCompletionRates[parseInt(day)] = completionRate;
-    dailyCompletionData.data[parseInt(day)] = totalCompleted;
+      dayLogs.length > 0
+        ? (totalCompleted / (unitValue * dayLogs.length)) * 100
+        : 0;
+    dailyCompletionRates[day] = completionRate;
+    dailyCompletionData.data[day] = totalCompleted;
   });
+
   // Set labels for the first of the month and days divisible by 5
   for (let i = 0; i < daysInMonth; i++) {
     if ((i + 1) % 5 === 0) {
       dailyCompletionData.labels[i] = (i + 1).toString();
     }
   }
+
   return { rates: dailyCompletionRates, chartData: dailyCompletionData };
 }
 

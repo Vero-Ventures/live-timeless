@@ -1,4 +1,4 @@
-import { FlatList, Pressable, View } from "react-native";
+import { ActivityIndicator, FlatList, Pressable, View } from "react-native";
 import type { LucideIcon } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -9,47 +9,56 @@ import { Coins } from "~/lib/icons/Coins";
 import { HandHeart } from "~/lib/icons/HandHeart";
 import { Gift } from "~/lib/icons/Gift";
 import { TentTree } from "~/lib/icons/TentTree";
+import { api } from "~/convex/_generated/api";
+import { useQuery } from "convex/react";
 
 export default function RewardsPage() {
+  const user = useQuery(api.users.currentUser);
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#082139" }}>
-      <View>
-        <View className="gap-10 p-4">
-          <View className="flex flex-row items-center gap-4">
-            <Text>
-              <Coins className="text-primary" size={40} />
-            </Text>
-            <View className="gap-2">
-              <Text className="text-2xl font-bold">100</Text>
-              <Text className="text-md">LT Token Balance</Text>
+      {user ? (
+        <View>
+          <View className="gap-10 p-4">
+            <View className="flex flex-row items-center gap-4">
+              <Text>
+                <Coins className="text-primary" size={40} />
+              </Text>
+              <View className="gap-2">
+                <Text className="text-2xl font-bold">{user?.points ?? 0}</Text>
+                <Text className="text-md">LT Token Balance</Text>
+              </View>
+            </View>
+            <View className="gap-3">
+              <Text className="text-2xl font-semibold">Available Rewards</Text>
+              <SearchInput />
             </View>
           </View>
-          <View className="gap-3">
-            <Text className="text-2xl font-semibold">Available Rewards</Text>
-            <SearchInput />
-          </View>
+          <FlatList
+            contentContainerStyle={{
+              paddingBottom: 208,
+            }}
+            data={rewardData}
+            ItemSeparatorComponent={() => <View className="py-2" />}
+            ListFooterComponent={() => (
+              <Text className="my-5 text-center text-sm">End of Rewards</Text>
+            )}
+            renderItem={({ item }) => (
+              <RewardItem
+                id={item.id}
+                Icon={item.icon}
+                type={item.type}
+                token={item.token}
+                name={item.name}
+                description={item.description}
+              />
+            )}
+          />
         </View>
-        <FlatList
-          contentContainerStyle={{
-            paddingBottom: 208,
-          }}
-          data={rewardData}
-          ItemSeparatorComponent={() => <View className="py-2" />}
-          ListFooterComponent={() => (
-            <Text className="my-5 text-center text-sm">End of Rewards</Text>
-          )}
-          renderItem={({ item }) => (
-            <RewardItem
-              id={item.id}
-              Icon={item.icon}
-              type={item.type}
-              token={item.token}
-              name={item.name}
-              description={item.description}
-            />
-          )}
-        />
-      </View>
+      ) : (
+        <View className="flex-1 bg-background">
+          <ActivityIndicator />
+        </View>
+      )}
     </SafeAreaView>
   );
 }
