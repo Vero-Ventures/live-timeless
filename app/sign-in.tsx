@@ -116,7 +116,7 @@ export default function SignIn() {
                     try {
                       setIsPending(true);
                       await signIn("resend-otp", { email, code });
-                      router.replace("/goals");
+                      router.replace("/habits");
                     } catch (error) {
                       if (error instanceof Error) {
                         console.log(error);
