@@ -48,10 +48,10 @@
   }
 }
 
-.create-goal-form {
+.create-habit-form {
   height: calc(100% - 5%);
 }
 
-.goals-container {
+.habit-container {
   height: calc(100% - 7%);
 }

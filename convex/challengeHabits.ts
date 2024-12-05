@@ -2,7 +2,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
-export const createChallengeGoal = mutation({
+export const createChallengeHabit = mutation({
   args: {
     challengeId: v.id("challenges"),
     dailyRepeat: v.array(v.string()),
@@ -26,39 +26,39 @@ export const createChallengeGoal = mutation({
     if (userId === null) {
       return null;
     }
-    const goalId = await ctx.db.insert("challengeGoals", {
+    const habitId = await ctx.db.insert("challengeHabits", {
       ...args,
       challengeId: args.challengeId,
     });
 
-    return goalId;
+    return habitId;
   },
 });
 
-export const listChallengeGoals = query({
+export const listChallengeHabits = query({
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) {
       return null;
     }
-    const goals = await ctx.db.query("challengeGoals").collect();
+    const habits = await ctx.db.query("challengeHabits").collect();
 
-    return goals;
+    return habits;
   },
 });
 
-export const listChallengeGoalsById = query({
-  args: { goalId: v.id("challenges") },
-  handler: async (ctx, { goalId }) => {
+export const listChallengeHabitsById = query({
+  args: { challengeId: v.id("challenges") },
+  handler: async (ctx, { challengeId }) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) {
       return null;
     }
-    const goals = await ctx.db
-      .query("challengeGoals")
-      .filter((q) => q.eq(q.field("challengeId"), goalId))
+    const habits = await ctx.db
+      .query("challengeHabits")
+      .filter((q) => q.eq(q.field("challengeId"), challengeId))
       .collect();
 
-    return goals;
+    return habits;
   },
 });

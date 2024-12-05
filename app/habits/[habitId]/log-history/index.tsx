@@ -6,7 +6,7 @@ import { fontFamily } from "~/lib/font";
 import { format, isToday, isYesterday } from "date-fns";
 import type { Id } from "~/convex/_generated/dataModel";
 import type { FunctionReturnType } from "convex/server";
-import { GOAL_ICONS } from "~/constants/goal-icons";
+import { HABIT_ICONS } from "~/constants/habit-icons";
 import { Text } from "~/components/ui/text";
 
 type LogType = FunctionReturnType<
@@ -100,7 +100,7 @@ export default function LogHistoryPage() {
 }
 
 function LogItem({ log }: { log: LogType }) {
-  const icon = GOAL_ICONS.find((icon) => icon.name === log.goal?.selectedIcon);
+  const icon = HABIT_ICONS.find((icon) => icon.name === log.goal?.selectedIcon);
   const Icon = icon?.component;
   const iconName = icon?.name;
   const iconColor = log.goal?.selectedIconColor;

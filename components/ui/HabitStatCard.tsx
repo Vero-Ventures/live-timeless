@@ -16,7 +16,7 @@ import { Infinity } from "~/lib/icons/Infinity";
 import { X } from "~/lib/icons/X";
 import { Separator } from "./separator";
 import { startOfDay, subDays } from "date-fns";
-import { GOAL_ICONS } from "~/constants/goal-icons";
+import { HABIT_ICONS } from "~/constants/habit-icons";
 import { cn } from "~/lib/utils";
 import type { Selection } from "~/app/(tabs)/progress";
 
@@ -93,7 +93,7 @@ function HabitStatCard({
   const data = generateCompletionData(goalLogs, selection);
 
   // Find the matching icon component from GOAL_ICONS
-  const iconComponent = GOAL_ICONS.find((item) => item.name === icon);
+  const iconComponent = HABIT_ICONS.find((item) => item.name === icon);
   const Icon = iconComponent?.component;
 
   return (

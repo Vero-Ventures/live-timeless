@@ -1,4 +1,4 @@
-import type { Goal } from "./goals";
+import type { Habit } from "./habits";
 
 /**
   Generates valid dates up to current date.
@@ -6,7 +6,7 @@ import type { Goal } from "./goals";
   @param goal - The Goal object containing recurrence details.
   @returns - Valid dates for Goal Logs to generate on.
 */
-export function generateValidDates(goal: Goal): Date[] {
+export function generateValidDates(goal: Habit): Date[] {
   const { startDate, repeatType, dailyRepeat, intervalRepeat, monthlyRepeat } =
     goal;
   const validDates: Date[] = [];

@@ -25,7 +25,7 @@ import { Button } from "~/components/ui/button";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import * as DropdownMenu from "zeego/dropdown-menu";
-import type { GoalLog } from "~/convex/goalLogs";
+import type { HabitLog } from "~/convex/habitLogs";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -91,7 +91,7 @@ export default function Progress() {
     router.setParams({ filter: selectionId });
   };
 
-  function calculateFilteredCount(fetchedLogs: GoalLog[]): number {
+  function calculateFilteredCount(fetchedLogs: HabitLog[]): number {
     return fetchedLogs.filter((log) => {
       const logDate = new Date(log.date);
       return (

@@ -5,7 +5,7 @@ import { fontFamily } from "~/lib/font";
 import { ChevronLeft } from "~/lib/icons/ChevronLeft";
 import { useGoalFormStore } from "../goal-store";
 import { useShallow } from "zustand/react/shallow";
-import { GOAL_ICONS } from "~/constants/goal-icons";
+import { HABIT_ICONS } from "~/constants/habit-icons";
 import { IconPicker } from "~/components/icon-picker";
 import { ColorPicker } from "~/components/color-picker";
 
@@ -88,7 +88,7 @@ export default function IconScreen() {
           paddingBottom: 80,
         }}
         contentContainerClassName="flex flex-row flex-wrap gap-4 min-h-full bg-[#082139] p-4"
-        data={GOAL_ICONS}
+        data={HABIT_ICONS}
         renderItem={({ item }) => (
           <IconPicker
             icon={item}

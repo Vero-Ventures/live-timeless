@@ -21,7 +21,7 @@ import { cn } from "~/lib/utils";
 import { useShallow } from "zustand/react/shallow";
 import { api } from "~/convex/_generated/api";
 import { useMutation } from "convex/react";
-import { GOAL_ICONS } from "~/constants/goal-icons";
+import { HABIT_ICONS } from "~/constants/habit-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export default function CreateGoalPage() {
@@ -107,7 +107,7 @@ function CreateGoalForm() {
     }
   };
 
-  const IconComp = GOAL_ICONS.find(
+  const IconComp = HABIT_ICONS.find(
     (item) => item.name === selectedIcon
   )?.component;
 

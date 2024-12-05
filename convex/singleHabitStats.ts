@@ -1,7 +1,7 @@
 import { query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import type { GoalLog } from "./goalLogs";
+import type { HabitLog } from "./habitLogs";
 import { generateValidDates } from "./dateUtils";
 
 export type HabitStat = {
@@ -21,8 +21,8 @@ export type HabitStat = {
 };
 
 export const fetchSingleHabitStats = query({
-  args: { goalId: v.id("goals") },
-  handler: async (ctx, { goalId }) => {
+  args: { habitId: v.id("habits") },
+  handler: async (ctx, { habitId }) => {
     // Fetch the authenticated user's ID directly
     const userId = await getAuthUserId(ctx);
     if (!userId) {
@@ -30,20 +30,19 @@ export const fetchSingleHabitStats = query({
       throw new Error("User not authenticated");
     }
 
-    // Fetch the goal based on the goal ID
-    const goal = await ctx.db.get(goalId);
-    if (!goal) {
+    const habit = await ctx.db.get(habitId);
+    if (!habit) {
       console.error("Goal not found");
       throw new Error("Goal not found");
     }
 
     // Retrieve logs for this goal
     const logs = await ctx.db
-      .query("goalLogs")
-      .withIndex("by_goal_id", (q) => q.eq("goalId", goal._id))
+      .query("habitLogs")
+      .withIndex("by_habit_id", (q) => q.eq("habitId", habit._id))
       .collect();
 
-    const validDates = generateValidDates(goal);
+    const validDates = generateValidDates(habit);
     const total = calculateTotal(logs);
     const dailyAverage = calculateDailyAverage(logs);
     const longestStreak = calculateLongestStreak(logs);
@@ -56,20 +55,20 @@ export const fetchSingleHabitStats = query({
     const dailyCompletionRates = calculateDailyCompletion(
       validDates,
       logs,
-      goal.unitValue
+      habit.unitValue
     ).rates;
     const dailyAverageData = calculateDailyCompletion(
       validDates,
       logs,
-      goal.unitValue
+      habit.unitValue
     ).chartData;
     const weeklyAverageData = calculateWeeklyAverage(logs).chartData;
     const monthlyAverageData = calculateMonthlyAverage(logs).chartData;
 
     return {
-      _id: goal._id,
-      name: goal.name,
-      duration: `${goal.unitValue} mins per day`,
+      _id: habit._id,
+      name: habit.name,
+      duration: `${habit.unitValue} mins per day`,
       longestStreak,
       currentStreak,
       total,
@@ -87,7 +86,7 @@ export const fetchSingleHabitStats = query({
   },
 });
 
-function calculateLongestStreak(logs: GoalLog[]): number {
+function calculateLongestStreak(logs: HabitLog[]): number {
   let longestStreak = 0;
   let currentStreak = 0;
 
@@ -105,7 +104,7 @@ function calculateLongestStreak(logs: GoalLog[]): number {
   return longestStreak;
 }
 
-function calculateCurrentStreak(logs: GoalLog[]): number {
+function calculateCurrentStreak(logs: HabitLog[]): number {
   let currentStreak = 0;
 
   for (let i = logs.length - 1; i >= 0; i--) {
@@ -119,11 +118,11 @@ function calculateCurrentStreak(logs: GoalLog[]): number {
   return currentStreak;
 }
 
-function calculateTotal(logs: GoalLog[]): number {
+function calculateTotal(logs: HabitLog[]): number {
   return logs.reduce((sum, log) => sum + log.unitsCompleted, 0);
 }
 
-function calculateDailyAverage(logs: GoalLog[]): number {
+function calculateDailyAverage(logs: HabitLog[]): number {
   if (logs.length === 0) return 0;
 
   const logsWithUnits = logs.filter((log) => log.unitsCompleted > 0);
@@ -135,7 +134,7 @@ function calculateDailyAverage(logs: GoalLog[]): number {
       acc[date].push(log);
       return acc;
     },
-    {} as Record<string, GoalLog[]>
+    {} as Record<string, HabitLog[]>
   );
 
   const totalUnits = Object.values(logsByDate).reduce((sum, dayLogs) => {
@@ -158,7 +157,7 @@ function calculateDailyAverage(logs: GoalLog[]): number {
  * @param logs - The array of GoalLogs already retrieved for the goal.
  * @returns The total number of skipped dates.
  */
-export function calculateSkipped(validDates: Date[], logs: GoalLog[]): number {
+export function calculateSkipped(validDates: Date[], logs: HabitLog[]): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Normalize today to midnight
 
@@ -189,7 +188,7 @@ export function calculateSkipped(validDates: Date[], logs: GoalLog[]): number {
  * @param logs - The array of GoalLogs for the goal.
  * @returns The total number of failed logs.
  */
-export function calculateFailed(logs: GoalLog[]): number {
+export function calculateFailed(logs: HabitLog[]): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Reset time to midnight
   // Filter logs where unitsCompleted is non-zero but isComplete is false
@@ -201,13 +200,13 @@ export function calculateFailed(logs: GoalLog[]): number {
   return failedLogs.length;
 }
 
-function calculateSuccessfulDays(logs: GoalLog[]): number {
+function calculateSuccessfulDays(logs: HabitLog[]): number {
   return logs.filter((log) => log.isComplete).length;
 }
 
 function calculateDailyCompletion(
   validDates: Date[],
-  logs: GoalLog[],
+  logs: HabitLog[],
   unitValue: number
 ) {
   const currentYear = new Date().getFullYear();
@@ -236,7 +235,7 @@ function calculateDailyCompletion(
       acc[day].push(log);
       return acc;
     },
-    {} as Record<number, GoalLog[]>
+    {} as Record<number, HabitLog[]>
   );
 
   const filteredValidDates = validDates.filter(
@@ -270,7 +269,7 @@ function calculateDailyCompletion(
   return { rates: dailyCompletionRates, chartData: dailyCompletionData };
 }
 
-function calculateWeeklyAverage(logs: GoalLog[]): {
+function calculateWeeklyAverage(logs: HabitLog[]): {
   average: number;
   chartData: { data: number[]; labels: string[] };
 } {
@@ -291,7 +290,7 @@ function calculateWeeklyAverage(logs: GoalLog[]): {
       acc[weekStartStr].push(log);
       return acc;
     },
-    {} as Record<string, GoalLog[]>
+    {} as Record<string, HabitLog[]>
   );
 
   // Calculate the total units completed for weeks with logs
@@ -338,7 +337,7 @@ function calculateWeeklyAverage(logs: GoalLog[]): {
   return { average, chartData: { data: weeklyData, labels: weeklyLabels } };
 }
 
-function calculateMonthlyAverage(logs: GoalLog[]): {
+function calculateMonthlyAverage(logs: HabitLog[]): {
   average: number;
   chartData: { data: number[]; labels: string[] };
 } {
@@ -352,7 +351,7 @@ function calculateMonthlyAverage(logs: GoalLog[]): {
       acc[monthStart].push(log);
       return acc;
     },
-    {} as Record<string, GoalLog[]>
+    {} as Record<string, HabitLog[]>
   );
 
   const today = new Date();
