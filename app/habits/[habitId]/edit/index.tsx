@@ -231,7 +231,7 @@ function EditHabitForm() {
           </Link>
           <Input
             className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
-            placeholder="Name of Goal"
+            placeholder="Name of Habit"
             value={name}
             onChangeText={setName}
           />
