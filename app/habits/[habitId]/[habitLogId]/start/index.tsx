@@ -1,52 +1,54 @@
 import { View, Pressable, Alert } from "react-native";
 import { Stack, useLocalSearchParams, router } from "expo-router";
-import { Text } from "~/components/ui/text"; // Custom Text component
+import { Text } from "~/components/ui/text";
 import { useQuery, useMutation } from "convex/react";
-import { api } from "~/convex/_generated/api"; // Your API to fetch the goal
-import { fontFamily } from "~/lib/font"; // Font library
+import { api } from "~/convex/_generated/api";
+import { fontFamily } from "~/lib/font";
 import type { Id } from "~/convex/_generated/dataModel";
 import { useState, useCallback, useEffect } from "react";
 import { useTimer } from "./useTimer";
 
 export default function LogProgressScreen() {
-  const { goalId, goalLogId } = useLocalSearchParams<{
-    goalId: Id<"goals">;
-    goalLogId: Id<"goalLogs">;
+  const { habitId, habitLogId } = useLocalSearchParams<{
+    habitId: Id<"habits">;
+    habitLogId: Id<"habitLogs">;
   }>();
 
-  const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });
-  const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
-  const goal = useQuery(api.goals.getGoalById, { goalId });
+  const habitLog = useQuery(api.habitLogs.getHabitLogById, {
+    habitLogId,
+  });
+  const updateHabitLog = useMutation(api.habitLogs.updateHabitLog);
+  const habit = useQuery(api.habits.getHabitById, { habitId });
 
   const { timeLeft, startTimer, pauseTimer, setTimer, isRunning } = useTimer(0);
-  const [isDurationGoal, setIsDurationGoal] = useState(false);
+  const [isDurationHabit, setIsDurationHabit] = useState(false);
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
   const [remaining, setRemaining] = useState(0);
 
   const timerButtonColor = isRunning ? "bg-yellow-600" : "bg-green-600";
 
   const handlePause = useCallback(async () => {
-    if (!goal || !goalLog || sessionStartTime === null) return;
+    if (!habit || !habitLog || sessionStartTime === null) return;
 
     pauseTimer();
 
     const elapsedSeconds = sessionStartTime - timeLeft;
     const elapsedUnits =
-      goal.unit === "minutes" || goal.unit === "min"
+      habit.unit === "minutes" || habit.unit === "min"
         ? elapsedSeconds / 60 // Convert seconds to minutes
         : elapsedSeconds / 3600; // Convert seconds to hours if unit is hours
 
     try {
-      await updateGoalLog({
-        goalLogId: goalLog._id,
-        unitsCompleted: (goalLog.unitsCompleted ?? 0) + elapsedUnits,
+      await updateHabitLog({
+        habitLogId: habitLog._id,
+        unitsCompleted: (habitLog.unitsCompleted ?? 0) + elapsedUnits,
       });
     } catch (error) {
       console.error("Error updating unitsCompleted:", error);
     }
 
     setSessionStartTime(null);
-  }, [goal, goalLog, sessionStartTime, timeLeft, pauseTimer, updateGoalLog]);
+  }, [habit, habitLog, sessionStartTime, timeLeft, pauseTimer, updateHabitLog]);
 
   const handleToggleTimer = useCallback(async () => {
     if (isRunning) {
@@ -60,65 +62,65 @@ export default function LogProgressScreen() {
   }, [isRunning, handlePause, sessionStartTime, timeLeft, startTimer]);
 
   const handleCompleted = useCallback(async () => {
-    if (isDurationGoal && timeLeft === 0 && goal && goalLog) {
-      const maxUnitsCompleted = goal.unitValue ?? 0;
+    if (isDurationHabit && timeLeft === 0 && habit && habitLog) {
+      const maxUnitsCompleted = habit.unitValue ?? 0;
 
       try {
-        await updateGoalLog({
-          goalLogId: goalLog._id,
+        await updateHabitLog({
+          habitLogId: habitLog._id,
           unitsCompleted: maxUnitsCompleted,
           isComplete: true,
         });
 
         Alert.alert(
-          "Goal Completed",
-          `Congratulations! You've completed the goal.`,
+          "Habit Completed",
+          `Congratulations! You've completed the habit.`,
           [
             {
               text: "OK",
               onPress: () =>
                 router.push({
-                  pathname: "/goals/[goalId]/[goalLogId]/complete",
-                  params: { goalId, goalLogId },
+                  pathname: "/habits/[habitId]/[habitLogId]/complete",
+                  params: { habitId, habitLogId },
                 }),
             },
           ]
         );
       } catch (error) {
-        console.error("Error completing the goal:", error);
+        console.error("Error completing the habit:", error);
       }
     } else {
       setRemaining((prevRemaining) => {
         const newRemaining = prevRemaining - 1;
 
-        if (goalLog) {
-          const newUnitsCompleted = (goalLog.unitsCompleted ?? 0) + 1;
+        if (habitLog) {
+          const newUnitsCompleted = (habitLog.unitsCompleted ?? 0) + 1;
 
-          updateGoalLog({
-            goalLogId: goalLog._id,
+          updateHabitLog({
+            habitLogId: habitLog._id,
             unitsCompleted: newUnitsCompleted,
           }).catch((error) => {
             console.error("Error updating completed units:", error);
           });
 
           if (newRemaining === 0) {
-            updateGoalLog({
-              goalLogId: goalLog._id,
+            updateHabitLog({
+              habitLogId: habitLog._id,
               isComplete: true,
             }).catch((error) => {
-              console.error("Error updating goalLog as completed:", error);
+              console.error("Error updating habit log as completed:", error);
             });
 
             Alert.alert(
-              "Goal Completed",
-              `Congratulations! You've completed the goal.`,
+              "Habit Completed",
+              `Congratulations! You've completed the habit.`,
               [
                 {
                   text: "OK",
                   onPress: () =>
                     router.push({
-                      pathname: "/goals/[goalId]/[goalLogId]/complete",
-                      params: { goalId, goalLogId },
+                      pathname: "/habits/[habitId]/[habitLogId]/complete",
+                      params: { habitId, habitLogId },
                     }),
                 },
               ]
@@ -132,43 +134,43 @@ export default function LogProgressScreen() {
       });
     }
   }, [
-    isDurationGoal,
+    isDurationHabit,
     timeLeft,
-    goal,
-    goalLog,
-    updateGoalLog,
-    goalId,
-    goalLogId,
+    habit,
+    habitLog,
+    updateHabitLog,
+    habitId,
+    habitLogId,
   ]);
 
   useEffect(() => {
-    if (goalLog && goal) {
-      const unitValue = goal.unitValue ?? 0;
-      const completedUnits = goalLog.unitsCompleted ?? 0;
+    if (habitLog && habit) {
+      const unitValue = habit.unitValue ?? 0;
+      const completedUnits = habitLog.unitsCompleted ?? 0;
 
-      if (goal.unitType === "Duration" || goal.unit === "minutes") {
-        setIsDurationGoal(true);
+      if (habit.unitType === "Duration" || habit.unit === "minutes") {
+        setIsDurationHabit(true);
         const initialTimeInSeconds =
-          goal.unit === "min" || goal.unit === "minutes"
+          habit.unit === "min" || habit.unit === "minutes"
             ? Math.floor((unitValue - completedUnits) * 60)
             : Math.floor((unitValue - completedUnits) * 3600);
         setTimer(initialTimeInSeconds);
       } else {
-        setIsDurationGoal(false);
+        setIsDurationHabit(false);
         setRemaining(
           unitValue - completedUnits >= 0 ? unitValue - completedUnits : 0
         );
       }
     }
-  }, [goalLog, goal, setTimer]);
+  }, [habitLog, habit, setTimer]);
 
   useEffect(() => {
-    if (timeLeft === 0 && isDurationGoal && !goalLog?.isComplete) {
+    if (timeLeft === 0 && isDurationHabit && !habitLog?.isComplete) {
       handleCompleted();
     }
-  }, [timeLeft, isDurationGoal, goalLog?.isComplete, handleCompleted]);
+  }, [timeLeft, isDurationHabit, habitLog?.isComplete, handleCompleted]);
 
-  if (!goal || !goalLog) {
+  if (!habit || !habitLog) {
     return <Text>Loading...</Text>;
   }
 
@@ -183,15 +185,15 @@ export default function LogProgressScreen() {
               className="text-xl"
               style={{ fontFamily: fontFamily.openSans.bold }}
             >
-              {goal?.name ?? ""}
+              {habit?.name ?? ""}
             </Text>
           ),
           headerBackTitleVisible: false,
         }}
       />
 
-      {/* Units Left for non-duration goals */}
-      {!isDurationGoal && (
+      {/* Units Left for non-duration habits */}
+      {!isDurationHabit && (
         <View className="items-center justify-center">
           <Text
             className="text-center text-6xl text-white"
@@ -203,8 +205,8 @@ export default function LogProgressScreen() {
         </View>
       )}
 
-      {/* Timer for duration goals */}
-      {!!isDurationGoal && (
+      {/* Timer for duration habits */}
+      {!!isDurationHabit && (
         <View className="items-center justify-center">
           <Text
             className="text-center text-6xl text-white"
@@ -225,7 +227,7 @@ export default function LogProgressScreen() {
               >
                 {isRunning
                   ? "Pause"
-                  : (goalLog?.unitsCompleted ?? 0) > 0
+                  : (habitLog?.unitsCompleted ?? 0) > 0
                     ? "Resume"
                     : "Start"}
               </Text>
@@ -234,8 +236,8 @@ export default function LogProgressScreen() {
         </View>
       )}
 
-      {/* Completed Button for non-duration goals */}
-      {!isDurationGoal && (
+      {/* Completed Button for non-duration habits */}
+      {!isDurationHabit && (
         <Pressable
           className="mt-6 w-full items-center rounded-lg bg-green-600 p-4"
           onPress={handleCompleted}

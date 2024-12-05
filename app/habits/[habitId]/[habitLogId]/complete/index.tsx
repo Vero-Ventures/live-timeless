@@ -6,24 +6,26 @@ import { api } from "~/convex/_generated/api";
 import { fontFamily } from "~/lib/font";
 import type { Id } from "~/convex/_generated/dataModel";
 
-export default function GoalCompletionScreen() {
-  const { goalId } = useLocalSearchParams<{ goalId: Id<"goals"> }>();
+export default function HabitCompletionScreen() {
+  const { habitId } = useLocalSearchParams<{
+    habitId: Id<"habits">;
+  }>();
 
-  // Fetch all goalLogs associated with this goalId
-  const goalLogs = useQuery(api.goalLogs.getGoalLogsbyGoalId, { goalId });
+  const habitLogs = useQuery(api.habitLogs.getHabitLogsbyHabitId, {
+    habitId,
+  });
 
-  if (!goalLogs) {
+  if (!habitLogs) {
     return <Text>Loading...</Text>;
   }
 
-  // Calculate total, completed, and remaining goalLogs
-  const totalLogs = goalLogs.length;
-  const completedLogs = goalLogs.filter((log) => log.isComplete).length;
+  const totalLogs = habitLogs.length;
+  const completedLogs = habitLogs.filter((log) => log.isComplete).length;
 
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `I just completed ${completedLogs} day(s) out of ${totalLogs} towards my goal! #goals`,
+        message: `I just completed ${completedLogs} day(s) out of ${totalLogs} towards my habits!`,
       });
     } catch (error) {
       console.error("Error sharing:", error);
@@ -57,7 +59,7 @@ export default function GoalCompletionScreen() {
       </Text>
       <Text className="mt-4 text-lg text-white">
         You have completed {completedLogs} day(s) out of {totalLogs} towards
-        your goal.
+        your habit.
       </Text>
 
       <Pressable
@@ -74,13 +76,13 @@ export default function GoalCompletionScreen() {
 
       <Pressable
         className="mt-4 w-full items-center rounded-lg bg-green-600 p-4"
-        onPress={() => router.navigate("/goals")}
+        onPress={() => router.navigate("/habits")}
       >
         <Text
           className="text-lg text-white"
           style={{ fontFamily: fontFamily.openSans.bold }}
         >
-          Back to Goals
+          Back to Habits
         </Text>
       </Pressable>
     </View>

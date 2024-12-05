@@ -19,8 +19,8 @@ import {
   type RepeatType,
   type TimeOfDay,
   type UnitType,
-  useGoalFormStore,
-} from "../../create/goal-store";
+  useHabitFormStore,
+} from "../../create/habit-store";
 import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -28,12 +28,12 @@ import { cn } from "~/lib/utils";
 import { useShallow } from "zustand/react/shallow";
 import { api } from "~/convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
-import { GOAL_ICONS } from "~/constants/goal-icons";
+import { HABIT_ICONS } from "~/constants/habit-icons";
 import type { Id } from "~/convex/_generated/dataModel";
 import { Button } from "~/components/ui/button";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
-export default function EditGoalPage() {
+export default function EditHabitPage() {
   return (
     <View className="h-full gap-4 bg-background p-4">
       <Stack.Screen
@@ -44,18 +44,18 @@ export default function EditGoalPage() {
           headerTintColor: "#fff",
           headerTitle: () => (
             <Text style={{ fontFamily: fontFamily.openSans.bold }}>
-              Edit Goal
+              Edit Habit
             </Text>
           ),
           headerBackTitleVisible: false,
         }}
       />
-      <EditGoalForm />
+      <EditHabitForm />
     </View>
   );
 }
 
-function EditGoalForm() {
+function EditHabitForm() {
   const [
     name,
     setName,
@@ -86,7 +86,7 @@ function EditGoalForm() {
     recurrence,
     setRecurrence,
     resetForm,
-  ] = useGoalFormStore(
+  ] = useHabitFormStore(
     useShallow((s) => [
       s.name,
       s.setName,
@@ -122,21 +122,21 @@ function EditGoalForm() {
 
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
-  const updateGoal = useMutation(api.goals.updateGoal);
-  const { goalId } = useLocalSearchParams<{ goalId: Id<"goals"> }>();
-  const goal = useQuery(api.goals.getGoalById, { goalId });
-  const deleteGoal = useMutation(api.goals.deleteGoal);
+  const updateHabit = useMutation(api.habits.updateHabit);
+  const { habitId } = useLocalSearchParams<{ habitId: Id<"habits"> }>();
+  const habit = useQuery(api.habits.getHabitById, { habitId });
+  const deleteHabit = useMutation(api.habits.deleteHabit);
 
   const handleDelete = () => {
     NativeAlert.alert(
-      `Are you sure you want to delete ${goal?.name}?`,
+      `Are you sure you want to delete ${habit?.name}?`,
       "This action cannot be undone.",
       [
         {
           text: "Yes",
           onPress: async () => {
-            await deleteGoal({ goalId });
-            router.navigate("/goals");
+            await deleteHabit({ habitId });
+            router.navigate("/habits");
           },
           style: "destructive",
         },
@@ -146,26 +146,26 @@ function EditGoalForm() {
   };
 
   useEffect(() => {
-    if (goal) {
-      setName(goal.name);
-      setTimeOfDay(goal.timeOfDay as TimeOfDay[]);
-      setTimeReminder(new Date(goal.timeReminder));
-      setRepeatType(goal.repeatType as RepeatType);
-      setDailyRepeat(goal.dailyRepeat as DailyRepeat[]);
-      setMonthlyRepeat(goal.monthlyRepeat);
-      setIntervalRepeat(goal.intervalRepeat);
-      setSelectedIcon(goal.selectedIcon);
-      setSelectedIconColor(goal.selectedIconColor);
-      setStartDate(new Date(goal.startDate));
-      setUnitType(goal.unitType as UnitType);
-      setUnitValue(goal.unitValue);
-      setUnit(goal.unit);
-      setRecurrence(goal.recurrence as Recurrence);
+    if (habit) {
+      setName(habit.name);
+      setTimeOfDay(habit.timeOfDay as TimeOfDay[]);
+      setTimeReminder(new Date(habit.timeReminder));
+      setRepeatType(habit.repeatType as RepeatType);
+      setDailyRepeat(habit.dailyRepeat as DailyRepeat[]);
+      setMonthlyRepeat(habit.monthlyRepeat);
+      setIntervalRepeat(habit.intervalRepeat);
+      setSelectedIcon(habit.selectedIcon);
+      setSelectedIconColor(habit.selectedIconColor);
+      setStartDate(new Date(habit.startDate));
+      setUnitType(habit.unitType as UnitType);
+      setUnitValue(habit.unitValue);
+      setUnit(habit.unit);
+      setRecurrence(habit.recurrence as Recurrence);
     }
 
     return () => resetForm();
   }, [
-    goal,
+    habit,
     setName,
     setTimeOfDay,
     setTimeReminder,
@@ -198,7 +198,7 @@ function EditGoalForm() {
     }
   };
 
-  const IconComp = GOAL_ICONS.find(
+  const IconComp = HABIT_ICONS.find(
     (item) => item.name === selectedIcon
   )?.component;
 
@@ -212,7 +212,7 @@ function EditGoalForm() {
           </Alert>
         )}
         <View className="flex flex-row items-center gap-2">
-          <Link href="/goals/create/icon" asChild>
+          <Link href="/habits/create/icon" asChild>
             <Pressable className="rounded-xl bg-[#0e2942] p-4 px-6">
               {selectedIcon ? (
                 <IconComp
@@ -231,13 +231,13 @@ function EditGoalForm() {
           </Link>
           <Input
             className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
-            placeholder="Name of Goal"
+            placeholder="Name of Habit"
             value={name}
             onChangeText={setName}
           />
         </View>
         <View className="rounded-xl bg-[#0e2942]">
-          <Link href="/goals/create/repeat" asChild>
+          <Link href="/habits/create/repeat" asChild>
             <Pressable>
               <ScheduleItem
                 Icon={Repeat}
@@ -247,7 +247,7 @@ function EditGoalForm() {
               />
             </Pressable>
           </Link>
-          <Link href="/goals/create/target" asChild>
+          <Link href="/habits/create/target" asChild>
             <Pressable>
               <ScheduleItem
                 Icon={Crosshair}
@@ -257,7 +257,7 @@ function EditGoalForm() {
               />
             </Pressable>
           </Link>
-          <Link href="/goals/create/time-of-day" asChild>
+          <Link href="/habits/create/time-of-day" asChild>
             <Pressable>
               <ScheduleItem
                 Icon={Sun}
@@ -271,7 +271,7 @@ function EditGoalForm() {
           </Link>
         </View>
         <View className="rounded-xl bg-[#0e2942]">
-          <Link href="/goals/create/reminders" asChild>
+          <Link href="/habits/create/reminders" asChild>
             <Pressable>
               <ScheduleItem
                 Icon={Bell}
@@ -293,34 +293,34 @@ function EditGoalForm() {
             setIsPending(true);
             try {
               if (name.trim().length <= 3) {
-                throw new Error("Name of the goal must be over 3 characters");
+                throw new Error("Name of the habit must be over 3 characters");
               }
 
               if (!selectedIcon) {
-                throw new Error("You haven't selected an icon for your goal.");
+                throw new Error("You haven't selected an icon for your habit.");
               }
 
-              const updatedGoal = {
-                goalId,
+              const updatedHabit = {
+                habitId,
                 name,
                 selectedIcon,
                 selectedIconColor,
                 timeOfDay,
-                timeReminder: timeReminder.getTime(), // store as timestamp
+                timeReminder: timeReminder.getTime(),
                 repeatType,
                 dailyRepeat,
                 monthlyRepeat,
                 intervalRepeat,
-                startDate: startDate.getTime(), // store as timestamp
+                startDate: startDate.getTime(),
                 unitType,
                 unitValue,
                 unit,
                 recurrence,
               };
 
-              await updateGoal(updatedGoal);
+              await updateHabit(updatedHabit);
 
-              router.navigate("/goals");
+              router.navigate("/habits");
               resetForm();
             } catch (error) {
               if (error instanceof Error) {
@@ -331,7 +331,7 @@ function EditGoalForm() {
             }
           }}
         >
-          Edit Goal
+          Edit Habit
         </FormSubmitButton>
         <Button size="lg" variant="destructive" onPress={handleDelete}>
           <Text>Delete</Text>

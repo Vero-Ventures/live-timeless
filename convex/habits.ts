@@ -2,7 +2,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
-export type Goal = {
+export type Habit = {
   _id: string;
   userId: string;
   challengeId?: string;
@@ -50,29 +50,29 @@ export const getRate = (unit: string): number => {
   return unitRates[unit] || 0; // Return the rate or default to 0
 };
 
-export const getGoalById = query({
-  args: { goalId: v.id("goals") },
-  handler: async (ctx, { goalId }) => {
-    return await ctx.db.get(goalId);
+export const getHabitById = query({
+  args: { habitId: v.id("habits") },
+  handler: async (ctx, { habitId: habitId }) => {
+    return await ctx.db.get(habitId);
   },
 });
 
-export const listGoals = query({
+export const listHabits = query({
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) {
+    const habitId = await getAuthUserId(ctx);
+    if (habitId === null) {
       return null;
     }
-    const goals = await ctx.db
-      .query("goals")
-      .filter((q) => q.eq(q.field("userId"), userId))
+    const habits = await ctx.db
+      .query("habits")
+      .filter((q) => q.eq(q.field("userId"), habitId))
       .collect();
 
-    return goals;
+    return habits;
   },
 });
 
-export const createGoal = mutation({
+export const createHabit = mutation({
   args: {
     challengeId: v.optional(v.id("challenges")),
     dailyRepeat: v.array(v.string()),
@@ -99,19 +99,19 @@ export const createGoal = mutation({
 
     const rate = args.rate !== undefined ? args.rate : getRate(args.unit);
 
-    const goalId = await ctx.db.insert("goals", {
+    const habitId = await ctx.db.insert("habits", {
       ...args,
       rate,
       userId,
     });
 
-    return goalId;
+    return habitId;
   },
 });
 
-export const updateGoal = mutation({
+export const updateHabit = mutation({
   args: {
-    goalId: v.id("goals"),
+    habitId: v.id("habits"),
     name: v.string(),
     timeOfDay: v.array(v.string()),
     selectedIcon: v.string(),
@@ -128,38 +128,35 @@ export const updateGoal = mutation({
     recurrence: v.string(),
     rate: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
-    const { goalId, unit, ...updateData } = args;
+  handler: async (ctx, { habitId, unit, rate, ...updateData }) => {
+    const updatedRate = rate !== undefined ? rate : getRate(unit);
 
-    const rate = args.rate !== undefined ? args.rate : getRate(unit);
-    updateData.rate = rate;
-
-    await ctx.db.patch(goalId, updateData);
+    await ctx.db.patch(habitId, { ...updateData, rate: updatedRate });
   },
 });
 
-export const deleteGoal = mutation({
+export const deleteHabit = mutation({
   args: {
-    goalId: v.id("goals"),
+    habitId: v.id("habits"),
   },
-  handler: async (ctx, { goalId }) => {
-    await ctx.db.delete(goalId);
+  handler: async (ctx, { habitId }) => {
+    await ctx.db.delete(habitId);
   },
 });
 
-export const deleteGoalAndGoalLogs = mutation({
+export const deleteHabitAndHabitLogs = mutation({
   args: {
-    goalId: v.id("goals"),
+    habitId: v.id("habits"),
   },
-  handler: async (ctx, { goalId }) => {
-    const goalLogs = await ctx.db
-      .query("goalLogs")
-      .filter((q) => q.eq(q.field("goalId"), goalId))
+  handler: async (ctx, { habitId }) => {
+    const habitLogs = await ctx.db
+      .query("habitLogs")
+      .filter((q) => q.eq(q.field("habitId"), habitId))
       .collect();
 
-    for (const goalLog of goalLogs) {
-      await ctx.db.delete(goalLog._id);
+    for (const habitLog of habitLogs) {
+      await ctx.db.delete(habitLog._id);
     }
-    await ctx.db.delete(goalId);
+    await ctx.db.delete(habitId);
   },
 });

@@ -13,7 +13,7 @@ import { Sun } from "~/lib/icons/Sun";
 import { Bell } from "~/lib/icons/Bell";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
 import ScheduleStartDate from "../schedule-start-date";
-import { useGoalFormStore } from "./goal-store";
+import { useHabitFormStore } from "./habit-store";
 import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -21,10 +21,10 @@ import { cn } from "~/lib/utils";
 import { useShallow } from "zustand/react/shallow";
 import { api } from "~/convex/_generated/api";
 import { useMutation } from "convex/react";
-import { GOAL_ICONS } from "~/constants/goal-icons";
+import { HABIT_ICONS } from "~/constants/habit-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
-export default function CreateGoalPage() {
+export default function CreateHabitPage() {
   return (
     <View className="h-full gap-4 bg-background p-4">
       <Stack.Screen
@@ -35,18 +35,18 @@ export default function CreateGoalPage() {
           headerTintColor: "#fff",
           headerTitle: () => (
             <Text style={{ fontFamily: fontFamily.openSans.bold }}>
-              Create Goal
+              Create Habit
             </Text>
           ),
           headerBackTitleVisible: false,
         }}
       />
-      <CreateGoalForm />
+      <CreateHabitForm />
     </View>
   );
 }
 
-function CreateGoalForm() {
+function CreateHabitForm() {
   const [
     name,
     setName,
@@ -64,7 +64,7 @@ function CreateGoalForm() {
     unit,
     recurrence,
     resetForm,
-  ] = useGoalFormStore(
+  ] = useHabitFormStore(
     useShallow((s) => [
       s.name,
       s.setName,
@@ -87,7 +87,7 @@ function CreateGoalForm() {
 
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
-  const createGoal = useMutation(api.goals.createGoal);
+  const createHabit = useMutation(api.habits.createHabit);
   useEffect(() => {
     return () => resetForm();
   }, [resetForm]);
@@ -107,7 +107,7 @@ function CreateGoalForm() {
     }
   };
 
-  const IconComp = GOAL_ICONS.find(
+  const IconComp = HABIT_ICONS.find(
     (item) => item.name === selectedIcon
   )?.component;
 
@@ -121,7 +121,7 @@ function CreateGoalForm() {
           </Alert>
         )}
         <View className="flex flex-row items-center gap-2">
-          <Link href="/goals/create/icon" asChild>
+          <Link href="/habits/create/icon" asChild>
             <Pressable className="rounded-xl bg-[#0e2942] p-4 px-6">
               {selectedIcon ? (
                 <IconComp
@@ -140,13 +140,13 @@ function CreateGoalForm() {
           </Link>
           <Input
             className="native:h-16 flex-1 rounded-xl border-0 bg-[#0e2942]"
-            placeholder="Name of Goal"
+            placeholder="Name of Habit"
             value={name}
             onChangeText={setName}
           />
         </View>
         <View className="rounded-xl bg-[#0e2942]">
-          <Link href="/goals/create/repeat" asChild>
+          <Link href="/habits/create/repeat" asChild>
             <Pressable>
               <ScheduleItem
                 Icon={Repeat}
@@ -156,7 +156,7 @@ function CreateGoalForm() {
               />
             </Pressable>
           </Link>
-          <Link href="/goals/create/target" asChild>
+          <Link href="/habits/create/target" asChild>
             <Pressable>
               <ScheduleItem
                 Icon={Crosshair}
@@ -166,7 +166,7 @@ function CreateGoalForm() {
               />
             </Pressable>
           </Link>
-          <Link href="/goals/create/time-of-day" asChild>
+          <Link href="/habits/create/time-of-day" asChild>
             <Pressable>
               <ScheduleItem
                 Icon={Sun}
@@ -180,7 +180,7 @@ function CreateGoalForm() {
           </Link>
         </View>
         <View className="rounded-xl bg-[#0e2942]">
-          <Link href="/goals/create/reminders" asChild>
+          <Link href="/habits/create/reminders" asChild>
             <Pressable>
               <ScheduleItem
                 Icon={Bell}
@@ -202,35 +202,35 @@ function CreateGoalForm() {
             setIsPending(true);
             try {
               if (name.trim().length <= 3) {
-                throw new Error("Name of the goal must be over 3 characters");
+                throw new Error("Name of the habit must be over 3 characters");
               }
 
               if (!selectedIcon) {
-                throw new Error("You haven't selected an icon for your goal.");
+                throw new Error("You haven't selected an icon for your habit.");
               }
 
-              const newGoal = {
+              const newHabit = {
                 name,
                 selectedIcon,
                 selectedIconColor,
                 timeOfDay,
-                timeReminder: timeReminder.getTime(), // store as timestamp
+                timeReminder: timeReminder.getTime(),
                 repeatType,
                 dailyRepeat,
                 monthlyRepeat,
                 intervalRepeat,
-                startDate: startDate.getTime(), // store as timestamp
+                startDate: startDate.getTime(),
                 unitType,
                 unitValue,
                 unit,
                 recurrence,
               };
-              const goalId = await createGoal(newGoal);
-              if (!goalId) {
-                throw new Error("Failed to create goal");
+              const habitId = await createHabit(newHabit);
+              if (!habitId) {
+                throw new Error("Failed to create habit");
               }
 
-              router.navigate("/goals");
+              router.navigate("/habits");
               resetForm();
             } catch (error) {
               if (error instanceof Error) {
@@ -241,7 +241,7 @@ function CreateGoalForm() {
             }
           }}
         >
-          Set Goal
+          Set Habit
         </FormSubmitButton>
       </View>
     </KeyboardAwareScrollView>

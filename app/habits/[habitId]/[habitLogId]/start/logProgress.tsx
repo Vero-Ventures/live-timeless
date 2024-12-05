@@ -8,35 +8,37 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { Stack, useLocalSearchParams, router } from "expo-router";
-import { Text } from "~/components/ui/text"; // Custom Text component
+import { Text } from "~/components/ui/text";
 import { useQuery, useMutation } from "convex/react";
-import { api } from "~/convex/_generated/api"; // Your API to fetch the goal
-import { fontFamily } from "~/lib/font"; // Font library
+import { api } from "~/convex/_generated/api";
+import { fontFamily } from "~/lib/font";
 import { useState, useEffect } from "react";
 import type { Id } from "~/convex/_generated/dataModel";
 
 export default function LogProgressScreen() {
-  const { goalId, goalLogId } = useLocalSearchParams<{
-    goalId: Id<"goals">;
-    goalLogId: Id<"goalLogs">;
+  const { habitId, habitLogId } = useLocalSearchParams<{
+    habitId: Id<"habits">;
+    habitLogId: Id<"habitLogs">;
   }>();
 
-  const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });
-  const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
-  const goal = useQuery(api.goals.getGoalById, { goalId });
+  const habitLog = useQuery(api.habitLogs.getHabitLogById, {
+    habitLogId,
+  });
+  const updateHabitLog = useMutation(api.habitLogs.updateHabitLog);
+  const habit = useQuery(api.habits.getHabitById, { habitId });
 
-  const [remaining, setRemaining] = useState(0); // Remaining units for the goal
+  const [remaining, setRemaining] = useState(0); // Remaining units for the habit
   const [progressInput, setProgressInput] = useState(""); // Track input for the progress value
   const [completed, setCompleted] = useState(0); // Track completed units
 
   useEffect(() => {
-    if (goalLog && goal) {
-      const unitValue = goal?.unitValue ?? 0;
-      const completedUnits = goalLog?.unitsCompleted ?? 0;
+    if (habitLog && habit) {
+      const unitValue = habit?.unitValue ?? 0;
+      const completedUnits = habitLog?.unitsCompleted ?? 0;
       setCompleted(completedUnits); // Set the completed units so far
       setRemaining(unitValue - completedUnits); // Calculate remaining units
     }
-  }, [goalLog, goal]);
+  }, [habitLog, habit]);
 
   const handleLogProgress = async () => {
     const inputProgress = parseFloat(progressInput); // Convert input to number
@@ -49,7 +51,7 @@ export default function LogProgressScreen() {
     if (inputProgress > remaining) {
       Alert.alert(
         "Input Too Large",
-        "The amount entered exceeds the remaining goal value."
+        "The amount entered exceeds the remaining habit value."
       );
       return;
     }
@@ -57,12 +59,13 @@ export default function LogProgressScreen() {
     setRemaining((prevRemaining) => {
       const newRemaining = prevRemaining - inputProgress;
 
-      if (goalLog) {
-        const newUnitsCompleted = (goalLog.unitsCompleted ?? 0) + inputProgress;
+      if (habitLog) {
+        const newUnitsCompleted =
+          (habitLog.unitsCompleted ?? 0) + inputProgress;
         setCompleted(newUnitsCompleted); // Update completed units in state
 
-        updateGoalLog({
-          goalLogId: goalLog._id,
+        updateHabitLog({
+          habitLogId: habitLog._id,
           unitsCompleted: newUnitsCompleted,
         }).catch((error) => {
           console.error("Error updating completed units:", error);
@@ -71,20 +74,20 @@ export default function LogProgressScreen() {
         if (newRemaining <= 0) {
           const completionDate = new Date();
           console.log(
-            "Marking goal as complete at:",
+            "Marking habit as complete at:",
             completionDate.toISOString()
           );
 
-          updateGoalLog({
-            goalLogId: goalLog._id,
+          updateHabitLog({
+            habitLogId: habitLog._id,
             isComplete: true,
             targetDate: completionDate.getTime(), // Pass targetDate when marking complete
           }).catch((error) => {
-            console.error("Error updating goalLog as complete:", error);
+            console.error("Error updating habitLog as complete:", error);
           });
           Alert.alert(
-            "Goal Completed",
-            `Congratulations! You've completed the goal.`,
+            "Habit Completed",
+            `Congratulations! You've completed the habit.`,
             [{ text: "OK", onPress: () => router.back() }] // Go back to the previous page
           );
         } else {
@@ -94,11 +97,11 @@ export default function LogProgressScreen() {
         return newRemaining;
       }
 
-      return prevRemaining; // Fallback if goalLog is undefined
+      return prevRemaining; // Fallback if habitLog is undefined
     });
   };
 
-  if (!goal || !goalLog) {
+  if (!habit || !habitLog) {
     return <Text>Loading...</Text>;
   }
 
@@ -115,7 +118,7 @@ export default function LogProgressScreen() {
                   className="text-xl"
                   style={{ fontFamily: fontFamily.openSans.bold }}
                 >
-                  Log Progress for {goal.name}
+                  Log Progress for {habit.name}
                 </Text>
               ),
               headerBackTitleVisible: false,
@@ -128,7 +131,7 @@ export default function LogProgressScreen() {
               className="text-center text-6xl text-white"
               style={{ fontFamily: fontFamily.openSans.bold }}
             >
-              {completed} / {goal.unitValue} {goal.unit}
+              {completed} / {habit.unitValue} {habit.unit}
             </Text>
           </View>
 

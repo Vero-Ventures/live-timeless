@@ -3,12 +3,12 @@ import { Pressable, ScrollView, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
 import { Check } from "~/lib/icons/Check";
-import { useGoalFormStore } from "./goal-store";
+import { useHabitFormStore } from "./habit-store";
 import { cn } from "~/lib/utils";
 import { useShallow } from "zustand/react/shallow";
 
 export default function TimeOfDay() {
-  const [timeOfDay, setTimeOfDay] = useGoalFormStore(
+  const [timeOfDay, setTimeOfDay] = useHabitFormStore(
     useShallow((s) => [s.timeOfDay, s.setTimeOfDay])
   );
   return (

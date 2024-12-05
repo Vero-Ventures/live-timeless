@@ -5,14 +5,14 @@ import { Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
-import { useGoalFormStore } from "../goal-store";
-import type { UnitType } from "../goal-store";
+import { useHabitFormStore } from "../habit-store";
+import type { UnitType } from "../habit-store";
 import { StyleSheet } from "react-native";
 import { RECURRENCE } from "./constants";
 import { useShallow } from "zustand/react/shallow";
 import { useMemo } from "react";
 export default function Frequency() {
-  const unitType = useGoalFormStore((s) => s.unitType);
+  const unitType = useHabitFormStore((s) => s.unitType);
 
   return (
     <>
@@ -227,7 +227,7 @@ function GoalPicker<TUnit extends string>({
   };
 }) {
   const [unitValue, setUnitValue, unit, setUnit, recurrence, setRecurrence] =
-    useGoalFormStore(
+    useHabitFormStore(
       useShallow((s) => [
         s.unitValue,
         s.setUnitValue,
@@ -305,7 +305,7 @@ function GoalPicker<TUnit extends string>({
 
 function SelectUnitType({ unitType }: { unitType: UnitType }) {
   return (
-    <Link href="/goals/create/target/unit-types" asChild>
+    <Link href="/habits/create/target/unit-types" asChild>
       <Pressable className="mt-4 flex flex-row items-center justify-between rounded-xl bg-[#0e2942] p-5">
         <Text
           style={{

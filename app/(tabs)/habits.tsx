@@ -18,20 +18,20 @@ import { cn } from "~/lib/utils";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import type { Doc } from "~/convex/_generated/dataModel";
-import { GOAL_ICONS } from "~/constants/goal-icons";
+import { HABIT_ICONS } from "~/constants/habit-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-export default function GoalsPage() {
+export default function HabitsPage() {
   const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
   const [selectedDate, setSelectedDate] = useState(today);
-  const goals = useQuery(api.goals.listGoals);
-  const goalLogs = useQuery(api.goalLogs.listGoalLogs);
+  const habits = useQuery(api.habits.listHabits);
+  const habitLogs = useQuery(api.habitLogs.listHabitLogs);
 
   useEffect(() => {
-    if (goals && goalLogs) {
+    if (habits && habitLogs) {
       SplashScreen.hideAsync();
     }
-  }, [goals, goalLogs]);
+  }, [habits, habitLogs]);
 
   // const isDailyRepeat = (
   //   dailyRepeat: string[],
@@ -77,25 +77,25 @@ export default function GoalsPage() {
   //   return isRepeatDay;
   // };
 
-  const filteredGoals = goals
-    ? goals
-        .filter((goal) => {
-          const startDate = new Date(goal.startDate);
+  const filteredHabits = habits
+    ? habits
+        .filter((habit) => {
+          const startDate = new Date(habit.startDate);
 
           return selectedDate >= startDate;
         })
-        .map((goal) => {
-          const logForDate = goalLogs?.find(
+        .map((habit) => {
+          const logForDate = habitLogs?.find(
             (log) =>
-              log.goalId === goal._id &&
+              log.habitId === habit._id &&
               new Date(log.date).toDateString() === selectedDate.toDateString()
           );
 
           return {
-            ...goal,
+            ...habit,
             progress: logForDate ? logForDate.unitsCompleted : 0,
             isComplete: logForDate ? logForDate.isComplete : false,
-            goalLogId: logForDate ? logForDate._id : null,
+            habitLogId: logForDate ? logForDate._id : null,
           };
         })
     : [];
@@ -109,7 +109,7 @@ export default function GoalsPage() {
         justifyContent: "space-between",
       }}
     >
-      <View className="goals-container px-4">
+      <View className="habit-container px-4">
         <Text className="mb-2 text-sm uppercase text-gray-500">
           {selectedDate.toDateString() === today.toDateString()
             ? "Today"
@@ -129,12 +129,12 @@ export default function GoalsPage() {
             fontFamily: fontFamily.openSans.bold,
           }}
         >
-          Goals
+          Habits
         </Text>
-        {!goals || !goalLogs ? (
+        {!habits || !habitLogs ? (
           <View className="mt-10 flex flex-row justify-center gap-2">
             <ActivityIndicator />
-            <Text>Loading goals...</Text>
+            <Text>Loading Habits...</Text>
           </View>
         ) : (
           <FlatList
@@ -142,15 +142,17 @@ export default function GoalsPage() {
               paddingBottom: 60,
             }}
             className="mt-6 border-t border-t-[#fff]/10 pt-6"
-            data={filteredGoals}
+            data={filteredHabits}
             ItemSeparatorComponent={() => (
               <Separator className="my-4 h-0.5 bg-[#fff]/10" />
             )}
             ListEmptyComponent={() => (
-              <Text className="text-center">No goals found for this date.</Text>
+              <Text className="text-center">
+                No habits found for this date.
+              </Text>
             )}
             renderItem={({ item }) => (
-              <GoalItem goal={item} selectedDate={selectedDate} />
+              <HabitItem habit={item} selectedDate={selectedDate} />
             )}
             keyExtractor={(item) => item._id.toString()}
           />
@@ -162,7 +164,7 @@ export default function GoalsPage() {
           setSelectedDate={setSelectedDate}
         />
         <Separator className="mr-2" orientation="vertical" />
-        <Link href="/goals/create" asChild>
+        <Link href="/habits/create" asChild>
           <Button size="icon" className="h-14 w-14 rounded-full">
             <Plus color="#fff" size={30} />
           </Button>
@@ -172,32 +174,32 @@ export default function GoalsPage() {
   );
 }
 
-function GoalItem({
-  goal,
+function HabitItem({
+  habit,
   selectedDate,
 }: {
-  goal: Doc<"goals">;
+  habit: Doc<"habits">;
   selectedDate: Date;
 }) {
-  const createGoalLog = useMutation(api.goalLogs.createGoalLog);
-  const listGoalLogs = useQuery(api.goalLogs.listGoalLogs);
-  const updateGoalLog = useMutation(api.goalLogs.updateGoalLog);
+  const createHabitLog = useMutation(api.habitLogs.createHabitLog);
+  const listHabitLogs = useQuery(api.habitLogs.listHabitLogs);
+  const updateHabitLog = useMutation(api.habitLogs.updateHabitLog);
   const updatePoints = useMutation(api.challenges.updatePoints);
 
-  const IconComp = GOAL_ICONS.find(
-    (item) => item.name === goal.selectedIcon
+  const IconComp = HABIT_ICONS.find(
+    (item) => item.name === habit.selectedIcon
   )?.component;
 
-  // Find existing log for this goal and date
-  const existingLog = listGoalLogs?.find(
+  // Find existing log for this habit and date
+  const existingLog = listHabitLogs?.find(
     (log) =>
-      log.goalId === goal._id &&
+      log.habitId === habit._id &&
       new Date(log.date).toDateString() === selectedDate.toDateString()
   );
 
   async function handleLogPress() {
-    if (!listGoalLogs) {
-      Alert.alert("Error", "Unable to fetch goal logs.");
+    if (!listHabitLogs) {
+      Alert.alert("Error", "Unable to fetch habit logs.");
       return;
     }
 
@@ -206,76 +208,91 @@ function GoalItem({
     // Create a new log if one doesn't exist
     if (!log) {
       try {
-        const newLogId = await createGoalLog({
-          goalId: goal._id,
+        const newLogId = await createHabitLog({
+          habitId: habit._id,
           isComplete: false,
           date: selectedDate.getTime(),
           unitsCompleted: 0, // Initialize with zero units completed
         });
 
         if (!newLogId) {
-          throw new Error("Failed to create a new goal log.");
+          throw new Error("Failed to create a new habit log.");
         }
 
         // Mock the log to use it in navigation
         log = {
           _id: newLogId,
-          goalId: goal._id,
+          habitId: habit._id,
           date: selectedDate.getTime(),
           unitsCompleted: 0,
           isComplete: false,
           _creationTime: Date.now(), // Simulate creation time
         };
       } catch (error) {
-        console.error("Error creating goal log:", error);
-        Alert.alert("Error", "Failed to log goal progress.");
+        console.error("Error creating habit log:", error);
+        Alert.alert("Error", "Failed to log habit progress.");
         return;
       }
     }
 
-    if (goal.unit === "times") {
-      // For "times" goals, increment the units
+    if (habit.unit === "times") {
+      // For "times" habits, increment the units
       if (log.isComplete) {
-        Alert.alert("Goal Completed", "This goal has already been completed.");
+        Alert.alert(
+          "Habits Completed",
+          "This habit has already been completed."
+        );
         return;
       }
 
       try {
         const newUnitsCompleted = (log.unitsCompleted ?? 0) + 1;
-        const isGoalComplete = newUnitsCompleted >= goal.unitValue;
+        const isHabitComplete = newUnitsCompleted >= habit.unitValue;
 
-        await updateGoalLog({
-          goalLogId: log._id,
+        await updateHabitLog({
+          habitLogId: log._id,
           unitsCompleted: newUnitsCompleted,
-          isComplete: isGoalComplete,
+          isComplete: isHabitComplete,
         });
 
-        if (goal.challengeId) {
+        if (habit.challengeId) {
           await updatePoints({
             unitsCompleted: newUnitsCompleted,
-            rate: goal.rate || 1,
+            rate: habit.rate || 1,
           });
         }
 
-        if (isGoalComplete) {
+        if (isHabitComplete) {
           Alert.alert(
-            "Goal Completed",
-            "Congratulations! You’ve completed this goal."
+            "Habit Completed",
+            "Congratulations! You’ve completed this habit."
           );
         }
       } catch (error) {
-        console.error("Error updating goal log:", error);
-        Alert.alert("Error", "Failed to log goal progress.");
+        console.error("Error updating habit log:", error);
+        Alert.alert("Error", "Failed to log habit progress.");
       }
-      return; // Stop further execution for "times" goals
+      return; // Stop further execution for "times" habit
     }
 
-    // Redirect to the appropriate logging screen for other goal types
+    // Redirect to the appropriate logging screen for other habit types
     try {
-      if (["hours", "minutes", "min"].includes(goal.unit)) {
-        router.push(`/goals/${goal._id}/${log._id}/start`);
+      if (["hours", "minutes", "min"].includes(habit.unit)) {
+        router.push({
+          pathname: "/habits/[habitId]/[habitLogId]/start",
+          params: {
+            habitId: habit._id,
+            habitLogId: log._id,
+          },
+        });
       } else {
-        router.push(`/goals/${goal._id}/${log._id}/start/logProgress`);
+        router.push({
+          pathname: "/habits/[habitId]/[habitLogId]/start/logProgress",
+          params: {
+            habitId: habit._id,
+            habitLogId: log._id,
+          },
+        });
       }
     } catch (error) {
       console.error("Error navigating to form:", error);
@@ -283,7 +300,7 @@ function GoalItem({
     }
   }
 
-  const buttonType = determineButtonType(goal);
+  const buttonType = determineButtonType(habit);
 
   const buttonStyles =
     "w-20 h-10 justify-center flex-row items-center rounded-md";
@@ -292,10 +309,12 @@ function GoalItem({
     <View className="flex-row items-center gap-4">
       <Link
         href={{
-          pathname: `/goals/[goalId]`,
+          pathname: `/habits/[habitId]`,
           params: {
-            goalId: goal._id,
-            selectedGoalLogDate: encodeURIComponent(selectedDate.toISOString()),
+            habitId: habit._id,
+            selectedHabitLogDate: encodeURIComponent(
+              selectedDate.toISOString()
+            ),
           },
         }}
         asChild
@@ -309,8 +328,8 @@ function GoalItem({
             >
               {IconComp ? (
                 <IconComp
-                  name={goal.selectedIcon}
-                  color={goal.selectedIconColor}
+                  name={habit.selectedIcon}
+                  color={habit.selectedIconColor}
                   size={32}
                 />
               ) : (
@@ -324,15 +343,15 @@ function GoalItem({
 
             <View className="w-full gap-2">
               <Text style={{ fontFamily: "openSans.medium" }}>
-                {!!goal.challengeId && (
+                {!!habit.challengeId && (
                   <IconComp name={"trophy"} color={"#FFD700"} size={15} />
                 )}{" "}
-                {goal.name}
+                {habit.name}
               </Text>
               <Text className="text-xs text-muted-foreground">
                 {existingLog
-                  ? `${Number.isInteger(existingLog.unitsCompleted) ? existingLog.unitsCompleted : existingLog.unitsCompleted.toFixed(1)} / ${Number.isInteger(goal.unitValue) ? goal.unitValue : goal.unitValue.toFixed(1)} ${goal.unit}`
-                  : `${Number.isInteger(goal.unitValue) ? goal.unitValue : goal.unitValue.toFixed(1)} ${goal.unit}`}
+                  ? `${Number.isInteger(existingLog.unitsCompleted) ? existingLog.unitsCompleted : existingLog.unitsCompleted.toFixed(1)} / ${Number.isInteger(habit.unitValue) ? habit.unitValue : habit.unitValue.toFixed(1)} ${habit.unit}`
+                  : `${Number.isInteger(habit.unitValue) ? habit.unitValue : habit.unitValue.toFixed(1)} ${habit.unit}`}
               </Text>
             </View>
           </View>
@@ -363,7 +382,7 @@ function GoalItem({
 }
 
 function determineButtonType(
-  goal: Doc<"goals">
+  habit: Doc<"habits">
 ): "keyboard" | "alarm" | "checkmark" {
   const allowedUnits = [
     "steps",
@@ -388,11 +407,11 @@ function determineButtonType(
     "miles",
   ];
 
-  if (goal.unit === "times") {
+  if (habit.unit === "times") {
     return "checkmark"; // Show the checkmark for "times" unit
-  } else if (["hours", "minutes"].includes(goal.unit)) {
+  } else if (["hours", "minutes"].includes(habit.unit)) {
     return "alarm"; // Show the alarm clock for duration-based units
-  } else if (allowedUnits.includes(goal.unit)) {
+  } else if (allowedUnits.includes(habit.unit)) {
     return "keyboard"; // Show the keyboard for specific allowed units
   }
 
