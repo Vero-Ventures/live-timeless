@@ -138,6 +138,7 @@ export default function Progress() {
       <Stack.Screen
         options={{
           headerStyle: { backgroundColor: "#0b1a28" },
+          headerShadowVisible: false,
           headerTintColor: "#fff",
           headerTitle: () => (
             <DropdownMenu.Root>
