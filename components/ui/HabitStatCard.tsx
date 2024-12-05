@@ -30,7 +30,7 @@ interface HabitStatCardProps {
   dailyAverage: number;
   skipped: number;
   failed: number;
-  goalLogs: { date: number; isComplete: boolean }[]; // Accept goalLogs with date as number (timestamp) and isComplete as boolean
+  habitLogs: { date: number; isComplete: boolean }[]; // Accept goalLogs with date as number (timestamp) and isComplete as boolean
   unit: string;
   selection: Selection;
 }
@@ -85,12 +85,12 @@ function HabitStatCard({
   dailyAverage,
   skipped,
   failed,
-  goalLogs,
+  habitLogs,
   unit,
   selection,
 }: HabitStatCardProps) {
   // Generate the heatmap data using the completion status in goalLogs
-  const data = generateCompletionData(goalLogs, selection);
+  const data = generateCompletionData(habitLogs, selection);
 
   // Find the matching icon component from GOAL_ICONS
   const iconComponent = HABIT_ICONS.find((item) => item.name === icon);
