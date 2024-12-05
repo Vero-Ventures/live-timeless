@@ -305,7 +305,7 @@ function GoalPicker<TUnit extends string>({
 
 function SelectUnitType({ unitType }: { unitType: UnitType }) {
   return (
-    <Link href="/goals/create/target/unit-types" asChild>
+    <Link href="/habits/create/target/unit-types" asChild>
       <Pressable className="mt-4 flex flex-row items-center justify-between rounded-xl bg-[#0e2942] p-5">
         <Text
           style={{
