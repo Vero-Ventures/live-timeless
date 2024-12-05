@@ -27,7 +27,7 @@ export default function LogProgressScreen() {
   const updateHabitLog = useMutation(api.habitLogs.updateHabitLog);
   const habit = useQuery(api.habits.getHabitById, { habitId });
 
-  const [remaining, setRemaining] = useState(0); // Remaining units for the goal
+  const [remaining, setRemaining] = useState(0); // Remaining units for the habit
   const [progressInput, setProgressInput] = useState(""); // Track input for the progress value
   const [completed, setCompleted] = useState(0); // Track completed units
 
@@ -51,7 +51,7 @@ export default function LogProgressScreen() {
     if (inputProgress > remaining) {
       Alert.alert(
         "Input Too Large",
-        "The amount entered exceeds the remaining goal value."
+        "The amount entered exceeds the remaining habit value."
       );
       return;
     }
@@ -74,7 +74,7 @@ export default function LogProgressScreen() {
         if (newRemaining <= 0) {
           const completionDate = new Date();
           console.log(
-            "Marking goal as complete at:",
+            "Marking habit as complete at:",
             completionDate.toISOString()
           );
 
@@ -83,11 +83,11 @@ export default function LogProgressScreen() {
             isComplete: true,
             targetDate: completionDate.getTime(), // Pass targetDate when marking complete
           }).catch((error) => {
-            console.error("Error updating goalLog as complete:", error);
+            console.error("Error updating habitLog as complete:", error);
           });
           Alert.alert(
-            "Goal Completed",
-            `Congratulations! You've completed the goal.`,
+            "Habit Completed",
+            `Congratulations! You've completed the habit.`,
             [{ text: "OK", onPress: () => router.back() }] // Go back to the previous page
           );
         } else {
@@ -97,7 +97,7 @@ export default function LogProgressScreen() {
         return newRemaining;
       }
 
-      return prevRemaining; // Fallback if goalLog is undefined
+      return prevRemaining; // Fallback if habitLog is undefined
     });
   };
 
