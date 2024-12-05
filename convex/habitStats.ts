@@ -63,8 +63,8 @@ export const fetchHabitStats = query({
         return {
           _id: habit._id,
           name: habit.name,
-          icon: habit.selectedIcon, // Fetch selectedIcon from goal
-          iconColor: habit.selectedIconColor, // Fetch selectedIconColor from goal
+          icon: habit.selectedIcon,
+          iconColor: habit.selectedIconColor,
           duration: `${habit.unitValue} ${habit.unit} per day`,
           unit: habit.unit,
           longestStreak,
@@ -148,7 +148,7 @@ function returnSkippedLogs(logs: HabitLog[]): HabitLog[] {
   });
 }
 
-// Calculate failed days where progress was started but goal wasn't completed
+// Calculate failed days where progress was started but habit wasn't completed
 function returnFailedLogs(logs: HabitLog[]): HabitLog[] {
   return logs.filter((log) => log.unitsCompleted > 0 && !log.isComplete);
 }

@@ -100,10 +100,12 @@ export default function LogHistoryPage() {
 }
 
 function LogItem({ log }: { log: LogType }) {
-  const icon = HABIT_ICONS.find((icon) => icon.name === log.goal?.selectedIcon);
+  const icon = HABIT_ICONS.find(
+    (icon) => icon.name === log.habit?.selectedIcon
+  );
   const Icon = icon?.component;
   const iconName = icon?.name;
-  const iconColor = log.goal?.selectedIconColor;
+  const iconColor = log.habit?.selectedIconColor;
 
   return (
     <View className="mb-2 flex flex-row items-center justify-between bg-[#0e2942] p-4">
@@ -117,7 +119,7 @@ function LogItem({ log }: { log: LogType }) {
           {!!Icon && <Icon name={iconName} size={20} color="#fff" />}
         </View>
         <Text>
-          {log.unitsCompleted} {log.goal?.unit}
+          {log.unitsCompleted} {log.habit?.unit}
         </Text>
       </View>
       <View>

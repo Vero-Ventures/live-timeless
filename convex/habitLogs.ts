@@ -20,17 +20,17 @@ export const getHabitLogById = query({
 export const getHabitLogsbyHabitId = query({
   args: { habitId: v.id("habits") },
   handler: async (ctx, { habitId }) => {
-    const goalLogs = await ctx.db
+    const habitLogs = await ctx.db
       .query("habitLogs")
       .withIndex("by_habit_id", (q) => q.eq("habitId", habitId))
       .collect();
 
     const habitLogsWithHabits = await Promise.all(
-      goalLogs.map(async (h) => {
-        const goal = await ctx.db.get(h.habitId);
+      habitLogs.map(async (h) => {
+        const habit = await ctx.db.get(h.habitId);
         return {
           ...h,
-          goal,
+          habit,
         };
       })
     );
@@ -87,7 +87,7 @@ export const createHabitLog = mutation({
       .first();
 
     if (existingLog) {
-      throw new Error("A habit log already exists for this goal and date.");
+      throw new Error("A habit log already exists for this habit and date.");
     }
     const newLogId = await ctx.db.insert("habitLogs", {
       date,
@@ -105,7 +105,7 @@ export const updateHabitLog = mutation({
     isComplete: v.optional(v.boolean()),
     date: v.optional(v.number()),
     targetDate: v.optional(v.number()),
-    goalId: v.optional(v.id("goals")),
+    habitId: v.optional(v.id("habits")),
     unitsCompleted: v.optional(v.number()),
   },
   handler: async (ctx, { habitLogId, targetDate, date, ...updateData }) => {
@@ -136,7 +136,7 @@ export const updateHabitLog = mutation({
 
       if (existingDateFormatted !== newDateString) {
         throw new Error(
-          "Date mismatch: Cannot update goal log with a different date"
+          "Date mismatch: Cannot update habit log with a different date"
         );
       }
     }

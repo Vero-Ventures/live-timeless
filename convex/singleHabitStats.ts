@@ -32,11 +32,11 @@ export const fetchSingleHabitStats = query({
 
     const habit = await ctx.db.get(habitId);
     if (!habit) {
-      console.error("Goal not found");
-      throw new Error("Goal not found");
+      console.error("Habit not found");
+      throw new Error("Habit not found");
     }
 
-    // Retrieve logs for this goal
+    // Retrieve logs for this habit
     const logs = await ctx.db
       .query("habitLogs")
       .withIndex("by_habit_id", (q) => q.eq("habitId", habit._id))
@@ -151,10 +151,10 @@ function calculateDailyAverage(logs: HabitLog[]): number {
 }
 
 /**
- * Calculates the number of skipped dates for a goal.
+ * Calculates the number of skipped dates for a habit.
  *
- * @param goal - The Goal object containing recurrence details.
- * @param logs - The array of GoalLogs already retrieved for the goal.
+ * @param habit - The Habit object containing recurrence details.
+ * @param logs - The array of HabitLogs for the habit.
  * @returns The total number of skipped dates.
  */
 export function calculateSkipped(validDates: Date[], logs: HabitLog[]): number {
@@ -183,9 +183,9 @@ export function calculateSkipped(validDates: Date[], logs: HabitLog[]): number {
 }
 
 /**
- * Calculates the number of failed logs for a goal.
+ * Calculates the number of failed logs for a habit.
  *
- * @param logs - The array of GoalLogs for the goal.
+ * @param logs - The array of HabitLogs for the habit.
  * @returns The total number of failed logs.
  */
 export function calculateFailed(logs: HabitLog[]): number {

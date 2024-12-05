@@ -30,7 +30,7 @@ interface HabitStatCardProps {
   dailyAverage: number;
   skipped: number;
   failed: number;
-  habitLogs: { date: number; isComplete: boolean }[]; // Accept goalLogs with date as number (timestamp) and isComplete as boolean
+  habitLogs: { date: number; isComplete: boolean }[]; // Accept habitLogs with date as number (timestamp) and isComplete as boolean
   unit: string;
   selection: Selection;
 }
@@ -51,7 +51,7 @@ constants[`${year}`] = 365;
 
 // Adjusted function to generate completion data based on daily matching
 const generateCompletionData = (
-  goalLogs: { date: number; isComplete: boolean }[],
+  habitLogs: { date: number; isComplete: boolean }[],
   selection: Selection
 ) => {
   const days = constants[selection];
@@ -61,7 +61,7 @@ const generateCompletionData = (
     const date = startOfDay(subDays(today, i)).getTime(); // Normalize each past day to start of day timestamp
 
     // Find if there's a log for this day and if it is marked complete
-    const logForDay = goalLogs.find(
+    const logForDay = habitLogs.find(
       (log) => startOfDay(new Date(log.date)).getTime() === date // Normalize log date to start of day and compare
     );
 
@@ -89,10 +89,9 @@ function HabitStatCard({
   unit,
   selection,
 }: HabitStatCardProps) {
-  // Generate the heatmap data using the completion status in goalLogs
+  // Generate the heatmap data using the completion status in habitLogs
   const data = generateCompletionData(habitLogs, selection);
 
-  // Find the matching icon component from GOAL_ICONS
   const iconComponent = HABIT_ICONS.find((item) => item.name === icon);
   const Icon = iconComponent?.component;
 

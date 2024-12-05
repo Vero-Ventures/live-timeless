@@ -3,12 +3,12 @@ import type { Habit } from "./habits";
 /**
   Generates valid dates up to current date.
   
-  @param goal - The Goal object containing recurrence details.
-  @returns - Valid dates for Goal Logs to generate on.
+  @param habit - The Habit object containing recurrence details.
+  @returns - Valid dates for Habit Logs to generate on.
 */
-export function generateValidDates(goal: Habit): Date[] {
+export function generateValidDates(habit: Habit): Date[] {
   const { startDate, repeatType, dailyRepeat, intervalRepeat, monthlyRepeat } =
-    goal;
+    habit;
   const validDates: Date[] = [];
 
   const currentDate = new Date();
