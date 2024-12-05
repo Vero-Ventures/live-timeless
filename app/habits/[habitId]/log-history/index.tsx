@@ -10,7 +10,7 @@ import { HABIT_ICONS } from "~/constants/habit-icons";
 import { Text } from "~/components/ui/text";
 
 type LogType = FunctionReturnType<
-  typeof api.goalLogs.getGoalLogsbyGoalId
+  typeof api.habitLogs.getHabitLogsbyHabitId
 >[number];
 
 function formatDate(timestamp: number) {
@@ -21,14 +21,14 @@ function formatDate(timestamp: number) {
 }
 
 export default function LogHistoryPage() {
-  const { goalId } = useLocalSearchParams<{ goalId: string }>();
-  const goalLogs = useQuery(api.goalLogs.getGoalLogsbyGoalId, {
-    goalId: goalId as Id<"goals">,
+  const { habitId } = useLocalSearchParams<{ habitId: string }>();
+  const habitLogs = useQuery(api.habitLogs.getHabitLogsbyHabitId, {
+    habitId: habitId as Id<"habits">,
   });
 
-  console.log(JSON.stringify(goalLogs, null, 4));
+  console.log(JSON.stringify(habitLogs, null, 4));
 
-  if (!goalLogs) {
+  if (!habitLogs) {
     return (
       <View
         className="flex-1 items-center justify-center gap-4"
@@ -42,7 +42,7 @@ export default function LogHistoryPage() {
     );
   }
 
-  const filteredLogs = goalLogs.filter((log) => log.unitsCompleted > 0);
+  const filteredLogs = habitLogs.filter((log) => log.unitsCompleted > 0);
 
   const logsByDate = filteredLogs.reduce(
     (acc, log) => {
