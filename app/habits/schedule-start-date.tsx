@@ -6,12 +6,12 @@ import { Text } from "../../components/ui/text";
 import { CalendarDays } from "~/lib/icons/CalendarDays";
 import { fontFamily } from "~/lib/font";
 import { getRelativeDateLabel } from "~/lib/date";
-import { useGoalFormStore } from "./create/goal-store";
+import { useHabitFormStore } from "./create/habit-store";
 import { useShallow } from "zustand/react/shallow";
 
 export default function ScheduleStartDate() {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [startDate, setStartDate] = useGoalFormStore(
+  const [startDate, setStartDate] = useHabitFormStore(
     useShallow((s) => [s.startDate, s.setStartDate])
   );
 

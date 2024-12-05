@@ -19,8 +19,8 @@ import {
   type RepeatType,
   type TimeOfDay,
   type UnitType,
-  useGoalFormStore,
-} from "../../create/goal-store";
+  useHabitFormStore,
+} from "../../create/habit-store";
 import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -86,7 +86,7 @@ function EditGoalForm() {
     recurrence,
     setRecurrence,
     resetForm,
-  ] = useGoalFormStore(
+  ] = useHabitFormStore(
     useShallow((s) => [
       s.name,
       s.setName,

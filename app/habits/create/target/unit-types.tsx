@@ -3,10 +3,10 @@ import { Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
 import { cn } from "~/lib/utils";
-import { useGoalFormStore } from "../goal-store";
+import { useHabitFormStore } from "../habit-store";
 import { useShallow } from "zustand/react/shallow";
 export default function UnitTypes() {
-  const [setUnitType, setUnitValue, setUnit, setRecurrence] = useGoalFormStore(
+  const [setUnitType, setUnitValue, setUnit, setRecurrence] = useHabitFormStore(
     useShallow((s) => [
       s.setUnitType,
       s.setUnitValue,

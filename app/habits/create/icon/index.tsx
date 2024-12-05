@@ -3,7 +3,7 @@ import { FlatList, Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
 import { ChevronLeft } from "~/lib/icons/ChevronLeft";
-import { useGoalFormStore } from "../goal-store";
+import { useHabitFormStore } from "../habit-store";
 import { useShallow } from "zustand/react/shallow";
 import { HABIT_ICONS } from "~/constants/habit-icons";
 import { IconPicker } from "~/components/icon-picker";
@@ -15,7 +15,7 @@ export default function IconScreen() {
     setSelectedIconColor,
     selectedIcon,
     setSelectedIcon,
-  ] = useGoalFormStore(
+  ] = useHabitFormStore(
     useShallow((s) => [
       s.selectedIconColor,
       s.setSelectedIconColor,
