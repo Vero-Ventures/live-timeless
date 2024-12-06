@@ -10,19 +10,20 @@ import {
   internalMutation,
   internalQuery,
 } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
+import type { Id } from "./_generated/dataModel";
 
 export const answer = internalAction({
   args: {
     existingThreadId: v.optional(v.string()),
+    currentUserId: v.id("users"),
     message: v.string(),
   },
-  handler: async (ctx, { existingThreadId, message }) => {
+  handler: async (ctx, { existingThreadId, currentUserId, message }) => {
     const openai = new OpenAI();
 
     let threadId = existingThreadId;
     if (!threadId) {
-      threadId = await createThreadId(ctx, openai);
+      threadId = await createThreadId(ctx, openai, currentUserId);
     }
 
     // Add a message to the thread
@@ -42,9 +43,16 @@ export const answer = internalAction({
   },
 });
 
-const createThreadId = async (ctx: ActionCtx, openai: OpenAI) => {
+const createThreadId = async (
+  ctx: ActionCtx,
+  openai: OpenAI,
+  currentUserId: Id<"users">
+) => {
   const { id: newThreadId } = await openai.beta.threads.create();
-  await ctx.runMutation(internal.serve.saveThread, { threadId: newThreadId });
+  await ctx.runMutation(internal.serve.saveThread, {
+    currentUserId,
+    threadId: newThreadId,
+  });
   return newThreadId;
 };
 
@@ -58,12 +66,13 @@ export const getThread = internalQuery(
 );
 
 export const saveThread = internalMutation(
-  async (ctx, { threadId }: { threadId: string }) => {
-    const currentUserId = await getAuthUserId(ctx);
-    if (!currentUserId) {
-      return null;
-    }
-
+  async (
+    ctx,
+    {
+      currentUserId,
+      threadId,
+    }: { currentUserId: Id<"users">; threadId: string }
+  ) => {
     await ctx.db.insert("threads", {
       userId: currentUserId,
       threadId,

@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { mutation } from "./_generated/server";
 import { query } from "./_generated/server";
 import { internal } from "./_generated/api";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 export const getMessages = query({
   args: { threadId: v.optional(v.string()) },
@@ -25,8 +26,14 @@ export const sendMessage = mutation({
     threadId: v.optional(v.string()),
   },
   handler: async (ctx, { message, threadId }) => {
+    const currentUserId = await getAuthUserId(ctx);
+    if (!currentUserId) {
+      return null;
+    }
+
     await ctx.scheduler.runAfter(0, internal.serve.answer, {
       existingThreadId: threadId,
+      currentUserId,
       message,
     });
   },
