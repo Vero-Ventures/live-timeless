@@ -13,6 +13,13 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --list-different --ignore-path .gitignore",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore"
   },
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "enabled": false
+      }
+    }
+  },
   "jest": {
     "preset": "jest-expo"
   },
@@ -34,16 +41,16 @@
     "@rn-primitives/label": "^1.0.3",
     "@rn-primitives/select": "^1.0.4",
     "@rn-primitives/separator": "^1.0.3",
-    "@rn-primitives/slot": "^1.0.3",
+    "@rn-primitives/slot": "^1.1.0",
     "@rn-primitives/tabs": "^1.0.3",
-    "@rn-primitives/types": "^1.0.3",
+    "@rn-primitives/types": "^1.1.0",
     "ai": "^3.3.8",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "convex": "^1.14.0",
     "date-fns": "^4.1.0",
     "eslint-plugin-react": "^7.36.1",
-    "expo": "^52.0.0",
+    "expo": "^52.0.17",
     "expo-asset": "~11.0.1",
     "expo-constants": "~17.0.3",
     "expo-dev-client": "~5.0.5",
@@ -51,7 +58,7 @@
     "expo-linking": "~7.0.3",
     "expo-router": "~4.0.11",
     "expo-secure-store": "~14.0.0",
-    "expo-splash-screen": "~0.29.13",
+    "expo-splash-screen": "~0.29.16",
     "expo-status-bar": "~2.0.0",
     "expo-system-ui": "~4.0.5",
     "expo-web-browser": "~14.0.1",
@@ -88,7 +95,7 @@
     "@types/jest": "^29.5.12",
     "@types/react": "~18.3.12",
     "@types/react-test-renderer": "^18.0.7",
-    "@typescript-eslint/parser": "^7.18.0",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
     "eslint": "^8.57.0",
     "eslint-config-expo": "~8.0.1",
     "eslint-plugin-react-native": "^4.1.0",

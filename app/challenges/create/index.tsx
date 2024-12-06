@@ -26,7 +26,6 @@ export default function CreateChallengePage() {
               Create Challenge
             </Text>
           ),
-          headerBackTitleVisible: false,
         }}
       />
       <CreateChallengeForm />
@@ -110,6 +109,7 @@ function CreateChallengeForm() {
             await createChallenge(newChallenge);
             router.dismiss();
           } catch (error) {
+            console.error(error);
             throw new Error("Failed to create challenge");
           }
         }}
