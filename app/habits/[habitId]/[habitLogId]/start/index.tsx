@@ -188,7 +188,7 @@ export default function LogProgressScreen() {
               {habit?.name ?? ""}
             </Text>
           ),
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
         }}
       />
 
