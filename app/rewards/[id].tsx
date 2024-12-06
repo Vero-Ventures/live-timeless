@@ -26,8 +26,6 @@ export default function SingleRewardsPage() {
     getReward({ productId: id }).then((product) => setReward(product));
   }, [getReward, id]);
 
-  console.log(reward);
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#082139" }}>
       <Stack.Screen
