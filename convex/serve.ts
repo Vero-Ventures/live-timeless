@@ -1,7 +1,10 @@
 import { v } from "convex/values";
 import { asyncSleep, asyncMap } from "modern-async";
 import OpenAI from "openai";
-import type { TextContentBlock } from "openai/resources/beta/threads/messages.mjs";
+import type {
+  Message,
+  TextContentBlock,
+} from "openai/resources/beta/threads/messages.mjs";
 
 import { internal } from "./_generated/api";
 import type { ActionCtx } from "./_generated/server";
@@ -25,6 +28,13 @@ export const answer = internalAction({
     if (!threadId) {
       threadId = await createThreadId(ctx, openai, currentUserId);
     }
+
+    // Add a message to the database
+    await ctx.runMutation(internal.serve.addMessage, {
+      role: "user",
+      content: message,
+      threadId,
+    });
 
     // Add a message to the thread
     const { id: lastMessageId } = await openai.beta.threads.messages.create(
@@ -94,6 +104,7 @@ async function pollForAnswer(
       case "expired":
       case "cancelled":
         await ctx.runMutation(internal.serve.addMessage, {
+          role: "assistant",
           content:
             "I cannot reply at this time. Reach out to the team on Discord",
           threadId,
@@ -110,6 +121,7 @@ async function pollForAnswer(
             .map(({ text }) => text.value)
             .join("\n\n");
           await ctx.runMutation(internal.serve.addMessage, {
+            role: "assistant",
             content: text,
             threadId,
           });
@@ -121,9 +133,16 @@ async function pollForAnswer(
 }
 
 export const addMessage = internalMutation(
-  async (ctx, { content, threadId }: { content: string; threadId: string }) => {
+  async (
+    ctx,
+    {
+      role,
+      content,
+      threadId,
+    }: { role: Message["role"]; content: string; threadId: string }
+  ) => {
     await ctx.db.insert("messages", {
-      role: "assistant",
+      role,
       content,
       threadId,
     });
