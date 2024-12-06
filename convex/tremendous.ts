@@ -3,6 +3,7 @@
 import { Configuration, Environments } from "tremendous";
 import { action } from "./_generated/server";
 import { ProductsApi } from "tremendous";
+import { v } from "convex/values";
 
 // when you are testing your code with the sandbox environment:
 const configuration = new Configuration({
@@ -12,7 +13,7 @@ const configuration = new Configuration({
 
 const client = new ProductsApi(configuration);
 
-export const getRewardsAction = action({
+export const listRewardsAction = action({
   handler: async () => {
     const limit = 5;
     const offset = 0;
@@ -23,5 +24,13 @@ export const getRewardsAction = action({
       },
     });
     return data.products;
+  },
+});
+
+export const getRewardAction = action({
+  args: { productId: v.string() },
+  handler: async (_, { productId }) => {
+    const { data } = await client.getProduct(productId);
+    return data.product;
   },
 });

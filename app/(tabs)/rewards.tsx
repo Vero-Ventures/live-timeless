@@ -1,13 +1,13 @@
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   View,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { Link } from "expo-router";
+import { Link, useLocalSearchParams } from "expo-router";
 import { Text } from "~/components/ui/text";
 import SearchInput from "~/components/search-input";
 import { Coins } from "~/lib/icons/Coins";
@@ -21,40 +21,42 @@ export default function RewardsPage() {
   const [rewards, setRewards] = useState<
     ListProductsResponseProductsInner[] | null
   >(null);
+  const { query } = useLocalSearchParams<{ query?: string }>();
   const user = useQuery(api.users.currentUser);
-  const getRewardsAction = useAction(api.tremendous.getRewardsAction);
+  const fetchRewards = useAction(api.tremendous.listRewardsAction);
 
   useEffect(() => {
-    getRewardsAction().then((products) => setRewards(products));
-  }, [getRewardsAction]);
+    fetchRewards().then((products) => setRewards(products));
+  }, [fetchRewards]);
+
+  const filteredRewards = rewards
+    ? query
+      ? rewards.filter((reward) =>
+          reward.name.toLowerCase().includes(query.toLowerCase())
+        )
+      : rewards
+    : null;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#082139" }}>
-      {user && rewards ? (
+      <View className="gap-10 bg-background p-4">
+        <View className="flex flex-row items-center gap-4">
+          <Text>
+            <Coins className="text-primary" size={40} />
+          </Text>
+          <View className="gap-2">
+            <Text className="text-2xl font-bold">{user?.points ?? 0}</Text>
+            <Text className="text-md">LT Token Balance</Text>
+          </View>
+        </View>
+        <View className="gap-3">
+          <Text className="text-2xl font-semibold">Available Rewards</Text>
+          <SearchInput query={query} />
+        </View>
+      </View>
+      {filteredRewards ? (
         <FlatList
-          ListHeaderComponent={() => (
-            <View className="gap-10 bg-background p-4">
-              <View className="flex flex-row items-center gap-4">
-                <Text>
-                  <Coins className="text-primary" size={40} />
-                </Text>
-                <View className="gap-2">
-                  <Text className="text-2xl font-bold">
-                    {user?.points ?? 0}
-                  </Text>
-                  <Text className="text-md">LT Token Balance</Text>
-                </View>
-              </View>
-              <View className="gap-3">
-                <Text className="text-2xl font-semibold">
-                  Available Rewards
-                </Text>
-                <SearchInput />
-              </View>
-            </View>
-          )}
-          stickyHeaderIndices={[0]}
-          data={rewards}
+          data={filteredRewards}
           ItemSeparatorComponent={() => <View className="py-2" />}
           renderItem={({ item }) => <RewardItem product={item} />}
         />
