@@ -24,7 +24,7 @@ export default function UnitTypes() {
           },
           headerTintColor: "#fff",
           headerTitle: "",
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
         }}
       />
       <View className="h-full bg-[#082139]">

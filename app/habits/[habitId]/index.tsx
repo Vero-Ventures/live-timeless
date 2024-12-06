@@ -189,7 +189,7 @@ export default function HabitScreen() {
               {habit ? habit.name : ""}
             </Text>
           ),
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
           headerRight: () => (
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>

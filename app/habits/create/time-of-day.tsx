@@ -24,7 +24,7 @@ export default function TimeOfDay() {
               Time of Day
             </Text>
           ),
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
         }}
       />
       <ScrollView

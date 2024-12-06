@@ -48,7 +48,7 @@ export default function HabitCompletionScreen() {
               Congratulations!
             </Text>
           ),
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
         }}
       />
       <Text

@@ -27,7 +27,7 @@ export default function Reminders() {
               Reminders
             </Text>
           ),
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
         }}
       />
       <View className="h-full bg-[#082139] p-4">

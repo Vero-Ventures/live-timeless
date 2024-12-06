@@ -101,7 +101,7 @@ export default function ChallengeScreen() {
           headerRight: () =>
             !!challenge &&
             getChallengeStatus(challenge?.startDate, challenge?.endDate),
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
         }}
       />
       {challenge ? (

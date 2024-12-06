@@ -37,7 +37,7 @@ export default function EditProfileScreen() {
               Edit Profile
             </Text>
           ),
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
         }}
       />
       <AuthLoading>

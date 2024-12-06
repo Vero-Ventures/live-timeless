@@ -65,7 +65,7 @@ export default function LogHistoryPage() {
           headerTitle: () => (
             <Text className="text-xl font-bold">Log History</Text>
           ),
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
         }}
       />
       <FlatList
