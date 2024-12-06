@@ -1,5 +1,5 @@
 "use dom";
-import "./description.css";
+import "./dom-content.css";
 
 export default function Description({ content }: { content: string }) {
   console.log(content);
