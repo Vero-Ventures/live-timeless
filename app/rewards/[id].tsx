@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { useAction } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import type { ListProductsResponseProductsInner } from "tremendous";
-import { ChevronLeft } from "lucide-react-native";
+import { ArrowLeft } from "~/lib/icons/ArrowLeft";
 import { MaterialIcons } from "@expo/vector-icons";
 
 export default function SingleRewardsPage() {
@@ -45,7 +45,7 @@ export default function SingleRewardsPage() {
                   hitSlop={20}
                   onPress={() => router.dismiss()}
                 >
-                  <ChevronLeft color="#fff" size={40} />
+                  <ArrowLeft color="#fff" size={40} />
                 </Pressable>
                 {reward.category === "merchant_card" && (
                   <View className="absolute top-28 flex flex-row gap-2 pl-4">
