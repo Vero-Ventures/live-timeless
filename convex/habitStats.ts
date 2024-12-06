@@ -1,7 +1,7 @@
 import { query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import type { GoalLog } from "./goalLogs";
+import type { HabitLog } from "./habitLogs";
 
 // Define the HabitStat type for the backend
 export type HabitStat = {
@@ -15,38 +15,38 @@ export type HabitStat = {
   currentStreak: number;
   total: number;
   dailyAverage: number;
-  skipped: GoalLog[];
-  failed: GoalLog[];
+  skipped: HabitLog[];
+  failed: HabitLog[];
   dailyCompletionRates: { date: string; completionRate: number }[];
 };
 
 export const fetchHabitStats = query({
-  args: { goalId: v.optional(v.id("goals")) },
-  handler: async (ctx, { goalId }) => {
+  args: { habitId: v.optional(v.id("habits")) },
+  handler: async (ctx, { habitId }) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) {
       console.error("User not authenticated");
       throw new Error("User not authenticated");
     }
 
-    // Fetch all goals or a single goal if goalId is provided
-    const goals = goalId
-      ? [await ctx.db.get(goalId)]
+    // Fetch all habits or a single habit if habitId is provided
+    const habits = habitId
+      ? [await ctx.db.get(habitId)]
       : await ctx.db
-          .query("goals")
+          .query("habits")
           .withIndex("by_user_id", (q) => q.eq("userId", userId))
           .collect();
 
     const stats: HabitStat[] = await Promise.all(
-      goals.map(async (goal) => {
-        if (!goal) {
-          console.error("Goal not found");
-          throw new Error("Goal not found");
+      habits.map(async (habit) => {
+        if (!habit) {
+          console.error("Habit not found");
+          throw new Error("Habit not found");
         }
 
         const logs = await ctx.db
-          .query("goalLogs")
-          .withIndex("by_goal_id", (q) => q.eq("goalId", goal._id))
+          .query("habitLogs")
+          .withIndex("by_habit_id", (q) => q.eq("habitId", habit._id))
           .collect();
 
         const total = calculateTotal(logs);
@@ -57,16 +57,16 @@ export const fetchHabitStats = query({
         const failed = returnFailedLogs(logs);
         const dailyCompletionRates = calculateDailyCompletion(
           logs,
-          goal.unitValue
+          habit.unitValue
         ).rates;
 
         return {
-          _id: goal._id,
-          name: goal.name,
-          icon: goal.selectedIcon, // Fetch selectedIcon from goal
-          iconColor: goal.selectedIconColor, // Fetch selectedIconColor from goal
-          duration: `${goal.unitValue} ${goal.unit} per day`,
-          unit: goal.unit,
+          _id: habit._id,
+          name: habit.name,
+          icon: habit.selectedIcon,
+          iconColor: habit.selectedIconColor,
+          duration: `${habit.unitValue} ${habit.unit} per day`,
+          unit: habit.unit,
           longestStreak,
           currentStreak,
           total,
@@ -82,7 +82,7 @@ export const fetchHabitStats = query({
   },
 });
 
-function calculateLongestStreak(logs: GoalLog[]): number {
+function calculateLongestStreak(logs: HabitLog[]): number {
   let longestStreak = 0;
   let currentStreak = 0;
 
@@ -98,7 +98,7 @@ function calculateLongestStreak(logs: GoalLog[]): number {
   return longestStreak;
 }
 
-function calculateCurrentStreak(logs: GoalLog[]): number {
+function calculateCurrentStreak(logs: HabitLog[]): number {
   let currentStreak = 0;
 
   for (let i = logs.length - 1; i >= 0; i--) {
@@ -113,11 +113,11 @@ function calculateCurrentStreak(logs: GoalLog[]): number {
 }
 
 // Calculate the total units completed
-function calculateTotal(logs: GoalLog[]): number {
+function calculateTotal(logs: HabitLog[]): number {
   return logs.reduce((sum, log) => sum + log.unitsCompleted, 0);
 }
 
-function calculateDailyAverage(logs: GoalLog[]): number {
+function calculateDailyAverage(logs: HabitLog[]): number {
   const logsWithUnits = logs.filter((log) => log.unitsCompleted > 0);
   const logsByDate = logsWithUnits.reduce(
     (acc, log) => {
@@ -126,7 +126,7 @@ function calculateDailyAverage(logs: GoalLog[]): number {
       acc[date].push(log);
       return acc;
     },
-    {} as Record<string, GoalLog[]>
+    {} as Record<string, HabitLog[]>
   );
 
   const totalUnits = Object.values(logsByDate).reduce(
@@ -140,7 +140,7 @@ function calculateDailyAverage(logs: GoalLog[]): number {
     : 0;
 }
 
-function returnSkippedLogs(logs: GoalLog[]): GoalLog[] {
+function returnSkippedLogs(logs: HabitLog[]): HabitLog[] {
   const today = new Date().setHours(0, 0, 0, 0);
   return logs.filter((log) => {
     const logDate = new Date(log.date).setHours(0, 0, 0, 0);
@@ -148,12 +148,12 @@ function returnSkippedLogs(logs: GoalLog[]): GoalLog[] {
   });
 }
 
-// Calculate failed days where progress was started but goal wasn't completed
-function returnFailedLogs(logs: GoalLog[]): GoalLog[] {
+// Calculate failed days where progress was started but habit wasn't completed
+function returnFailedLogs(logs: HabitLog[]): HabitLog[] {
   return logs.filter((log) => log.unitsCompleted > 0 && !log.isComplete);
 }
 
-function calculateDailyCompletion(logs: GoalLog[], unitValue: number) {
+function calculateDailyCompletion(logs: HabitLog[], unitValue: number) {
   const daysInMonth = new Date(
     new Date().getFullYear(),
     new Date().getMonth() + 1,
@@ -173,7 +173,7 @@ function calculateDailyCompletion(logs: GoalLog[], unitValue: number) {
       acc[day].push(log);
       return acc;
     },
-    {} as Record<number, GoalLog[]>
+    {} as Record<number, HabitLog[]>
   );
 
   Object.keys(dailyLogs).forEach((day) => {

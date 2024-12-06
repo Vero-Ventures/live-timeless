@@ -21,8 +21,8 @@ export default defineSchema({
     hasOnboarded: v.optional(v.boolean()),
     points: v.optional(v.number()),
   }).index("email", ["email"]),
-  goals: defineTable({
-    _id: v.id("goals"),
+  habits: defineTable({
+    _id: v.id("habits"),
     userId: v.id("users"),
     challengeId: v.optional(v.id("challenges")),
     dailyRepeat: v.array(v.string()),
@@ -41,13 +41,13 @@ export default defineSchema({
     recurrence: v.string(),
     rate: v.optional(v.number()),
   }).index("by_user_id", ["userId"]),
-  goalLogs: defineTable({
-    _id: v.id("goalLogs"),
-    goalId: v.id("goals"),
+  habitLogs: defineTable({
+    _id: v.id("habitLogs"),
+    habitId: v.id("habits"),
     isComplete: v.boolean(),
     date: v.number(),
     unitsCompleted: v.number(),
-  }).index("by_goal_id", ["goalId"]),
+  }).index("by_habit_id", ["habitId"]),
   challenges: defineTable({
     _id: v.id("challenges"),
     name: v.string(),
@@ -67,8 +67,8 @@ export default defineSchema({
     userId: v.id("users"),
     challengeId: v.id("challenges"),
   }).index("by_challenge_id_user_id", ["challengeId", "userId"]),
-  challengeGoals: defineTable({
-    _id: v.id("challengeGoals"),
+  challengeHabits: defineTable({
+    _id: v.id("challengeHabits"),
     challengeId: v.id("challenges"),
     dailyRepeat: v.array(v.string()),
     intervalRepeat: v.float64(),

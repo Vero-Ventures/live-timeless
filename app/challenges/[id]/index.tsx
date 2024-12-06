@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "convex/react";
-import { Stack, useLocalSearchParams, Link } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { Target } from "~/lib/icons/Target";
 import { Calendar } from "~/lib/icons/Calendar";
 import { ActivityIndicator, SafeAreaView, View, FlatList } from "react-native";
@@ -11,7 +11,33 @@ import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { User2 } from "lucide-react-native";
-import { GOAL_ICONS } from "~/constants/goal-icons";
+import { Badge } from "~/components/ui/badge";
+
+const getChallengeStatus = (
+  startDate: number,
+  endDate: number
+): React.ReactNode => {
+  const currentDate = new Date();
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  const hasNotStarted = currentDate < start;
+  const hasEnded = currentDate > end;
+
+  return hasNotStarted ? (
+    <Badge className="rounded-full bg-gray-500 px-4">
+      <Text className="text-bg-gray-200">Not Started</Text>
+    </Badge>
+  ) : hasEnded ? (
+    <Badge className="rounded-full bg-red-600 px-4">
+      <Text className="text-red-600">Ended</Text>
+    </Badge>
+  ) : (
+    <Badge className="rounded-full bg-green-600 px-4">
+      <Text className="text-green-200">Started</Text>
+    </Badge>
+  );
+};
 
 export default function ChallengeScreen() {
   const { id } = useLocalSearchParams<{
@@ -34,85 +60,24 @@ export default function ChallengeScreen() {
 
   const joinChallenge = useMutation(api.challenges.joinChallenge);
   const leaveChallenge = useMutation(api.challenges.leaveChallenge);
-  const createGoal = useMutation(api.goals.createGoal);
-  const deleteGoalAndGoalLogs = useMutation(api.goals.deleteGoalAndGoalLogs);
-  const userGoals = useQuery(api.goals.listGoals);
-  const filteredChallengeGoals = useQuery(
-    api.challengeGoals.listChallengeGoalsById,
-    { goalId: id }
+  const deleteHabitAndHabitLogs = useMutation(
+    api.habits.deleteHabitAndHabitLogs
   );
-  // const createGoalLogsFromGoal = useMutation(
-  //   api.goalLogs.createGoalLogsFromGoal
-  // );
+  const habits = useQuery(api.habits.listHabits);
 
-  const importChallengeGoalsToUserGoals = () => {
-    filteredChallengeGoals?.map(async (goal) => {
-      const challengeGoal = {
-        challengeId: goal.challengeId,
-        dailyRepeat: goal.dailyRepeat,
-        intervalRepeat: goal.intervalRepeat,
-        monthlyRepeat: goal.monthlyRepeat,
-        name: goal.name,
-        repeatType: goal.repeatType,
-        selectedIcon: goal.selectedIcon,
-        selectedIconColor: goal.selectedIconColor,
-        timeOfDay: goal.timeOfDay,
-        timeReminder: goal.timeReminder,
-        startDate: goal.startDate,
-        unitType: goal.unitType,
-        unitValue: goal.unitValue,
-        unit: goal.unit,
-        recurrence: goal.recurrence,
-        rate: goal.rate,
-      };
-      const goalId = await createGoal(challengeGoal);
-      if (!goalId) {
-        throw new Error("Failed to create goal");
-      }
-
-      // await createGoalLogsFromGoal({
-      //   goalId,
-      // });
-    });
-  };
-
-  const deleteChallengeGoalsFromUserGoals = () => {
-    const filteredUserGoals = userGoals?.filter(
-      (goal) => goal.challengeId === id
-    );
-    filteredUserGoals?.map((goal) => {
-      deleteGoalAndGoalLogs({ goalId: goal._id });
+  const deleteChallengeHabits = () => {
+    const filteredHabits = habits?.filter((habit) => habit.challengeId === id);
+    filteredHabits?.map((habit) => {
+      deleteHabitAndHabitLogs({ habitId: habit._id });
     });
   };
 
   const handleJoinChallenge = async (challengeId: Id<"challenges">) => {
     await joinChallenge({ challengeId });
-    importChallengeGoalsToUserGoals();
   };
   const handleLeaveChallenge = async (challengeId: Id<"challenges">) => {
     await leaveChallenge({ challengeId });
-    deleteChallengeGoalsFromUserGoals();
-  };
-
-  const getChallengeStatus = (
-    startDate: number,
-    endDate: number
-  ): React.ReactNode => {
-    const currentDate = new Date();
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    if (currentDate < start) {
-      return (
-        <Text className="leading-relaxed text-primary-foreground">
-          Not Started
-        </Text>
-      );
-    } else if (currentDate > end) {
-      return <Text className="leading-relaxed text-red-600">Ended</Text>;
-    } else {
-      return <Text className="leading-relaxed text-green-500">Started</Text>;
-    }
+    deleteChallengeHabits();
   };
 
   return (
@@ -124,41 +89,30 @@ export default function ChallengeScreen() {
           },
           headerTintColor: "#fff",
           headerTitle: () => (
-            <Text
-              className="text-xl"
-              style={{ fontFamily: fontFamily.openSans.bold }}
-            >
-              {challenge ? challenge.name : ""}
-            </Text>
+            <View>
+              <Text
+                className="text-xl"
+                style={{ fontFamily: fontFamily.openSans.bold }}
+              >
+                {challenge ? challenge.name : ""}
+              </Text>
+            </View>
           ),
+          headerRight: () =>
+            !!challenge &&
+            getChallengeStatus(challenge?.startDate, challenge?.endDate),
           headerBackTitleVisible: false,
         }}
       />
       {challenge ? (
         <>
-          <View className="flex-1 gap-4 p-4">
-            <View className="gap-4">
-              <Link
-                href={{
-                  pathname: "/challenges/goal",
-                  params: { id: challenge._id },
-                }}
-                asChild
-              >
-                <Button>
-                  <Text className="text-bold text-primary-foreground">
-                    Create Challenge Goals
-                  </Text>
-                </Button>
-              </Link>
-            </View>
+          <View className="flex-1 gap-6 p-4">
             <View className="flex-row items-center gap-2">
               <Target className="stroke-gray-400" />
               <Text className="text-gray-400">
                 {challenge.unitValue} {challenge.unit} {challenge.recurrence}
               </Text>
             </View>
-
             <View className="flex-row items-center gap-2">
               <Calendar className="stroke-gray-400" />
               <Text className="text-gray-400">
@@ -176,13 +130,13 @@ export default function ChallengeScreen() {
                 )}`}
               </Text>
             </View>
-
-            <View className="gap-2">
-              <Text className="text-2xl font-bold">This challenge has</Text>
-              {getChallengeStatus(challenge.startDate, challenge.endDate)}
-            </View>
-
-            <View className="">
+            {!!challenge.description && (
+              <View className="gap-2">
+                <Text className="text-2xl font-bold">About</Text>
+                <Text className="leading-relaxed">{challenge.description}</Text>
+              </View>
+            )}
+            <View>
               <Text className="text-2xl font-bold">Leaderboard</Text>
               <FlatList
                 contentContainerStyle={{
@@ -224,48 +178,6 @@ export default function ChallengeScreen() {
                 )}
               />
             </View>
-            <Text className="text-2xl font-bold">Challenge Goals</Text>
-            <FlatList
-              contentContainerStyle={{
-                paddingBottom: 60,
-              }}
-              className="border-t border-t-[#fff]/10 pt-6"
-              data={filteredChallengeGoals}
-              ItemSeparatorComponent={() => (
-                <Separator className="my-4 h-0.5 bg-[#fff]/10" />
-              )}
-              ListEmptyComponent={() => (
-                <Text className="text-center">
-                  No goals found for this challenge.
-                </Text>
-              )}
-              renderItem={({ item }) => {
-                const IconComp = GOAL_ICONS.find(
-                  (icon) => icon.name === item.selectedIcon
-                )?.component;
-                return (
-                  <View className="flex-row items-center gap-4">
-                    <View
-                      className={
-                        "items-center justify-center rounded-full bg-[#299240]/20 p-1"
-                      }
-                    >
-                      <IconComp
-                        name={item.selectedIcon}
-                        color={item.selectedIconColor}
-                        size={32}
-                      />
-                    </View>
-
-                    <View className="w-full gap-2">
-                      <Text style={{ fontFamily: "openSans.medium" }}>
-                        {item.name}
-                      </Text>
-                    </View>
-                  </View>
-                );
-              }}
-            />
           </View>
 
           <View className="justify-center p-4">
