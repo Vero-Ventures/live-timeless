@@ -1,7 +1,7 @@
 import { SafeAreaView } from "react-native-safe-area-context";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useMemo } from "react";
 import { View, KeyboardAvoidingView, Platform, FlatList } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
@@ -13,16 +13,20 @@ import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
 
 export default function AdvisorChatbot() {
-  const sessionId = useSessionId();
-  const remoteMessages = useQuery(api.messages.list, { sessionId });
-  const sendMessage = useMutation(api.messages.send);
+  const thread = useQuery(api.threads.getThread);
+  const remoteMessages = useQuery(api.messages.getMessages, {
+    threadId: thread?.threadId,
+  });
+  const sendMessage = useMutation(api.messages.sendMessage);
+
   const messages = useMemo(
     () =>
       [
         {
-          isViewer: false,
-          text: "Hey there, I'm your personal AI Advisor. What can I help you with?",
-          _id: "0",
+          role: "assistant",
+          content:
+            "Hey there, I'm your personal AI Advisor. What can I help you with?",
+          threadId: "",
         },
       ].concat(remoteMessages ?? []),
     [remoteMessages]
@@ -35,7 +39,7 @@ export default function AdvisorChatbot() {
     if (!inputText) {
       return;
     }
-    await sendMessage({ message: inputText, sessionId });
+    await sendMessage({ threadId: thread?.threadId, message: inputText });
     setInputText("");
   };
 
@@ -57,7 +61,7 @@ export default function AdvisorChatbot() {
             }
           }}
           renderItem={({ item }) => (
-            <MessageComp isViewer={item.isViewer} text={item.text} />
+            <MessageComp isViewer={item.role === "user"} text={item.content} />
           )}
           ItemSeparatorComponent={() => <Separator />}
         />
@@ -89,37 +93,4 @@ function MessageComp({ text, isViewer }: { text: string; isViewer: boolean }) {
       <Text className={cn(!isViewer && "font-semibold")}>{text}</Text>
     </View>
   );
-}
-
-const STORE_KEY = "ConvexSessionId";
-function useSessionId() {
-  const [sessionId, setSessionId] = useState("");
-
-  useEffect(() => {
-    const getSessionId = async () => {
-      try {
-        const storedSessionId = await AsyncStorage.getItem(STORE_KEY);
-        if (storedSessionId !== null) {
-          setSessionId(storedSessionId);
-        } else {
-          const newSessionId = `${generateRandom8DigitNumber()}`;
-          await AsyncStorage.setItem(STORE_KEY, newSessionId);
-          setSessionId(newSessionId);
-        }
-      } catch (error) {
-        console.error("Error retrieving sessionId:", error);
-      }
-    };
-
-    getSessionId();
-  }, []);
-
-  return sessionId;
-}
-
-function generateRandom8DigitNumber() {
-  const min = 10000000;
-  const max = 99999999;
-
-  return Math.floor(Math.random() * (max - min + 1)) + min;
 }

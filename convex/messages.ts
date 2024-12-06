@@ -3,36 +3,30 @@ import { mutation } from "./_generated/server";
 import { query } from "./_generated/server";
 import { internal } from "./_generated/api";
 
-export const list = query({
-  args: {
-    sessionId: v.string(),
-  },
-  handler: async (ctx, args) => {
+export const getMessages = query({
+  args: { threadId: v.optional(v.string()) },
+  handler: async (ctx, { threadId }) => {
+    if (!threadId) {
+      return null;
+    }
+
     const messages = await ctx.db
       .query("messages")
-      .withIndex("bySessionId", (q) => q.eq("sessionId", args.sessionId))
+      .withIndex("by_thread_id", (q) => q.eq("threadId", threadId))
       .collect();
-    return messages.map((msg) => ({
-      _id: msg._id,
-      isViewer: msg.isViewer,
-      text: msg.text,
-    }));
+
+    return messages;
   },
 });
 
-export const send = mutation({
+export const sendMessage = mutation({
   args: {
     message: v.string(),
-    sessionId: v.string(),
+    threadId: v.optional(v.string()),
   },
-  handler: async (ctx, { message, sessionId }) => {
-    await ctx.db.insert("messages", {
-      isViewer: true,
-      text: message,
-      sessionId,
-    });
+  handler: async (ctx, { message, threadId }) => {
     await ctx.scheduler.runAfter(0, internal.serve.answer, {
-      sessionId,
+      existingThreadId: threadId,
       message,
     });
   },
@@ -40,12 +34,12 @@ export const send = mutation({
 
 export const clear = mutation({
   args: {
-    sessionId: v.string(),
+    threadId: v.string(),
   },
   handler: async (ctx, args) => {
     const messages = await ctx.db
       .query("messages")
-      .withIndex("bySessionId", (q) => q.eq("sessionId", args.sessionId))
+      .withIndex("by_thread_id", (q) => q.eq("threadId", args.threadId))
       .collect();
     await Promise.all(messages.map((message) => ctx.db.delete(message._id)));
   },

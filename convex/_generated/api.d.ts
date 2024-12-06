@@ -30,6 +30,7 @@ import type * as messages from "../messages.js";
 import type * as organizations from "../organizations.js";
 import type * as serve from "../serve.js";
 import type * as singleHabitStats from "../singleHabitStats.js";
+import type * as threads from "../threads.js";
 import type * as users from "../users.js";
 
 /**
@@ -56,6 +57,7 @@ declare const fullApi: ApiFromModules<{
   organizations: typeof organizations;
   serve: typeof serve;
   singleHabitStats: typeof singleHabitStats;
+  threads: typeof threads;
   users: typeof users;
 }>;
 export declare const api: FilterApi<
