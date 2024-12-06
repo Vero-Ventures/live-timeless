@@ -77,7 +77,7 @@ export default function SingleRewardsPage() {
             )}
             {!!reward.disclosure && (
               <>
-                <Text className="text-2xl font-bold">Legal Disclosure</Text>
+                <Text className="text-2xl font-bold">Terms and Conditions</Text>
                 <DOMContent content={reward.disclosure} />
               </>
             )}
