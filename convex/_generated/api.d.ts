@@ -33,6 +33,7 @@ import type * as organizations from "../organizations.js";
 import type * as serve from "../serve.js";
 import type * as singleHabitStats from "../singleHabitStats.js";
 import type * as threads from "../threads.js";
+import type * as tremendous from "../tremendous.js";
 import type * as users from "../users.js";
 
 /**
@@ -61,7 +62,11 @@ declare const fullApi: ApiFromModules<{
   organizations: typeof organizations;
   serve: typeof serve;
   singleHabitStats: typeof singleHabitStats;
+<<<<<<< HEAD
   threads: typeof threads;
+=======
+  tremendous: typeof tremendous;
+>>>>>>> 209fa4f721200f1982845129475eed0b5c94e9db
   users: typeof users;
 }>;
 export declare const api: FilterApi<

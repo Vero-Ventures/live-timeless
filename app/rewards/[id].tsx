@@ -1,87 +1,100 @@
-import { Stack, useLocalSearchParams } from "expo-router";
-import { ScrollView, View } from "react-native";
-import { rewardData } from "../(tabs)/rewards";
+import { router, Stack, useLocalSearchParams } from "expo-router";
+import {
+  ActivityIndicator,
+  View,
+  Image,
+  SafeAreaView,
+  Pressable,
+} from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
+import { useEffect, useState } from "react";
+import { useAction } from "convex/react";
+import { api } from "~/convex/_generated/api";
+import type { ListProductsResponseProductsInner } from "tremendous";
+import { ArrowLeft } from "~/lib/icons/ArrowLeft";
+import { MaterialIcons } from "@expo/vector-icons";
+import DOMContent from "./dom-content";
 
 export default function SingleRewardsPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const getReward = useAction(api.tremendous.getRewardAction);
+  const [reward, setReward] =
+    useState<ListProductsResponseProductsInner | null>(null);
 
-  const reward = rewardData.find((reward) => reward.id === id);
-  if (!reward) {
-    return null;
-  }
+  useEffect(() => {
+    getReward({ productId: id }).then((product) => setReward(product));
+  }, [getReward, id]);
+
+  console.log(reward);
 
   return (
-    <>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#082139" }}>
       <Stack.Screen
         options={{
-          headerTitle: "",
-          headerBackButtonDisplayMode: "minimal",
-          headerTransparent: true,
+          header: () =>
+            reward ? (
+              <View className="relative w-full">
+                <View className="absolute h-full w-full bg-[#0e2942]/50"></View>
+                {!!reward.images.length && (
+                  <Image
+                    src={reward.images.at(0)?.src}
+                    className="-z-10 h-[280px] w-full"
+                  />
+                )}
+                <Pressable
+                  className="absolute top-12 pl-2"
+                  hitSlop={20}
+                  onPress={() => router.dismiss()}
+                >
+                  <ArrowLeft color="#fff" size={40} />
+                </Pressable>
+                {reward.category === "merchant_card" && (
+                  <View className="absolute top-28 flex flex-row gap-2 pl-4">
+                    <View className="rounded-lg bg-slate-500 p-1">
+                      <MaterialIcons
+                        name="card-giftcard"
+                        size={20}
+                        color={"white"}
+                      />
+                    </View>
+                    <Text>Gift Card</Text>
+                  </View>
+                )}
+                <Text className="absolute bottom-0 pb-4 pl-4 text-3xl font-bold">
+                  {reward.name}
+                </Text>
+              </View>
+            ) : null,
         }}
       />
-      <View className="h-full" style={{ backgroundColor: "#082139" }}>
-        <View className="h-1/3 justify-between px-6 pb-10 pt-[112px]">
-          <View className="flex flex-row justify-between">
-            <Text>{reward.type}</Text>
-            <Text className="font-medium">{reward.token} tokens</Text>
+      {reward ? (
+        <>
+          <View className="flex-1 bg-[#0e2942] p-4">
+            {!!reward.description && (
+              <>
+                <Text className="text-2xl font-bold">About this reward</Text>
+                <DOMContent content={reward.description} />
+              </>
+            )}
+            {!!reward.disclosure && (
+              <>
+                <Text className="text-2xl font-bold">Legal Disclosure</Text>
+                <DOMContent content={reward.disclosure} />
+              </>
+            )}
           </View>
-          <View className="gap-1">
-            <Text className="text-3xl font-semibold">{reward.name}</Text>
-            <Text className="line-clamp-2 overflow-ellipsis">
-              {reward.description}
-            </Text>
+          <View className="px-5 pb-10 pt-5">
+            <Button size="lg">
+              <Text>Redeem</Text>
+            </Button>
           </View>
+        </>
+      ) : (
+        <View className="h-full flex-1 items-center justify-center bg-background">
+          <ActivityIndicator />
         </View>
-        <View className="flex-1" style={{ backgroundColor: "#0e2942" }}>
-          <ScrollView
-            className=""
-            contentContainerStyle={{
-              paddingBottom: 30,
-            }}
-          >
-            <View className="gap-12 px-4 py-8">
-              <View className="gap-4">
-                <Text className="text-2xl font-semibold">
-                  About this reward
-                </Text>
-                <Text>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-                  irure dolor in reprehenderit in voluptate velit esse cillum
-                  dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-                  cupidatat non proident, sunt in culpa qui officia deserunt
-                  mollit anim id est laborum.
-                </Text>
-              </View>
-              <View className="gap-4">
-                <Text className="text-2xl font-semibold">
-                  Instructions on How to Use
-                </Text>
-                <Text>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-                  irure dolor in reprehenderit in voluptate velit esse cillum
-                  dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-                  cupidatat non proident, sunt in culpa qui officia deserunt
-                  mollit anim id est laborum.
-                </Text>
-              </View>
-            </View>
-          </ScrollView>
-        </View>
-
-        <View className="px-5 pb-10 pt-5">
-          <Button size="lg">
-            <Text>Redeem for {reward.token} tokens</Text>
-          </Button>
-        </View>
-      </View>
-    </>
+      )}
+    </SafeAreaView>
   );
 }
