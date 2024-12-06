@@ -38,7 +38,7 @@ export default function CreateHabitPage() {
               Create Habit
             </Text>
           ),
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
         }}
       />
       <CreateHabitForm />

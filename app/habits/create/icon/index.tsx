@@ -32,7 +32,7 @@ export default function IconScreen() {
             backgroundColor: "#0b1a28",
           },
           headerTintColor: "#fff",
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
           header: () => (
             <View className="h-48 border-b border-b-[#fff]/10 bg-[#0b1a28] pt-20">
               <View className="relative flex flex-row items-center justify-center gap-2">

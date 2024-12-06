@@ -45,7 +45,7 @@ export default function Repeat() {
           headerTitle: () => (
             <Text style={{ fontFamily: fontFamily.openSans.bold }}>Repeat</Text>
           ),
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
           headerShadowVisible: false,
         }}
       />

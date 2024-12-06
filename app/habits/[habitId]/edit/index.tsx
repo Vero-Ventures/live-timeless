@@ -47,7 +47,7 @@ export default function EditHabitPage() {
               Edit Habit
             </Text>
           ),
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
         }}
       />
       <EditHabitForm />
