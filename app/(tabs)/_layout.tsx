@@ -25,9 +25,9 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen
-          name="goals"
+          name="habits"
           options={{
-            title: "Goals",
+            title: "Habits",
             headerShown: false,
             tabBarIcon: ({ color }) => (
               <View style={{ alignItems: "center" }}>

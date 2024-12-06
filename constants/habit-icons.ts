@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { Icon } from "~/components/icon-picker";
 
-export const GOAL_ICONS: Icon[] = [
+export const HABIT_ICONS: Icon[] = [
   { component: MaterialCommunityIcons, name: "smoking-off" },
   { component: MaterialCommunityIcons, name: "lipstick" },
   { component: MaterialCommunityIcons, name: "sofa" },

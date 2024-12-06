@@ -5,14 +5,14 @@ import { Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
-import { useGoalFormStore } from "../goal-store";
-import type { UnitType } from "../goal-store";
+import { useHabitFormStore } from "../habit-store";
+import type { UnitType } from "../habit-store";
 import { StyleSheet } from "react-native";
 import { RECURRENCE } from "./constants";
 import { useShallow } from "zustand/react/shallow";
 import { useMemo } from "react";
 export default function Frequency() {
-  const unitType = useGoalFormStore((s) => s.unitType);
+  const unitType = useHabitFormStore((s) => s.unitType);
 
   return (
     <>
@@ -27,7 +27,7 @@ export default function Frequency() {
               Frequency
             </Text>
           ),
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
         }}
       />
       <View className="h-full bg-[#082139] p-4">
@@ -200,7 +200,6 @@ export default function Frequency() {
           />
         ) : null}
         <SelectUnitType unitType={unitType} />
-        <SelectNumberOfWeeks />
       </View>
     </>
   );
@@ -228,7 +227,7 @@ function GoalPicker<TUnit extends string>({
   };
 }) {
   const [unitValue, setUnitValue, unit, setUnit, recurrence, setRecurrence] =
-    useGoalFormStore(
+    useHabitFormStore(
       useShallow((s) => [
         s.unitValue,
         s.setUnitValue,
@@ -306,7 +305,7 @@ function GoalPicker<TUnit extends string>({
 
 function SelectUnitType({ unitType }: { unitType: UnitType }) {
   return (
-    <Link href="/goals/create/target/unit-types" asChild>
+    <Link href="/habits/create/target/unit-types" asChild>
       <Pressable className="mt-4 flex flex-row items-center justify-between rounded-xl bg-[#0e2942] p-5">
         <Text
           style={{
@@ -321,55 +320,5 @@ function SelectUnitType({ unitType }: { unitType: UnitType }) {
         </View>
       </Pressable>
     </Link>
-  );
-}
-
-function SelectNumberOfWeeks() {
-  const [weeks, setWeeks] = useGoalFormStore((s) => [s.weeks, s.setWeeks]);
-
-  const weekOptions = Array.from({ length: 260 }, (_, i) => i + 1); // Create an array for 1 to 260 weeks
-
-  return (
-    <View className="mt-4 rounded-xl bg-[#0e2942] p-5">
-      <View className="flex flex-row items-center justify-between">
-        <Text
-          style={{
-            fontFamily: fontFamily.openSans.semiBold,
-            color: "#fff",
-          }}
-        >
-          Number of Weeks
-        </Text>
-        <View className="flex flex-row items-center justify-center gap-1">
-          <Text className="text-muted-foreground">
-            {weeks} week{weeks > 1 ? "s" : ""}
-          </Text>
-          <ChevronRight />
-        </View>
-      </View>
-
-      {/* Picker for selecting the number of weeks */}
-      <Picker
-        selectedValue={weeks}
-        onValueChange={(itemValue) => setWeeks(itemValue)}
-        style={{
-          width: "100%",
-          color: "#fff", // White text
-        }}
-        itemStyle={{
-          fontSize: 14,
-          fontFamily: fontFamily.openSans.semiBold,
-          color: "#fff", // Picker text color
-        }}
-      >
-        {weekOptions.map((week) => (
-          <Picker.Item
-            key={week}
-            label={`${week} week${week > 1 ? "s" : ""}`}
-            value={week}
-          />
-        ))}
-      </Picker>
-    </View>
   );
 }

@@ -79,7 +79,7 @@ function OnboardingProfileForm() {
         weight: Number(weight),
         height: Number(height),
       });
-      router.replace("/goals");
+      router.replace("/habits");
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -153,7 +153,7 @@ function OnboardingProfileForm() {
       <FormSubmitButton isPending={isPending} onPress={handleSaveProfile}>
         Continue
       </FormSubmitButton>
-      <Link href="/goals" asChild>
+      <Link href="/habits" asChild>
         <Button variant="link">
           <Text>Skip for now</Text>
         </Button>

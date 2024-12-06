@@ -6,11 +6,11 @@ import { fontFamily } from "~/lib/font";
 import { format, isToday, isYesterday } from "date-fns";
 import type { Id } from "~/convex/_generated/dataModel";
 import type { FunctionReturnType } from "convex/server";
-import { GOAL_ICONS } from "~/constants/goal-icons";
+import { HABIT_ICONS } from "~/constants/habit-icons";
 import { Text } from "~/components/ui/text";
 
 type LogType = FunctionReturnType<
-  typeof api.goalLogs.getGoalLogsbyGoalId
+  typeof api.habitLogs.getHabitLogsbyHabitId
 >[number];
 
 function formatDate(timestamp: number) {
@@ -21,14 +21,14 @@ function formatDate(timestamp: number) {
 }
 
 export default function LogHistoryPage() {
-  const { goalId } = useLocalSearchParams<{ goalId: string }>();
-  const goalLogs = useQuery(api.goalLogs.getGoalLogsbyGoalId, {
-    goalId: goalId as Id<"goals">,
+  const { habitId } = useLocalSearchParams<{ habitId: string }>();
+  const habitLogs = useQuery(api.habitLogs.getHabitLogsbyHabitId, {
+    habitId: habitId as Id<"habits">,
   });
 
-  console.log(JSON.stringify(goalLogs, null, 4));
+  console.log(JSON.stringify(habitLogs, null, 4));
 
-  if (!goalLogs) {
+  if (!habitLogs) {
     return (
       <View
         className="flex-1 items-center justify-center gap-4"
@@ -42,7 +42,7 @@ export default function LogHistoryPage() {
     );
   }
 
-  const filteredLogs = goalLogs.filter((log) => log.unitsCompleted > 0);
+  const filteredLogs = habitLogs.filter((log) => log.unitsCompleted > 0);
 
   const logsByDate = filteredLogs.reduce(
     (acc, log) => {
@@ -65,7 +65,7 @@ export default function LogHistoryPage() {
           headerTitle: () => (
             <Text className="text-xl font-bold">Log History</Text>
           ),
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
         }}
       />
       <FlatList
@@ -100,10 +100,12 @@ export default function LogHistoryPage() {
 }
 
 function LogItem({ log }: { log: LogType }) {
-  const icon = GOAL_ICONS.find((icon) => icon.name === log.goal?.selectedIcon);
+  const icon = HABIT_ICONS.find(
+    (icon) => icon.name === log.habit?.selectedIcon
+  );
   const Icon = icon?.component;
   const iconName = icon?.name;
-  const iconColor = log.goal?.selectedIconColor;
+  const iconColor = log.habit?.selectedIconColor;
 
   return (
     <View className="mb-2 flex flex-row items-center justify-between bg-[#0e2942] p-4">
@@ -117,7 +119,7 @@ function LogItem({ log }: { log: LogType }) {
           {!!Icon && <Icon name={iconName} size={20} color="#fff" />}
         </View>
         <Text>
-          {log.unitsCompleted} {log.goal?.unit}
+          {log.unitsCompleted} {log.habit?.unit}
         </Text>
       </View>
       <View>

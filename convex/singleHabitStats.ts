@@ -1,7 +1,8 @@
 import { query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import type { GoalLog } from "./goalLogs";
+import type { HabitLog } from "./habitLogs";
+import { generateValidDates } from "./dateUtils";
 
 export type HabitStat = {
   _id: string;
@@ -20,8 +21,8 @@ export type HabitStat = {
 };
 
 export const fetchSingleHabitStats = query({
-  args: { goalId: v.id("goals") },
-  handler: async (ctx, { goalId }) => {
+  args: { habitId: v.id("habits") },
+  handler: async (ctx, { habitId }) => {
     // Fetch the authenticated user's ID directly
     const userId = await getAuthUserId(ctx);
     if (!userId) {
@@ -29,43 +30,45 @@ export const fetchSingleHabitStats = query({
       throw new Error("User not authenticated");
     }
 
-    // Fetch the goal based on the goal ID
-    const goal = await ctx.db.get(goalId);
-    if (!goal) {
-      console.error("Goal not found");
-      throw new Error("Goal not found");
+    const habit = await ctx.db.get(habitId);
+    if (!habit) {
+      console.error("Habit not found");
+      throw new Error("Habit not found");
     }
 
-    // Retrieve logs for this goal
+    // Retrieve logs for this habit
     const logs = await ctx.db
-      .query("goalLogs")
-      .withIndex("by_goal_id", (q) => q.eq("goalId", goal._id))
+      .query("habitLogs")
+      .withIndex("by_habit_id", (q) => q.eq("habitId", habit._id))
       .collect();
 
+    const validDates = generateValidDates(habit);
     const total = calculateTotal(logs);
     const dailyAverage = calculateDailyAverage(logs);
     const longestStreak = calculateLongestStreak(logs);
     const currentStreak = calculateCurrentStreak(logs);
-    const skipped = calculateSkipped(logs);
+    const skipped = calculateSkipped(validDates, logs);
     const failed = calculateFailed(logs);
     const successfulDays = calculateSuccessfulDays(logs);
     const weeklyAverage = calculateWeeklyAverage(logs).average;
     const monthlyAverage = calculateMonthlyAverage(logs).average;
     const dailyCompletionRates = calculateDailyCompletion(
+      validDates,
       logs,
-      goal.unitValue
+      habit.unitValue
     ).rates;
     const dailyAverageData = calculateDailyCompletion(
+      validDates,
       logs,
-      goal.unitValue
+      habit.unitValue
     ).chartData;
     const weeklyAverageData = calculateWeeklyAverage(logs).chartData;
     const monthlyAverageData = calculateMonthlyAverage(logs).chartData;
 
     return {
-      _id: goal._id,
-      name: goal.name,
-      duration: `${goal.unitValue} mins per day`,
+      _id: habit._id,
+      name: habit.name,
+      duration: `${habit.unitValue} mins per day`,
       longestStreak,
       currentStreak,
       total,
@@ -83,8 +86,7 @@ export const fetchSingleHabitStats = query({
   },
 });
 
-// Placeholder functions for calculations
-function calculateLongestStreak(logs: GoalLog[]): number {
+function calculateLongestStreak(logs: HabitLog[]): number {
   let longestStreak = 0;
   let currentStreak = 0;
 
@@ -102,7 +104,7 @@ function calculateLongestStreak(logs: GoalLog[]): number {
   return longestStreak;
 }
 
-function calculateCurrentStreak(logs: GoalLog[]): number {
+function calculateCurrentStreak(logs: HabitLog[]): number {
   let currentStreak = 0;
 
   for (let i = logs.length - 1; i >= 0; i--) {
@@ -116,11 +118,11 @@ function calculateCurrentStreak(logs: GoalLog[]): number {
   return currentStreak;
 }
 
-function calculateTotal(logs: GoalLog[]): number {
+function calculateTotal(logs: HabitLog[]): number {
   return logs.reduce((sum, log) => sum + log.unitsCompleted, 0);
 }
 
-function calculateDailyAverage(logs: GoalLog[]): number {
+function calculateDailyAverage(logs: HabitLog[]): number {
   if (logs.length === 0) return 0;
 
   const logsWithUnits = logs.filter((log) => log.unitsCompleted > 0);
@@ -132,7 +134,7 @@ function calculateDailyAverage(logs: GoalLog[]): number {
       acc[date].push(log);
       return acc;
     },
-    {} as Record<string, GoalLog[]>
+    {} as Record<string, HabitLog[]>
   );
 
   const totalUnits = Object.values(logsByDate).reduce((sum, dayLogs) => {
@@ -148,36 +150,84 @@ function calculateDailyAverage(logs: GoalLog[]): number {
   return totalUnits / daysWithLogs;
 }
 
-function calculateSkipped(logs: GoalLog[]): number {
-  const today = new Date().setHours(0, 0, 0, 0);
-  return logs.filter((log) => {
-    const logDate = new Date(log.date).setHours(0, 0, 0, 0);
-    return logDate < today && !log.isComplete && log.unitsCompleted === 0;
-  }).length;
+/**
+ * Calculates the number of skipped dates for a habit.
+ *
+ * @param habit - The Habit object containing recurrence details.
+ * @param logs - The array of HabitLogs for the habit.
+ * @returns The total number of skipped dates.
+ */
+export function calculateSkipped(validDates: Date[], logs: HabitLog[]): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize today to midnight
+
+  const skippedDates = validDates.filter((validDate) => {
+    const log = logs.find((log) => {
+      const logDate = new Date(log.date);
+      return (
+        logDate.toISOString().split("T")[0] ===
+        validDate.toISOString().split("T")[0]
+      );
+    });
+
+    // Check if the validDate is today
+    const isToday =
+      validDate.toISOString().split("T")[0] ===
+      today.toISOString().split("T")[0];
+
+    // Skipped if no log exists or unitsCompleted is 0, and today is not over
+    return (!log || log.unitsCompleted === 0) && !isToday;
+  });
+
+  return skippedDates.length;
 }
 
-function calculateFailed(logs: GoalLog[]): number {
-  return logs.filter((log) => !log.isComplete && !log.unitsCompleted).length;
+/**
+ * Calculates the number of failed logs for a habit.
+ *
+ * @param logs - The array of HabitLogs for the habit.
+ * @returns The total number of failed logs.
+ */
+export function calculateFailed(logs: HabitLog[]): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset time to midnight
+  // Filter logs where unitsCompleted is non-zero but isComplete is false
+  const failedLogs = logs.filter(
+    (log) =>
+      log.unitsCompleted > 0 && !log.isComplete && log.date < today.getTime()
+  );
+
+  return failedLogs.length;
 }
 
-function calculateSuccessfulDays(logs: GoalLog[]): number {
+function calculateSuccessfulDays(logs: HabitLog[]): number {
   return logs.filter((log) => log.isComplete).length;
 }
 
-function calculateDailyCompletion(logs: GoalLog[], unitValue: number) {
-  const daysInMonth = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth() + 1,
-    0
-  ).getDate();
-  const dailyCompletionRates = Array(daysInMonth).fill(0);
+function calculateDailyCompletion(
+  validDates: Date[],
+  logs: HabitLog[],
+  unitValue: number
+) {
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const dailyCompletionRates = Array(daysInMonth).fill(null);
 
   const dailyCompletionData = {
     labels: Array(daysInMonth).fill(""),
-    data: Array(daysInMonth).fill(0),
+    data: Array(daysInMonth).fill(null),
   };
 
-  const dailyLogs = logs.reduce(
+  // Filter logs to include only those in the current month
+  const filteredLogs = logs.filter((log) => {
+    const date = new Date(log.date);
+    return (
+      date.getFullYear() === currentYear && date.getMonth() === currentMonth
+    );
+  });
+
+  const dailyLogs = filteredLogs.reduce(
     (acc, log) => {
       const date = new Date(log.date);
       const day = date.getDate() - 1;
@@ -185,32 +235,41 @@ function calculateDailyCompletion(logs: GoalLog[], unitValue: number) {
       acc[day].push(log);
       return acc;
     },
-    {} as Record<number, GoalLog[]>
+    {} as Record<number, HabitLog[]>
   );
 
-  // Calculate daily completion rates
-  Object.keys(dailyLogs).forEach((day) => {
-    const dayLogs = dailyLogs[parseInt(day)];
+  const filteredValidDates = validDates.filter(
+    (date) =>
+      date.getFullYear() === currentYear && date.getMonth() === currentMonth
+  );
+
+  filteredValidDates.forEach((validDate) => {
+    const day = validDate.getDate() - 1;
+    const dayLogs = dailyLogs[day] || [];
     const totalCompleted = dayLogs.reduce(
       (sum: number, log: { unitsCompleted: number }) =>
         sum + log.unitsCompleted,
       0
     );
     const completionRate =
-      (totalCompleted / (unitValue * dayLogs.length)) * 100;
-    dailyCompletionRates[parseInt(day)] = completionRate;
-    dailyCompletionData.data[parseInt(day)] = totalCompleted;
+      dayLogs.length > 0
+        ? (totalCompleted / (unitValue * dayLogs.length)) * 100
+        : 0;
+    dailyCompletionRates[day] = completionRate;
+    dailyCompletionData.data[day] = totalCompleted;
   });
+
   // Set labels for the first of the month and days divisible by 5
   for (let i = 0; i < daysInMonth; i++) {
     if ((i + 1) % 5 === 0) {
       dailyCompletionData.labels[i] = (i + 1).toString();
     }
   }
+
   return { rates: dailyCompletionRates, chartData: dailyCompletionData };
 }
 
-function calculateWeeklyAverage(logs: GoalLog[]): {
+function calculateWeeklyAverage(logs: HabitLog[]): {
   average: number;
   chartData: { data: number[]; labels: string[] };
 } {
@@ -231,7 +290,7 @@ function calculateWeeklyAverage(logs: GoalLog[]): {
       acc[weekStartStr].push(log);
       return acc;
     },
-    {} as Record<string, GoalLog[]>
+    {} as Record<string, HabitLog[]>
   );
 
   // Calculate the total units completed for weeks with logs
@@ -278,7 +337,7 @@ function calculateWeeklyAverage(logs: GoalLog[]): {
   return { average, chartData: { data: weeklyData, labels: weeklyLabels } };
 }
 
-function calculateMonthlyAverage(logs: GoalLog[]): {
+function calculateMonthlyAverage(logs: HabitLog[]): {
   average: number;
   chartData: { data: number[]; labels: string[] };
 } {
@@ -292,7 +351,7 @@ function calculateMonthlyAverage(logs: GoalLog[]): {
       acc[monthStart].push(log);
       return acc;
     },
-    {} as Record<string, GoalLog[]>
+    {} as Record<string, HabitLog[]>
   );
 
   const today = new Date();

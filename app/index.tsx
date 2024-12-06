@@ -21,5 +21,5 @@ function CrossRoad() {
   if (!user) {
     return null;
   }
-  return <Redirect href={user.hasOnboarded ? "/goals" : "/onboarding/name"} />;
+  return <Redirect href={user.hasOnboarded ? "/habits" : "/onboarding/name"} />;
 }

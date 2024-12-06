@@ -14,10 +14,29 @@ import { Platform } from "react-native";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/hooks/useColorScheme";
 import { PortalHost } from "@rn-primitives/portal";
+import { fontFamily } from "~/lib/font";
 
 const DARK_THEME: Theme = {
   dark: true,
   colors: NAV_THEME.dark,
+  fonts: {
+    regular: {
+      fontFamily: fontFamily.openSans.regular,
+      fontWeight: "400",
+    },
+    medium: {
+      fontFamily: fontFamily.openSans.medium,
+      fontWeight: "500",
+    },
+    bold: {
+      fontFamily: fontFamily.openSans.bold,
+      fontWeight: "700",
+    },
+    heavy: {
+      fontFamily: fontFamily.openSans.extraBold,
+      fontWeight: "800",
+    },
+  },
 };
 
 export {

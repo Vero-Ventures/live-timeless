@@ -17,7 +17,7 @@ export default function SingleRewardsPage() {
       <Stack.Screen
         options={{
           headerTitle: "",
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
           headerTransparent: true,
         }}
       />

@@ -5,7 +5,7 @@ import { Text } from "~/components/ui/text";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { fontFamily } from "~/lib/font";
 import { Check } from "~/lib/icons/Check";
-import { initialFormState, useGoalFormStore } from "./goal-store";
+import { initialFormState, useHabitFormStore } from "./habit-store";
 import { cn } from "~/lib/utils";
 import { Separator } from "~/components/ui/separator";
 import { useShallow } from "zustand/react/shallow";
@@ -20,7 +20,7 @@ export default function Repeat() {
     resetMonthlyRepeat,
     intervalRepeat,
     resetIntervalRepeat,
-  ] = useGoalFormStore(
+  ] = useHabitFormStore(
     useShallow((s) => [
       s.repeatType,
       s.setRepeatType,
@@ -45,7 +45,7 @@ export default function Repeat() {
           headerTitle: () => (
             <Text style={{ fontFamily: fontFamily.openSans.bold }}>Repeat</Text>
           ),
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
           headerShadowVisible: false,
         }}
       />
@@ -164,7 +164,7 @@ function DailyRepeat({
 
 function MonthlyRepeat() {
   const days = Array.from({ length: 31 }, (_, index) => index + 1);
-  const [monthlyRepeat, setMonthlyRepeat] = useGoalFormStore(
+  const [monthlyRepeat, setMonthlyRepeat] = useHabitFormStore(
     useShallow((s) => [s.monthlyRepeat, s.setMonthlyRepeat])
   );
 
@@ -206,7 +206,7 @@ function IntervalRepeat({
   interval: number;
   isChecked?: boolean;
 }) {
-  const setIntervalRepeat = useGoalFormStore((s) => s.setIntervalRepeat);
+  const setIntervalRepeat = useHabitFormStore((s) => s.setIntervalRepeat);
 
   return (
     <Pressable

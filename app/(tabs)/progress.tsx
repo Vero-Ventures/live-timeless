@@ -25,7 +25,7 @@ import { Button } from "~/components/ui/button";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import * as DropdownMenu from "zeego/dropdown-menu";
-import type { GoalLog } from "~/convex/goalLogs";
+import type { HabitLog } from "~/convex/habitLogs";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -78,9 +78,9 @@ export default function Progress() {
   const selection =
     selections.find((selection) => selection.id === filter) ?? selections[0];
 
-  // Fetch habit stats and goal logs for the authenticated user
+  // Fetch habit stats and habit logs for the authenticated user
   const habits = useQuery(api.habitStats.fetchHabitStats, {});
-  const goalLogs = useQuery(api.goalLogs.listGoalLogs);
+  const habitLogs = useQuery(api.habitLogs.listHabitLogs);
 
   const referenceDate = selection.referenceDate;
 
@@ -91,7 +91,7 @@ export default function Progress() {
     router.setParams({ filter: selectionId });
   };
 
-  function calculateFilteredCount(fetchedLogs: GoalLog[]): number {
+  function calculateFilteredCount(fetchedLogs: HabitLog[]): number {
     return fetchedLogs.filter((log) => {
       const logDate = new Date(log.date);
       return (
@@ -122,12 +122,12 @@ export default function Progress() {
     datasets: [{ data: dailyCompletionRates }],
   };
 
-  const goalLogsByGoalId =
-    goalLogs?.reduce(
+  const habitLogsByHabitId =
+    habitLogs?.reduce(
       (acc, log) => {
-        const goalId = log.goalId.toString();
-        if (!acc[goalId]) acc[goalId] = [];
-        acc[goalId].push({ date: log.date, isComplete: log.isComplete });
+        const habitId = log.habitId.toString();
+        if (!acc[habitId]) acc[habitId] = [];
+        acc[habitId].push({ date: log.date, isComplete: log.isComplete });
         return acc;
       },
       {} as Record<string, { date: number; isComplete: boolean }[]>
@@ -138,6 +138,7 @@ export default function Progress() {
       <Stack.Screen
         options={{
           headerStyle: { backgroundColor: "#0b1a28" },
+          headerShadowVisible: false,
           headerTintColor: "#fff",
           headerTitle: () => (
             <DropdownMenu.Root>
@@ -176,7 +177,7 @@ export default function Progress() {
           <Text className="mt-4 text-center font-medium">
             You have no habits added.
           </Text>
-          <Link href="/goals" asChild>
+          <Link href="/habits" asChild>
             <Button>
               <Text>Add a habit</Text>
             </Button>
@@ -242,7 +243,7 @@ export default function Progress() {
               dailyAverage={parseFloat(item.dailyAverage.toFixed(1))}
               skipped={calculateFilteredCount(item.skipped)}
               failed={calculateFilteredCount(item.failed)}
-              goalLogs={goalLogsByGoalId[item._id] || []}
+              habitLogs={habitLogsByHabitId[item._id] || []}
               unit={item.unit}
               selection={selection.id}
             />

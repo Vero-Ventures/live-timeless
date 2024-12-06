@@ -3,10 +3,10 @@ import { Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
 import { cn } from "~/lib/utils";
-import { useGoalFormStore } from "../goal-store";
+import { useHabitFormStore } from "../habit-store";
 import { useShallow } from "zustand/react/shallow";
 export default function UnitTypes() {
-  const [setUnitType, setUnitValue, setUnit, setRecurrence] = useGoalFormStore(
+  const [setUnitType, setUnitValue, setUnit, setRecurrence] = useHabitFormStore(
     useShallow((s) => [
       s.setUnitType,
       s.setUnitValue,
@@ -24,11 +24,11 @@ export default function UnitTypes() {
           },
           headerTintColor: "#fff",
           headerTitle: "",
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
         }}
       />
       <View className="h-full bg-[#082139]">
-        <GoalUnitType
+        <UnitType
           type="General"
           units={["times", "minutes"]}
           className="border-b border-[#9cc5ff13]"
@@ -39,7 +39,7 @@ export default function UnitTypes() {
             setRecurrence("per day");
           }}
         />
-        <GoalUnitType
+        <UnitType
           type="Scalar"
           units={["times", "steps"]}
           className="border-b border-[#9cc5ff13]"
@@ -50,7 +50,7 @@ export default function UnitTypes() {
             setRecurrence("per day");
           }}
         />
-        <GoalUnitType
+        <UnitType
           type="Mass"
           units={[
             "kilograms",
@@ -68,7 +68,7 @@ export default function UnitTypes() {
             setRecurrence("per day");
           }}
         />
-        <GoalUnitType
+        <UnitType
           type="Volume"
           units={["litres", "milliliters", "fluid ounce", "cups"]}
           className="border-b border-[#9cc5ff13]"
@@ -79,7 +79,7 @@ export default function UnitTypes() {
             setRecurrence("per day");
           }}
         />
-        <GoalUnitType
+        <UnitType
           type="Duration"
           units={["minutes", "hours"]}
           className="border-b border-[#9cc5ff13]"
@@ -90,7 +90,7 @@ export default function UnitTypes() {
             setRecurrence("per day");
           }}
         />
-        <GoalUnitType
+        <UnitType
           type="Energy"
           units={["joules", "kilojoules", "calories", "kilocalories"]}
           className="border-b border-[#9cc5ff13]"
@@ -101,7 +101,7 @@ export default function UnitTypes() {
             setRecurrence("per day");
           }}
         />
-        <GoalUnitType
+        <UnitType
           type="Length"
           units={["metres", "kilometers", "miles", "feet", "yards"]}
           onPress={() => {
@@ -116,7 +116,7 @@ export default function UnitTypes() {
   );
 }
 
-function GoalUnitType({
+function UnitType({
   type,
   units,
   onPress,
@@ -128,7 +128,7 @@ function GoalUnitType({
   className?: string;
 }) {
   return (
-    <Link href="/goals/create/target" asChild>
+    <Link href="/habits/create/target" asChild>
       <Pressable
         className={cn(
           "flex flex-row items-center justify-between bg-[#0e2942] p-4",

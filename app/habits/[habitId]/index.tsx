@@ -33,22 +33,62 @@ const modeLabels: Record<Modes, string> = {
 
 const modeOptions: Modes[] = ["day", "week", "month"];
 
-export default function GoalScreen() {
-  const { goalId, goalLogId } = useLocalSearchParams<{
-    goalId: Id<"goals">;
-    goalLogId: Id<"goalLogs">;
+export default function HabitScreen() {
+  const { habitId, selectedHabitLogDate } = useLocalSearchParams<{
+    habitId: Id<"habits">;
+    selectedHabitLogDate: string;
   }>();
 
-  // Fetch goal and goal logs
-  const goal = useQuery(api.goals.getGoalById, { goalId });
-  const goalLog = useQuery(api.goalLogs.getGoalLogById, { goalLogId });
-  // const goalLogs = useQuery(api.goalLogs.getGoalLogsbyGoalId, { goalId });
+  const decodedHabitLogDate = decodeURIComponent(selectedHabitLogDate);
+  let initialHabitLogDate = new Date(decodedHabitLogDate);
+  initialHabitLogDate.setHours(0, 0, 0, 0); // Normalize to midnight Local
+  const currentHabitLogDate = initialHabitLogDate.getTime();
+
+  const habit = useQuery(api.habits.getHabitById, { habitId });
+  const habitLog = useQuery(api.habitLogs.getHabitLogByDate, {
+    habitId,
+    date: currentHabitLogDate,
+  });
+  const createHabitLog = useMutation(api.habitLogs.createHabitLog);
+  const updateHabitLog = useMutation(api.habitLogs.updateHabitLog);
+  const updatePoints = useMutation(api.challenges.updatePoints);
+
+  const handleCompleteHabit = async () => {
+    if (!habitLog) {
+      await createHabitLog({
+        habitId,
+        isComplete: true,
+        date: currentHabitLogDate,
+        unitsCompleted: habit?.unitValue ?? 1,
+      });
+      if (habit?.challengeId) {
+        await updatePoints({
+          unitsCompleted: habit?.unitValue ?? 1,
+          rate: habit?.rate || 1,
+        });
+      }
+    } else {
+      await updateHabitLog({
+        habitLogId: habitLog._id,
+        isComplete: true,
+        unitsCompleted: habit?.unitValue ?? 1,
+      });
+      if (habit?.challengeId) {
+        await updatePoints({
+          unitsCompleted: habit?.unitValue ?? 1,
+          rate: habit?.rate || 1,
+        });
+      }
+    }
+  };
+
   const habitStats = useQuery(api.singleHabitStats.fetchSingleHabitStats, {
-    goalId,
+    habitId: habitId,
   });
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [selectedPeriod, setSelectedPeriod] = useState<Date>(new Date());
+  const [selectedPeriod, setSelectedPeriod] =
+    useState<Date>(initialHabitLogDate);
   const [modeIndex, setModeIndex] = useState<number>(0);
   const screenWidth = Dimensions.get("window").width;
   const averageLabel = (mode: Modes) => {
@@ -83,7 +123,7 @@ export default function GoalScreen() {
       : mode === "week"
         ? habitStats?.weeklyAverage
         : habitStats?.monthlyAverage;
-  const averageUnits = goal?.unit ?? "units";
+  const averageUnits = habit?.unit ?? "units";
 
   const periodSelectorString = (date: Date, mode: Modes) => {
     switch (mode) {
@@ -111,42 +151,26 @@ export default function GoalScreen() {
     }
   };
 
-  const deleteGoalAndGoalLogs = useMutation(api.goals.deleteGoalAndGoalLogs);
-
-  // const [progress, setProgress] = useState<number>(0);
-
-  // useEffect(() => {
-  //   if (goalLogs) {
-  //     const totalLogs = goalLogs.length;
-  //     const completedLogs = goalLogs.filter((log) => log.isComplete).length;
-  //     const percentage = totalLogs > 0 ? (completedLogs / totalLogs) * 100 : 0;
-  //     setProgress(percentage);
-  //   }
-  // }, [goalLogs]);
+  const deleteHabitAndHabitLogs = useMutation(
+    api.habits.deleteHabitAndHabitLogs
+  );
 
   const handleDelete = async () => {
     Alert.alert(
-      `Are you sure you want to delete ${goal?.name}?`,
+      `Are you sure you want to delete ${habit?.name}?`,
       "This action cannot be undone.",
       [
         {
           text: "Yes",
           onPress: async () => {
-            await deleteGoalAndGoalLogs({ goalId });
-            router.dismiss();
+            router.dismiss(); // Dismiss first, page will break if habit does not exist before exit. Read nonexistent data
+            await deleteHabitAndHabitLogs({ habitId });
           },
           style: "destructive",
         },
         { text: "Cancel", style: "cancel" },
       ]
     );
-  };
-
-  const handleStartGoal = () => {
-    router.push({
-      pathname: "/goals/[goalId]/[goalLogId]/start",
-      params: { goalId, goalLogId },
-    });
   };
 
   return (
@@ -162,10 +186,10 @@ export default function GoalScreen() {
               className="text-xl"
               style={{ fontFamily: fontFamily.openSans.bold }}
             >
-              {goal ? goal.name : ""}
+              {habit ? habit.name : ""}
             </Text>
           ),
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
           headerRight: () => (
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
@@ -177,8 +201,8 @@ export default function GoalScreen() {
                 <DropdownMenu.Item
                   onSelect={() =>
                     router.navigate({
-                      pathname: "/goals/[goalId]/log-history",
-                      params: { goalId },
+                      pathname: "/habits/[habitId]/log-history",
+                      params: { habitId },
                     })
                   }
                   key="log-history"
@@ -189,12 +213,12 @@ export default function GoalScreen() {
                 <DropdownMenu.Item
                   onSelect={() =>
                     router.navigate({
-                      pathname: "/goals/[goalId]/edit",
-                      params: { goalId },
+                      pathname: "/habits/[habitId]/edit",
+                      params: { habitId },
                     })
                   }
-                  key="edit-goal"
-                  textValue="Edit Goal"
+                  key="edit-habit"
+                  textValue="Edit Habit"
                 >
                   <DropdownMenu.ItemIcon ios={{ name: "pencil.line" }} />
                 </DropdownMenu.Item>
@@ -202,8 +226,8 @@ export default function GoalScreen() {
                 <DropdownMenu.Item
                   onSelect={handleDelete}
                   destructive
-                  key="delete-goal"
-                  textValue="Delete Goal"
+                  key="delete-habit"
+                  textValue="Delete Habit"
                 >
                   <DropdownMenu.ItemIcon ios={{ name: "trash" }} />
                 </DropdownMenu.Item>
@@ -212,7 +236,7 @@ export default function GoalScreen() {
           ),
         }}
       />
-      {!habitStats || !chartData || !goal ? (
+      {!habitStats || !chartData || !habit ? (
         <View className="mt-10 flex flex-row justify-center gap-2">
           <ActivityIndicator />
         </View>
@@ -223,6 +247,23 @@ export default function GoalScreen() {
               {periodSelectorString(selectedPeriod, mode)}
             </Text>
             <ChevronDown size={24} color="white" />
+          </Pressable>
+          <Pressable
+            className={cn(
+              "mt-5 items-center rounded-lg p-3",
+              habitLog && habitLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"
+            )}
+            onPress={handleCompleteHabit}
+            disabled={habitLog?.isComplete}
+          >
+            <Text
+              className="text-base text-white"
+              style={{ fontFamily: fontFamily.openSans.bold }}
+            >
+              {!!habitLog && habitLog?.isComplete
+                ? "Habit completed"
+                : "Complete Habit"}
+            </Text>
           </Pressable>
 
           <View className="flex flex-row items-center gap-4 rounded-xl bg-slate-900 p-6">
@@ -276,8 +317,8 @@ export default function GoalScreen() {
 
               <StatCard
                 title="Total"
-                value={`${formatDecimalNumber(habitStats.total ?? 0)} ${goal.unit}`}
-                comparison={`${formatDecimalNumber(habitStats.total)} ${goal.unit}`}
+                value={`${formatDecimalNumber(habitStats.total ?? 0)} ${habit.unit}`}
+                comparison={`${formatDecimalNumber(habitStats.total)} ${habit.unit}`}
                 status="positive"
               />
             </View>
@@ -326,21 +367,6 @@ export default function GoalScreen() {
               options={Object.values(modeLabels)}
             />
           </View>
-          <Pressable
-            className={cn(
-              "mt-5 items-center rounded-lg p-3",
-              goalLog?.isComplete ? "bg-gray-400" : "bg-[#299240]"
-            )}
-            onPress={goalLog?.isComplete ? null : handleStartGoal}
-            disabled={goalLog?.isComplete}
-          >
-            <Text
-              className="text-base text-white"
-              style={{ fontFamily: fontFamily.openSans.bold }}
-            >
-              {goalLog?.isComplete ? "Goal Log Completed" : "Log Progress"}
-            </Text>
-          </Pressable>
         </View>
       )}
     </ScrollView>

@@ -1,7 +1,6 @@
 import { useQuery } from "convex/react";
 import { FlatList, Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
 import { fontFamily } from "~/lib/font";
@@ -42,14 +41,13 @@ export default function ChallengesScreen() {
     <SafeAreaView style={{ height: "100%", backgroundColor: "#082139" }}>
       <View className="flex-1 gap-4 p-4">
         <Text
-          className="text-2xl"
+          className="mb-4 text-2xl"
           style={{
             fontFamily: fontFamily.openSans.bold,
           }}
         >
           Challenges
         </Text>
-
         <FlatList
           contentContainerStyle={{
             paddingBottom: 60,

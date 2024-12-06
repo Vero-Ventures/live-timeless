@@ -3,9 +3,9 @@ import { FlatList, Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
 import { ChevronLeft } from "~/lib/icons/ChevronLeft";
-import { useGoalFormStore } from "../goal-store";
+import { useHabitFormStore } from "../habit-store";
 import { useShallow } from "zustand/react/shallow";
-import { GOAL_ICONS } from "~/constants/goal-icons";
+import { HABIT_ICONS } from "~/constants/habit-icons";
 import { IconPicker } from "~/components/icon-picker";
 import { ColorPicker } from "~/components/color-picker";
 
@@ -15,7 +15,7 @@ export default function IconScreen() {
     setSelectedIconColor,
     selectedIcon,
     setSelectedIcon,
-  ] = useGoalFormStore(
+  ] = useHabitFormStore(
     useShallow((s) => [
       s.selectedIconColor,
       s.setSelectedIconColor,
@@ -32,7 +32,7 @@ export default function IconScreen() {
             backgroundColor: "#0b1a28",
           },
           headerTintColor: "#fff",
-          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: "minimal",
           header: () => (
             <View className="h-48 border-b border-b-[#fff]/10 bg-[#0b1a28] pt-20">
               <View className="relative flex flex-row items-center justify-center gap-2">
@@ -88,7 +88,7 @@ export default function IconScreen() {
           paddingBottom: 80,
         }}
         contentContainerClassName="flex flex-row flex-wrap gap-4 min-h-full bg-[#082139] p-4"
-        data={GOAL_ICONS}
+        data={HABIT_ICONS}
         renderItem={({ item }) => (
           <IconPicker
             icon={item}
