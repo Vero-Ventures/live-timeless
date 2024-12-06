@@ -1,7 +1,6 @@
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import {
   ActivityIndicator,
-  ScrollView,
   View,
   Image,
   SafeAreaView,
@@ -15,6 +14,7 @@ import { api } from "~/convex/_generated/api";
 import type { ListProductsResponseProductsInner } from "tremendous";
 import { ArrowLeft } from "~/lib/icons/ArrowLeft";
 import { MaterialIcons } from "@expo/vector-icons";
+import DOMContent from "./dom-content";
 
 export default function SingleRewardsPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -25,6 +25,8 @@ export default function SingleRewardsPage() {
   useEffect(() => {
     getReward({ productId: id }).then((product) => setReward(product));
   }, [getReward, id]);
+
+  console.log(reward);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#082139" }}>
@@ -69,15 +71,18 @@ export default function SingleRewardsPage() {
       {reward ? (
         <>
           <View className="flex-1 bg-[#0e2942] p-4">
-            <Text className="text-2xl font-bold">About this reward</Text>
-            <ScrollView
-              className=""
-              contentContainerStyle={{
-                paddingBottom: 30,
-              }}
-            >
-              <Text>{reward.description}</Text>
-            </ScrollView>
+            {!!reward.description && (
+              <>
+                <Text className="text-2xl font-bold">About this reward</Text>
+                <DOMContent content={reward.description} />
+              </>
+            )}
+            {!!reward.disclosure && (
+              <>
+                <Text className="text-2xl font-bold">Legal Disclosure</Text>
+                <DOMContent content={reward.disclosure} />
+              </>
+            )}
           </View>
           <View className="px-5 pb-10 pt-5">
             <Button size="lg">
