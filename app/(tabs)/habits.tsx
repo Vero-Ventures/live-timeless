@@ -9,7 +9,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
-import { Link, SplashScreen, router } from "expo-router";
+import { Link, SplashScreen, router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { fontFamily } from "~/lib/font";
 import { Plus } from "lucide-react-native";
@@ -22,60 +22,74 @@ import { HABIT_ICONS } from "~/constants/habit-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function HabitsPage() {
-  const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
-  const [selectedDate, setSelectedDate] = useState(today);
-  const habits = useQuery(api.habits.listHabits);
-  const habitLogs = useQuery(api.habitLogs.listHabitLogs);
-
   useEffect(() => {
-    if (habits && habitLogs) {
-      SplashScreen.hideAsync();
-    }
-  }, [habits, habitLogs]);
+    SplashScreen.hideAsync();
+  }, []);
 
-  // const isDailyRepeat = (
-  //   dailyRepeat: string[],
-  //   startDate: Date,
-  //   selectedDate: Date
-  // ) => {
-  //   const dayOfWeek = selectedDate.getDay();
-  //   const days = [
-  //     "Sunday",
-  //     "Monday",
-  //     "Tuesday",
-  //     "Wednesday",
-  //     "Thursday",
-  //     "Friday",
-  //     "Saturday",
-  //   ];
+  return (
+    <SafeAreaView
+      style={{
+        height: "100%",
+        backgroundColor: "#082139",
+        flexDirection: "column",
+        justifyContent: "space-between",
+      }}
+    >
+      <View className="habit-container px-4">
+        <DateHeading />
+        <Text
+          className="text-2xl"
+          style={{
+            fontFamily: fontFamily.openSans.bold,
+          }}
+        >
+          Habits
+        </Text>
+        <Separator className="my-6 bg-[#fff]/10" />
+        <HabitList />
+      </View>
+      <View className="flex-row items-center gap-2 bg-[#0f2336] px-4">
+        <CalendarStrip />
+        <Separator className="mr-2" orientation="vertical" />
+        <Link href="/habits/create" asChild>
+          <Button size="icon" className="h-14 w-14 rounded-full">
+            <Plus color="#fff" size={30} />
+          </Button>
+        </Link>
+      </View>
+    </SafeAreaView>
+  );
+}
 
-  //   const isRepeatDay = dailyRepeat.includes(days[dayOfWeek]);
-
-  //   const isAfterStartDate =
-  //     selectedDate.getTime() >= new Date(startDate).getTime();
-
-  //   return isRepeatDay && isAfterStartDate;
-  // };
-
-  // const isIntervalRepeat = (
-  //   startDate: string | Date,
-  //   intervalRepeat: number,
-  //   selectedDate: Date
-  // ) => {
-  //   const diffInDays = Math.floor(
-  //     (selectedDate.getTime() - new Date(startDate).getTime()) /
-  //       (1000 * 60 * 60 * 24)
-  //   );
-  //   const isRepeatInterval =
-  //     diffInDays >= 0 && diffInDays % intervalRepeat === 0;
-
-  //   return isRepeatInterval;
-  // };
-
-  // const isMonthlyRepeat = (monthlyRepeat: number[], selectedDate: Date) => {
-  //   const isRepeatDay = monthlyRepeat.includes(selectedDate.getDate());
-  //   return isRepeatDay;
-  // };
+function DateHeading() {
+  const { date } = useLocalSearchParams<{ date?: string }>();
+  const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
+  const selectedDate = date ? new Date(Number(date)) : today;
+  return (
+    <Text className="mb-2 text-sm uppercase text-gray-500">
+      {selectedDate.toDateString() === today.toDateString()
+        ? "Today"
+        : selectedDate.toDateString() === yesterday.toDateString()
+          ? "Yesterday"
+          : selectedDate.toDateString() === tomorrow.toDateString()
+            ? "Tomorrow"
+            : selectedDate.toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
+    </Text>
+  );
+}
+function HabitList() {
+  const { date } = useLocalSearchParams<{ date?: string }>();
+  const { today } = getTodayYesterdayTomorrow();
+  const selectedDate = date ? new Date(Number(date)) : today;
+  const habits = useQuery(api.habits.listHabits, {
+    date: selectedDate.toUTCString(),
+  });
+  console.log(habits?.length);
+  const habitLogs = useQuery(api.habitLogs.listHabitLogs);
 
   const filteredHabits = habits
     ? habits
@@ -99,78 +113,27 @@ export default function HabitsPage() {
           };
         })
     : [];
-
-  return (
-    <SafeAreaView
-      style={{
-        height: "100%",
-        backgroundColor: "#082139",
-        flexDirection: "column",
-        justifyContent: "space-between",
+  return !habits || !habitLogs ? (
+    <View className="mt-10 flex-1 gap-2">
+      <ActivityIndicator />
+    </View>
+  ) : (
+    <FlatList
+      contentContainerStyle={{
+        paddingBottom: 60,
       }}
-    >
-      <View className="habit-container px-4">
-        <Text className="mb-2 text-sm uppercase text-gray-500">
-          {selectedDate.toDateString() === today.toDateString()
-            ? "Today"
-            : selectedDate.toDateString() === yesterday.toDateString()
-              ? "Yesterday"
-              : selectedDate.toDateString() === tomorrow.toDateString()
-                ? "Tomorrow"
-                : selectedDate.toLocaleDateString("en-US", {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-        </Text>
-        <Text
-          className="text-2xl"
-          style={{
-            fontFamily: fontFamily.openSans.bold,
-          }}
-        >
-          Habits
-        </Text>
-        {!habits || !habitLogs ? (
-          <View className="mt-10 flex flex-row justify-center gap-2">
-            <ActivityIndicator />
-            <Text>Loading Habits...</Text>
-          </View>
-        ) : (
-          <FlatList
-            contentContainerStyle={{
-              paddingBottom: 60,
-            }}
-            className="mt-6 border-t border-t-[#fff]/10 pt-6"
-            data={filteredHabits}
-            ItemSeparatorComponent={() => (
-              <Separator className="my-4 h-0.5 bg-[#fff]/10" />
-            )}
-            ListEmptyComponent={() => (
-              <Text className="text-center">
-                No habits found for this date.
-              </Text>
-            )}
-            renderItem={({ item }) => (
-              <HabitItem habit={item} selectedDate={selectedDate} />
-            )}
-            keyExtractor={(item) => item._id.toString()}
-          />
-        )}
-      </View>
-      <View className="flex-row items-center gap-2 bg-[#0f2336] px-4">
-        <CalendarStrip
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-        />
-        <Separator className="mr-2" orientation="vertical" />
-        <Link href="/habits/create" asChild>
-          <Button size="icon" className="h-14 w-14 rounded-full">
-            <Plus color="#fff" size={30} />
-          </Button>
-        </Link>
-      </View>
-    </SafeAreaView>
+      data={filteredHabits}
+      ItemSeparatorComponent={() => (
+        <Separator className="my-4 h-0.5 bg-[#fff]/10" />
+      )}
+      ListEmptyComponent={() => (
+        <Text className="text-center">No habits found for this date.</Text>
+      )}
+      renderItem={({ item }) => (
+        <HabitItem habit={item} selectedDate={selectedDate} />
+      )}
+      keyExtractor={(item) => item._id.toString()}
+    />
   );
 }
 
@@ -418,15 +381,13 @@ function determineButtonType(
   return "keyboard"; // Default to keyboard
 }
 
-function CalendarStrip({
-  selectedDate,
-  setSelectedDate,
-}: {
-  selectedDate: Date;
-  setSelectedDate: React.Dispatch<React.SetStateAction<Date>>;
-}) {
+function CalendarStrip() {
+  const { date } = useLocalSearchParams<{ date?: string }>();
+  const { today, tomorrow } = getTodayYesterdayTomorrow();
+  const [selectedDate, setSelectedDate] = useState(
+    date ? new Date(Number(date)) : today
+  );
   const scrollViewRef = useRef<ScrollView>(null);
-  const { tomorrow } = getTodayYesterdayTomorrow();
   const dates = Array.from({ length: 17 }, (_, i) => {
     const date = new Date(tomorrow);
     date.setDate(tomorrow.getDate() - i);
@@ -459,6 +420,7 @@ function CalendarStrip({
           })}
           onPress={() => {
             setSelectedDate(date);
+            router.setParams({ date: date.getTime() });
           }}
         >
           <Text
