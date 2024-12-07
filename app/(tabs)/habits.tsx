@@ -88,31 +88,8 @@ function HabitList() {
   const habits = useQuery(api.habits.listHabits, {
     date: selectedDate.toUTCString(),
   });
-  console.log(habits?.length);
   const habitLogs = useQuery(api.habitLogs.listHabitLogs);
 
-  const filteredHabits = habits
-    ? habits
-        .filter((habit) => {
-          const startDate = new Date(habit.startDate);
-
-          return selectedDate >= startDate;
-        })
-        .map((habit) => {
-          const logForDate = habitLogs?.find(
-            (log) =>
-              log.habitId === habit._id &&
-              new Date(log.date).toDateString() === selectedDate.toDateString()
-          );
-
-          return {
-            ...habit,
-            progress: logForDate ? logForDate.unitsCompleted : 0,
-            isComplete: logForDate ? logForDate.isComplete : false,
-            habitLogId: logForDate ? logForDate._id : null,
-          };
-        })
-    : [];
   return !habits || !habitLogs ? (
     <View className="mt-10 flex-1 gap-2">
       <ActivityIndicator />
@@ -120,14 +97,27 @@ function HabitList() {
   ) : (
     <FlatList
       contentContainerStyle={{
-        paddingBottom: 60,
+        flex: 1,
       }}
-      data={filteredHabits}
+      data={habits}
       ItemSeparatorComponent={() => (
         <Separator className="my-4 h-0.5 bg-[#fff]/10" />
       )}
       ListEmptyComponent={() => (
-        <Text className="text-center">No habits found for this date.</Text>
+        <View className="h-full justify-center gap-6">
+          <Text className="text-center text-2xl font-bold">
+            Welcome to Live Timeless
+          </Text>
+          <Text className="text-center">
+            Our habit tracker shows your progress day by day. Unlock your
+            potential and start your journey today!
+          </Text>
+          <Link href="/habits/create" asChild>
+            <Button>
+              <Text>Build a habit</Text>
+            </Button>
+          </Link>
+        </View>
       )}
       renderItem={({ item }) => (
         <HabitItem habit={item} selectedDate={selectedDate} />

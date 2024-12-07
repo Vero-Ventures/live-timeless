@@ -67,71 +67,43 @@ export const listHabits = query({
 
     const selectedDate = new Date(date);
 
+    const selectedDateMilliseconds = selectedDate.getTime();
+
     // Query habits within the date range
     const habits = await ctx.db
       .query("habits")
       .filter((q) =>
         q.and(
           q.eq(q.field("userId"), userId),
-          q.lte(q.field("startDate"), selectedDate.getTime())
+          q.lte(q.field("startDate"), selectedDateMilliseconds)
         )
       )
       .collect();
 
-    return habits;
+    const habitsWithLogs = await Promise.all(
+      habits.map(async (h) => {
+        const log = await ctx.db
+          .query("habitLogs")
+          .filter((q) =>
+            q.and(
+              q.eq(q.field("habitId"), h._id),
+              q.gte(q.field("_creationTime"), selectedDateMilliseconds)
+            )
+          )
+          .first();
+
+        return {
+          ...h,
+          progress: log ? log.unitsCompleted : 0,
+          isComplete: log ? log.isComplete : false,
+          habitLogId: log ? log._id : null,
+        };
+      })
+    );
+
+    return habitsWithLogs;
   },
 });
-// export const listHabits = query({
-//   args: { date: v.number() },
-//   handler: async (ctx, { date }) => {
-//     const userId = await getAuthUserId(ctx);
-//     if (userId === null) {
-//       return null;
-//     }
-
-//     const habits = await ctx.db
-//       .query("habits")
-//       .filter((q) =>
-//         q.and(
-//           q.eq(q.field("userId"), userId),
-//           q.lte(q.field("startDate"), date)
-//         )
-//       )
-//       .collect();
-//     console.log({ habits });
-
-//     const habitsWithLogs = await Promise.all(
-//       habits.map(async (h) => {
-//         const log = await ctx.db
-//           .query("habitLogs")
-//           .filter((q) =>
-//             q.and(
-//               q.eq(q.field("habitId"), h._id),
-//               q.lte(q.field("_creationTime"), date)
-//             )
-//           )
-//           .first();
-//         const logForDate = log
-//           ? {
-//               progress: log.unitsCompleted,
-//               isComplete: log.isComplete,
-//               habitLogId: log._id,
-//             }
-//           : {
-//               progress: 0,
-//               isComplete: false,
-//               habitLogId: null,
-//             };
-//         return {
-//           ...h,
-//           ...logForDate,
-//         };
-//       })
-//     );
-
-//     return habitsWithLogs;
-//   },
-// });
 
 export const createHabit = mutation({
   args: {
