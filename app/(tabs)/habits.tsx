@@ -20,6 +20,7 @@ import { api } from "~/convex/_generated/api";
 import type { Doc } from "~/convex/_generated/dataModel";
 import { HABIT_ICONS } from "~/constants/habit-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import type { FunctionReturnType } from "convex/server";
 
 export default function HabitsPage() {
   useEffect(() => {
@@ -131,36 +132,100 @@ function HabitItem({
   habit,
   selectedDate,
 }: {
-  habit: Doc<"habits">;
+  habit: NonNullable<FunctionReturnType<typeof api.habits.listHabits>>[number];
   selectedDate: Date;
 }) {
   const createHabitLog = useMutation(api.habitLogs.createHabitLog);
-  const listHabitLogs = useQuery(api.habitLogs.listHabitLogs);
   const updateHabitLog = useMutation(api.habitLogs.updateHabitLog);
   const updatePoints = useMutation(api.challenges.updatePoints);
 
   const IconComp = HABIT_ICONS.find(
-    (item) => item.name === habit.selectedIcon
+    (icon) => icon.name === habit.selectedIcon
   )?.component;
 
-  // Find existing log for this habit and date
-  const existingLog = listHabitLogs?.find(
-    (log) =>
-      log.habitId === habit._id &&
-      new Date(log.date).toDateString() === selectedDate.toDateString()
-  );
-
   async function handleLogPress() {
-    if (!listHabitLogs) {
-      Alert.alert("Error", "Unable to fetch habit logs.");
-      return;
+    if (habit.unit === "times") {
+      if (!habit.log) {
+        const newLogId = await createHabitLog({
+          habitId: habit._id,
+          isComplete: habit.unitValue === 1,
+          date: selectedDate.getTime(),
+          unitsCompleted: 1, // Initialize with zero units completed
+        });
+
+        if (!newLogId) {
+          throw new Error("Failed to create a new habit log.");
+        }
+      } else {
+        if (habit.log.isComplete) {
+          Alert.alert(
+            "Habits Completed",
+            "This habit has already been completed."
+          );
+          return;
+        }
+
+        const newUnitsCompleted = habit.log.unitsCompleted + 1;
+        const hasHabitBeenCompleted = newUnitsCompleted === habit.unitValue;
+
+        if (hasHabitBeenCompleted) {
+          await updateHabitLog({
+            habitLogId: habit.log._id,
+            unitsCompleted: newUnitsCompleted,
+            isComplete: true,
+          });
+          Alert.alert(
+            "Habit Completed",
+            "Congratulations! You’ve completed this habit."
+          );
+        } else {
+          await updateHabitLog({
+            habitLogId: habit.log._id,
+            unitsCompleted: newUnitsCompleted,
+          });
+        }
+
+        if (habit.challengeId) {
+          await updatePoints({
+            unitsCompleted: newUnitsCompleted,
+            rate: habit.rate || 1,
+          });
+        }
+        return;
+      }
     }
 
-    let log = existingLog;
+    // Redirect to the appropriate logging screen for other habit types
+    if (["hours", "minutes", "min"].includes(habit.unit)) {
+      if (!habit.log) {
+        const newLogId = await createHabitLog({
+          habitId: habit._id,
+          isComplete: false,
+          date: selectedDate.getTime(),
+          unitsCompleted: 0,
+        });
 
-    // Create a new log if one doesn't exist
-    if (!log) {
-      try {
+        if (!newLogId) {
+          throw new Error("Failed to create a new habit log.");
+        }
+        router.push({
+          pathname: "/habits/[habitId]/[habitLogId]/start",
+          params: {
+            habitId: habit._id,
+            habitLogId: newLogId,
+          },
+        });
+      } else {
+        router.push({
+          pathname: "/habits/[habitId]/[habitLogId]/start",
+          params: {
+            habitId: habit._id,
+            habitLogId: habit.log._id,
+          },
+        });
+      }
+    } else {
+      if (!habit.log) {
         const newLogId = await createHabitLog({
           habitId: habit._id,
           isComplete: false,
@@ -171,71 +236,11 @@ function HabitItem({
         if (!newLogId) {
           throw new Error("Failed to create a new habit log.");
         }
-
-        // Mock the log to use it in navigation
-        log = {
-          _id: newLogId,
-          habitId: habit._id,
-          date: selectedDate.getTime(),
-          unitsCompleted: 0,
-          isComplete: false,
-          _creationTime: Date.now(), // Simulate creation time
-        };
-      } catch (error) {
-        console.error("Error creating habit log:", error);
-        Alert.alert("Error", "Failed to log habit progress.");
-        return;
-      }
-    }
-
-    if (habit.unit === "times") {
-      // For "times" habits, increment the units
-      if (log.isComplete) {
-        Alert.alert(
-          "Habits Completed",
-          "This habit has already been completed."
-        );
-        return;
-      }
-
-      try {
-        const newUnitsCompleted = (log.unitsCompleted ?? 0) + 1;
-        const isHabitComplete = newUnitsCompleted >= habit.unitValue;
-
-        await updateHabitLog({
-          habitLogId: log._id,
-          unitsCompleted: newUnitsCompleted,
-          isComplete: isHabitComplete,
-        });
-
-        if (habit.challengeId) {
-          await updatePoints({
-            unitsCompleted: newUnitsCompleted,
-            rate: habit.rate || 1,
-          });
-        }
-
-        if (isHabitComplete) {
-          Alert.alert(
-            "Habit Completed",
-            "Congratulations! You’ve completed this habit."
-          );
-        }
-      } catch (error) {
-        console.error("Error updating habit log:", error);
-        Alert.alert("Error", "Failed to log habit progress.");
-      }
-      return; // Stop further execution for "times" habit
-    }
-
-    // Redirect to the appropriate logging screen for other habit types
-    try {
-      if (["hours", "minutes", "min"].includes(habit.unit)) {
         router.push({
-          pathname: "/habits/[habitId]/[habitLogId]/start",
+          pathname: "/habits/[habitId]/[habitLogId]/start/logProgress",
           params: {
             habitId: habit._id,
-            habitLogId: log._id,
+            habitLogId: newLogId,
           },
         });
       } else {
@@ -243,13 +248,10 @@ function HabitItem({
           pathname: "/habits/[habitId]/[habitLogId]/start/logProgress",
           params: {
             habitId: habit._id,
-            habitLogId: log._id,
+            habitLogId: habit.log._id,
           },
         });
       }
-    } catch (error) {
-      console.error("Error navigating to form:", error);
-      Alert.alert("Error", "Failed to navigate to the logging form.");
     }
   }
 
@@ -302,8 +304,8 @@ function HabitItem({
                 {habit.name}
               </Text>
               <Text className="text-xs text-muted-foreground">
-                {existingLog
-                  ? `${Number.isInteger(existingLog.unitsCompleted) ? existingLog.unitsCompleted : existingLog.unitsCompleted.toFixed(1)} / ${Number.isInteger(habit.unitValue) ? habit.unitValue : habit.unitValue.toFixed(1)} ${habit.unit}`
+                {habit.log
+                  ? `${Number.isInteger(habit.log.unitsCompleted) ? habit.log.unitsCompleted : habit.log.unitsCompleted.toFixed(1)} / ${Number.isInteger(habit.unitValue) ? habit.unitValue : habit.unitValue.toFixed(1)} ${habit.unit}`
                   : `${Number.isInteger(habit.unitValue) ? habit.unitValue : habit.unitValue.toFixed(1)} ${habit.unit}`}
               </Text>
             </View>

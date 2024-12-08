@@ -94,9 +94,7 @@ export const listHabits = query({
 
         return {
           ...h,
-          progress: log ? log.unitsCompleted : 0,
-          isComplete: log ? log.isComplete : false,
-          habitLogId: log ? log._id : null,
+          log,
         };
       })
     );
