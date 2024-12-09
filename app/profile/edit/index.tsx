@@ -15,7 +15,7 @@ import { fontFamily } from "~/lib/font";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import DateTimePicker from "react-native-modal-datetime-picker";
-import { useProfileFormStore } from "./profile-form-store";
+import { useProfileFormStore } from "~/stores/profile-form-store";
 import { useShallow } from "zustand/react/shallow";
 import { formatDate } from "~/lib/date";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
