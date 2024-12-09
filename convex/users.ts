@@ -88,6 +88,7 @@ export const createUser = internalMutation({
       email: args.email,
       organizationId: args.organizationId,
       role: args.role,
+      hasOnboarded: false,
     });
   },
 });
