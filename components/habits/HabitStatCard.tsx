@@ -1,20 +1,20 @@
 import React from "react";
 import { View } from "react-native";
-import { Text } from "./text";
+import { Text } from "../ui/text";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "./card";
+} from "../ui/card";
 import { fontFamily } from "~/lib/font";
 import { Calendar } from "~/lib/icons/Calendar";
 import { ArrowRight } from "~/lib/icons/ArrowRight";
 import { Flame } from "~/lib/icons/Flame";
 import { Infinity } from "~/lib/icons/Infinity";
 import { X } from "~/lib/icons/X";
-import { Separator } from "./separator";
+import { Separator } from "../ui/separator";
 import { startOfDay, subDays } from "date-fns";
 import { HABIT_ICONS } from "~/constants/habit-icons";
 import { cn } from "~/lib/utils";

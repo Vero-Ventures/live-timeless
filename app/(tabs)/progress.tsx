@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   Pressable,
 } from "react-native";
-import HabitStatCard from "../../components/ui/HabitStatCard";
+import HabitStatCard from "~/components/habits/HabitStatCard";
 import { fontFamily } from "~/lib/font";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";

@@ -6,8 +6,8 @@ import { ChevronLeft } from "~/lib/icons/ChevronLeft";
 import { useHabitFormStore } from "~/stores/habit-store";
 import { useShallow } from "zustand/react/shallow";
 import { HABIT_ICONS } from "~/constants/habit-icons";
-import { IconPicker } from "~/components/icon-picker";
-import { ColorPicker } from "~/components/color-picker";
+import { IconPicker } from "~/components/habits/icon-picker";
+import { ColorPicker } from "~/components/habits/color-picker";
 
 export default function IconScreen() {
   const [

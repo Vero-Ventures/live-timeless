@@ -17,10 +17,10 @@ import * as DropdownMenu from "zeego/dropdown-menu";
 import { useState } from "react";
 import { ArrowRight, Check, ChevronDown, X } from "lucide-react-native";
 import { BarChart } from "react-native-chart-kit";
-import { StatCard } from "~/components/ui/statCard";
+import { StatCard } from "~/components/habits/statCard";
 import Calendar from "~/components/ui/calendar";
 import { addDays } from "date-fns";
-import ToggleSwitch from "~/components/ui/ToggleSwitch";
+import ToggleSwitch from "~/components/habits/ToggleSwitch";
 import { cn, formatDecimalNumber } from "~/lib/utils";
 
 type Modes = "day" | "week" | "month";
