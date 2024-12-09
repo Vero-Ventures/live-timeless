@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { RECURRENCE } from "../app/habits/create/target/constants";
+import type { RECURRENCE } from "~/constants/habit-target";
 
 export type TimeOfDay = "Morning" | "Afternoon" | "Evening";
 

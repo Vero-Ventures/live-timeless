@@ -8,7 +8,7 @@ import { ChevronRight } from "~/lib/icons/ChevronRight";
 import { useHabitFormStore } from "~/stores/habit-store";
 import type { UnitType } from "~/stores/habit-store";
 import { StyleSheet } from "react-native";
-import { RECURRENCE } from "./constants";
+import { RECURRENCE } from "~/constants/habit-target";
 import { useShallow } from "zustand/react/shallow";
 import { useMemo } from "react";
 export default function Frequency() {
