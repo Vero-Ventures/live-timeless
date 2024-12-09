@@ -60,24 +60,24 @@ export default function ChallengeScreen() {
 
   const joinChallenge = useMutation(api.challenges.joinChallenge);
   const leaveChallenge = useMutation(api.challenges.leaveChallenge);
-  const deleteHabitAndHabitLogs = useMutation(
-    api.habits.deleteHabitAndHabitLogs
-  );
-  const habits = useQuery(api.habits.listHabits);
+  // const deleteHabitAndHabitLogs = useMutation(
+  //   api.habits.deleteHabitAndHabitLogs
+  // );
+  // const habits = useQuery(api.habits.listHabits);
 
-  const deleteChallengeHabits = () => {
-    const filteredHabits = habits?.filter((habit) => habit.challengeId === id);
-    filteredHabits?.map((habit) => {
-      deleteHabitAndHabitLogs({ habitId: habit._id });
-    });
-  };
+  // const deleteChallengeHabits = () => {
+  //   const filteredHabits = habits?.filter((habit) => habit.challengeId === id);
+  //   filteredHabits?.map((habit) => {
+  //     deleteHabitAndHabitLogs({ habitId: habit._id });
+  //   });
+  // };
 
   const handleJoinChallenge = async (challengeId: Id<"challenges">) => {
     await joinChallenge({ challengeId });
   };
   const handleLeaveChallenge = async (challengeId: Id<"challenges">) => {
     await leaveChallenge({ challengeId });
-    deleteChallengeHabits();
+    // deleteChallengeHabits();
   };
 
   return (
