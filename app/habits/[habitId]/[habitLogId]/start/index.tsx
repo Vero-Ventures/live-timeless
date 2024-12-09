@@ -6,7 +6,7 @@ import { api } from "~/convex/_generated/api";
 import { fontFamily } from "~/lib/font";
 import type { Id } from "~/convex/_generated/dataModel";
 import { useState, useCallback, useEffect } from "react";
-import { useTimer } from "./useTimer";
+import { useTimer } from "~/hooks/useTimer";
 
 export default function LogProgressScreen() {
   const { habitId, habitLogId } = useLocalSearchParams<{
