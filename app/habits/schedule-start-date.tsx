@@ -2,7 +2,7 @@ import DateTimePicker from "react-native-modal-datetime-picker";
 
 import React, { useState } from "react";
 import { Pressable, View } from "react-native";
-import { Text } from "../../components/ui/text";
+import { Text } from "~/components/ui/text";
 import { CalendarDays } from "~/lib/icons/CalendarDays";
 import { fontFamily } from "~/lib/font";
 import { getRelativeDateLabel } from "~/lib/date";
