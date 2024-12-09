@@ -302,22 +302,31 @@ function HabitItem({
         </Pressable>
       </Link>
       {habit.unit === "times" ? (
-        <Button className="bg-gray-600" onPress={handleLogTimesHabits}>
-          <Text className="mr-2 text-white">Log</Text>
+        <Button
+          className="flex-row items-center gap-2 bg-gray-600"
+          onPress={handleLogTimesHabits}
+        >
+          <Text className="text-white">Log</Text>
           <MaterialCommunityIcons
             name="check-circle-outline"
-            size={16}
+            size={20}
             color="white"
           />
         </Button>
       ) : habit.unit === "hours" || habit.unit === "mintutes" ? (
-        <Button className="bg-gray-600" onPress={handleLogDurationHabits}>
-          <MaterialCommunityIcons name="alarm" size={16} color="white" />
+        <Button
+          className="flex-row items-center gap-2 bg-gray-600"
+          onPress={handleLogDurationHabits}
+        >
+          <Text className="text-white">Log</Text>
+          <MaterialCommunityIcons name="alarm" size={20} color="white" />
         </Button>
       ) : (
-        <Button className="bg-gray-600" onPress={handleLogProgressHabits}>
-          <Text className="mr-2 text-white">Log</Text>
-
+        <Button
+          className="flex-row items-center gap-2 bg-gray-600"
+          onPress={handleLogProgressHabits}
+        >
+          <Text className="text-white">Log</Text>
           <MaterialCommunityIcons name="keyboard" size={16} color="white" />
         </Button>
       )}
