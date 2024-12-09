@@ -84,17 +84,16 @@ export const listHabits = query({
       habits.map(async (h) => {
         const log = await ctx.db
           .query("habitLogs")
-          .filter((q) =>
-            q.and(
-              q.eq(q.field("habitId"), h._id),
-              q.gte(q.field("_creationTime"), selectedDateMilliseconds)
-            )
-          )
-          .first();
-
+          .filter((q) => q.and(q.eq(q.field("habitId"), h._id)))
+          .collect();
+        const logForDate = log.filter(
+          (log) =>
+            new Date(log._creationTime).toDateString() ===
+            selectedDate.toDateString()
+        )[0];
         return {
           ...h,
-          log,
+          log: logForDate,
         };
       })
     );

@@ -17,7 +17,6 @@ import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
-import type { Doc } from "~/convex/_generated/dataModel";
 import { HABIT_ICONS } from "~/constants/habit-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { FunctionReturnType } from "convex/server";
@@ -89,9 +88,8 @@ function HabitList() {
   const habits = useQuery(api.habits.listHabits, {
     date: selectedDate.toUTCString(),
   });
-  const habitLogs = useQuery(api.habitLogs.listHabitLogs);
 
-  return !habits || !habitLogs ? (
+  return !habits ? (
     <View className="mt-10 flex-1 gap-2">
       <ActivityIndicator />
     </View>
@@ -143,122 +141,113 @@ function HabitItem({
     (icon) => icon.name === habit.selectedIcon
   )?.component;
 
-  async function handleLogPress() {
-    if (habit.unit === "times") {
-      if (!habit.log) {
-        const newLogId = await createHabitLog({
-          habitId: habit._id,
-          isComplete: habit.unitValue === 1,
-          date: selectedDate.getTime(),
-          unitsCompleted: 1, // Initialize with zero units completed
-        });
+  async function handleLogTimesHabits() {
+    if (!habit.log) {
+      const newLogId = await createHabitLog({
+        habitId: habit._id,
+        isComplete: habit.unitValue === 1,
+        date: selectedDate.getTime(),
+        unitsCompleted: 1, // Initialize with zero units completed
+      });
 
-        if (!newLogId) {
-          throw new Error("Failed to create a new habit log.");
-        }
-      } else {
-        if (habit.log.isComplete) {
-          Alert.alert(
-            "Habits Completed",
-            "This habit has already been completed."
-          );
-          return;
-        }
-
-        const newUnitsCompleted = habit.log.unitsCompleted + 1;
-        const hasHabitBeenCompleted = newUnitsCompleted === habit.unitValue;
-
-        if (hasHabitBeenCompleted) {
-          await updateHabitLog({
-            habitLogId: habit.log._id,
-            unitsCompleted: newUnitsCompleted,
-            isComplete: true,
-          });
-          Alert.alert(
-            "Habit Completed",
-            "Congratulations! You’ve completed this habit."
-          );
-        } else {
-          await updateHabitLog({
-            habitLogId: habit.log._id,
-            unitsCompleted: newUnitsCompleted,
-          });
-        }
-
-        if (habit.challengeId) {
-          await updatePoints({
-            unitsCompleted: newUnitsCompleted,
-            rate: habit.rate || 1,
-          });
-        }
-        return;
-      }
-    }
-
-    // Redirect to the appropriate logging screen for other habit types
-    if (["hours", "minutes", "min"].includes(habit.unit)) {
-      if (!habit.log) {
-        const newLogId = await createHabitLog({
-          habitId: habit._id,
-          isComplete: false,
-          date: selectedDate.getTime(),
-          unitsCompleted: 0,
-        });
-
-        if (!newLogId) {
-          throw new Error("Failed to create a new habit log.");
-        }
-        router.push({
-          pathname: "/habits/[habitId]/[habitLogId]/start",
-          params: {
-            habitId: habit._id,
-            habitLogId: newLogId,
-          },
-        });
-      } else {
-        router.push({
-          pathname: "/habits/[habitId]/[habitLogId]/start",
-          params: {
-            habitId: habit._id,
-            habitLogId: habit.log._id,
-          },
-        });
+      if (!newLogId) {
+        throw new Error("Failed to create a new habit log.");
       }
     } else {
-      if (!habit.log) {
-        const newLogId = await createHabitLog({
-          habitId: habit._id,
-          isComplete: false,
-          date: selectedDate.getTime(),
-          unitsCompleted: 0, // Initialize with zero units completed
-        });
+      if (habit.log.isComplete) {
+        Alert.alert(
+          "Habits Completed",
+          "This habit has already been completed."
+        );
+        return;
+      }
 
-        if (!newLogId) {
-          throw new Error("Failed to create a new habit log.");
-        }
-        router.push({
-          pathname: "/habits/[habitId]/[habitLogId]/start/logProgress",
-          params: {
-            habitId: habit._id,
-            habitLogId: newLogId,
-          },
+      const newUnitsCompleted = habit.log.unitsCompleted + 1;
+      const hasHabitBeenCompleted = newUnitsCompleted === habit.unitValue;
+
+      if (hasHabitBeenCompleted) {
+        await updateHabitLog({
+          habitLogId: habit.log._id,
+          unitsCompleted: newUnitsCompleted,
+          isComplete: true,
         });
+        Alert.alert(
+          "Habit Completed",
+          "Congratulations! You’ve completed this habit."
+        );
       } else {
-        router.push({
-          pathname: "/habits/[habitId]/[habitLogId]/start/logProgress",
-          params: {
-            habitId: habit._id,
-            habitLogId: habit.log._id,
-          },
+        await updateHabitLog({
+          habitLogId: habit.log._id,
+          unitsCompleted: newUnitsCompleted,
+        });
+      }
+
+      if (habit.challengeId) {
+        await updatePoints({
+          unitsCompleted: newUnitsCompleted,
+          rate: habit.rate || 1,
         });
       }
     }
   }
+  async function handleLogDurationHabits() {
+    if (!habit.log) {
+      const newLogId = await createHabitLog({
+        habitId: habit._id,
+        isComplete: false,
+        date: selectedDate.getTime(),
+        unitsCompleted: 0,
+      });
 
-  const buttonType = determineButtonType(habit);
+      if (!newLogId) {
+        throw new Error("Failed to create a new habit log.");
+      }
+      router.push({
+        pathname: "/habits/[habitId]/[habitLogId]/start",
+        params: {
+          habitId: habit._id,
+          habitLogId: newLogId,
+        },
+      });
+    } else {
+      router.push({
+        pathname: "/habits/[habitId]/[habitLogId]/start",
+        params: {
+          habitId: habit._id,
+          habitLogId: habit.log._id,
+        },
+      });
+    }
+  }
+  async function handleLogProgressHabits() {
+    if (!habit.log) {
+      const newLogId = await createHabitLog({
+        habitId: habit._id,
+        isComplete: false,
+        date: selectedDate.getTime(),
+        unitsCompleted: 0, // Initialize with zero units completed
+      });
 
-  const buttonStyles =
-    "w-20 h-10 justify-center flex-row items-center rounded-md";
+      if (!newLogId) {
+        throw new Error("Failed to create a new habit log.");
+      }
+      router.push({
+        pathname: "/habits/[habitId]/[habitLogId]/start/logProgress",
+        params: {
+          habitId: habit._id,
+          habitLogId: newLogId,
+        },
+      });
+    } else {
+      router.push({
+        pathname: "/habits/[habitId]/[habitLogId]/start/logProgress",
+        params: {
+          habitId: habit._id,
+          habitLogId: habit.log._id,
+        },
+      });
+    }
+  }
 
   return (
     <View className="flex-row items-center gap-4">
@@ -312,65 +301,28 @@ function HabitItem({
           </View>
         </Pressable>
       </Link>
-
-      <Pressable
-        className={cn(buttonStyles, "bg-gray-600")}
-        onPress={handleLogPress}
-      >
-        <Text className="mr-2 text-white">Log</Text>
-        {buttonType === "keyboard" && (
-          <MaterialCommunityIcons name="keyboard" size={16} color="white" />
-        )}
-        {buttonType === "alarm" && (
-          <MaterialCommunityIcons name="alarm" size={16} color="white" />
-        )}
-        {buttonType === "checkmark" && (
+      {habit.unit === "times" ? (
+        <Button className="bg-gray-600" onPress={handleLogTimesHabits}>
+          <Text className="mr-2 text-white">Log</Text>
           <MaterialCommunityIcons
             name="check-circle-outline"
             size={16}
             color="white"
           />
-        )}
-      </Pressable>
+        </Button>
+      ) : habit.unit === "hours" || habit.unit === "mintutes" ? (
+        <Button className="bg-gray-600" onPress={handleLogDurationHabits}>
+          <MaterialCommunityIcons name="alarm" size={16} color="white" />
+        </Button>
+      ) : (
+        <Button className="bg-gray-600" onPress={handleLogProgressHabits}>
+          <Text className="mr-2 text-white">Log</Text>
+
+          <MaterialCommunityIcons name="keyboard" size={16} color="white" />
+        </Button>
+      )}
     </View>
   );
-}
-
-function determineButtonType(
-  habit: Doc<"habits">
-): "keyboard" | "alarm" | "checkmark" {
-  const allowedUnits = [
-    "steps",
-    "kg",
-    "grams",
-    "mg",
-    "oz",
-    "pounds",
-    "μg",
-    "litres",
-    "mL",
-    "US fl oz",
-    "cups",
-    "kilojoules",
-    "kcal",
-    "cal",
-    "joules",
-    "km",
-    "metres",
-    "feet",
-    "yards",
-    "miles",
-  ];
-
-  if (habit.unit === "times") {
-    return "checkmark"; // Show the checkmark for "times" unit
-  } else if (["hours", "minutes"].includes(habit.unit)) {
-    return "alarm"; // Show the alarm clock for duration-based units
-  } else if (allowedUnits.includes(habit.unit)) {
-    return "keyboard"; // Show the keyboard for specific allowed units
-  }
-
-  return "keyboard"; // Default to keyboard
 }
 
 function CalendarStrip() {
