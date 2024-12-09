@@ -20,7 +20,7 @@ import {
   type TimeOfDay,
   type UnitType,
   useHabitFormStore,
-} from "../../create/habit-store";
+} from "~/stores/habit-store";
 import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";

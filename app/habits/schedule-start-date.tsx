@@ -6,7 +6,7 @@ import { Text } from "~/components/ui/text";
 import { CalendarDays } from "~/lib/icons/CalendarDays";
 import { fontFamily } from "~/lib/font";
 import { getRelativeDateLabel } from "~/lib/date";
-import { useHabitFormStore } from "./create/habit-store";
+import { useHabitFormStore } from "~/stores/habit-store";
 import { useShallow } from "zustand/react/shallow";
 
 export default function ScheduleStartDate() {

@@ -13,7 +13,7 @@ import { Sun } from "~/lib/icons/Sun";
 import { Bell } from "~/lib/icons/Bell";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
 import ScheduleStartDate from "../schedule-start-date";
-import { useHabitFormStore } from "./habit-store";
+import { useHabitFormStore } from "~/stores/habit-store";
 import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
