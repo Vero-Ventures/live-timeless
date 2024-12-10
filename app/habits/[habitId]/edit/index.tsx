@@ -12,7 +12,7 @@ import { Crosshair } from "~/lib/icons/Crosshair";
 import { Sun } from "~/lib/icons/Sun";
 import { Bell } from "~/lib/icons/Bell";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
-import ScheduleStartDate from "../../schedule-start-date";
+import ScheduleStartDate from "~/components/habits/schedule-start-date";
 import {
   type DailyRepeat,
   type Recurrence,
@@ -20,7 +20,7 @@ import {
   type TimeOfDay,
   type UnitType,
   useHabitFormStore,
-} from "../../create/habit-store";
+} from "~/stores/habit-store";
 import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -104,7 +104,7 @@ function EditHabitForm() {
       s.setIntervalRepeat,
       s.selectedIcon,
       s.setSelectedIcon,
-      s.selectedIconColor,
+      s.selectedIconBGColor,
       s.setSelectedIconColor,
       s.startDate,
       s.setStartDate,

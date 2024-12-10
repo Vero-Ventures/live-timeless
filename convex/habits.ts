@@ -24,32 +24,6 @@ export type Habit = {
   rate?: number;
 };
 
-// TODO: Replace placeholder multipliers with real values
-const unitRates: Record<string, number> = {
-  // Multipliers for each unit
-  steps: 0.5,
-  kilojoules: 0.5,
-  calories: 0.5,
-  minutes: 0.5,
-  milliliters: 0.5,
-  feet: 0.5,
-  kilometers: 0.5,
-  miles: 0.5,
-  litres: 0.5,
-  times: 0.5,
-  hours: 0.5,
-  joules: 0.5,
-  cups: 0.5,
-  kilocalories: 0.5,
-  yards: 0.5,
-  "fluid ounce": 0.5,
-  metres: 0.5,
-};
-
-export const getRate = (unit: string): number => {
-  return unitRates[unit] || 0; // Return the rate or default to 0
-};
-
 export const getHabitById = query({
   args: { habitId: v.id("habits") },
   handler: async (ctx, { habitId: habitId }) => {
@@ -58,17 +32,53 @@ export const getHabitById = query({
 });
 
 export const listHabits = query({
-  handler: async (ctx) => {
-    const habitId = await getAuthUserId(ctx);
-    if (habitId === null) {
+  args: { date: v.string() },
+  handler: async (ctx, { date }) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
       return null;
     }
+
+    const selectedDate = new Date(date);
+
+    const selectedDateMilliseconds = selectedDate.getTime();
+
+    const selectedYear = selectedDate.getFullYear();
+    const selectedMonth = selectedDate.getMonth();
+    const selectedDay = selectedDate.getDay();
+
+    // Query habits within the date range
     const habits = await ctx.db
       .query("habits")
-      .filter((q) => q.eq(q.field("userId"), habitId))
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("userId"), userId),
+          q.lte(q.field("startDate"), selectedDateMilliseconds)
+        )
+      )
       .collect();
 
-    return habits;
+    const habitsWithLogs = await Promise.all(
+      habits.map(async (h) => {
+        const log = await ctx.db
+          .query("habitLogs")
+          .filter((q) =>
+            q.and(
+              q.eq(q.field("habitId"), h._id),
+              q.eq(q.field("year"), selectedYear),
+              q.eq(q.field("month"), selectedMonth),
+              q.eq(q.field("day"), selectedDay)
+            )
+          )
+          .first();
+        return {
+          ...h,
+          log,
+        };
+      })
+    );
+
+    return habitsWithLogs;
   },
 });
 
@@ -82,6 +92,7 @@ export const createHabit = mutation({
     repeatType: v.string(),
     selectedIcon: v.string(),
     selectedIconColor: v.string(),
+    selectedIconBGColor: v.string(),
     timeOfDay: v.array(v.string()),
     timeReminder: v.number(),
     startDate: v.number(),
@@ -97,11 +108,8 @@ export const createHabit = mutation({
       return null;
     }
 
-    const rate = args.rate !== undefined ? args.rate : getRate(args.unit);
-
     const habitId = await ctx.db.insert("habits", {
       ...args,
-      rate,
       userId,
     });
 
@@ -126,12 +134,9 @@ export const updateHabit = mutation({
     unitValue: v.float64(),
     unit: v.string(),
     recurrence: v.string(),
-    rate: v.optional(v.number()),
   },
-  handler: async (ctx, { habitId, unit, rate, ...updateData }) => {
-    const updatedRate = rate !== undefined ? rate : getRate(unit);
-
-    await ctx.db.patch(habitId, { ...updateData, rate: updatedRate });
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.habitId, args);
   },
 });
 

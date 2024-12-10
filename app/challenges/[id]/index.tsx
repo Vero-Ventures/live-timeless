@@ -53,31 +53,14 @@ export default function ChallengeScreen() {
       challengeId: id,
     }) || [];
 
-  const sortedParticipants =
-    useQuery(api.challenges.sortParticipantsByPoints, {
-      userIds: challengeParticipants,
-    }) || [];
-
   const joinChallenge = useMutation(api.challenges.joinChallenge);
   const leaveChallenge = useMutation(api.challenges.leaveChallenge);
-  const deleteHabitAndHabitLogs = useMutation(
-    api.habits.deleteHabitAndHabitLogs
-  );
-  const habits = useQuery(api.habits.listHabits);
-
-  const deleteChallengeHabits = () => {
-    const filteredHabits = habits?.filter((habit) => habit.challengeId === id);
-    filteredHabits?.map((habit) => {
-      deleteHabitAndHabitLogs({ habitId: habit._id });
-    });
-  };
 
   const handleJoinChallenge = async (challengeId: Id<"challenges">) => {
     await joinChallenge({ challengeId });
   };
   const handleLeaveChallenge = async (challengeId: Id<"challenges">) => {
     await leaveChallenge({ challengeId });
-    deleteChallengeHabits();
   };
 
   return (
@@ -144,14 +127,14 @@ export default function ChallengeScreen() {
                 }}
                 ListHeaderComponentStyle={{ marginBottom: 8 }}
                 className="mt-6 border-t border-t-[#fff]/10 pt-6"
-                data={sortedParticipants} // Use sorted participants
+                data={challengeParticipants}
                 ItemSeparatorComponent={() => (
                   <Separator className="my-4 h-0.5 bg-[#fff]/10" />
                 )}
                 ListEmptyComponent={() => (
                   <Text className="text-center">No users found.</Text>
                 )}
-                keyExtractor={(item) => item.userId}
+                keyExtractor={(item) => item._id}
                 renderItem={({ item }) => (
                   <View className="flex-row items-center justify-between px-4">
                     <View className="flex-row items-center gap-2">
@@ -173,7 +156,7 @@ export default function ChallengeScreen() {
                       )}
                       <Text>{item?.name}</Text>
                     </View>
-                    <Text>{item?.points ?? 0} POINTS</Text>
+                    <Text>{item?.tokens ?? 0} LT Tokens</Text>
                   </View>
                 )}
               />

@@ -14,7 +14,7 @@ import { api } from "~/convex/_generated/api";
 import type { ListProductsResponseProductsInner } from "tremendous";
 import { ArrowLeft } from "~/lib/icons/ArrowLeft";
 import { MaterialIcons } from "@expo/vector-icons";
-import DOMContent from "./dom-content";
+import DOMContent from "~/components/rewards/dom-content";
 
 export default function SingleRewardsPage() {
   const { id } = useLocalSearchParams<{ id: string }>();

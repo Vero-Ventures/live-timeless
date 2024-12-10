@@ -12,11 +12,10 @@ import { Crosshair } from "~/lib/icons/Crosshair";
 import { Sun } from "~/lib/icons/Sun";
 import { Bell } from "~/lib/icons/Bell";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
-import ScheduleStartDate from "../schedule-start-date";
-import { useHabitFormStore } from "./habit-store";
+import ScheduleStartDate from "~/components/habits/schedule-start-date";
+import { useHabitFormStore } from "~/stores/habit-store";
 import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { cn } from "~/lib/utils";
 import { useShallow } from "zustand/react/shallow";
 import { api } from "~/convex/_generated/api";
@@ -58,6 +57,7 @@ function CreateHabitForm() {
     intervalRepeat,
     selectedIcon,
     selectedIconColor,
+    selectedIconBGColor,
     startDate,
     unitType,
     unitValue,
@@ -76,6 +76,7 @@ function CreateHabitForm() {
       s.intervalRepeat,
       s.selectedIcon,
       s.selectedIconColor,
+      s.selectedIconBGColor,
       s.startDate,
       s.unitType,
       s.unitValue,
@@ -123,19 +124,11 @@ function CreateHabitForm() {
         <View className="flex flex-row items-center gap-2">
           <Link href="/habits/create/icon" asChild>
             <Pressable className="rounded-xl bg-[#0e2942] p-4 px-6">
-              {selectedIcon ? (
-                <IconComp
-                  name={selectedIcon}
-                  size={32}
-                  color={selectedIconColor}
-                />
-              ) : (
-                <FontAwesome6
-                  name="question"
-                  size={32}
-                  color={selectedIconColor}
-                />
-              )}
+              <IconComp
+                name={selectedIcon}
+                size={32}
+                color={selectedIconColor}
+              />
             </Pressable>
           </Link>
           <Input
@@ -212,6 +205,7 @@ function CreateHabitForm() {
               const newHabit = {
                 name,
                 selectedIcon,
+                selectedIconBGColor,
                 selectedIconColor,
                 timeOfDay,
                 timeReminder: timeReminder.getTime(),

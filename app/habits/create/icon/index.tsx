@@ -3,11 +3,12 @@ import { FlatList, Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
 import { ChevronLeft } from "~/lib/icons/ChevronLeft";
-import { useHabitFormStore } from "../habit-store";
+import { useHabitFormStore } from "~/stores/habit-store";
 import { useShallow } from "zustand/react/shallow";
 import { HABIT_ICONS } from "~/constants/habit-icons";
-import { IconPicker } from "~/components/icon-picker";
-import { ColorPicker } from "~/components/color-picker";
+import { IconPicker } from "~/components/habits/icon-picker";
+import { ColorPicker } from "~/components/habits/color-picker";
+import { ICON_COLORS } from "~/constants/Colors";
 
 export default function IconScreen() {
   const [
@@ -17,7 +18,7 @@ export default function IconScreen() {
     setSelectedIcon,
   ] = useHabitFormStore(
     useShallow((s) => [
-      s.selectedIconColor,
+      s.selectedIconBGColor,
       s.setSelectedIconColor,
       s.selectedIcon,
       s.setSelectedIcon,
@@ -49,32 +50,32 @@ export default function IconScreen() {
               </View>
               <View className="mt-6 flex-row justify-evenly px-4">
                 <ColorPicker
-                  color="#2AA8CF"
+                  color={ICON_COLORS.lightBlue.color}
                   selectedIconColor={selectedIconColor}
                   setSelectedIconColor={setSelectedIconColor}
                 />
                 <ColorPicker
-                  color="#2A67F5"
+                  color={ICON_COLORS.blue.color}
                   selectedIconColor={selectedIconColor}
                   setSelectedIconColor={setSelectedIconColor}
                 />
                 <ColorPicker
-                  color="#299240"
+                  color={ICON_COLORS.green.color}
                   selectedIconColor={selectedIconColor}
                   setSelectedIconColor={setSelectedIconColor}
                 />
                 <ColorPicker
-                  color="#E1861D"
+                  color={ICON_COLORS.yellow.color}
                   selectedIconColor={selectedIconColor}
                   setSelectedIconColor={setSelectedIconColor}
                 />
                 <ColorPicker
-                  color="#D42C2C"
+                  color={ICON_COLORS.red.color}
                   selectedIconColor={selectedIconColor}
                   setSelectedIconColor={setSelectedIconColor}
                 />
                 <ColorPicker
-                  color="#982ABF"
+                  color={ICON_COLORS.purple.color}
                   selectedIconColor={selectedIconColor}
                   setSelectedIconColor={setSelectedIconColor}
                 />

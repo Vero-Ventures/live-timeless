@@ -5,10 +5,10 @@ import { Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { fontFamily } from "~/lib/font";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
-import { useHabitFormStore } from "../habit-store";
-import type { UnitType } from "../habit-store";
+import { useHabitFormStore } from "~/stores/habit-store";
+import type { UnitType } from "~/stores/habit-store";
 import { StyleSheet } from "react-native";
-import { RECURRENCE } from "./constants";
+import { RECURRENCE } from "~/constants/habit-target";
 import { useShallow } from "zustand/react/shallow";
 import { useMemo } from "react";
 export default function Frequency() {
