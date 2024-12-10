@@ -68,7 +68,7 @@ export default function AdvisorChatbot() {
 
         <View className="relative flex-row items-center justify-between bg-card">
           <Input
-            className="native:h-20 rounded-none border-0 bg-card py-6 placeholder:text-muted-foreground"
+            className="native:h-20 flex-1 rounded-none border-0 bg-card py-6 placeholder:text-muted-foreground"
             value={inputText}
             onChangeText={setInputText}
             placeholder="Send a message..."
