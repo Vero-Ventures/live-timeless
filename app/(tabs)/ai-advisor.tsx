@@ -66,19 +66,15 @@ export default function AdvisorChatbot() {
           ItemSeparatorComponent={() => <Separator />}
         />
 
-        <View className="relative">
+        <View className="relative flex-row items-center justify-between bg-card">
           <Input
-            className="native:h-20 rounded-none border-0 bg-card py-6"
+            className="native:h-20 rounded-none border-0 bg-card py-6 placeholder:text-muted-foreground"
             value={inputText}
             onChangeText={setInputText}
             placeholder="Type your message..."
             multiline
           />
-          <Button
-            variant="ghost"
-            className="absolute right-1 top-5 items-center justify-center p-3"
-            onPress={handleSend}
-          >
+          <Button variant="ghost" hitSlop={20} onPress={handleSend}>
             <Send className="text-white" />
           </Button>
         </View>
