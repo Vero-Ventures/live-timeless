@@ -71,7 +71,7 @@ export default function AdvisorChatbot() {
             className="native:h-20 rounded-none border-0 bg-card py-6 placeholder:text-muted-foreground"
             value={inputText}
             onChangeText={setInputText}
-            placeholder="Type your message..."
+            placeholder="Send a message..."
             multiline
           />
           <Button variant="ghost" hitSlop={20} onPress={handleSend}>
@@ -85,8 +85,16 @@ export default function AdvisorChatbot() {
 
 function MessageComp({ text, isViewer }: { text: string; isViewer: boolean }) {
   return (
-    <View className={cn("p-4", isViewer && "bg-card")}>
+    <View className={cn("gap-3 p-4", isViewer && "bg-card")}>
       <Text className={cn(!isViewer && "font-semibold")}>{text}</Text>
+      <Text
+        className={cn(
+          "text-sm font-light text-muted-foreground",
+          isViewer && "text-right"
+        )}
+      >
+        {isViewer ? "You" : "LT AI Advisor"}
+      </Text>
     </View>
   );
 }
