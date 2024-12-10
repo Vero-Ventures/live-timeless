@@ -17,7 +17,7 @@ import type {
 } from "convex/server";
 import type * as ResendOTP from "../ResendOTP.js";
 import type * as auth from "../auth.js";
-import type * as challengeHabits from "../challengeHabits.js";
+import type * as challengeLogs from "../challengeLogs.js";
 import type * as challenges from "../challenges.js";
 import type * as dateUtils from "../dateUtils.js";
 import type * as emails_LTLoginOTP from "../emails/LTLoginOTP.js";
@@ -44,7 +44,7 @@ import type * as users from "../users.js";
 declare const fullApi: ApiFromModules<{
   ResendOTP: typeof ResendOTP;
   auth: typeof auth;
-  challengeHabits: typeof challengeHabits;
+  challengeLogs: typeof challengeLogs;
   challenges: typeof challenges;
   dateUtils: typeof dateUtils;
   "emails/LTLoginOTP": typeof emails_LTLoginOTP;
