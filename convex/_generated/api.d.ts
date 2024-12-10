@@ -28,8 +28,12 @@ import type * as habitStats from "../habitStats.js";
 import type * as habits from "../habits.js";
 import type * as http from "../http.js";
 import type * as invitations from "../invitations.js";
+import type * as messages from "../messages.js";
 import type * as organizations from "../organizations.js";
+import type * as serve from "../serve.js";
 import type * as singleHabitStats from "../singleHabitStats.js";
+import type * as threads from "../threads.js";
+import type * as tremendous from "../tremendous.js";
 import type * as users from "../users.js";
 
 /**
@@ -54,8 +58,12 @@ declare const fullApi: ApiFromModules<{
   habits: typeof habits;
   http: typeof http;
   invitations: typeof invitations;
+  messages: typeof messages;
   organizations: typeof organizations;
+  serve: typeof serve;
   singleHabitStats: typeof singleHabitStats;
+  threads: typeof threads;
+  tremendous: typeof tremendous;
   users: typeof users;
 }>;
 export declare const api: FilterApi<

@@ -4,6 +4,7 @@ import { User } from "~/lib/icons/User";
 import { Goal, Mountain, TrendingUp } from "lucide-react-native";
 import { fontFamily } from "~/lib/font";
 import { Star } from "~/lib/icons/Star";
+import { Bot } from "~/lib/icons/Bot";
 
 export default function TabLayout() {
   return (
@@ -79,6 +80,18 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => (
               <View style={{ alignItems: "center" }}>
                 <User color={color} />
+              </View>
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="ai-advisor"
+          options={{
+            title: "Advisor",
+            headerShown: false,
+            tabBarIcon: ({ color }) => (
+              <View style={{ alignItems: "center" }}>
+                <Bot color={color} />
               </View>
             ),
           }}
