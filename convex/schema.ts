@@ -92,4 +92,17 @@ export default defineSchema({
     month: v.string(),
     day: v.string(),
   }).index("by_challenge_id", ["challengeId"]),
+  messages: defineTable({
+    _id: v.id("messages"),
+    role: v.string(),
+    content: v.string(),
+    threadId: v.string(),
+  }).index("by_thread_id", ["threadId"]),
+  threads: defineTable({
+    _id: v.id("threads"),
+    userId: v.id("users"),
+    threadId: v.string(),
+  })
+    .index("by_user_id", ["userId"])
+    .index("by_thread_id", ["threadId"]),
 });
