@@ -63,9 +63,9 @@ export const createHabitLog = mutation({
   args: {
     habitId: v.id("habits"),
     isComplete: v.boolean(),
-    year: v.string(),
-    month: v.string(),
-    day: v.string(),
+    year: v.number(),
+    month: v.number(),
+    day: v.number(),
     unitsCompleted: v.number(),
   },
   handler: async (ctx, args) => {
@@ -110,9 +110,9 @@ export const updateHabitLog = mutation({
 export const getHabitLogByDate = query({
   args: {
     habitId: v.id("habits"),
-    year: v.string(),
-    month: v.string(),
-    day: v.string(),
+    year: v.number(),
+    month: v.number(),
+    day: v.number(),
   },
   handler: async (ctx, { habitId, year, month, day }) => {
     const habitLog = await ctx.db
