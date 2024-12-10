@@ -7,9 +7,9 @@ export const createChallengeLog = mutation({
     challengeId: v.id("challenges"),
     isComplete: v.boolean(),
     unitsCompleted: v.number(),
-    year: v.string(),
-    month: v.string(),
-    day: v.string(),
+    year: v.number(),
+    month: v.number(),
+    day: v.number(),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);

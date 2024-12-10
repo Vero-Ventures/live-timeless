@@ -133,9 +133,11 @@ function HabitItem({
   habit: NonNullable<FunctionReturnType<typeof api.habits.listHabits>>[number];
   selectedDate: Date;
 }) {
+  const year = selectedDate.getFullYear();
+  const month = selectedDate.getMonth();
+  const day = selectedDate.getDay();
   const createHabitLog = useMutation(api.habitLogs.createHabitLog);
   const updateHabitLog = useMutation(api.habitLogs.updateHabitLog);
-  const updatePoints = useMutation(api.challenges.updatePoints);
 
   const IconComp = HABIT_ICONS.find(
     (icon) => icon.name === habit.selectedIcon
@@ -146,7 +148,9 @@ function HabitItem({
       const newLogId = await createHabitLog({
         habitId: habit._id,
         isComplete: habit.unitValue === 1,
-        date: selectedDate.getTime(),
+        year,
+        month,
+        day,
         unitsCompleted: 1, // Initialize with zero units completed
       });
 
@@ -181,13 +185,6 @@ function HabitItem({
           unitsCompleted: newUnitsCompleted,
         });
       }
-
-      if (habit.challengeId) {
-        await updatePoints({
-          unitsCompleted: newUnitsCompleted,
-          rate: habit.rate || 1,
-        });
-      }
     }
   }
   async function handleLogDurationHabits() {
@@ -195,8 +192,10 @@ function HabitItem({
       const newLogId = await createHabitLog({
         habitId: habit._id,
         isComplete: false,
-        date: selectedDate.getTime(),
         unitsCompleted: 0,
+        year,
+        month,
+        day,
       });
 
       if (!newLogId) {
@@ -224,7 +223,9 @@ function HabitItem({
       const newLogId = await createHabitLog({
         habitId: habit._id,
         isComplete: false,
-        date: selectedDate.getTime(),
+        year,
+        month,
+        day,
         unitsCompleted: 0, // Initialize with zero units completed
       });
 
@@ -287,9 +288,6 @@ function HabitItem({
 
             <View className="w-full gap-2">
               <Text style={{ fontFamily: "openSans.medium" }}>
-                {!!habit.challengeId && (
-                  <IconComp name={"trophy"} color={"#FFD700"} size={15} />
-                )}{" "}
                 {habit.name}
               </Text>
               <Text className="text-xs text-muted-foreground">
