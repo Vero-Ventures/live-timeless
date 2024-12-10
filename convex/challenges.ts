@@ -21,11 +21,9 @@ export const getChallengeByIdWthHasJoined = query({
       )
       .collect();
 
-    const challengeParticipantsUserIds = challengeParticipants.map(
-      (cp) => cp.userId
-    );
-
-    const hasJoined = challengeParticipantsUserIds.includes(userId);
+    const hasJoined = challengeParticipants
+      .map((cp) => cp.userId)
+      .includes(userId);
 
     const participants = await Promise.all(
       challengeParticipants.map(async (participant) =>
@@ -94,7 +92,7 @@ export const createChallenge = mutation({
     recurrence: v.string(),
     startDate: v.number(),
     endDate: v.number(),
-    points: v.number(),
+    tokens: v.number(),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -112,6 +110,7 @@ export const createChallenge = mutation({
     if (user.role === "user") {
       throw new Error("Forbidden action");
     }
+
     await ctx.db.insert("challenges", {
       ...args,
       organizationId: user.organizationId,
@@ -131,6 +130,7 @@ export const updateChallenge = mutation({
     recurrence: v.string(),
     startDate: v.number(),
     endDate: v.number(),
+    tokens: v.number(),
   },
   handler: async (ctx, { challengeId, ...args }) => {
     const userId = await getAuthUserId(ctx);
@@ -157,6 +157,7 @@ export const updateChallenge = mutation({
     if (challenge.organizationId !== user.organizationId) {
       throw new Error("User doesn't belong in the organization");
     }
+
     await ctx.db.patch(challengeId, args);
   },
 });
@@ -243,6 +244,7 @@ export const joinChallenge = mutation({
     await ctx.db.insert("challengeParticipants", {
       challengeId,
       userId,
+      totalUnitsCompleted: 0,
     });
   },
 });
@@ -327,47 +329,5 @@ export const getChallengeParticipants = query({
       .collect();
 
     return challengeParticipants.map((participant) => participant.userId);
-  },
-});
-
-export const sortParticipantsByPoints = query({
-  args: { userIds: v.array(v.id("users")) },
-  handler: async (ctx, { userIds }) => {
-    // Fetch points, image, and name for each user
-    const usersWithPoints = await Promise.all(
-      userIds.map(async (userId) => {
-        const user = await ctx.db.get(userId);
-        if (!user) {
-          throw new Error(`User not found: ${userId}`);
-        }
-        return {
-          userId,
-          points: user.points || 0, // Default points to 0 if not set
-          image: user.image || null, // Include the image column, default to null if not set
-          name: user.name || "Unknown User", // Include the name column, default to "Unknown User" if not set
-        };
-      })
-    );
-
-    // Sort users by points in descending order
-    usersWithPoints.sort((a, b) => b.points - a.points);
-
-    return usersWithPoints;
-  },
-});
-
-export const updatePoints = mutation({
-  args: { unitsCompleted: v.number(), rate: v.number() },
-  handler: async (ctx, { unitsCompleted, rate }) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Not logged in");
-    }
-    const newPoints = unitsCompleted * rate;
-    const currentPoints = (await ctx.db.get(userId))?.points || 0;
-    const totalPoints = currentPoints + newPoints;
-    await ctx.db.patch(userId, {
-      points: totalPoints,
-    });
   },
 });
