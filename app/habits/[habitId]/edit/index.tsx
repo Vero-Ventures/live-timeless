@@ -104,7 +104,7 @@ function EditHabitForm() {
       s.setIntervalRepeat,
       s.selectedIcon,
       s.setSelectedIcon,
-      s.selectedIconColor,
+      s.selectedIconBGColor,
       s.setSelectedIconColor,
       s.startDate,
       s.setStartDate,

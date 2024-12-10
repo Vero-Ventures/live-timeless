@@ -161,14 +161,6 @@ function HabitItem({
         throw new Error("Failed to create a new habit log.");
       }
     } else {
-      if (habit.log.isComplete) {
-        Alert.alert(
-          "Habits Completed",
-          "This habit has already been completed."
-        );
-        return;
-      }
-
       const newUnitsCompleted = habit.log.unitsCompleted + 1;
       const hasHabitBeenCompleted = newUnitsCompleted === habit.unitValue;
 
@@ -229,7 +221,7 @@ function HabitItem({
         year,
         month,
         day,
-        unitsCompleted: 0, // Initialize with zero units completed
+        unitsCompleted: 0,
       });
 
       if (!newLogId) {
@@ -267,18 +259,23 @@ function HabitItem({
         }}
         asChild
       >
-        <Pressable className="flex-1">
+        <Pressable
+          className={cn("flex-1", habit.log?.isComplete && "bg-secondary")}
+        >
           <View className="flex-row items-center gap-4">
             <View
+              style={{
+                backgroundColor: habit.selectedIconBGColor,
+              }}
               className={cn(
-                "items-center justify-center rounded-full bg-[#299240]/20 p-1"
+                "h-16 w-16 items-center justify-center rounded-full"
               )}
             >
               {IconComp ? (
                 <IconComp
                   name={habit.selectedIcon}
-                  color={habit.selectedIconColor}
-                  size={32}
+                  color={habit.selectedIcon}
+                  size={30}
                 />
               ) : (
                 <MaterialCommunityIcons
@@ -290,7 +287,12 @@ function HabitItem({
             </View>
 
             <View className="w-full gap-2">
-              <Text style={{ fontFamily: "openSans.medium" }}>
+              <Text
+                className={cn(
+                  "font-medium",
+                  habit.log?.isComplete && "line-through"
+                )}
+              >
                 {habit.name}
               </Text>
               <Text className="text-xs text-muted-foreground">

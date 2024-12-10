@@ -1,4 +1,4 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { FontAwesome6, MaterialCommunityIcons } from "@expo/vector-icons";
 import type { Icon } from "~/components/habits/icon-picker";
 
 export const HABIT_ICONS: Icon[] = [
@@ -54,4 +54,5 @@ export const HABIT_ICONS: Icon[] = [
   { component: MaterialCommunityIcons, name: "cellphone" },
   { component: MaterialCommunityIcons, name: "phone" },
   { component: MaterialCommunityIcons, name: "keyboard" },
+  { component: FontAwesome6, name: "question" },
 ];

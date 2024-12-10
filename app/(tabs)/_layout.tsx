@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import { Tabs } from "expo-router";
 import { User } from "~/lib/icons/User";
-import { Goal, Mountain, TrendingUp } from "lucide-react-native";
+import { Goal, Mountain } from "lucide-react-native";
 import { fontFamily } from "~/lib/font";
 import { Star } from "~/lib/icons/Star";
 import { Bot } from "~/lib/icons/Bot";
@@ -36,7 +36,7 @@ export default function TabLayout() {
             ),
           }}
         />
-        <Tabs.Screen
+        {/* <Tabs.Screen
           name="progress"
           options={{
             title: "Progress",
@@ -47,7 +47,7 @@ export default function TabLayout() {
               </View>
             ),
           }}
-        />
+        /> */}
         <Tabs.Screen
           name="challenges"
           options={{
