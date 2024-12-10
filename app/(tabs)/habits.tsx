@@ -20,6 +20,7 @@ import { api } from "~/convex/_generated/api";
 import { HABIT_ICONS } from "~/constants/habit-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { FunctionReturnType } from "convex/server";
+import { addDays, subDays } from "date-fns";
 
 export default function HabitsPage() {
   useEffect(() => {
@@ -63,7 +64,9 @@ export default function HabitsPage() {
 
 function DateHeading() {
   const { date } = useLocalSearchParams<{ date?: string }>();
-  const { today, tomorrow, yesterday } = getTodayYesterdayTomorrow();
+  const today = new Date();
+  const tomorrow = addDays(today, 1);
+  const yesterday = subDays(today, 1);
   const selectedDate = date ? new Date(Number(date)) : today;
   return (
     <Text className="mb-2 text-sm uppercase text-gray-500">
@@ -83,7 +86,7 @@ function DateHeading() {
 }
 function HabitList() {
   const { date } = useLocalSearchParams<{ date?: string }>();
-  const { today } = getTodayYesterdayTomorrow();
+  const today = new Date();
   const selectedDate = date ? new Date(Number(date)) : today;
   const habits = useQuery(api.habits.listHabits, {
     date: selectedDate.toUTCString(),
@@ -334,7 +337,8 @@ function HabitItem({
 
 function CalendarStrip() {
   const { date } = useLocalSearchParams<{ date?: string }>();
-  const { today, tomorrow } = getTodayYesterdayTomorrow();
+  const today = new Date();
+  const tomorrow = addDays(today, 1);
   const [selectedDate, setSelectedDate] = useState(
     date ? new Date(Number(date)) : today
   );
@@ -402,13 +406,4 @@ function CalendarStrip() {
       ))}
     </ScrollView>
   );
-}
-
-function getTodayYesterdayTomorrow() {
-  const today = new Date();
-  const tomorrow = new Date();
-  tomorrow.setDate(today.getDate() + 1);
-  const yesterday = new Date();
-  yesterday.setDate(today.getDate() - 1);
-  return { today, tomorrow, yesterday };
 }

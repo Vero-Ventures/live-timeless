@@ -43,6 +43,10 @@ export const listHabits = query({
 
     const selectedDateMilliseconds = selectedDate.getTime();
 
+    const selectedYear = selectedDate.getFullYear();
+    const selectedMonth = selectedDate.getMonth();
+    const selectedDay = selectedDate.getDay();
+
     // Query habits within the date range
     const habits = await ctx.db
       .query("habits")
@@ -58,16 +62,18 @@ export const listHabits = query({
       habits.map(async (h) => {
         const log = await ctx.db
           .query("habitLogs")
-          .filter((q) => q.and(q.eq(q.field("habitId"), h._id)))
-          .collect();
-        const logForDate = log.filter(
-          (log) =>
-            new Date(log._creationTime).toDateString() ===
-            selectedDate.toDateString()
-        )[0];
+          .filter((q) =>
+            q.and(
+              q.eq(q.field("habitId"), h._id),
+              q.eq(q.field("year"), selectedYear),
+              q.eq(q.field("month"), selectedMonth),
+              q.eq(q.field("day"), selectedDay)
+            )
+          )
+          .first();
         return {
           ...h,
-          log: logForDate,
+          log,
         };
       })
     );
