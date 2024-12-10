@@ -13,7 +13,7 @@ const configuration = new Configuration({
 
 const client = new ProductsApi(configuration);
 
-export const listRewardsAction = action({
+export const listProductsAction = action({
   handler: async () => {
     const limit = 5;
     const offset = 0;
@@ -27,7 +27,7 @@ export const listRewardsAction = action({
   },
 });
 
-export const getRewardAction = action({
+export const getProductAction = action({
   args: { productId: v.string() },
   handler: async (_, { productId }) => {
     const { data } = await client.getProduct(productId);

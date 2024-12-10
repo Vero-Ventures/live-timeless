@@ -18,25 +18,25 @@ import DOMContent from "./dom-content";
 
 export default function SingleRewardsPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const getReward = useAction(api.tremendous.getRewardAction);
-  const [reward, setReward] =
+  const getProduct = useAction(api.tremendous.getProductAction);
+  const [product, setProduct] =
     useState<ListProductsResponseProductsInner | null>(null);
 
   useEffect(() => {
-    getReward({ productId: id }).then((product) => setReward(product));
-  }, [getReward, id]);
+    getProduct({ productId: id }).then((product) => setProduct(product));
+  }, [getProduct, id]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#082139" }}>
       <Stack.Screen
         options={{
           header: () =>
-            reward ? (
+            product ? (
               <View className="relative w-full">
                 <View className="absolute h-full w-full bg-[#0e2942]/50"></View>
-                {!!reward.images.length && (
+                {!!product.images.length && (
                   <Image
-                    src={reward.images.at(0)?.src}
+                    src={product.images.at(0)?.src}
                     className="-z-10 h-[280px] w-full"
                   />
                 )}
@@ -47,7 +47,7 @@ export default function SingleRewardsPage() {
                 >
                   <ArrowLeft color="#fff" size={40} />
                 </Pressable>
-                {reward.category === "merchant_card" && (
+                {product.category === "merchant_card" && (
                   <View className="absolute top-28 flex flex-row gap-2 pl-4">
                     <View className="rounded-lg bg-slate-500 p-1">
                       <MaterialIcons
@@ -60,25 +60,25 @@ export default function SingleRewardsPage() {
                   </View>
                 )}
                 <Text className="absolute bottom-0 pb-4 pl-4 text-3xl font-bold">
-                  {reward.name}
+                  {product.name}
                 </Text>
               </View>
             ) : null,
         }}
       />
-      {reward ? (
+      {product ? (
         <>
           <View className="flex-1 bg-[#0e2942] p-4">
-            {!!reward.description && (
+            {!!product.description && (
               <>
                 <Text className="text-2xl font-bold">About this reward</Text>
-                <DOMContent content={reward.description} />
+                <DOMContent content={product.description} />
               </>
             )}
-            {!!reward.disclosure && (
+            {!!product.disclosure && (
               <>
                 <Text className="text-2xl font-bold">Terms and Conditions</Text>
-                <DOMContent content={reward.disclosure} />
+                <DOMContent content={product.disclosure} />
               </>
             )}
           </View>

@@ -18,23 +18,23 @@ import type { ListProductsResponseProductsInner } from "tremendous";
 import { MaterialIcons } from "@expo/vector-icons";
 
 export default function RewardsPage() {
-  const [rewards, setRewards] = useState<
+  const [products, setProducts] = useState<
     ListProductsResponseProductsInner[] | null
   >(null);
   const { query } = useLocalSearchParams<{ query?: string }>();
   const user = useQuery(api.users.currentUser);
-  const fetchRewards = useAction(api.tremendous.listRewardsAction);
+  const fetchProducts = useAction(api.tremendous.listProductsAction);
 
   useEffect(() => {
-    fetchRewards().then((products) => setRewards(products));
-  }, [fetchRewards]);
+    fetchProducts().then((products) => setProducts(products));
+  }, [fetchProducts]);
 
-  const filteredRewards = rewards
+  const filteredProducts = products
     ? query
-      ? rewards.filter((reward) =>
+      ? products.filter((reward) =>
           reward.name.toLowerCase().includes(query.toLowerCase())
         )
-      : rewards
+      : products
     : null;
 
   return (
@@ -54,9 +54,9 @@ export default function RewardsPage() {
           <SearchInput query={query} />
         </View>
       </View>
-      {filteredRewards ? (
+      {filteredProducts ? (
         <FlatList
-          data={filteredRewards}
+          data={filteredProducts}
           ItemSeparatorComponent={() => <View className="py-2" />}
           renderItem={({ item }) => <RewardItem product={item} />}
         />
