@@ -328,6 +328,14 @@ export const getChallengeParticipants = query({
       )
       .collect();
 
-    return challengeParticipants.map((participant) => participant.userId);
+    return await Promise.all(
+      challengeParticipants.map(async (participant) => {
+        const profile = await ctx.db.get(participant.userId);
+        return {
+          ...participant,
+          ...profile,
+        };
+      })
+    );
   },
 });
