@@ -97,7 +97,7 @@ function HabitList() {
         <Separator className="h-0.5 bg-[#fff]/10" />
       )}
       ListEmptyComponent={() => (
-        <View className="h-full justify-center gap-6">
+        <View className="h-full justify-center gap-6 px-4">
           <Text className="text-center text-2xl font-bold">
             Welcome to Live Timeless!
           </Text>

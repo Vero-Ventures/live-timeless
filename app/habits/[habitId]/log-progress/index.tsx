@@ -37,7 +37,7 @@ export default function LogProgressScreen() {
   const updateHabitLog = useMutation(api.habitLogs.updateHabitLog);
 
   return (
-    <View className="h-full bg-[#0b1a28] p-4 pt-20">
+    <View className="h-full bg-background p-4 pt-10">
       {!!error && (
         <Alert icon={AlertCircle} variant="destructive" className="max-w-xl">
           <AlertTitle>Something went wrong!</AlertTitle>

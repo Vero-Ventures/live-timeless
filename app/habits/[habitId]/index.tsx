@@ -123,6 +123,23 @@ export default function HabitScreen() {
                 <DropdownMenu.Item
                   onSelect={() =>
                     router.navigate({
+                      pathname: "/habits/[habitId]/log-progress",
+                      params: {
+                        habitId,
+                        year: currentYear,
+                        month: currentDay,
+                        day: currentDay,
+                      },
+                    })
+                  }
+                  key="log-progress"
+                  textValue="Log Progress"
+                >
+                  <DropdownMenu.ItemIcon ios={{ name: "keyboard" }} />
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  onSelect={() =>
+                    router.navigate({
                       pathname: "/habits/[habitId]/log-history",
                       params: { habitId },
                     })
@@ -130,7 +147,7 @@ export default function HabitScreen() {
                   key="log-history"
                   textValue="Log History"
                 >
-                  <DropdownMenu.ItemIcon ios={{ name: "keyboard" }} />
+                  <DropdownMenu.ItemIcon ios={{ name: "list.bullet" }} />
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
                   onSelect={() =>
