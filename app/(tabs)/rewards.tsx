@@ -55,7 +55,7 @@ export default function RewardsPage() {
             <Text className="text-center text-2xl font-bold">
               ${convertTokensToDollars(user?.tokens ?? 0)}
             </Text>
-            <Text className="text-center text-xs">dollars</Text>
+            <Text className="text-center text-xs">CAD</Text>
           </View>
         </View>
         <View className="gap-3">
