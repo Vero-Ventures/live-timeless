@@ -83,7 +83,7 @@ export const initialFormState: FormState = {
   unitValue: 1,
   unit: "times",
   recurrence: "per day",
-  selectedIconColor: "lightBlue",
+  selectedIconColor: "#2AA8CF",
   selectedIcon: "question",
 };
 

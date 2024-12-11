@@ -7,9 +7,6 @@ import { useShallow } from "zustand/react/shallow";
 import { HABIT_ICONS } from "~/constants/habit-icons";
 import { IconPicker } from "~/components/habits/icon-picker";
 import { ColorPicker } from "~/components/habits/color-picker";
-import { ICON_COLORS } from "~/constants/Colors";
-
-type COLORS = (keyof typeof ICON_COLORS)[];
 
 export default function IconScreen() {
   const [
@@ -48,8 +45,16 @@ export default function IconScreen() {
                 <Text className="font-bold">Icon</Text>
               </View>
               <View className="mt-6 flex-row justify-evenly px-4">
-                {(Object.keys(ICON_COLORS) as COLORS).map((color) => (
+                {[
+                  "#2AA8CF",
+                  "#2A67F5",
+                  "#299240",
+                  "#E1861D",
+                  "#D42C2C",
+                  "#982ABF",
+                ].map((color) => (
                   <ColorPicker
+                    key={color}
                     color={color}
                     selectedIconColor={selectedIconColor}
                     setSelectedIconColor={setSelectedIconColor}
