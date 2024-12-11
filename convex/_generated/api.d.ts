@@ -17,7 +17,6 @@ import type * as ResendOTP from "../ResendOTP.js";
 import type * as auth from "../auth.js";
 import type * as challengeLogs from "../challengeLogs.js";
 import type * as challenges from "../challenges.js";
-import type * as dateUtils from "../dateUtils.js";
 import type * as emails_LTLoginOTP from "../emails/LTLoginOTP.js";
 import type * as emails_LTUserInvitation from "../emails/LTUserInvitation.js";
 import type * as emails_LTWelcome from "../emails/LTWelcome.js";
@@ -45,7 +44,6 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   challengeLogs: typeof challengeLogs;
   challenges: typeof challenges;
-  dateUtils: typeof dateUtils;
   "emails/LTLoginOTP": typeof emails_LTLoginOTP;
   "emails/LTUserInvitation": typeof emails_LTUserInvitation;
   "emails/LTWelcome": typeof emails_LTWelcome;

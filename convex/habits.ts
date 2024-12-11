@@ -3,32 +3,30 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { endOfToday, getDate } from "date-fns";
 
-export type Habit = {
-  _id: string;
-  userId: string;
-  challengeId?: string;
-  dailyRepeat: string[];
-  intervalRepeat: number;
-  monthlyRepeat: number[];
-  name: string;
-  repeatType: string;
-  selectedIcon: string;
-  selectedIconColor: string;
-  timeOfDay: string[];
-  timeReminder: number;
-  startDate: number;
-  unitType: string;
-  unitValue: number;
-  unit: string;
-  recurrence: string;
-  weeks?: number;
-  rate?: number;
-};
-
 export const getHabitById = query({
-  args: { habitId: v.id("habits") },
-  handler: async (ctx, { habitId: habitId }) => {
-    return await ctx.db.get(habitId);
+  args: { habitId: v.id("habits"), month: v.number(), year: v.number() },
+  handler: async (ctx, { habitId, year, month }) => {
+    const habit = await ctx.db.get(habitId);
+
+    if (!habit) {
+      return null;
+    }
+
+    const logs = await ctx.db
+      .query("habitLogs")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("habitId"), habit._id),
+          q.eq(q.field("year"), year),
+          q.eq(q.field("month"), month)
+        )
+      )
+      .collect();
+
+    return {
+      ...habit,
+      logs,
+    };
   },
 });
 
@@ -153,23 +151,12 @@ export const deleteHabit = mutation({
     habitId: v.id("habits"),
   },
   handler: async (ctx, { habitId }) => {
-    await ctx.db.delete(habitId);
-  },
-});
-
-export const deleteHabitAndHabitLogs = mutation({
-  args: {
-    habitId: v.id("habits"),
-  },
-  handler: async (ctx, { habitId }) => {
-    const habitLogs = await ctx.db
+    const logs = await ctx.db
       .query("habitLogs")
       .filter((q) => q.eq(q.field("habitId"), habitId))
       .collect();
 
-    for (const habitLog of habitLogs) {
-      await ctx.db.delete(habitLog._id);
-    }
+    await Promise.all(logs.map(async (log) => ctx.db.delete(log._id)));
     await ctx.db.delete(habitId);
   },
 });

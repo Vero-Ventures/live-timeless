@@ -248,9 +248,6 @@ function HabitItem({
           pathname: `/habits/[habitId]`,
           params: {
             habitId: habit._id,
-            selectedHabitLogDate: encodeURIComponent(
-              selectedDate.toISOString()
-            ),
           },
         }}
         asChild
