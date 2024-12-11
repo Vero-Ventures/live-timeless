@@ -52,7 +52,6 @@ function CreateHabitForm() {
     intervalRepeat,
     selectedIcon,
     selectedIconColor,
-    selectedIconBGColor,
     startDate,
     unitType,
     unitValue,
@@ -71,7 +70,6 @@ function CreateHabitForm() {
       s.intervalRepeat,
       s.selectedIcon,
       s.selectedIconColor,
-      s.selectedIconBGColor,
       s.startDate,
       s.unitType,
       s.unitValue,
@@ -200,7 +198,6 @@ function CreateHabitForm() {
               const newHabit = {
                 name,
                 selectedIcon,
-                selectedIconBGColor,
                 selectedIconColor,
                 timeOfDay,
                 timeReminder: timeReminder.getTime(),

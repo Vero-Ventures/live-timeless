@@ -1,21 +1,18 @@
 import { Check } from "lucide-react-native";
 import { Pressable, View } from "react-native";
+import { ICON_COLORS } from "~/constants/Colors";
 import { cn } from "~/lib/utils";
 
 interface ColorPickerProps {
   color: string;
   selectedIconColor: string;
-  bgColor: string;
   setSelectedIconColor: (selectedIconColor: string) => void;
-  setSelectedIconBGColor: (selectedIconBGColor: string) => void;
 }
 
 export function ColorPicker({
   color,
   selectedIconColor,
   setSelectedIconColor,
-  setSelectedIconBGColor,
-  bgColor,
 }: ColorPickerProps) {
   const isSelected = selectedIconColor === color;
 
@@ -23,16 +20,21 @@ export function ColorPicker({
     <Pressable
       onPress={() => {
         setSelectedIconColor(color);
-        setSelectedIconBGColor(bgColor);
       }}
     >
       <View
         className={cn(
-          `h-12 w-12 items-center justify-center rounded-full bg-transparent border-[${selectedIconColor}]`,
+          `h-12 w-12 items-center justify-center rounded-full bg-transparent`,
+          ICON_COLORS[color].className.border,
           isSelected && "border-2"
         )}
       >
-        <View className={cn(`h-10 w-10 rounded-full bg-[${color}]`)}>
+        <View
+          className={cn(
+            `h-10 w-10 rounded-full`,
+            ICON_COLORS[color].className.backgroundColor
+          )}
+        >
           {!!isSelected && <Check color="#fff" className="m-auto" />}
         </View>
       </View>

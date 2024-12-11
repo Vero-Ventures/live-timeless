@@ -25,29 +25,63 @@ export const Colors = {
   },
 };
 
-export const ICON_COLORS = {
+export const ICON_COLORS: Record<
+  string,
+  {
+    color: string;
+    className: {
+      backgroundColor: string;
+      border: string;
+      darkerBackgroundColor: string;
+    };
+  }
+> = {
   lightBlue: {
     color: "#2AA8CF",
-    backgroundColor: "#2AA8CF33",
+    className: {
+      backgroundColor: "bg-[#2AA8CF]",
+      border: "border-[#2AA8CF]",
+      darkerBackgroundColor: "bg-[#2AA8CF]/20",
+    },
   },
   blue: {
     color: "#2A67F5",
-    backgroundColor: "#2A67F533",
+    className: {
+      backgroundColor: "bg-[#2A67F5]",
+      border: "border-[#2A67F5]",
+      darkerBackgroundColor: "bg-[#2A67F5]/20",
+    },
   },
   green: {
     color: "#299240",
-    backgroundColor: "#29924033",
+    className: {
+      backgroundColor: "bg-[#299240]",
+      border: "border-[#299240]",
+      darkerBackgroundColor: "bg-[#299240]/20",
+    },
   },
   yellow: {
     color: "#E1861D",
-    backgroundColor: "#E1861D33",
+    className: {
+      backgroundColor: "bg-[#E1861D]",
+      border: "border-[#E1861D]",
+      darkerBackgroundColor: "bg-[#E1861D]/20",
+    },
   },
   red: {
     color: "#D42C2C",
-    backgroundColor: "#D42C2C33",
+    className: {
+      backgroundColor: "bg-[#D42C2C]",
+      border: "border-[#D42C2C]",
+      darkerBackgroundColor: "bg-[#D42C2C]/20",
+    },
   },
   purple: {
     color: "#982ABF",
-    backgroundColor: "#982ABF33",
+    className: {
+      backgroundColor: "bg-[#982ABF]",
+      border: "border-[#982ABF]",
+      darkerBackgroundColor: "bg-[#982ABF]/20",
+    },
   },
 };

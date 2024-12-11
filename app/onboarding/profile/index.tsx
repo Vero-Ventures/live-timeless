@@ -11,7 +11,6 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Text } from "~/components/ui/text";
 import { formatDate } from "~/lib/date";
-import { fontFamily } from "~/lib/font";
 import { useProfileFormStore } from "~/stores/profile-form-store";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "~/components/ui/button";

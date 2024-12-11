@@ -70,8 +70,6 @@ function EditHabitForm() {
     setSelectedIcon,
     selectedIconColor,
     setSelectedIconColor,
-    selectedIconBGColor,
-    setSelectedIconBGColor,
     startDate,
     setStartDate,
     unitType,
@@ -103,8 +101,6 @@ function EditHabitForm() {
       s.setSelectedIcon,
       s.selectedIconColor,
       s.setSelectedIconColor,
-      s.selectedIconBGColor,
-      s.setSelectedIconBGColor,
       s.startDate,
       s.setStartDate,
       s.unitType,
@@ -155,7 +151,6 @@ function EditHabitForm() {
       setIntervalRepeat(habit.intervalRepeat);
       setSelectedIcon(habit.selectedIcon);
       setSelectedIconColor(habit.selectedIconColor);
-      setSelectedIconBGColor(habit.selectedIconBGColor);
       setStartDate(new Date(habit.startDate));
       setUnitType(habit.unitType as UnitType);
       setUnitValue(habit.unitValue);
@@ -175,7 +170,6 @@ function EditHabitForm() {
     setIntervalRepeat,
     setSelectedIcon,
     setSelectedIconColor,
-    setSelectedIconBGColor,
     setStartDate,
     setUnitType,
     setUnitValue,
@@ -298,7 +292,6 @@ function EditHabitForm() {
                 name,
                 selectedIcon,
                 selectedIconColor,
-                selectedIconBGColor,
                 timeOfDay,
                 timeReminder: timeReminder.getTime(),
                 repeatType,

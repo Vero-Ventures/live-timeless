@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { ICON_COLORS } from "~/constants/Colors";
 import type { RECURRENCE } from "~/constants/habit-target";
 
 export type TimeOfDay = "Morning" | "Afternoon" | "Evening";
@@ -39,7 +38,6 @@ interface FormState {
   unit: string;
   recurrence: Recurrence;
   selectedIconColor: string;
-  selectedIconBGColor: string;
   selectedIcon: string;
 }
 
@@ -60,7 +58,6 @@ interface FormActions {
   setUnit: (unit: string) => void;
   setRecurrence: (recurrence: Recurrence) => void;
   setSelectedIconColor: (selectedIconColor: string) => void;
-  setSelectedIconBGColor: (selectedIconBGColor: string) => void;
   setSelectedIcon: (selectedIcon: string) => void;
   resetForm: () => void;
 }
@@ -86,8 +83,7 @@ export const initialFormState: FormState = {
   unitValue: 1,
   unit: "times",
   recurrence: "per day",
-  selectedIconColor: ICON_COLORS.lightBlue.color,
-  selectedIconBGColor: ICON_COLORS.lightBlue.backgroundColor,
+  selectedIconColor: "lightBlue",
   selectedIcon: "question",
 };
 
@@ -123,8 +119,6 @@ export const useHabitFormStore = create<FormState & FormActions>()((set) => ({
   setRecurrence: (recurrence) => set({ recurrence }),
   selectedIconColor: initialFormState.selectedIconColor,
   setSelectedIconColor: (selectedIconColor) => set({ selectedIconColor }),
-  selectedIconBGColor: initialFormState.selectedIconBGColor,
-  setSelectedIconBGColor: (selectedIconBGColor) => set({ selectedIconBGColor }),
   selectedIcon: initialFormState.selectedIcon,
   setSelectedIcon: (selectedIcon) => set({ selectedIcon }),
   resetForm: () => set(initialFormState),

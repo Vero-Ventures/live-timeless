@@ -20,6 +20,7 @@ import { HABIT_ICONS } from "~/constants/habit-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { FunctionReturnType } from "convex/server";
 import { addDays, subDays } from "date-fns";
+import { ICON_COLORS } from "~/constants/Colors";
 
 export default function HabitsPage() {
   useEffect(() => {
@@ -258,13 +259,14 @@ function HabitItem({
             <View
               className={cn(
                 `size-14 items-center justify-center rounded-full`,
-                habit.selectedIconBGColor
+                ICON_COLORS[habit.selectedIconColor].className
+                  .darkerBackgroundColor
               )}
             >
               {IconComp ? (
                 <IconComp
                   name={habit.selectedIcon}
-                  color={habit.selectedIconColor}
+                  color={ICON_COLORS[habit.selectedIconColor].color}
                   size={20}
                 />
               ) : null}

@@ -46,7 +46,6 @@ export default defineSchema({
     repeatType: v.string(),
     selectedIcon: v.string(),
     selectedIconColor: v.string(),
-    selectedIconBGColor: v.string(),
     timeOfDay: v.array(v.string()),
     timeReminder: v.number(),
     startDate: v.number(),
