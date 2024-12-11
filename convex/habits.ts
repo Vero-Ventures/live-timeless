@@ -1,7 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { getDate } from "date-fns";
+import { endOfToday, getDate } from "date-fns";
 
 export type Habit = {
   _id: string;
@@ -42,19 +42,16 @@ export const listHabits = query({
 
     const selectedDate = new Date(date);
 
-    const selectedDateMilliseconds = selectedDate.getTime();
-
     const selectedYear = selectedDate.getFullYear();
     const selectedMonth = selectedDate.getMonth();
     const selectedDay = getDate(selectedDate);
 
-    // Query habits within the date range
     const habits = await ctx.db
       .query("habits")
       .filter((q) =>
         q.and(
           q.eq(q.field("userId"), userId),
-          q.lte(q.field("startDate"), selectedDateMilliseconds)
+          q.lte(q.field("startDate"), endOfToday().getTime())
         )
       )
       .collect();
@@ -78,14 +75,19 @@ export const listHabits = query({
         };
       })
     );
-    console.log(habitsWithLogs);
-    console.log({
-      year: selectedYear,
-      month: selectedMonth,
-      day: selectedDay,
-    });
 
-    return habitsWithLogs;
+    return habitsWithLogs.sort((a, b) => {
+      // Handle cases with no logs or undefined isComplete
+      if (!a.log) return -1;
+      if (!b.log) return 1;
+
+      // Sort by completion status: not completed first, completed last
+      return a.log.isComplete === b.log.isComplete
+        ? 0
+        : a.log.isComplete
+          ? 1
+          : -1;
+    });
   },
 });
 

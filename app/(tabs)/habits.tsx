@@ -11,7 +11,7 @@ import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Link, SplashScreen, router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import { Plus } from "lucide-react-native";
+import { CheckIcon, Plus } from "lucide-react-native";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
 import { useMutation, useQuery } from "convex/react";
@@ -19,7 +19,14 @@ import { api } from "~/convex/_generated/api";
 import { HABIT_ICONS } from "~/constants/habit-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { FunctionReturnType } from "convex/server";
-import { addDays, getDate, isToday, isTomorrow, isYesterday } from "date-fns";
+import {
+  addDays,
+  getDate,
+  getDay,
+  isToday,
+  isTomorrow,
+  isYesterday,
+} from "date-fns";
 
 export default function HabitsPage() {
   useEffect(() => {
@@ -35,10 +42,10 @@ export default function HabitsPage() {
         justifyContent: "space-between",
       }}
     >
-      <View className="habit-container px-4">
+      <View className="habit-container">
         <DateHeading />
-        <Text className="text-2xl font-bold">Habits</Text>
-        <Separator className="my-6 bg-[#fff]/10" />
+        <Text className="ml-4 text-2xl font-bold">Habits</Text>
+        <Separator className="mt-6 bg-[#fff]/10" />
         <HabitList />
       </View>
       <View className="flex-row items-center gap-2 bg-[#0f2336] px-4">
@@ -61,10 +68,10 @@ function DateHeading() {
   console.log({
     year: selectedDate.getFullYear(),
     month: selectedDate.getMonth(),
-    day: selectedDate.getDay(),
+    day: getDay(selectedDate),
   });
   return (
-    <Text className="mb-2 text-sm uppercase text-gray-500">
+    <Text className="mb-2 ml-4 text-sm uppercase text-gray-500">
       {isToday(selectedDate)
         ? "Today"
         : isYesterday(selectedDate)
@@ -84,7 +91,7 @@ function HabitList() {
   const today = new Date();
   const selectedDate = date ? new Date(Number(date)) : today;
   const habits = useQuery(api.habits.listHabits, {
-    date: selectedDate.toUTCString(),
+    date: selectedDate.toDateString(),
   });
 
   return !habits ? (
@@ -98,7 +105,7 @@ function HabitList() {
       }}
       data={habits}
       ItemSeparatorComponent={() => (
-        <Separator className="my-4 h-0.5 bg-[#fff]/10" />
+        <Separator className="h-0.5 bg-[#fff]/10" />
       )}
       ListEmptyComponent={() => (
         <View className="h-full justify-center gap-6">
@@ -241,7 +248,12 @@ function HabitItem({
   }
 
   return (
-    <View className="flex-row items-center gap-4">
+    <View
+      className={cn(
+        "flex-row items-center gap-4 p-4",
+        habit.log?.isComplete && "bg-card"
+      )}
+    >
       <Link
         href={{
           pathname: `/habits/[habitId]`,
@@ -254,9 +266,7 @@ function HabitItem({
         }}
         asChild
       >
-        <Pressable
-          className={cn("flex-1", habit.log?.isComplete && "bg-secondary")}
-        >
+        <Pressable className={cn("flex-1")}>
           <View className="flex-row items-center gap-4">
             <View
               className={cn(
@@ -298,7 +308,9 @@ function HabitItem({
           </View>
         </Pressable>
       </Link>
-      {habit.unit === "times" ? (
+      {habit.log?.isComplete ? (
+        <CheckIcon className="color-input" size={32} />
+      ) : habit.unit === "times" ? (
         <Button
           className="flex-row items-center gap-2 bg-input"
           onPress={handleLogTimesHabits}
