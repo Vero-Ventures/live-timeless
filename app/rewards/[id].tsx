@@ -9,7 +9,7 @@ import {
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { useEffect, useState } from "react";
-import { useAction } from "convex/react";
+import { useAction, useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import type { ListProductsResponseProductsInner } from "tremendous";
 import { ArrowLeft } from "~/lib/icons/ArrowLeft";
@@ -18,7 +18,9 @@ import DOMContent from "~/components/rewards/dom-content";
 
 export default function SingleRewardsPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const user = useQuery(api.users.currentUser);
   const getProduct = useAction(api.tremendous.getProductAction);
+  const redeemReward = useAction(api.tremendous.redeemRewardAction);
   const [product, setProduct] =
     useState<ListProductsResponseProductsInner | null>(null);
 
@@ -83,7 +85,17 @@ export default function SingleRewardsPage() {
             )}
           </View>
           <View className="px-5 pb-10 pt-5">
-            <Button size="lg">
+            <Button
+              size="lg"
+              onPress={async () => {
+                await redeemReward({
+                  productId: id,
+                  name: user?.name ?? "",
+                  email: user?.email ?? "",
+                  denomination: 30,
+                });
+              }}
+            >
               <Text>Redeem</Text>
             </Button>
           </View>
