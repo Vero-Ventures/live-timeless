@@ -16,6 +16,7 @@ import { useAction, useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 import type { ListProductsResponseProductsInner } from "tremendous";
 import { MaterialIcons } from "@expo/vector-icons";
+import { convertTokensToDollars } from "~/lib/tremendous";
 
 export default function RewardsPage() {
   const [products, setProducts] = useState<
@@ -40,13 +41,21 @@ export default function RewardsPage() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#082139" }}>
       <View className="gap-10 bg-background p-4">
-        <View className="flex flex-row items-center gap-4">
+        <View className="flex flex-row items-center justify-center gap-6">
+          <View className="gap-2">
+            <Text className="text-center text-2xl font-bold">
+              {user?.tokens}
+            </Text>
+            <Text className="text-center text-xs">LT Tokens</Text>
+          </View>
           <Text>
             <Coins className="text-primary" size={40} />
           </Text>
           <View className="gap-2">
-            <Text className="text-2xl font-bold">{user?.tokens}</Text>
-            <Text className="text-md">LT Token Balance</Text>
+            <Text className="text-center text-2xl font-bold">
+              ${convertTokensToDollars(user?.tokens ?? 0)}
+            </Text>
+            <Text className="text-center text-xs">dollars</Text>
           </View>
         </View>
         <View className="gap-3">
