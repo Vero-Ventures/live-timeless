@@ -20,13 +20,17 @@ import {
 } from "~/components/ui/dialog";
 import { Separator } from "~/components/ui/separator";
 import { useEffect, useState } from "react";
-import { useAction, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import type { ListProductsResponseProductsInner } from "tremendous";
 import { ArrowLeft } from "~/lib/icons/ArrowLeft";
 import { MaterialIcons } from "@expo/vector-icons";
 import DOMContent from "~/components/rewards/dom-content";
-import { convertTokensToDollars, getProductSkus } from "~/lib/tremendous";
+import {
+  convertDollarsToTokens,
+  convertTokensToDollars,
+  getProductSkus,
+} from "~/lib/tremendous";
 import { CircleCheckBig } from "~/lib/icons/CircleCheckBig";
 import { Circle } from "~/lib/icons/Circle";
 import { cn } from "~/lib/utils";
@@ -49,8 +53,8 @@ export default function SingleRewardsPage() {
   }, [getProduct, id]);
 
   const minimumSku = productSkus ? productSkus[0] : 0;
-  const isSufficientDollars =
-    convertTokensToDollars(user?.tokens ?? 0) >= minimumSku;
+  const convertedDollars = convertTokensToDollars(user?.tokens ?? 0);
+  const isSufficientDollars = convertedDollars >= minimumSku;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#082139" }}>
@@ -113,11 +117,12 @@ export default function SingleRewardsPage() {
           <View className="px-5 pb-10 pt-5">
             {isSufficientDollars ? (
               <RedeemDialog
-                productId={product.disclosure}
+                productId={product.id}
                 productName={product.name}
                 productSkus={productSkus}
                 username={user?.name ?? ""}
                 email={user?.email ?? ""}
+                convertedDollars={convertedDollars}
               />
             ) : (
               <Text className="text-center text-destructive">
@@ -142,18 +147,21 @@ function RedeemDialog({
   productSkus,
   username,
   email,
+  convertedDollars,
 }: {
   productId: string;
   productName: string;
   productSkus: number[];
   username: string;
   email: string;
+  convertedDollars: number;
 }) {
   const [open, setOpen] = useState(false);
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [hasRedeemed, setHasRedeemed] = useState(false);
   const [unitValue, setUnitValue] = useState(productSkus[0]);
   const redeemReward = useAction(api.tremendous.redeemRewardAction);
+  const updateUserTokens = useMutation(api.users.updateUserTokens);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -224,12 +232,20 @@ function RedeemDialog({
               disabled={isRedeeming}
               onPress={async () => {
                 setIsRedeeming(true);
+
+                // Send the reward
                 await redeemReward({
                   productId,
                   name: username,
                   email,
                   denomination: unitValue,
                 });
+                // Update the user's tokens
+                const tokens = convertDollarsToTokens(
+                  convertedDollars - unitValue
+                );
+                await updateUserTokens({ tokens });
+
                 setIsRedeeming(false);
                 setHasRedeemed(true);
               }}
