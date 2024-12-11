@@ -11,6 +11,7 @@ import {
   isAfter,
 } from "date-fns";
 import { Link } from "expo-router";
+import { Separator } from "~/components/ui/separator";
 
 const getChallengeStatus = (startDate: Date, endDate: Date) => {
   const currentDate = new Date();
@@ -27,7 +28,7 @@ const getChallengeStatus = (startDate: Date, endDate: Date) => {
     return `${days}D ${hours}H left`;
   }
 
-  return "Challenge has ended";
+  return "Ended";
 };
 
 export default function ChallengesScreen() {
@@ -36,14 +37,8 @@ export default function ChallengesScreen() {
   return (
     <SafeAreaView style={{ height: "100%", backgroundColor: "#082139" }}>
       <View className="flex-1 gap-4 p-4">
-        <Text
-          className="mb-4 text-2xl"
-          style={{
-            fontFamily: fontFamily.openSans.bold,
-          }}
-        >
-          Challenges
-        </Text>
+        <Text className="text-2xl font-bold">Challenges</Text>
+        <Separator className="my-6 bg-[#fff]/10" />
         {challenges ? (
           <FlatList
             contentContainerStyle={{
