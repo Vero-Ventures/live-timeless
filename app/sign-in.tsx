@@ -12,6 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { AlertCircle } from "~/lib/icons/AlertCircle";
 import { useMutation } from "convex/react";
 import { api } from "~/convex/_generated/api";
+import React from "react";
 
 export default function SignIn() {
   const { signIn } = useAuthActions();
