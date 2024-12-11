@@ -6,20 +6,15 @@ export function convertTokensToDollars(tokens: number) {
   return t.div(13).round(1).toNumber();
 }
 
-export function getMinAndMaxProductDenominations(
-  arr: ListProductsResponseProductsInnerSkusInner[]
+export function getProductSkus(
+  input: ListProductsResponseProductsInnerSkusInner[]
 ) {
-  if (!arr.length) {
-    return {
-      minDenomination: 0,
-      maxDenomination: 0,
-    };
+  if (input.length === 0) {
+    return [];
+  } else if (input.length === 1) {
+    return [input[0].min, input[0].max];
   }
 
-  const firstSku = arr[0];
-  const lastSku = arr[arr.length - 1];
-  return {
-    minDenomination: firstSku.min,
-    maxDenomination: lastSku.max,
-  };
+  // Extract, remove duplicates, and sort the values directly
+  return [...new Set(input.map((range) => range.min))].sort((a, b) => a - b);
 }
