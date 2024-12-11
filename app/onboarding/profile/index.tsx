@@ -103,22 +103,10 @@ function OnboardingProfileForm() {
               <CalendarDays color="#fff" />
             </View>
             <View>
-              <Text
-                className="text-xs text-muted-foreground"
-                style={{
-                  fontFamily: fontFamily.openSans.semiBold,
-                  letterSpacing: 0.5,
-                }}
-              >
+              <Text className="text-xs font-semibold tracking-wider text-muted-foreground">
                 Date of Birth
               </Text>
-              <Text
-                style={{
-                  fontFamily: fontFamily.openSans.semiBold,
-                }}
-              >
-                {formatDate(dob)}
-              </Text>
+              <Text className="font-semibold">{formatDate(dob)}</Text>
             </View>
           </View>
           <DateTimePicker

@@ -6,7 +6,6 @@ import { Text } from "~/components/ui/text";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { fontFamily } from "~/lib/font";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import PrivacyPolicyButton from "~/components/privacy-policy-button";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
@@ -51,10 +50,7 @@ export default function SignIn() {
             )}
             {step === "signIn" ? (
               <>
-                <Text
-                  className="text-center text-2xl"
-                  style={{ fontFamily: fontFamily.openSans.bold }}
-                >
+                <Text className="text-center text-2xl font-bold">
                   Sign In with Email
                 </Text>
                 <Input
@@ -95,10 +91,7 @@ export default function SignIn() {
               </>
             ) : (
               <>
-                <Text
-                  className="text-center text-2xl"
-                  style={{ fontFamily: fontFamily.openSans.bold }}
-                >
+                <Text className="text-center text-2xl font-bold">
                   Verify Code
                 </Text>
                 <Input

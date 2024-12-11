@@ -2,7 +2,6 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import { View, ActivityIndicator, FlatList } from "react-native";
 import { useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
-import { fontFamily } from "~/lib/font";
 import { format, isToday, isYesterday } from "date-fns";
 import type { Id } from "~/convex/_generated/dataModel";
 import type { FunctionReturnType } from "convex/server";
@@ -82,15 +81,7 @@ export default function LogHistoryPage() {
           </View>
         )}
         ListEmptyComponent={() => (
-          <Text
-            style={{
-              fontFamily: fontFamily.openSans.medium,
-              color: "#ffffff",
-              fontSize: 16,
-              textAlign: "center",
-              marginTop: 20,
-            }}
-          >
+          <Text className="mt-6 text-center font-medium">
             No log history available.
           </Text>
         )}

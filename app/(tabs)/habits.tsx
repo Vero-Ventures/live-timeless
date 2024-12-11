@@ -11,7 +11,6 @@ import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Link, SplashScreen, router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import { fontFamily } from "~/lib/font";
 import { Plus } from "lucide-react-native";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
@@ -38,14 +37,7 @@ export default function HabitsPage() {
     >
       <View className="habit-container px-4">
         <DateHeading />
-        <Text
-          className="text-2xl"
-          style={{
-            fontFamily: fontFamily.openSans.bold,
-          }}
-        >
-          Habits
-        </Text>
+        <Text className="text-2xl font-bold">Habits</Text>
         <Separator className="my-6 bg-[#fff]/10" />
         <HabitList />
       </View>
@@ -265,7 +257,8 @@ function HabitItem({
           <View className="flex-row items-center gap-4">
             <View
               className={cn(
-                `size-14 items-center justify-center rounded-full bg-[${habit.selectedIconBGColor}]`
+                `size-14 items-center justify-center rounded-full`,
+                habit.selectedIconBGColor
               )}
             >
               {IconComp ? (
@@ -372,10 +365,7 @@ function CalendarStrip() {
           }}
         >
           <Text
-            style={{
-              fontFamily: fontFamily.openSans.bold,
-            }}
-            className={cn("text-sm uppercase", {
+            className={cn("text-sm font-bold uppercase", {
               "text-[#fff]/50":
                 date.toDateString() !== selectedDate.toDateString(),
             })}
@@ -384,10 +374,7 @@ function CalendarStrip() {
           </Text>
           <View className="w-14 items-center justify-center">
             <Text
-              style={{
-                fontFamily: fontFamily.openSans.bold,
-              }}
-              className={cn("text-sm", {
+              className={cn("text-sm font-bold", {
                 "text-[#fff]/50":
                   date.toDateString() !== selectedDate.toDateString(),
               })}

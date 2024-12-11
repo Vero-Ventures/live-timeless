@@ -3,7 +3,6 @@ import { Stack, useLocalSearchParams, router } from "expo-router";
 import { Text } from "~/components/ui/text";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "~/convex/_generated/api";
-import { fontFamily } from "~/lib/font";
 import type { Id } from "~/convex/_generated/dataModel";
 import { useState, useCallback, useEffect } from "react";
 import { useTimer } from "~/hooks/useTimer";
@@ -181,12 +180,7 @@ export default function LogProgressScreen() {
           headerStyle: { backgroundColor: "#0b1a28" },
           headerTintColor: "#fff",
           headerTitle: () => (
-            <Text
-              className="text-xl"
-              style={{ fontFamily: fontFamily.openSans.bold }}
-            >
-              {habit?.name ?? ""}
-            </Text>
+            <Text className="text-xl font-bold">{habit?.name ?? ""}</Text>
           ),
           headerBackButtonDisplayMode: "minimal",
         }}
@@ -195,10 +189,7 @@ export default function LogProgressScreen() {
       {/* Units Left for non-duration habits */}
       {!isDurationHabit && (
         <View className="items-center justify-center">
-          <Text
-            className="text-center text-6xl text-white"
-            style={{ fontFamily: fontFamily.openSans.bold }}
-          >
+          <Text className="text-center text-6xl font-bold text-white">
             {remaining}
           </Text>
           <Text className="mt-2 text-center text-xl text-gray-400">left</Text>
@@ -208,10 +199,7 @@ export default function LogProgressScreen() {
       {/* Timer for duration habits */}
       {!!isDurationHabit && (
         <View className="items-center justify-center">
-          <Text
-            className="text-center text-6xl text-white"
-            style={{ fontFamily: fontFamily.openSans.bold }}
-          >
+          <Text className="text-center text-6xl font-bold text-white">
             {Math.floor(timeLeft / 60)}:
             {(timeLeft % 60).toString().padStart(2, "0")}
           </Text>
@@ -221,10 +209,7 @@ export default function LogProgressScreen() {
               onPress={handleToggleTimer}
               style={{ maxWidth: 600 }}
             >
-              <Text
-                className="text-lg text-white"
-                style={{ fontFamily: fontFamily.openSans.bold }}
-              >
+              <Text className="text-lg font-bold text-white">
                 {isRunning
                   ? "Pause"
                   : (habitLog?.unitsCompleted ?? 0) > 0
@@ -242,12 +227,7 @@ export default function LogProgressScreen() {
           className="mt-6 w-full items-center rounded-lg bg-green-600 p-4"
           onPress={handleCompleted}
         >
-          <Text
-            className="text-lg text-white"
-            style={{ fontFamily: fontFamily.openSans.bold }}
-          >
-            Completed
-          </Text>
+          <Text className="text-lg font-bold text-white">Completed</Text>
         </Pressable>
       )}
 
@@ -256,12 +236,7 @@ export default function LogProgressScreen() {
         className="mt-4 w-full items-center rounded-lg bg-red-600 p-4"
         onPress={() => console.log("Quit clicked")}
       >
-        <Text
-          className="text-lg text-white"
-          style={{ fontFamily: fontFamily.openSans.bold }}
-        >
-          Quit
-        </Text>
+        <Text className="text-lg font-bold text-white">Quit</Text>
       </Pressable>
     </View>
   );

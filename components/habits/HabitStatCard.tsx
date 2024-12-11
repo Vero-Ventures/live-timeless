@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { fontFamily } from "~/lib/font";
 import { Calendar } from "~/lib/icons/Calendar";
 import { ArrowRight } from "~/lib/icons/ArrowRight";
 import { Flame } from "~/lib/icons/Flame";
@@ -18,7 +17,7 @@ import { Separator } from "../ui/separator";
 import { startOfDay, subDays } from "date-fns";
 import { HABIT_ICONS } from "~/constants/habit-icons";
 import { cn } from "~/lib/utils";
-import type { Selection } from "~/app/(tabs)/progress";
+// import type { Selection } from "~/app/(tabs)/progress";
 
 interface HabitStatCardProps {
   name: string;
@@ -99,20 +98,8 @@ function HabitStatCard({
     <Card className="mb-4 bg-slate-900 shadow-none">
       <CardHeader className="flex-row items-center justify-between pb-4">
         <View>
-          <CardTitle
-            style={{
-              fontFamily: fontFamily.openSans.bold,
-            }}
-          >
-            {name}
-          </CardTitle>
-          <CardDescription
-            style={{
-              fontFamily: fontFamily.openSans.regular,
-            }}
-          >
-            {duration}
-          </CardDescription>
+          <CardTitle>{name}</CardTitle>
+          <CardDescription>{duration}</CardDescription>
         </View>
         {!!icon && <Icon name={icon} color={iconColor} size={32} />}
       </CardHeader>

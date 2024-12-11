@@ -2,7 +2,6 @@ import { View } from "react-native";
 import { Tabs } from "expo-router";
 import { User } from "~/lib/icons/User";
 import { Goal, Mountain } from "lucide-react-native";
-import { fontFamily } from "~/lib/font";
 import { Star } from "~/lib/icons/Star";
 import { Bot } from "~/lib/icons/Bot";
 
@@ -17,10 +16,6 @@ export default function TabLayout() {
             paddingTop: 6,
             backgroundColor: "#0b1a28",
             borderTopColor: "#0b1a28",
-          },
-          tabBarLabelStyle: {
-            fontFamily: fontFamily.openSans.medium,
-            fontSize: 10,
           },
         }}
       >

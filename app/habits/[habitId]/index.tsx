@@ -12,7 +12,6 @@ import {
 import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
 import type { Id } from "~/convex/_generated/dataModel";
-import { fontFamily } from "~/lib/font";
 import * as DropdownMenu from "zeego/dropdown-menu";
 import { useState } from "react";
 import { ArrowRight, Check, ChevronDown, X } from "lucide-react-native";
@@ -182,12 +181,7 @@ export default function HabitScreen() {
           },
           headerTintColor: "#fff",
           headerTitle: () => (
-            <Text
-              className="text-xl"
-              style={{ fontFamily: fontFamily.openSans.bold }}
-            >
-              {habit ? habit.name : ""}
-            </Text>
+            <Text className="text-xl font-bold">{habit ? habit.name : ""}</Text>
           ),
           headerBackButtonDisplayMode: "minimal",
           headerRight: () => (
@@ -256,10 +250,7 @@ export default function HabitScreen() {
             onPress={handleCompleteHabit}
             disabled={habitLog?.isComplete}
           >
-            <Text
-              className="text-base text-white"
-              style={{ fontFamily: fontFamily.openSans.bold }}
-            >
+            <Text className="text-base font-bold text-white">
               {!!habitLog && habitLog?.isComplete
                 ? "Habit completed"
                 : "Complete Habit"}

@@ -1,7 +1,6 @@
 import { router, Stack } from "expo-router";
 import { FlatList, Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
-import { fontFamily } from "~/lib/font";
 import { ChevronLeft } from "~/lib/icons/ChevronLeft";
 import { useHabitFormStore } from "~/stores/habit-store";
 import { useShallow } from "zustand/react/shallow";
@@ -48,9 +47,7 @@ export default function IconScreen() {
                 >
                   <ChevronLeft color="#fff" size={35} />
                 </Pressable>
-                <Text style={{ fontFamily: fontFamily.openSans.bold }}>
-                  Icon
-                </Text>
+                <Text className="font-bold">Icon</Text>
               </View>
               <View className="mt-6 flex-row justify-evenly px-4">
                 {(Object.keys(ICON_COLORS) as COLORS).map((color) => (

@@ -6,7 +6,6 @@ import FormSubmitButton from "~/components/form-submit-button";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Input } from "~/components/ui/input";
 import { Text } from "~/components/ui/text";
-import { fontFamily } from "~/lib/font";
 import { Repeat } from "~/lib/icons/Repeat";
 import { Crosshair } from "~/lib/icons/Crosshair";
 import { Sun } from "~/lib/icons/Sun";
@@ -32,11 +31,7 @@ export default function CreateHabitPage() {
             backgroundColor: "#0b1a28",
           },
           headerTintColor: "#fff",
-          headerTitle: () => (
-            <Text style={{ fontFamily: fontFamily.openSans.bold }}>
-              Create Habit
-            </Text>
-          ),
+          headerTitle: () => <Text className="font-bold">Create Habit</Text>,
           headerBackButtonDisplayMode: "minimal",
         }}
       />
@@ -261,22 +256,10 @@ function ScheduleItem({
         </View>
         <View className="flex flex-1 flex-row items-center justify-between">
           <View>
-            <Text
-              className="text-xs text-muted-foreground"
-              style={{
-                fontFamily: fontFamily.openSans.semiBold,
-                letterSpacing: 0.5,
-              }}
-            >
+            <Text className="text-xs font-semibold tracking-wider text-muted-foreground">
               {title}
             </Text>
-            <Text
-              style={{
-                fontFamily: fontFamily.openSans.semiBold,
-              }}
-            >
-              {value}
-            </Text>
+            <Text className="font-semibold">{value}</Text>
           </View>
           <ChevronRight className="text-primary" />
         </View>

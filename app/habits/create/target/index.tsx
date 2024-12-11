@@ -7,7 +7,6 @@ import { fontFamily } from "~/lib/font";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
 import { useHabitFormStore } from "~/stores/habit-store";
 import type { UnitType } from "~/stores/habit-store";
-import { StyleSheet } from "react-native";
 import { RECURRENCE } from "~/constants/habit-target";
 import { useShallow } from "zustand/react/shallow";
 import { useMemo } from "react";
@@ -22,11 +21,7 @@ export default function Frequency() {
             backgroundColor: "#0b1a28",
           },
           headerTintColor: "#fff",
-          headerTitle: () => (
-            <Text style={{ fontFamily: fontFamily.openSans.bold }}>
-              Frequency
-            </Text>
-          ),
+          headerTitle: () => <Text className="font-bold">Frequency</Text>,
           headerBackButtonDisplayMode: "minimal",
         }}
       />
@@ -205,14 +200,6 @@ export default function Frequency() {
   );
 }
 
-const styles = StyleSheet.create({
-  pickerItem: {
-    fontSize: 14,
-    fontFamily: fontFamily.openSans.semiBold,
-    color: "#ffffff",
-  },
-});
-
 function GoalPicker<TUnit extends string>({
   ranges,
   units,
@@ -256,9 +243,14 @@ function GoalPicker<TUnit extends string>({
   return (
     <View className="relative flex-row overflow-hidden rounded-xl bg-[#0e2942] p-2">
       <Picker
+        className="text-sm font-semibold"
         selectedValue={unitValue}
         style={{ width: "26%" }}
-        itemStyle={styles.pickerItem}
+        // itemStyle={{
+        //   fontSize: 14,
+        //   fontFamily: fontFamily.openSans.semiBold,
+        //   color: "#ffffff",
+        // }}
         onValueChange={(value) => {
           setUnitValue(+value);
         }}
@@ -279,7 +271,11 @@ function GoalPicker<TUnit extends string>({
         style={{
           width: "34%",
         }}
-        itemStyle={styles.pickerItem}
+        itemStyle={{
+          fontSize: 14,
+          fontFamily: fontFamily.openSans.semiBold,
+          color: "#ffffff",
+        }}
       >
         {units.map((unit) => (
           <Picker.Item key={unit} label={unit} value={unit} />
@@ -289,7 +285,11 @@ function GoalPicker<TUnit extends string>({
         style={{
           width: "40%",
         }}
-        itemStyle={styles.pickerItem}
+        itemStyle={{
+          fontSize: 14,
+          fontFamily: fontFamily.openSans.semiBold,
+          color: "#ffffff",
+        }}
         selectedValue={recurrence}
         onValueChange={(itemValue) => {
           setRecurrence(itemValue);
@@ -307,13 +307,7 @@ function SelectUnitType({ unitType }: { unitType: UnitType }) {
   return (
     <Link href="/habits/create/target/unit-types" asChild>
       <Pressable className="mt-4 flex flex-row items-center justify-between rounded-xl bg-[#0e2942] p-5">
-        <Text
-          style={{
-            fontFamily: fontFamily.openSans.semiBold,
-          }}
-        >
-          Unit Type
-        </Text>
+        <Text className="font-semibold">Unit Type</Text>
         <View className="flex flex-row items-center justify-center gap-1">
           <Text className="text-muted-foreground">{unitType}</Text>
           <ChevronRight />

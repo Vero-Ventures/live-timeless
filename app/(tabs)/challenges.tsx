@@ -3,7 +3,6 @@ import { ActivityIndicator, FlatList, Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
-import { fontFamily } from "~/lib/font";
 import {
   differenceInHours,
   differenceInDays,
@@ -59,14 +58,7 @@ export default function ChallengesScreen() {
               >
                 <Pressable className="rounded-lg bg-[#0e2942]">
                   <View className="flex-row items-center justify-between gap-4 px-4 py-4">
-                    <Text
-                      className="text-xl"
-                      style={{
-                        fontFamily: fontFamily.openSans.semiBold,
-                      }}
-                    >
-                      {item.name}
-                    </Text>
+                    <Text className="text-xl font-semibold">{item.name}</Text>
 
                     <View className="rounded-lg bg-[#3d7bb6] p-2">
                       <Text className="text-sm uppercase">

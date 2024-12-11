@@ -3,7 +3,6 @@ import { Stack, useLocalSearchParams, router } from "expo-router";
 import { Pressable, View, Share } from "react-native";
 import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
-import { fontFamily } from "~/lib/font";
 import type { Id } from "~/convex/_generated/dataModel";
 
 export default function HabitCompletionScreen() {
@@ -41,22 +40,12 @@ export default function HabitCompletionScreen() {
           },
           headerTintColor: "#fff",
           headerTitle: () => (
-            <Text
-              className="text-xl"
-              style={{ fontFamily: fontFamily.openSans.bold }}
-            >
-              Congratulations!
-            </Text>
+            <Text className="text-xl font-bold">Congratulations!</Text>
           ),
           headerBackButtonDisplayMode: "minimal",
         }}
       />
-      <Text
-        className="text-2xl text-white"
-        style={{ fontFamily: fontFamily.openSans.bold }}
-      >
-        Congratulations!
-      </Text>
+      <Text className="text-2xl font-bold text-white">Congratulations!</Text>
       <Text className="mt-4 text-lg text-white">
         You have completed {completedLogs} day(s) out of {totalLogs} towards
         your habit.
@@ -66,10 +55,7 @@ export default function HabitCompletionScreen() {
         className="mt-6 w-full items-center rounded-lg bg-blue-600 p-4"
         onPress={handleShare}
       >
-        <Text
-          className="text-lg text-white"
-          style={{ fontFamily: fontFamily.openSans.bold }}
-        >
+        <Text className="text-lg font-bold text-white">
           Share Your Progress
         </Text>
       </Pressable>
@@ -78,12 +64,7 @@ export default function HabitCompletionScreen() {
         className="mt-4 w-full items-center rounded-lg bg-green-600 p-4"
         onPress={() => router.navigate("/habits")}
       >
-        <Text
-          className="text-lg text-white"
-          style={{ fontFamily: fontFamily.openSans.bold }}
-        >
-          Back to Habits
-        </Text>
+        <Text className="text-lg font-bold text-white">Back to Habits</Text>
       </Pressable>
     </View>
   );

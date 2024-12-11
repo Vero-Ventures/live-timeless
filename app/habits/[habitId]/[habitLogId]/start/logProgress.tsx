@@ -11,7 +11,6 @@ import { Stack, useLocalSearchParams, router } from "expo-router";
 import { Text } from "~/components/ui/text";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "~/convex/_generated/api";
-import { fontFamily } from "~/lib/font";
 import { useState, useEffect } from "react";
 import type { Id } from "~/convex/_generated/dataModel";
 
@@ -114,10 +113,7 @@ export default function LogProgressScreen() {
               headerStyle: { backgroundColor: "#0b1a28" },
               headerTintColor: "#fff",
               headerTitle: () => (
-                <Text
-                  className="text-xl"
-                  style={{ fontFamily: fontFamily.openSans.bold }}
-                >
+                <Text className="text-xl font-bold">
                   Log Progress for {habit.name}
                 </Text>
               ),
@@ -127,10 +123,7 @@ export default function LogProgressScreen() {
 
           {/* Completed / Total Units Display */}
           <View className="items-center justify-center">
-            <Text
-              className="text-center text-6xl text-white"
-              style={{ fontFamily: fontFamily.openSans.bold }}
-            >
+            <Text className="text-center text-6xl font-bold text-white">
               {completed} / {habit.unitValue} {habit.unit}
             </Text>
           </View>
@@ -149,12 +142,7 @@ export default function LogProgressScreen() {
             className="mt-4 w-full items-center rounded-lg bg-green-600 p-4"
             onPress={handleLogProgress}
           >
-            <Text
-              className="text-lg text-white"
-              style={{ fontFamily: fontFamily.openSans.bold }}
-            >
-              Log Progress
-            </Text>
+            <Text className="text-lg font-bold text-white">Log Progress</Text>
           </Pressable>
         </View>
       </ScrollView>

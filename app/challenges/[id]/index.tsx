@@ -6,7 +6,6 @@ import { ActivityIndicator, SafeAreaView, View, FlatList } from "react-native";
 import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
 import type { Id } from "~/convex/_generated/dataModel";
-import { fontFamily } from "~/lib/font";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
@@ -73,10 +72,7 @@ export default function ChallengeScreen() {
           headerTintColor: "#fff",
           headerTitle: () => (
             <View>
-              <Text
-                className="text-xl"
-                style={{ fontFamily: fontFamily.openSans.bold }}
-              >
+              <Text className="text-xl font-bold">
                 {challenge ? challenge.name : ""}
               </Text>
             </View>
