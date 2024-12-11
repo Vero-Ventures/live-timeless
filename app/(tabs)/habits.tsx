@@ -153,9 +153,8 @@ function HabitItem({
       }
     } else {
       const newUnitsCompleted = habit.log.unitsCompleted + 1;
-      const hasHabitBeenCompleted = newUnitsCompleted === habit.unitValue;
 
-      if (hasHabitBeenCompleted) {
+      if (newUnitsCompleted <= habit.unitValue && !habit.log.isComplete) {
         await updateHabitLog({
           habitLogId: habit.log._id,
           unitsCompleted: newUnitsCompleted,
@@ -173,37 +172,7 @@ function HabitItem({
       }
     }
   }
-  async function handleLogDurationHabits() {
-    if (!habit.log) {
-      const newLogId = await createHabitLog({
-        habitId: habit._id,
-        isComplete: false,
-        unitsCompleted: 0,
-        year,
-        month,
-        day,
-      });
 
-      if (!newLogId) {
-        throw new Error("Failed to create a new habit log.");
-      }
-      router.push({
-        pathname: "/habits/[habitId]/[habitLogId]/start",
-        params: {
-          habitId: habit._id,
-          habitLogId: newLogId,
-        },
-      });
-    } else {
-      router.push({
-        pathname: "/habits/[habitId]/[habitLogId]/start",
-        params: {
-          habitId: habit._id,
-          habitLogId: habit.log._id,
-        },
-      });
-    }
-  }
   async function handleLogProgressHabits() {
     if (!habit.log) {
       const newLogId = await createHabitLog({
@@ -219,7 +188,7 @@ function HabitItem({
         throw new Error("Failed to create a new habit log.");
       }
       router.push({
-        pathname: "/habits/[habitId]/[habitLogId]/start/logProgress",
+        pathname: "/habits/[habitId]/[habitLogId]/log-progress",
         params: {
           habitId: habit._id,
           habitLogId: newLogId,
@@ -227,7 +196,7 @@ function HabitItem({
       });
     } else {
       router.push({
-        pathname: "/habits/[habitId]/[habitLogId]/start/logProgress",
+        pathname: "/habits/[habitId]/[habitLogId]/log-progress",
         params: {
           habitId: habit._id,
           habitLogId: habit.log._id,
@@ -308,10 +277,10 @@ function HabitItem({
             color="white"
           />
         </Button>
-      ) : habit.unit === "hours" || habit.unit === "mintutes" ? (
+      ) : habit.unit === "hours" || habit.unit === "minutes" ? (
         <Button
           className="flex-row items-center gap-2 bg-input"
-          onPress={handleLogDurationHabits}
+          onPress={handleLogProgressHabits}
         >
           <Text className="text-white">Log</Text>
           <MaterialCommunityIcons name="alarm" size={20} color="white" />
