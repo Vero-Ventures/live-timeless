@@ -10,6 +10,8 @@ import { IconPicker } from "~/components/habits/icon-picker";
 import { ColorPicker } from "~/components/habits/color-picker";
 import { ICON_COLORS } from "~/constants/Colors";
 
+type COLORS = (keyof typeof ICON_COLORS)[];
+
 export default function IconScreen() {
   const [
     selectedIconColor,
@@ -18,7 +20,7 @@ export default function IconScreen() {
     setSelectedIcon,
   ] = useHabitFormStore(
     useShallow((s) => [
-      s.selectedIconBGColor,
+      s.selectedIconColor,
       s.setSelectedIconColor,
       s.selectedIcon,
       s.setSelectedIcon,
@@ -49,36 +51,13 @@ export default function IconScreen() {
                 </Text>
               </View>
               <View className="mt-6 flex-row justify-evenly px-4">
-                <ColorPicker
-                  color={ICON_COLORS.lightBlue.color}
-                  selectedIconColor={selectedIconColor}
-                  setSelectedIconColor={setSelectedIconColor}
-                />
-                <ColorPicker
-                  color={ICON_COLORS.blue.color}
-                  selectedIconColor={selectedIconColor}
-                  setSelectedIconColor={setSelectedIconColor}
-                />
-                <ColorPicker
-                  color={ICON_COLORS.green.color}
-                  selectedIconColor={selectedIconColor}
-                  setSelectedIconColor={setSelectedIconColor}
-                />
-                <ColorPicker
-                  color={ICON_COLORS.yellow.color}
-                  selectedIconColor={selectedIconColor}
-                  setSelectedIconColor={setSelectedIconColor}
-                />
-                <ColorPicker
-                  color={ICON_COLORS.red.color}
-                  selectedIconColor={selectedIconColor}
-                  setSelectedIconColor={setSelectedIconColor}
-                />
-                <ColorPicker
-                  color={ICON_COLORS.purple.color}
-                  selectedIconColor={selectedIconColor}
-                  setSelectedIconColor={setSelectedIconColor}
-                />
+                {(Object.keys(ICON_COLORS) as COLORS).map((color) => (
+                  <ColorPicker
+                    color={ICON_COLORS[color].color}
+                    selectedIconColor={selectedIconColor}
+                    setSelectedIconColor={setSelectedIconColor}
+                  />
+                ))}
               </View>
             </View>
           ),

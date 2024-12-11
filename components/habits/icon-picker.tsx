@@ -76,7 +76,7 @@ export function IconPicker({
     <Pressable onPress={() => setSelectedIcon(icon.name)}>
       <View
         className={cn(
-          "items-center justify-center rounded-xl bg-[#0e2942] p-4",
+          "w-32 items-center justify-center rounded-xl bg-[#0e2942] p-4",
           isSelected && `bg-[${selectedIconColor}]`
         )}
       >

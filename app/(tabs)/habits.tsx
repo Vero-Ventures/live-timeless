@@ -264,26 +264,17 @@ function HabitItem({
         >
           <View className="flex-row items-center gap-4">
             <View
-              style={{
-                backgroundColor: habit.selectedIconBGColor,
-              }}
               className={cn(
-                "h-16 w-16 items-center justify-center rounded-full"
+                `size-14 items-center justify-center rounded-full bg-[${habit.selectedIconBGColor}]`
               )}
             >
               {IconComp ? (
                 <IconComp
                   name={habit.selectedIcon}
-                  color={habit.selectedIcon}
-                  size={30}
+                  color={habit.selectedIconColor}
+                  size={20}
                 />
-              ) : (
-                <MaterialCommunityIcons
-                  name="alert-circle-outline"
-                  color="gray"
-                  size={32}
-                />
-              )}
+              ) : null}
             </View>
 
             <View className="w-full gap-2">
@@ -306,7 +297,7 @@ function HabitItem({
       </Link>
       {habit.unit === "times" ? (
         <Button
-          className="flex-row items-center gap-2 bg-gray-600"
+          className="flex-row items-center gap-2 bg-input"
           onPress={handleLogTimesHabits}
         >
           <Text className="text-white">Log</Text>
@@ -318,7 +309,7 @@ function HabitItem({
         </Button>
       ) : habit.unit === "hours" || habit.unit === "mintutes" ? (
         <Button
-          className="flex-row items-center gap-2 bg-gray-600"
+          className="flex-row items-center gap-2 bg-input"
           onPress={handleLogDurationHabits}
         >
           <Text className="text-white">Log</Text>
@@ -326,7 +317,7 @@ function HabitItem({
         </Button>
       ) : (
         <Button
-          className="flex-row items-center gap-2 bg-gray-600"
+          className="flex-row items-center gap-2 bg-input"
           onPress={handleLogProgressHabits}
         >
           <Text className="text-white">Log</Text>

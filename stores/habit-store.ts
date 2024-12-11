@@ -121,7 +121,7 @@ export const useHabitFormStore = create<FormState & FormActions>()((set) => ({
   setUnit: (unit) => set({ unit }),
   recurrence: initialFormState.recurrence,
   setRecurrence: (recurrence) => set({ recurrence }),
-  selectedIconColor: initialFormState.selectedIcon,
+  selectedIconColor: initialFormState.selectedIconColor,
   setSelectedIconColor: (selectedIconColor) => set({ selectedIconColor }),
   selectedIconBGColor: initialFormState.selectedIconBGColor,
   setSelectedIconBGColor: (selectedIconBGColor) => set({ selectedIconBGColor }),
