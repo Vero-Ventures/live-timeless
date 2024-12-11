@@ -4,54 +4,20 @@ import { useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import { format, isToday, isYesterday } from "date-fns";
 import type { Id } from "~/convex/_generated/dataModel";
-import type { FunctionReturnType } from "convex/server";
-import { HABIT_ICONS } from "~/constants/habit-icons";
 import { Text } from "~/components/ui/text";
 
-type LogType = FunctionReturnType<
-  typeof api.habitLogs.getHabitLogsbyHabitId
->[number];
-
-function formatDate(timestamp: number) {
-  const date = new Date(timestamp);
+function formatDate(year: number, month: number, day: number) {
+  const date = new Date(year, month, day);
   if (isToday(date)) return "Today";
   if (isYesterday(date)) return "Yesterday";
   return format(date, "MMM d, yyyy");
 }
 
 export default function LogHistoryPage() {
-  const { habitId } = useLocalSearchParams<{ habitId: string }>();
-  const habitLogs = useQuery(api.habitLogs.getHabitLogsbyHabitId, {
-    habitId: habitId as Id<"habits">,
+  const { habitId } = useLocalSearchParams<{ habitId: Id<"habits"> }>();
+  const habit = useQuery(api.habits.getHabitByIdWithLogs, {
+    habitId,
   });
-
-  console.log(JSON.stringify(habitLogs, null, 4));
-
-  if (!habitLogs) {
-    return (
-      <View
-        className="flex-1 items-center justify-center gap-4"
-        style={{
-          backgroundColor: "#082139",
-        }}
-      >
-        <ActivityIndicator size="large" color="#ffffff" />
-        <Text>Loading log history...</Text>
-      </View>
-    );
-  }
-
-  const filteredLogs = habitLogs.filter((log) => log.unitsCompleted > 0);
-
-  const logsByDate = filteredLogs.reduce(
-    (acc, log) => {
-      const date = formatDate(log.date);
-      if (!acc[date]) acc[date] = [];
-      acc[date].push(log);
-      return acc;
-    },
-    {} as Record<string, LogType[]>
-  );
 
   return (
     <View className="flex-1 pt-4" style={{ backgroundColor: "#082139" }}>
@@ -67,57 +33,40 @@ export default function LogHistoryPage() {
           headerBackButtonDisplayMode: "minimal",
         }}
       />
-      <FlatList
-        data={Object.keys(logsByDate)}
-        keyExtractor={(date) => date}
-        renderItem={({ item: date }) => (
-          <View className="mb-4">
-            {/* Date Header */}
-            <Text className="mb-2 pl-4 font-bold">{date}</Text>
-            {/* Log Entries for this date */}
-            {logsByDate[date].map((log) => (
-              <LogItem key={log._id} log={log} />
-            ))}
-          </View>
-        )}
-        ListEmptyComponent={() => (
-          <Text className="mt-6 text-center font-medium">
-            No log history available.
-          </Text>
-        )}
-      />
-    </View>
-  );
-}
-
-function LogItem({ log }: { log: LogType }) {
-  const icon = HABIT_ICONS.find(
-    (icon) => icon.name === log.habit?.selectedIcon
-  );
-  const Icon = icon?.component;
-  const iconName = icon?.name;
-  const iconColor = log.habit?.selectedIconColor;
-
-  return (
-    <View className="mb-2 flex flex-row items-center justify-between bg-[#0e2942] p-4">
-      <View className="flex flex-row items-center gap-4">
-        <View
-          className="rounded-lg p-2"
-          style={{
-            backgroundColor: iconColor,
-          }}
-        >
-          {!!Icon && <Icon name={iconName} size={20} color="#fff" />}
+      {habit?.logs ? (
+        <FlatList
+          data={habit.logs}
+          renderItem={({ item }) => (
+            <View className="mb-4">
+              {/* Date Header */}
+              <Text className="mb-2 pl-4 font-bold">
+                {formatDate(item.year, item.month, item.day)}
+              </Text>
+              <View className="mb-2 flex flex-row items-center justify-between bg-[#0e2942] p-4">
+                <View className="flex flex-row items-center gap-4">
+                  <Text>
+                    {item.unitsCompleted} {habit.unit}
+                  </Text>
+                </View>
+                <View>
+                  <Text className="font-semibold">
+                    {format(new Date(item._creationTime), "h:mm a")}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          )}
+          ListEmptyComponent={() => (
+            <Text className="mt-6 text-center font-medium">
+              No log history available.
+            </Text>
+          )}
+        />
+      ) : (
+        <View className="mt-10 flex flex-row justify-center gap-2">
+          <ActivityIndicator />
         </View>
-        <Text>
-          {log.unitsCompleted} {log.habit?.unit}
-        </Text>
-      </View>
-      <View>
-        <Text className="font-semibold">
-          {format(new Date(log.date), "h:mm a")}
-        </Text>
-      </View>
+      )}
     </View>
   );
 }

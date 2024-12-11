@@ -3,7 +3,28 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { endOfToday, getDate } from "date-fns";
 
-export const getHabitById = query({
+export const getHabitByIdWithLogs = query({
+  args: { habitId: v.id("habits") },
+  handler: async (ctx, { habitId }) => {
+    const habit = await ctx.db.get(habitId);
+
+    if (!habit) {
+      return null;
+    }
+
+    const logs = await ctx.db
+      .query("habitLogs")
+      .filter((q) => q.and(q.eq(q.field("habitId"), habit._id)))
+      .collect();
+
+    return {
+      ...habit,
+      logs,
+    };
+  },
+});
+
+export const getHabitByIdWithLogsForMonthAndYear = query({
   args: { habitId: v.id("habits"), month: v.number(), year: v.number() },
   handler: async (ctx, { habitId, year, month }) => {
     const habit = await ctx.db.get(habitId);
@@ -28,6 +49,10 @@ export const getHabitById = query({
       logs,
     };
   },
+});
+export const getHabitById = query({
+  args: { habitId: v.id("habits") },
+  handler: async (ctx, { habitId }) => await ctx.db.get(habitId),
 });
 
 export const listHabits = query({
@@ -141,8 +166,8 @@ export const updateHabit = mutation({
     unit: v.string(),
     recurrence: v.string(),
   },
-  handler: async (ctx, args) => {
-    await ctx.db.patch(args.habitId, args);
+  handler: async (ctx, { habitId, ...updatedData }) => {
+    await ctx.db.patch(habitId, updatedData);
   },
 });
 

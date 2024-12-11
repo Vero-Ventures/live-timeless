@@ -1,8 +1,7 @@
 import { Button, type ButtonProps } from "./ui/button";
-import { Loader2 } from "~/lib/icons/Loader2";
 import { Text } from "./ui/text";
 import type { ReactNode } from "react";
-import { View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 
 interface FormSubmitButtonProps extends ButtonProps {
   children: ReactNode;
@@ -17,13 +16,7 @@ export default function FormSubmitButton({
   return (
     <Button className={props.className} disabled={isPending} {...props}>
       <View>
-        <Text>
-          {isPending ? (
-            <Loader2 className="animate-spin text-foreground" />
-          ) : (
-            children
-          )}
-        </Text>
+        <Text>{isPending ? <ActivityIndicator /> : children}</Text>
       </View>
     </Button>
   );

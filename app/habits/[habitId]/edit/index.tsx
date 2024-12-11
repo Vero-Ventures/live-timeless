@@ -117,9 +117,9 @@ function EditHabitForm() {
 
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
-  const updateHabit = useMutation(api.habits.updateHabit);
   const { habitId } = useLocalSearchParams<{ habitId: Id<"habits"> }>();
   const habit = useQuery(api.habits.getHabitById, { habitId });
+  const updateHabit = useMutation(api.habits.updateHabit);
   const deleteHabit = useMutation(api.habits.deleteHabit);
 
   const handleDelete = () => {
@@ -282,11 +282,6 @@ function EditHabitForm() {
               if (name.trim().length <= 3) {
                 throw new Error("Name of the habit must be over 3 characters");
               }
-
-              if (!selectedIcon) {
-                throw new Error("You haven't selected an icon for your habit.");
-              }
-
               const updatedHabit = {
                 habitId,
                 name,
@@ -340,21 +335,19 @@ function ScheduleItem({
   value: string;
 }) {
   return (
-    <>
-      <View className="flex flex-row items-center gap-4 p-5">
-        <View className={cn("rounded-xl p-2", iconBgColor)}>
-          <Icon color="#fff" />
-        </View>
-        <View className="flex flex-1 flex-row items-center justify-between">
-          <View>
-            <Text className="text-xs font-semibold tracking-wider text-muted-foreground">
-              {title}
-            </Text>
-            <Text className="font-semibold">{value}</Text>
-          </View>
-          <ChevronRight className="text-primary" />
-        </View>
+    <View className="flex flex-row items-center gap-4 p-5">
+      <View className={cn("rounded-xl p-2", iconBgColor)}>
+        <Icon color="#fff" />
       </View>
-    </>
+      <View className="flex flex-1 flex-row items-center justify-between">
+        <View>
+          <Text className="text-xs font-semibold tracking-wider text-muted-foreground">
+            {title}
+          </Text>
+          <Text className="font-semibold">{value}</Text>
+        </View>
+        <ChevronRight className="text-primary" />
+      </View>
+    </View>
   );
 }

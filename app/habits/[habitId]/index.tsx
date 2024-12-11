@@ -25,18 +25,17 @@ export default function HabitScreen() {
   const currentMonth = today.getMonth();
   const currentYear = today.getFullYear();
   const currentDay = getDate(today);
-  
 
-  const habit = useQuery(api.habits.getHabitById, {
+  const habit = useQuery(api.habits.getHabitByIdWithLogsForMonthAndYear, {
     habitId,
     month: currentMonth,
     year: currentYear,
   });
 
-    // Get completed days in the current month
-    const completedDays = habit?.logs
-      .filter((log) => log.isComplete)
-      .map((entry) => entry.day);
+  // Get completed days in the current month
+  const completedDays = habit?.logs
+    .filter((log) => log.isComplete)
+    .map((entry) => entry.day);
 
   const deleteHabit = useMutation(api.habits.deleteHabit);
 
@@ -56,7 +55,7 @@ export default function HabitScreen() {
     }
     // Needs to be done seperate because user might be in progress of completing this habit today
     if (completedDays.includes(currentDay)) {
-      streakDays.push(currentDay)
+      streakDays.push(currentDay);
     }
     return streakDays.length;
   }
@@ -65,7 +64,6 @@ export default function HabitScreen() {
     if (!completedDays) {
       return 0;
     }
-
 
     // Count days up to today that are not completed
     let failedDayCount = 0;
