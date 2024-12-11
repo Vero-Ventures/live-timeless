@@ -16,14 +16,7 @@ const orders = new OrdersApi(configuration);
 
 export const listProductsAction = action({
   handler: async () => {
-    const limit = 5;
-    const offset = 0;
-    const { data } = await client.listProducts("CA", "CAD", {
-      params: {
-        limit,
-        offset,
-      },
-    });
+    const { data } = await client.listProducts("CA", "CAD");
     return data.products;
   },
 });
