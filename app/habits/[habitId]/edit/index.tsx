@@ -318,7 +318,7 @@ function EditHabitForm() {
             }
           }}
         >
-          Edit Habit
+          Save
         </FormSubmitButton>
         <Button size="lg" variant="destructive" onPress={handleDelete}>
           <Text>Delete</Text>

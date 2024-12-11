@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { getDate } from "date-fns";
 
 export type Habit = {
   _id: string;
@@ -45,7 +46,7 @@ export const listHabits = query({
 
     const selectedYear = selectedDate.getFullYear();
     const selectedMonth = selectedDate.getMonth();
-    const selectedDay = selectedDate.getDay();
+    const selectedDay = getDate(selectedDate);
 
     // Query habits within the date range
     const habits = await ctx.db
@@ -77,6 +78,12 @@ export const listHabits = query({
         };
       })
     );
+    console.log(habitsWithLogs);
+    console.log({
+      year: selectedYear,
+      month: selectedMonth,
+      day: selectedDay,
+    });
 
     return habitsWithLogs;
   },

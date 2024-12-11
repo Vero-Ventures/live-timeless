@@ -227,7 +227,7 @@ function CreateHabitForm() {
             }
           }}
         >
-          Set Habit
+          Save
         </FormSubmitButton>
       </View>
     </KeyboardAwareScrollView>

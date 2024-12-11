@@ -19,7 +19,7 @@ import { api } from "~/convex/_generated/api";
 import { HABIT_ICONS } from "~/constants/habit-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { FunctionReturnType } from "convex/server";
-import { addDays, subDays } from "date-fns";
+import { addDays, getDate, isToday, isTomorrow, isYesterday } from "date-fns";
 
 export default function HabitsPage() {
   useEffect(() => {
@@ -57,16 +57,19 @@ export default function HabitsPage() {
 function DateHeading() {
   const { date } = useLocalSearchParams<{ date?: string }>();
   const today = new Date();
-  const tomorrow = addDays(today, 1);
-  const yesterday = subDays(today, 1);
   const selectedDate = date ? new Date(Number(date)) : today;
+  console.log({
+    year: selectedDate.getFullYear(),
+    month: selectedDate.getMonth(),
+    day: selectedDate.getDay(),
+  });
   return (
     <Text className="mb-2 text-sm uppercase text-gray-500">
-      {selectedDate.toDateString() === today.toDateString()
+      {isToday(selectedDate)
         ? "Today"
-        : selectedDate.toDateString() === yesterday.toDateString()
+        : isYesterday(selectedDate)
           ? "Yesterday"
-          : selectedDate.toDateString() === tomorrow.toDateString()
+          : isTomorrow(selectedDate)
             ? "Tomorrow"
             : selectedDate.toLocaleDateString("en-US", {
                 month: "long",
@@ -130,7 +133,7 @@ function HabitItem({
 }) {
   const year = selectedDate.getFullYear();
   const month = selectedDate.getMonth();
-  const day = selectedDate.getDay();
+  const day = getDate(selectedDate);
   const createHabitLog = useMutation(api.habitLogs.createHabitLog);
   const updateHabitLog = useMutation(api.habitLogs.updateHabitLog);
 
