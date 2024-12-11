@@ -108,7 +108,7 @@ function HabitList() {
       ListEmptyComponent={() => (
         <View className="h-full justify-center gap-6">
           <Text className="text-center text-2xl font-bold">
-            Welcome to Live Timeless
+            Welcome to Live Timeless!
           </Text>
           <Text className="text-center">
             Our habit tracker shows your progress day by day. Unlock your

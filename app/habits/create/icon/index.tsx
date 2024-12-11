@@ -16,12 +16,14 @@ export default function IconScreen() {
   const [
     selectedIconColor,
     setSelectedIconColor,
+    setSelectedIconBGColor,
     selectedIcon,
     setSelectedIcon,
   ] = useHabitFormStore(
     useShallow((s) => [
       s.selectedIconColor,
       s.setSelectedIconColor,
+      s.setSelectedIconBGColor,
       s.selectedIcon,
       s.setSelectedIcon,
     ])
@@ -54,8 +56,10 @@ export default function IconScreen() {
                 {(Object.keys(ICON_COLORS) as COLORS).map((color) => (
                   <ColorPicker
                     color={ICON_COLORS[color].color}
+                    bgColor={ICON_COLORS[color].backgroundColor}
                     selectedIconColor={selectedIconColor}
                     setSelectedIconColor={setSelectedIconColor}
+                    setSelectedIconBGColor={setSelectedIconBGColor}
                   />
                 ))}
               </View>

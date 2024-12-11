@@ -23,7 +23,6 @@ import {
 } from "~/stores/habit-store";
 import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { cn } from "~/lib/utils";
 import { useShallow } from "zustand/react/shallow";
 import { api } from "~/convex/_generated/api";
@@ -75,6 +74,8 @@ function EditHabitForm() {
     setSelectedIcon,
     selectedIconColor,
     setSelectedIconColor,
+    selectedIconBGColor,
+    setSelectedIconBGColor,
     startDate,
     setStartDate,
     unitType,
@@ -104,8 +105,10 @@ function EditHabitForm() {
       s.setIntervalRepeat,
       s.selectedIcon,
       s.setSelectedIcon,
-      s.selectedIconBGColor,
+      s.selectedIconColor,
       s.setSelectedIconColor,
+      s.selectedIconBGColor,
+      s.setSelectedIconBGColor,
       s.startDate,
       s.setStartDate,
       s.unitType,
@@ -156,6 +159,7 @@ function EditHabitForm() {
       setIntervalRepeat(habit.intervalRepeat);
       setSelectedIcon(habit.selectedIcon);
       setSelectedIconColor(habit.selectedIconColor);
+      setSelectedIconBGColor(habit.selectedIconBGColor);
       setStartDate(new Date(habit.startDate));
       setUnitType(habit.unitType as UnitType);
       setUnitValue(habit.unitValue);
@@ -175,6 +179,7 @@ function EditHabitForm() {
     setIntervalRepeat,
     setSelectedIcon,
     setSelectedIconColor,
+    setSelectedIconBGColor,
     setStartDate,
     setUnitType,
     setUnitValue,
@@ -214,19 +219,11 @@ function EditHabitForm() {
         <View className="flex flex-row items-center gap-2">
           <Link href="/habits/create/icon" asChild>
             <Pressable className="rounded-xl bg-[#0e2942] p-4 px-6">
-              {selectedIcon ? (
-                <IconComp
-                  name={selectedIcon}
-                  size={32}
-                  color={selectedIconColor}
-                />
-              ) : (
-                <FontAwesome6
-                  name="question"
-                  size={32}
-                  color={selectedIconColor}
-                />
-              )}
+              <IconComp
+                name={selectedIcon}
+                size={32}
+                color={selectedIconColor}
+              />
             </Pressable>
           </Link>
           <Input
@@ -305,6 +302,7 @@ function EditHabitForm() {
                 name,
                 selectedIcon,
                 selectedIconColor,
+                selectedIconBGColor,
                 timeOfDay,
                 timeReminder: timeReminder.getTime(),
                 repeatType,
