@@ -11,17 +11,11 @@ import { Button } from "~/components/ui/button";
 import { useEffect, useState } from "react";
 import { useAction, useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
-import type {
-  ListProductsResponseProductsInner,
-  ListProductsResponseProductsInnerSkusInner,
-} from "tremendous";
+import type { ListProductsResponseProductsInner } from "tremendous";
 import { ArrowLeft } from "~/lib/icons/ArrowLeft";
 import { MaterialIcons } from "@expo/vector-icons";
 import DOMContent from "~/components/rewards/dom-content";
-import {
-  convertTokensToDollars,
-  getMinAndMaxProductDenominations,
-} from "~/lib/tremendous";
+import { convertTokensToDollars, getProductSkus } from "~/lib/tremendous";
 
 export default function SingleRewardsPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -30,22 +24,20 @@ export default function SingleRewardsPage() {
   const redeemReward = useAction(api.tremendous.redeemRewardAction);
   const [product, setProduct] =
     useState<ListProductsResponseProductsInner | null>(null);
-  const [productDenominations, setProductDenominations] =
-    useState<ListProductsResponseProductsInnerSkusInner | null>(null);
+  const [productSkus, setProductSkus] = useState<number[] | null>(null);
 
   useEffect(() => {
     getProduct({ productId: id }).then((product) => {
-      const { minDenomination, maxDenomination } =
-        getMinAndMaxProductDenominations(product.skus ?? []);
+      const skus = getProductSkus(product.skus ?? []);
 
       setProduct(product);
-      setProductDenominations({ min: minDenomination, max: maxDenomination });
+      setProductSkus(skus);
     });
   }, [getProduct, id]);
 
+  const minimumSku = productSkus ? productSkus[0] : 0;
   const isSufficientDollars =
-    convertTokensToDollars(user?.tokens ?? 0) >=
-    (productDenominations?.min ?? 0);
+    convertTokensToDollars(user?.tokens ?? 0) >= minimumSku;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#082139" }}>
@@ -87,7 +79,7 @@ export default function SingleRewardsPage() {
             ) : null,
         }}
       />
-      {product ? (
+      {product && productSkus ? (
         <>
           <View className="flex-1 bg-[#0e2942] px-4 pt-4">
             {!!product.description && (
@@ -122,8 +114,8 @@ export default function SingleRewardsPage() {
               </Button>
             ) : (
               <Text className="text-center text-destructive">
-                You need at least ${productDenominations?.min} worth of LT
-                Tokens to redeem this reward.
+                You need at least ${minimumSku} worth of LT Tokens to redeem
+                this reward.
               </Text>
             )}
           </View>
