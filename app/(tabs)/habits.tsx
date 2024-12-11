@@ -146,7 +146,7 @@ function HabitItem({
         year,
         month,
         day,
-        unitsCompleted: 1, // Initialize with zero units completed
+        unitsCompleted: 1,
       });
 
       if (!newLogId) {
@@ -289,7 +289,7 @@ function HabitItem({
               <Text className="text-xs text-muted-foreground">
                 {habit.log
                   ? `${Number.isInteger(habit.log.unitsCompleted) ? habit.log.unitsCompleted : habit.log.unitsCompleted.toFixed(1)} / ${Number.isInteger(habit.unitValue) ? habit.unitValue : habit.unitValue.toFixed(1)} ${habit.unit}`
-                  : `${Number.isInteger(habit.unitValue) ? habit.unitValue : habit.unitValue.toFixed(1)} ${habit.unit}`}
+                  : `0 / ${Number.isInteger(habit.unitValue) ? habit.unitValue : habit.unitValue.toFixed(1)} ${habit.unit}`}
               </Text>
             </View>
           </View>
