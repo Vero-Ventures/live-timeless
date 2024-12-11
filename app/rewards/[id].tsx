@@ -11,10 +11,17 @@ import { Button } from "~/components/ui/button";
 import { useEffect, useState } from "react";
 import { useAction, useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
-import type { ListProductsResponseProductsInner } from "tremendous";
+import type {
+  ListProductsResponseProductsInner,
+  ListProductsResponseProductsInnerSkusInner,
+} from "tremendous";
 import { ArrowLeft } from "~/lib/icons/ArrowLeft";
 import { MaterialIcons } from "@expo/vector-icons";
 import DOMContent from "~/components/rewards/dom-content";
+import {
+  convertTokensToDollars,
+  getMinAndMaxProductDenominations,
+} from "~/lib/tremendous";
 
 export default function SingleRewardsPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -23,10 +30,22 @@ export default function SingleRewardsPage() {
   const redeemReward = useAction(api.tremendous.redeemRewardAction);
   const [product, setProduct] =
     useState<ListProductsResponseProductsInner | null>(null);
+  const [productDenominations, setProductDenominations] =
+    useState<ListProductsResponseProductsInnerSkusInner | null>(null);
 
   useEffect(() => {
-    getProduct({ productId: id }).then((product) => setProduct(product));
+    getProduct({ productId: id }).then((product) => {
+      const { minDenomination, maxDenomination } =
+        getMinAndMaxProductDenominations(product.skus ?? []);
+
+      setProduct(product);
+      setProductDenominations({ min: minDenomination, max: maxDenomination });
+    });
   }, [getProduct, id]);
+
+  const isSufficientDollars =
+    convertTokensToDollars(user?.tokens ?? 0) >=
+    (productDenominations?.min ?? 0);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#082139" }}>
@@ -70,7 +89,7 @@ export default function SingleRewardsPage() {
       />
       {product ? (
         <>
-          <View className="flex-1 bg-[#0e2942] p-4">
+          <View className="flex-1 bg-[#0e2942] px-4 pt-4">
             {!!product.description && (
               <>
                 <Text className="text-2xl font-bold">About this reward</Text>
@@ -79,25 +98,34 @@ export default function SingleRewardsPage() {
             )}
             {!!product.disclosure && (
               <>
-                <Text className="text-2xl font-bold">Terms and Conditions</Text>
+                <Text className="pb-4 text-2xl font-bold">
+                  Terms and Conditions
+                </Text>
                 <DOMContent content={product.disclosure} />
               </>
             )}
           </View>
           <View className="px-5 pb-10 pt-5">
-            <Button
-              size="lg"
-              onPress={async () => {
-                await redeemReward({
-                  productId: id,
-                  name: user?.name ?? "",
-                  email: user?.email ?? "",
-                  denomination: 30,
-                });
-              }}
-            >
-              <Text>Redeem</Text>
-            </Button>
+            {isSufficientDollars ? (
+              <Button
+                size="lg"
+                onPress={async () => {
+                  await redeemReward({
+                    productId: id,
+                    name: user?.name ?? "",
+                    email: user?.email ?? "",
+                    denomination: 30,
+                  });
+                }}
+              >
+                <Text>Redeem</Text>
+              </Button>
+            ) : (
+              <Text className="text-center text-destructive">
+                You need at least ${productDenominations?.min} worth of LT
+                Tokens to redeem this reward.
+              </Text>
+            )}
           </View>
         </>
       ) : (
