@@ -35,18 +35,19 @@ export default function ChallengesScreen() {
 
   return (
     <SafeAreaView style={{ height: "100%", backgroundColor: "#082139" }}>
-      <View className="flex-1 gap-4 p-4">
-        <Text className="text-2xl font-bold">Challenges</Text>
-        <Separator className="my-6 bg-[#fff]/10" />
+      <View className="flex-1 gap-4">
+        <Text className="pl-4 text-2xl font-bold">Challenges</Text>
+        <Separator className="mt-6 bg-[#fff]/10" />
         {challenges ? (
           <FlatList
+            className="mt-4"
             contentContainerStyle={{
               paddingBottom: 60,
               gap: 10,
             }}
             data={challenges}
             ListEmptyComponent={() => (
-              <Text className="text-center">No Challenges yet.</Text>
+              <Text className="text-center">No Challenges yet</Text>
             )}
             renderItem={({ item }) => (
               <Link
@@ -56,7 +57,7 @@ export default function ChallengesScreen() {
                 }}
                 asChild
               >
-                <Pressable className="rounded-lg bg-[#0e2942]">
+                <Pressable className="mx-4 rounded-lg bg-[#0e2942]">
                   <View className="flex-row items-center justify-between gap-4 px-4 py-4">
                     <Text className="text-xl font-semibold">{item.name}</Text>
 

@@ -11,6 +11,7 @@ import { Separator } from "~/components/ui/separator";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { User2 } from "lucide-react-native";
 import { Badge } from "~/components/ui/badge";
+import React from "react";
 
 const getChallengeStatus = (
   startDate: number,
