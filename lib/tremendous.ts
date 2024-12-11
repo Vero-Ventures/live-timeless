@@ -6,6 +6,11 @@ export function convertTokensToDollars(tokens: number) {
   return t.div(13).round(1).toNumber();
 }
 
+export function convertDollarsToTokens(dollars: number) {
+  const d = new Big(dollars);
+  return d.times(13).round(0, 0).toNumber();
+}
+
 export function getProductSkus(
   input: ListProductsResponseProductsInnerSkusInner[]
 ) {
