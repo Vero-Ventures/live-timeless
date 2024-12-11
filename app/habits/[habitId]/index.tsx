@@ -26,7 +26,7 @@ export default function HabitScreen() {
   const currentYear = today.getFullYear();
   const currentDay = getDate(today);
 
-  const habit = useQuery(api.habits.getHabitByIdWithLogsForMonthAndYear, {
+  const habit = useQuery(api.habits.getHabitByIdWithLogsForCurrentMonth, {
     habitId,
     month: currentMonth,
     year: currentYear,

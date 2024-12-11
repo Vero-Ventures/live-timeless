@@ -24,7 +24,7 @@ export const getHabitByIdWithLogs = query({
   },
 });
 
-export const getHabitByIdWithLogsForMonthAndYear = query({
+export const getHabitByIdWithLogsForCurrentMonth = query({
   args: { habitId: v.id("habits"), month: v.number(), year: v.number() },
   handler: async (ctx, { habitId, year, month }) => {
     const habit = await ctx.db.get(habitId);
@@ -50,6 +50,40 @@ export const getHabitByIdWithLogsForMonthAndYear = query({
     };
   },
 });
+
+export const getHabitByIdWithLogForCurrentDay = query({
+  args: {
+    habitId: v.id("habits"),
+    month: v.number(),
+    year: v.number(),
+    day: v.number(),
+  },
+  handler: async (ctx, { habitId, year, month, day }) => {
+    const habit = await ctx.db.get(habitId);
+
+    if (!habit) {
+      return null;
+    }
+
+    const log = await ctx.db
+      .query("habitLogs")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("habitId"), habit._id),
+          q.eq(q.field("year"), year),
+          q.eq(q.field("month"), month),
+          q.eq(q.field("day"), day)
+        )
+      )
+      .first();
+
+    return {
+      ...habit,
+      log,
+    };
+  },
+});
+
 export const getHabitById = query({
   args: { habitId: v.id("habits") },
   handler: async (ctx, { habitId }) => await ctx.db.get(habitId),

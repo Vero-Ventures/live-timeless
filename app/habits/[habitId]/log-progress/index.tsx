@@ -9,20 +9,31 @@ import { Input } from "~/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { AlertCircle } from "lucide-react-native";
 import FormSubmitButton from "~/components/form-submit-button";
+import { getDate } from "date-fns";
 
 export default function LogProgressScreen() {
-  const { habitId, habitLogId } = useLocalSearchParams<{
+  const { habitId, date } = useLocalSearchParams<{
     habitId: Id<"habits">;
-    habitLogId: Id<"habitLogs">;
+    date: string;
   }>();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
   const [unitsCompleted, setUnitsCompleted] = useState("");
 
-  const habit = useQuery(api.habits.getHabitById, { habitId });
-  const habitLog = useQuery(api.habitLogs.getHabitLogById, {
-    habitLogId,
+  const selectedDate = new Date(date);
+
+  const year = selectedDate.getFullYear();
+  const month = selectedDate.getMonth();
+  const day = getDate(selectedDate);
+
+  const habit = useQuery(api.habits.getHabitByIdWithLogForCurrentDay, {
+    habitId,
+    year,
+    month,
+    day,
   });
+
+  const createHabitLog = useMutation(api.habitLogs.createHabitLog);
   const updateHabitLog = useMutation(api.habitLogs.updateHabitLog);
 
   return (
@@ -43,7 +54,7 @@ export default function LogProgressScreen() {
           headerBackButtonDisplayMode: "minimal",
         }}
       />
-      {habit && habitLog ? (
+      {habit ? (
         <View className="gap-4">
           <View className="relative">
             <Input
@@ -73,25 +84,42 @@ export default function LogProgressScreen() {
                   throw new Error("You must enter a value greater than 0");
                 }
 
+                if (!habit.log) {
+                  const newLogId = await createHabitLog({
+                    habitId: habit._id,
+                    year,
+                    month,
+                    day,
+                    unitsCompleted: unitsCompletedNumber,
+                    isComplete: unitsCompletedNumber >= habit.unitValue,
+                  });
+
+                  if (!newLogId) {
+                    throw new Error(
+                      "Log couldn't be created. Please try again."
+                    );
+                  }
+                  return;
+                }
+
                 const newUnitsCompleted =
-                  habitLog.unitsCompleted + unitsCompletedNumber;
+                  habit.log.unitsCompleted + unitsCompletedNumber;
 
                 if (
                   newUnitsCompleted >= habit.unitValue &&
-                  !habitLog.isComplete
+                  !habit.log.isComplete
                 ) {
                   await updateHabitLog({
-                    habitLogId: habitLog._id,
+                    habitLogId: habit.log._id,
                     unitsCompleted: newUnitsCompleted,
                     isComplete: true,
                   });
                 } else {
                   await updateHabitLog({
-                    habitLogId: habitLog._id,
+                    habitLogId: habit.log._id,
                     unitsCompleted: newUnitsCompleted,
                   });
                 }
-
                 router.navigate("/habits");
               } catch (error) {
                 if (error instanceof Error) {

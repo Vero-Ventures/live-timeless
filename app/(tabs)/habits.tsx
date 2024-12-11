@@ -174,35 +174,13 @@ function HabitItem({
   }
 
   async function handleLogProgressHabits() {
-    if (!habit.log) {
-      const newLogId = await createHabitLog({
+    router.push({
+      pathname: "/habits/[habitId]/log-progress",
+      params: {
         habitId: habit._id,
-        isComplete: false,
-        year,
-        month,
-        day,
-        unitsCompleted: 0,
-      });
-
-      if (!newLogId) {
-        throw new Error("Failed to create a new habit log.");
-      }
-      router.push({
-        pathname: "/habits/[habitId]/[habitLogId]/log-progress",
-        params: {
-          habitId: habit._id,
-          habitLogId: newLogId,
-        },
-      });
-    } else {
-      router.push({
-        pathname: "/habits/[habitId]/[habitLogId]/log-progress",
-        params: {
-          habitId: habit._id,
-          habitLogId: habit.log._id,
-        },
-      });
-    }
+        date: selectedDate.toDateString(),
+      },
+    });
   }
 
   return (
