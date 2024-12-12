@@ -6,17 +6,15 @@ import FormSubmitButton from "~/components/form-submit-button";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Input } from "~/components/ui/input";
 import { Text } from "~/components/ui/text";
-import { fontFamily } from "~/lib/font";
 import { Repeat } from "~/lib/icons/Repeat";
 import { Crosshair } from "~/lib/icons/Crosshair";
 import { Sun } from "~/lib/icons/Sun";
 import { Bell } from "~/lib/icons/Bell";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
-import ScheduleStartDate from "../schedule-start-date";
-import { useHabitFormStore } from "./habit-store";
+import ScheduleStartDate from "~/components/habits/schedule-start-date";
+import { useHabitFormStore } from "~/stores/habit-store";
 import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { cn } from "~/lib/utils";
 import { useShallow } from "zustand/react/shallow";
 import { api } from "~/convex/_generated/api";
@@ -33,11 +31,7 @@ export default function CreateHabitPage() {
             backgroundColor: "#0b1a28",
           },
           headerTintColor: "#fff",
-          headerTitle: () => (
-            <Text style={{ fontFamily: fontFamily.openSans.bold }}>
-              Create Habit
-            </Text>
-          ),
+          headerTitle: () => <Text className="font-bold">Create Habit</Text>,
           headerBackButtonDisplayMode: "minimal",
         }}
       />
@@ -123,19 +117,11 @@ function CreateHabitForm() {
         <View className="flex flex-row items-center gap-2">
           <Link href="/habits/create/icon" asChild>
             <Pressable className="rounded-xl bg-[#0e2942] p-4 px-6">
-              {selectedIcon ? (
-                <IconComp
-                  name={selectedIcon}
-                  size={32}
-                  color={selectedIconColor}
-                />
-              ) : (
-                <FontAwesome6
-                  name="question"
-                  size={32}
-                  color={selectedIconColor}
-                />
-              )}
+              <IconComp
+                name={selectedIcon}
+                size={32}
+                color={selectedIconColor}
+              />
             </Pressable>
           </Link>
           <Input
@@ -241,7 +227,7 @@ function CreateHabitForm() {
             }
           }}
         >
-          Set Habit
+          Save
         </FormSubmitButton>
       </View>
     </KeyboardAwareScrollView>
@@ -267,22 +253,10 @@ function ScheduleItem({
         </View>
         <View className="flex flex-1 flex-row items-center justify-between">
           <View>
-            <Text
-              className="text-xs text-muted-foreground"
-              style={{
-                fontFamily: fontFamily.openSans.semiBold,
-                letterSpacing: 0.5,
-              }}
-            >
+            <Text className="text-xs font-semibold tracking-wider text-muted-foreground">
               {title}
             </Text>
-            <Text
-              style={{
-                fontFamily: fontFamily.openSans.semiBold,
-              }}
-            >
-              {value}
-            </Text>
+            <Text className="font-semibold">{value}</Text>
           </View>
           <ChevronRight className="text-primary" />
         </View>

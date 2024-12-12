@@ -1,74 +1,139 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { endOfToday, getDate } from "date-fns";
 
-export type Habit = {
-  _id: string;
-  userId: string;
-  challengeId?: string;
-  dailyRepeat: string[];
-  intervalRepeat: number;
-  monthlyRepeat: number[];
-  name: string;
-  repeatType: string;
-  selectedIcon: string;
-  selectedIconColor: string;
-  timeOfDay: string[];
-  timeReminder: number;
-  startDate: number;
-  unitType: string;
-  unitValue: number;
-  unit: string;
-  recurrence: string;
-  weeks?: number;
-  rate?: number;
-};
-
-// TODO: Replace placeholder multipliers with real values
-const unitRates: Record<string, number> = {
-  // Multipliers for each unit
-  steps: 0.5,
-  kilojoules: 0.5,
-  calories: 0.5,
-  minutes: 0.5,
-  milliliters: 0.5,
-  feet: 0.5,
-  kilometers: 0.5,
-  miles: 0.5,
-  litres: 0.5,
-  times: 0.5,
-  hours: 0.5,
-  joules: 0.5,
-  cups: 0.5,
-  kilocalories: 0.5,
-  yards: 0.5,
-  "fluid ounce": 0.5,
-  metres: 0.5,
-};
-
-export const getRate = (unit: string): number => {
-  return unitRates[unit] || 0; // Return the rate or default to 0
-};
-
-export const getHabitById = query({
+export const getHabitByIdWithLogs = query({
   args: { habitId: v.id("habits") },
-  handler: async (ctx, { habitId: habitId }) => {
-    return await ctx.db.get(habitId);
+  handler: async (ctx, { habitId }) => {
+    const habit = await ctx.db.get(habitId);
+
+    if (!habit) {
+      return null;
+    }
+
+    const logs = await ctx.db
+      .query("habitLogs")
+      .filter((q) => q.and(q.eq(q.field("habitId"), habit._id)))
+      .collect();
+
+    return {
+      ...habit,
+      logs,
+    };
   },
 });
 
-export const listHabits = query({
-  handler: async (ctx) => {
-    const habitId = await getAuthUserId(ctx);
-    if (habitId === null) {
+export const getHabitByIdWithLogsForCurrentMonth = query({
+  args: { habitId: v.id("habits"), month: v.number(), year: v.number() },
+  handler: async (ctx, { habitId, year, month }) => {
+    const habit = await ctx.db.get(habitId);
+
+    if (!habit) {
       return null;
     }
-    const habits = await ctx.db
-      .query("habits")
-      .filter((q) => q.eq(q.field("userId"), habitId))
+
+    const logs = await ctx.db
+      .query("habitLogs")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("habitId"), habit._id),
+          q.eq(q.field("year"), year),
+          q.eq(q.field("month"), month)
+        )
+      )
       .collect();
 
-    return habits;
+    return {
+      ...habit,
+      logs,
+    };
+  },
+});
+
+export const getHabitByIdWithLogForCurrentDay = query({
+  args: {
+    habitId: v.id("habits"),
+    month: v.number(),
+    year: v.number(),
+    day: v.number(),
+  },
+  handler: async (ctx, { habitId, year, month, day }) => {
+    const habit = await ctx.db.get(habitId);
+
+    if (!habit) {
+      return null;
+    }
+
+    const log = await ctx.db
+      .query("habitLogs")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("habitId"), habit._id),
+          q.eq(q.field("year"), year),
+          q.eq(q.field("month"), month),
+          q.eq(q.field("day"), day)
+        )
+      )
+      .first();
+
+    return {
+      ...habit,
+      log,
+    };
+  },
+});
+
+export const getHabitById = query({
+  args: { habitId: v.id("habits") },
+  handler: async (ctx, { habitId }) => await ctx.db.get(habitId),
+});
+
+export const listHabits = query({
+  args: { date: v.string() },
+  handler: async (ctx, { date }) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
+
+    const selectedDate = new Date(date);
+
+    const selectedYear = selectedDate.getFullYear();
+    const selectedMonth = selectedDate.getMonth();
+    const selectedDay = getDate(selectedDate);
+
+    const habits = await ctx.db
+      .query("habits")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("userId"), userId),
+          q.lte(q.field("startDate"), endOfToday().getTime())
+        )
+      )
+      .collect();
+
+    const habitsWithLogs = await Promise.all(
+      habits.map(async (h) => {
+        const log = await ctx.db
+          .query("habitLogs")
+          .filter((q) =>
+            q.and(
+              q.eq(q.field("habitId"), h._id),
+              q.eq(q.field("year"), selectedYear),
+              q.eq(q.field("month"), selectedMonth),
+              q.eq(q.field("day"), selectedDay)
+            )
+          )
+          .first();
+        return {
+          ...h,
+          log,
+        };
+      })
+    );
+
+    return habitsWithLogs;
   },
 });
 
@@ -97,11 +162,8 @@ export const createHabit = mutation({
       return null;
     }
 
-    const rate = args.rate !== undefined ? args.rate : getRate(args.unit);
-
     const habitId = await ctx.db.insert("habits", {
       ...args,
-      rate,
       userId,
     });
 
@@ -126,12 +188,9 @@ export const updateHabit = mutation({
     unitValue: v.float64(),
     unit: v.string(),
     recurrence: v.string(),
-    rate: v.optional(v.number()),
   },
-  handler: async (ctx, { habitId, unit, rate, ...updateData }) => {
-    const updatedRate = rate !== undefined ? rate : getRate(unit);
-
-    await ctx.db.patch(habitId, { ...updateData, rate: updatedRate });
+  handler: async (ctx, { habitId, ...updatedData }) => {
+    await ctx.db.patch(habitId, updatedData);
   },
 });
 
@@ -140,23 +199,12 @@ export const deleteHabit = mutation({
     habitId: v.id("habits"),
   },
   handler: async (ctx, { habitId }) => {
-    await ctx.db.delete(habitId);
-  },
-});
-
-export const deleteHabitAndHabitLogs = mutation({
-  args: {
-    habitId: v.id("habits"),
-  },
-  handler: async (ctx, { habitId }) => {
-    const habitLogs = await ctx.db
+    const logs = await ctx.db
       .query("habitLogs")
       .filter((q) => q.eq(q.field("habitId"), habitId))
       .collect();
 
-    for (const habitLog of habitLogs) {
-      await ctx.db.delete(habitLog._id);
-    }
+    await Promise.all(logs.map(async (log) => ctx.db.delete(log._id)));
     await ctx.db.delete(habitId);
   },
 });

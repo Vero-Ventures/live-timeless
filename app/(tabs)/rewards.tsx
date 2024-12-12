@@ -45,7 +45,7 @@ export default function RewardsPage() {
             <Coins className="text-primary" size={40} />
           </Text>
           <View className="gap-2">
-            <Text className="text-2xl font-bold">{user?.points ?? 0}</Text>
+            <Text className="text-2xl font-bold">{user?.tokens}</Text>
             <Text className="text-md">LT Token Balance</Text>
           </View>
         </View>

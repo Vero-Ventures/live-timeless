@@ -11,11 +11,10 @@ import {
 } from "convex/react";
 import { Pressable, View } from "react-native";
 import { AlertCircle, CalendarDays, Loader2 } from "lucide-react-native";
-import { fontFamily } from "~/lib/font";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import DateTimePicker from "react-native-modal-datetime-picker";
-import { useProfileFormStore } from "./profile-form-store";
+import { useProfileFormStore } from "~/stores/profile-form-store";
 import { useShallow } from "zustand/react/shallow";
 import { formatDate } from "~/lib/date";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
@@ -32,11 +31,7 @@ export default function EditProfileScreen() {
             backgroundColor: "#0b1a28",
           },
           headerTintColor: "#fff",
-          headerTitle: () => (
-            <Text style={{ fontFamily: fontFamily.openSans.bold }}>
-              Edit Profile
-            </Text>
-          ),
+          headerTitle: () => <Text className="font-bold">Edit Profile</Text>,
           headerBackButtonDisplayMode: "minimal",
         }}
       />
@@ -162,22 +157,10 @@ function EditProfileForm() {
                 <CalendarDays color="#fff" />
               </View>
               <View>
-                <Text
-                  className="text-xs text-muted-foreground"
-                  style={{
-                    fontFamily: fontFamily.openSans.semiBold,
-                    letterSpacing: 0.5,
-                  }}
-                >
+                <Text className="text-xs font-semibold tracking-wider text-muted-foreground">
                   Date of Birth
                 </Text>
-                <Text
-                  style={{
-                    fontFamily: fontFamily.openSans.semiBold,
-                  }}
-                >
-                  {formatDate(dob)}
-                </Text>
+                <Text className="font-semibold">{formatDate(dob)}</Text>
               </View>
             </View>
             <DateTimePicker

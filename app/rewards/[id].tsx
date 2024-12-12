@@ -14,7 +14,7 @@ import { api } from "~/convex/_generated/api";
 import type { ListProductsResponseProductsInner } from "tremendous";
 import { ArrowLeft } from "~/lib/icons/ArrowLeft";
 import { MaterialIcons } from "@expo/vector-icons";
-import DOMContent from "./dom-content";
+import DOMContent from "~/components/rewards/dom-content";
 
 export default function SingleRewardsPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -25,8 +25,6 @@ export default function SingleRewardsPage() {
   useEffect(() => {
     getReward({ productId: id }).then((product) => setReward(product));
   }, [getReward, id]);
-
-  console.log(reward);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#082139" }}>
@@ -79,7 +77,7 @@ export default function SingleRewardsPage() {
             )}
             {!!reward.disclosure && (
               <>
-                <Text className="text-2xl font-bold">Legal Disclosure</Text>
+                <Text className="text-2xl font-bold">Terms and Conditions</Text>
                 <DOMContent content={reward.disclosure} />
               </>
             )}

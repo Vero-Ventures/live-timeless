@@ -3,9 +3,8 @@ import { Pressable, ScrollView, View } from "react-native";
 
 import { Text } from "~/components/ui/text";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { fontFamily } from "~/lib/font";
 import { Check } from "~/lib/icons/Check";
-import { initialFormState, useHabitFormStore } from "./habit-store";
+import { initialFormState, useHabitFormStore } from "~/stores/habit-store";
 import { cn } from "~/lib/utils";
 import { Separator } from "~/components/ui/separator";
 import { useShallow } from "zustand/react/shallow";
@@ -42,9 +41,7 @@ export default function Repeat() {
             backgroundColor: "#0b1a28",
           },
           headerTintColor: "#fff",
-          headerTitle: () => (
-            <Text style={{ fontFamily: fontFamily.openSans.bold }}>Repeat</Text>
-          ),
+          headerTitle: () => <Text className="font-bold">Repeat</Text>,
           headerBackButtonDisplayMode: "minimal",
           headerShadowVisible: false,
         }}
@@ -148,15 +145,7 @@ function DailyRepeat({
       className="flex flex-row justify-between border-b border-[#172e4b] bg-[#082139] px-5 py-4"
       onPress={onPress}
     >
-      <Text
-        className="text-lg"
-        style={{
-          fontFamily: fontFamily.openSans.bold,
-          letterSpacing: 0.5,
-        }}
-      >
-        {dayOfWeek}
-      </Text>
+      <Text className="text-lg font-bold tracking-wider">{dayOfWeek}</Text>
       {!!isChecked && <Check />}
     </Pressable>
   );
@@ -186,12 +175,7 @@ function MonthlyRepeat() {
               monthlyRepeat.includes(day) && "bg-[#007bff8c]"
             )}
           >
-            <Text
-              className="text-center text-lg"
-              style={{ fontFamily: fontFamily.openSans.semiBold }}
-            >
-              {day}
-            </Text>
+            <Text className="text-center text-lg font-semibold">{day}</Text>
           </Pressable>
         ))}
       </View>
@@ -215,13 +199,7 @@ function IntervalRepeat({
       }}
       className="flex flex-row justify-between border-b border-[#172e4b] bg-[#082139] px-5 py-4"
     >
-      <Text
-        className="text-lg"
-        style={{
-          fontFamily: fontFamily.openSans.bold,
-          letterSpacing: 0.5,
-        }}
-      >
+      <Text className="text-lg font-bold tracking-wider">
         Every {interval} days
       </Text>
       {!!isChecked && <Check />}

@@ -11,8 +11,7 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Text } from "~/components/ui/text";
 import { formatDate } from "~/lib/date";
-import { fontFamily } from "~/lib/font";
-import { useProfileFormStore } from "~/app/profile/edit/profile-form-store";
+import { useProfileFormStore } from "~/stores/profile-form-store";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "~/components/ui/button";
 import { useMutation } from "convex/react";
@@ -103,22 +102,10 @@ function OnboardingProfileForm() {
               <CalendarDays color="#fff" />
             </View>
             <View>
-              <Text
-                className="text-xs text-muted-foreground"
-                style={{
-                  fontFamily: fontFamily.openSans.semiBold,
-                  letterSpacing: 0.5,
-                }}
-              >
+              <Text className="text-xs font-semibold tracking-wider text-muted-foreground">
                 Date of Birth
               </Text>
-              <Text
-                style={{
-                  fontFamily: fontFamily.openSans.semiBold,
-                }}
-              >
-                {formatDate(dob)}
-              </Text>
+              <Text className="font-semibold">{formatDate(dob)}</Text>
             </View>
           </View>
           <DateTimePicker

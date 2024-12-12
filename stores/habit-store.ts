@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { RECURRENCE } from "./target/constants";
+import type { RECURRENCE } from "~/constants/habit-target";
 
 export type TimeOfDay = "Morning" | "Afternoon" | "Evening";
 
@@ -38,7 +38,7 @@ interface FormState {
   unit: string;
   recurrence: Recurrence;
   selectedIconColor: string;
-  selectedIcon: string | null;
+  selectedIcon: string;
 }
 
 interface FormActions {
@@ -84,7 +84,7 @@ export const initialFormState: FormState = {
   unit: "times",
   recurrence: "per day",
   selectedIconColor: "#2AA8CF",
-  selectedIcon: null,
+  selectedIcon: "question",
 };
 
 export const useHabitFormStore = create<FormState & FormActions>()((set) => ({

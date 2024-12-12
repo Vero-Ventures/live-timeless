@@ -1,9 +1,8 @@
 import { Stack } from "expo-router";
 import { Pressable, ScrollView, View } from "react-native";
 import { Text } from "~/components/ui/text";
-import { fontFamily } from "~/lib/font";
 import { Check } from "~/lib/icons/Check";
-import { useHabitFormStore } from "./habit-store";
+import { useHabitFormStore } from "~/stores/habit-store";
 import { cn } from "~/lib/utils";
 import { useShallow } from "zustand/react/shallow";
 
@@ -19,11 +18,7 @@ export default function TimeOfDay() {
             backgroundColor: "#0b1a28",
           },
           headerTintColor: "#fff",
-          headerTitle: () => (
-            <Text style={{ fontFamily: fontFamily.openSans.bold }}>
-              Time of Day
-            </Text>
-          ),
+          headerTitle: () => <Text className="font-bold">Time of Day</Text>,
           headerBackButtonDisplayMode: "minimal",
         }}
       />
@@ -95,15 +90,7 @@ function TimePeriodOption({
       )}
       onPress={onPress}
     >
-      <Text
-        className="text-lg"
-        style={{
-          fontFamily: fontFamily.openSans.bold,
-          letterSpacing: 0.5,
-        }}
-      >
-        {period}
-      </Text>
+      <Text className="text-lg font-bold tracking-wider">{period}</Text>
       {!!isChecked && <Check />}
     </Pressable>
   );

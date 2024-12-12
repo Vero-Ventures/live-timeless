@@ -1,13 +1,12 @@
 import { router, Stack } from "expo-router";
 import { FlatList, Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
-import { fontFamily } from "~/lib/font";
 import { ChevronLeft } from "~/lib/icons/ChevronLeft";
-import { useHabitFormStore } from "../habit-store";
+import { useHabitFormStore } from "~/stores/habit-store";
 import { useShallow } from "zustand/react/shallow";
 import { HABIT_ICONS } from "~/constants/habit-icons";
-import { IconPicker } from "~/components/icon-picker";
-import { ColorPicker } from "~/components/color-picker";
+import { IconPicker } from "~/components/habits/icon-picker";
+import { ColorPicker } from "~/components/habits/color-picker";
 
 export default function IconScreen() {
   const [
@@ -43,41 +42,24 @@ export default function IconScreen() {
                 >
                   <ChevronLeft color="#fff" size={35} />
                 </Pressable>
-                <Text style={{ fontFamily: fontFamily.openSans.bold }}>
-                  Icon
-                </Text>
+                <Text className="font-bold">Icon</Text>
               </View>
               <View className="mt-6 flex-row justify-evenly px-4">
-                <ColorPicker
-                  color="#2AA8CF"
-                  selectedIconColor={selectedIconColor}
-                  setSelectedIconColor={setSelectedIconColor}
-                />
-                <ColorPicker
-                  color="#2A67F5"
-                  selectedIconColor={selectedIconColor}
-                  setSelectedIconColor={setSelectedIconColor}
-                />
-                <ColorPicker
-                  color="#299240"
-                  selectedIconColor={selectedIconColor}
-                  setSelectedIconColor={setSelectedIconColor}
-                />
-                <ColorPicker
-                  color="#E1861D"
-                  selectedIconColor={selectedIconColor}
-                  setSelectedIconColor={setSelectedIconColor}
-                />
-                <ColorPicker
-                  color="#D42C2C"
-                  selectedIconColor={selectedIconColor}
-                  setSelectedIconColor={setSelectedIconColor}
-                />
-                <ColorPicker
-                  color="#982ABF"
-                  selectedIconColor={selectedIconColor}
-                  setSelectedIconColor={setSelectedIconColor}
-                />
+                {[
+                  "#2AA8CF",
+                  "#2A67F5",
+                  "#299240",
+                  "#E1861D",
+                  "#D42C2C",
+                  "#982ABF",
+                ].map((color) => (
+                  <ColorPicker
+                    key={color}
+                    color={color}
+                    selectedIconColor={selectedIconColor}
+                    setSelectedIconColor={setSelectedIconColor}
+                  />
+                ))}
               </View>
             </View>
           ),

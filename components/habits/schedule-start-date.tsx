@@ -2,11 +2,10 @@ import DateTimePicker from "react-native-modal-datetime-picker";
 
 import React, { useState } from "react";
 import { Pressable, View } from "react-native";
-import { Text } from "../../components/ui/text";
+import { Text } from "~/components/ui/text";
 import { CalendarDays } from "~/lib/icons/CalendarDays";
-import { fontFamily } from "~/lib/font";
 import { getRelativeDateLabel } from "~/lib/date";
-import { useHabitFormStore } from "./create/habit-store";
+import { useHabitFormStore } from "~/stores/habit-store";
 import { useShallow } from "zustand/react/shallow";
 
 export default function ScheduleStartDate() {
@@ -36,20 +35,10 @@ export default function ScheduleStartDate() {
             <CalendarDays color="#fff" />
           </View>
           <View>
-            <Text
-              className="text-xs text-muted-foreground"
-              style={{
-                fontFamily: fontFamily.openSans.semiBold,
-                letterSpacing: 0.5,
-              }}
-            >
+            <Text className="te text-xs font-semibold tracking-wider text-muted-foreground">
               START DATE
             </Text>
-            <Text
-              style={{
-                fontFamily: fontFamily.openSans.semiBold,
-              }}
-            >
+            <Text className="font-semibold">
               {getRelativeDateLabel(startDate)}
             </Text>
           </View>

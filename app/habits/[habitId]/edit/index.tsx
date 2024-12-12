@@ -6,13 +6,13 @@ import FormSubmitButton from "~/components/form-submit-button";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Input } from "~/components/ui/input";
 import { Text } from "~/components/ui/text";
-import { fontFamily } from "~/lib/font";
+
 import { Repeat } from "~/lib/icons/Repeat";
 import { Crosshair } from "~/lib/icons/Crosshair";
 import { Sun } from "~/lib/icons/Sun";
 import { Bell } from "~/lib/icons/Bell";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
-import ScheduleStartDate from "../../schedule-start-date";
+import ScheduleStartDate from "~/components/habits/schedule-start-date";
 import {
   type DailyRepeat,
   type Recurrence,
@@ -20,10 +20,9 @@ import {
   type TimeOfDay,
   type UnitType,
   useHabitFormStore,
-} from "../../create/habit-store";
+} from "~/stores/habit-store";
 import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { cn } from "~/lib/utils";
 import { useShallow } from "zustand/react/shallow";
 import { api } from "~/convex/_generated/api";
@@ -42,11 +41,7 @@ export default function EditHabitPage() {
             backgroundColor: "#0b1a28",
           },
           headerTintColor: "#fff",
-          headerTitle: () => (
-            <Text style={{ fontFamily: fontFamily.openSans.bold }}>
-              Edit Habit
-            </Text>
-          ),
+          headerTitle: () => <Text className="font-bold">Edit Habit</Text>,
           headerBackButtonDisplayMode: "minimal",
         }}
       />
@@ -122,9 +117,9 @@ function EditHabitForm() {
 
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
-  const updateHabit = useMutation(api.habits.updateHabit);
   const { habitId } = useLocalSearchParams<{ habitId: Id<"habits"> }>();
   const habit = useQuery(api.habits.getHabitById, { habitId });
+  const updateHabit = useMutation(api.habits.updateHabit);
   const deleteHabit = useMutation(api.habits.deleteHabit);
 
   const handleDelete = () => {
@@ -214,19 +209,11 @@ function EditHabitForm() {
         <View className="flex flex-row items-center gap-2">
           <Link href="/habits/create/icon" asChild>
             <Pressable className="rounded-xl bg-[#0e2942] p-4 px-6">
-              {selectedIcon ? (
-                <IconComp
-                  name={selectedIcon}
-                  size={32}
-                  color={selectedIconColor}
-                />
-              ) : (
-                <FontAwesome6
-                  name="question"
-                  size={32}
-                  color={selectedIconColor}
-                />
-              )}
+              <IconComp
+                name={selectedIcon}
+                size={32}
+                color={selectedIconColor}
+              />
             </Pressable>
           </Link>
           <Input
@@ -295,11 +282,6 @@ function EditHabitForm() {
               if (name.trim().length <= 3) {
                 throw new Error("Name of the habit must be over 3 characters");
               }
-
-              if (!selectedIcon) {
-                throw new Error("You haven't selected an icon for your habit.");
-              }
-
               const updatedHabit = {
                 habitId,
                 name,
@@ -331,7 +313,7 @@ function EditHabitForm() {
             }
           }}
         >
-          Edit Habit
+          Save
         </FormSubmitButton>
         <Button size="lg" variant="destructive" onPress={handleDelete}>
           <Text>Delete</Text>
@@ -353,33 +335,19 @@ function ScheduleItem({
   value: string;
 }) {
   return (
-    <>
-      <View className="flex flex-row items-center gap-4 p-5">
-        <View className={cn("rounded-xl p-2", iconBgColor)}>
-          <Icon color="#fff" />
-        </View>
-        <View className="flex flex-1 flex-row items-center justify-between">
-          <View>
-            <Text
-              className="text-xs text-muted-foreground"
-              style={{
-                fontFamily: fontFamily.openSans.semiBold,
-                letterSpacing: 0.5,
-              }}
-            >
-              {title}
-            </Text>
-            <Text
-              style={{
-                fontFamily: fontFamily.openSans.semiBold,
-              }}
-            >
-              {value}
-            </Text>
-          </View>
-          <ChevronRight className="text-primary" />
-        </View>
+    <View className="flex flex-row items-center gap-4 p-5">
+      <View className={cn("rounded-xl p-2", iconBgColor)}>
+        <Icon color="#fff" />
       </View>
-    </>
+      <View className="flex flex-1 flex-row items-center justify-between">
+        <View>
+          <Text className="text-xs font-semibold tracking-wider text-muted-foreground">
+            {title}
+          </Text>
+          <Text className="font-semibold">{value}</Text>
+        </View>
+        <ChevronRight className="text-primary" />
+      </View>
+    </View>
   );
 }
