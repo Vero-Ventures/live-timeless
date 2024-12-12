@@ -24,30 +24,3 @@ export const Colors = {
     tabIconSelected: tintColorDark,
   },
 };
-
-export const ICON_COLORS = {
-  lightBlue: {
-    color: "#2AA8CF",
-    backgroundColor: "#2AA8CF33",
-  },
-  blue: {
-    color: "#2A67F5",
-    backgroundColor: "#2A67F533",
-  },
-  green: {
-    color: "#299240",
-    backgroundColor: "#29924033",
-  },
-  yellow: {
-    color: "#E1861D",
-    backgroundColor: "#E1861D33",
-  },
-  red: {
-    color: "#D42C2C",
-    backgroundColor: "#D42C2C33",
-  },
-  purple: {
-    color: "#982ABF",
-    backgroundColor: "#982ABF33",
-  },
-};

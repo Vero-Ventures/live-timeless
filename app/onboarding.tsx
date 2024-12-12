@@ -2,7 +2,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { View, ImageBackground, Image } from "react-native";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
-import { fontFamily } from "~/lib/font";
 import { router, SplashScreen } from "expo-router";
 import { useEffect } from "react";
 
@@ -30,20 +29,10 @@ export default function Onboarding() {
 
         <View className="gap-10">
           <View>
-            <Text
-              className="text-center text-3xl"
-              style={{
-                fontFamily: fontFamily.openSans.bold,
-              }}
-            >
+            <Text className="text-center text-3xl font-bold">
               Transform performance
             </Text>
-            <Text
-              className="text-center text-3xl"
-              style={{
-                fontFamily: fontFamily.openSans.regular,
-              }}
-            >
+            <Text className="text-center text-3xl">
               within your organization
             </Text>
           </View>

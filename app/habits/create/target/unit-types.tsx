@@ -1,7 +1,6 @@
 import { Link, Stack } from "expo-router";
 import { Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
-import { fontFamily } from "~/lib/font";
 import { cn } from "~/lib/utils";
 import { useHabitFormStore } from "~/stores/habit-store";
 import { useShallow } from "zustand/react/shallow";
@@ -136,23 +135,10 @@ function UnitType({
         )}
         onPress={onPress}
       >
+        <Text className="text-lg tracking-wider">{type}</Text>
         <Text
-          className="text-lg"
-          style={{
-            fontFamily: fontFamily.openSans.bold,
-            letterSpacing: 0.5,
-          }}
-        >
-          {type}
-        </Text>
-        <Text
-          className="text-sm"
+          className="w-[40%] text-right text-sm font-semibold"
           numberOfLines={1}
-          style={{
-            fontFamily: fontFamily.openSans.semiBold,
-            textAlign: "right",
-            width: "40%",
-          }}
         >
           {units.join(", ")}
         </Text>

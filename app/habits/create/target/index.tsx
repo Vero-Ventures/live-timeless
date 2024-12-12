@@ -7,211 +7,197 @@ import { fontFamily } from "~/lib/font";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
 import { useHabitFormStore } from "~/stores/habit-store";
 import type { UnitType } from "~/stores/habit-store";
-import { StyleSheet } from "react-native";
 import { RECURRENCE } from "~/constants/habit-target";
 import { useShallow } from "zustand/react/shallow";
 import { useMemo } from "react";
+
 export default function Frequency() {
   const unitType = useHabitFormStore((s) => s.unitType);
 
   return (
-    <>
+    <View className="h-full bg-[#082139] p-4">
       <Stack.Screen
         options={{
           headerStyle: {
             backgroundColor: "#0b1a28",
           },
           headerTintColor: "#fff",
-          headerTitle: () => (
-            <Text style={{ fontFamily: fontFamily.openSans.bold }}>
-              Frequency
-            </Text>
-          ),
+          headerTitle: () => <Text className="font-bold">Frequency</Text>,
           headerBackButtonDisplayMode: "minimal",
         }}
       />
-      <View className="h-full bg-[#082139] p-4">
-        {unitType === "General" ? (
-          <GoalPicker
-            units={["times", "minutes"]}
-            ranges={{
-              times: {
-                min: 1,
-                max: 1000,
-                step: 1,
-              },
-              minutes: {
-                min: 1,
-                max: 1200,
-                step: 1,
-              },
-            }}
-          />
-        ) : unitType === "Scalar" ? (
-          <GoalPicker
-            units={["times", "steps"]}
-            ranges={{
-              times: {
-                min: 1,
-                max: 1000,
-                step: 1,
-              },
-              steps: {
-                min: 1000,
-                max: 9900,
-                step: 1000,
-              },
-            }}
-          />
-        ) : unitType === "Mass" ? (
-          <GoalPicker
-            units={["kg", "grams", "mg", "oz", "pounds", "µg"]}
-            ranges={{
-              kg: {
-                min: 1,
-                max: 1000,
-                step: 1,
-              },
-              grams: {
-                min: 5,
-                max: 4995,
-                step: 5,
-              },
-              mg: {
-                min: 1,
-                max: 10000,
-                step: 1,
-              },
-              oz: {
-                min: 1,
-                max: 1000,
-                step: 1,
-              },
-              pounds: {
-                min: 1,
-                max: 1000,
-                step: 1,
-              },
-              µg: {
-                min: 5,
-                max: 4995,
-                step: 5,
-              },
-            }}
-          />
-        ) : unitType === "Volume" ? (
-          <GoalPicker
-            units={["litres", "mL", "US fl oz", "cups"]}
-            ranges={{
-              litres: {
-                min: 1,
-                max: 1000,
-                step: 1,
-              },
-              mL: {
-                min: 100,
-                max: 29900,
-                step: 100,
-              },
-              "US fl oz": {
-                min: 5,
-                max: 995,
-                step: 5,
-              },
-              cups: {
-                min: 1,
-                max: 1000,
-                step: 1,
-              },
-            }}
-          />
-        ) : unitType === "Duration" ? (
-          <GoalPicker
-            units={["min", "hours"]}
-            ranges={{
-              min: {
-                min: 1,
-                max: 1200,
-                step: 1,
-              },
-              hours: {
-                min: 1,
-                max: 1000,
-                step: 1,
-              },
-            }}
-          />
-        ) : unitType === "Energy" ? (
-          <GoalPicker
-            units={["kilojoules", "cal", "kcal", "joules"]}
-            ranges={{
-              joules: {
-                min: 1000,
-                max: 99000,
-                step: 1000,
-              },
-              kilojoules: {
-                min: 50,
-                max: 41950,
-                step: 50,
-              },
-              cal: {
-                min: 500,
-                max: 1999500,
-                step: 500,
-              },
-              kcal: {
-                min: 100,
-                max: 9900,
-                step: 100,
-              },
-            }}
-          />
-        ) : unitType === "Length" ? (
-          <GoalPicker
-            units={["km", "metres", "feet", "yards", "miles"]}
-            ranges={{
-              metres: {
-                min: 10,
-                max: 49990,
-                step: 10,
-              },
-              km: {
-                min: 1,
-                max: 1000,
-                step: 1,
-              },
-              miles: {
-                min: 1,
-                max: 1000,
-                step: 1,
-              },
-              feet: {
-                min: 100,
-                max: 99900,
-                step: 100,
-              },
-              yards: {
-                min: 50,
-                max: 49950,
-                step: 50,
-              },
-            }}
-          />
-        ) : null}
-        <SelectUnitType unitType={unitType} />
-      </View>
-    </>
+      {unitType === "General" ? (
+        <GoalPicker
+          units={["times", "minutes"]}
+          ranges={{
+            times: {
+              min: 1,
+              max: 1000,
+              step: 1,
+            },
+            minutes: {
+              min: 1,
+              max: 1200,
+              step: 1,
+            },
+          }}
+        />
+      ) : unitType === "Scalar" ? (
+        <GoalPicker
+          units={["times", "steps"]}
+          ranges={{
+            times: {
+              min: 1,
+              max: 1000,
+              step: 1,
+            },
+            steps: {
+              min: 1000,
+              max: 9900,
+              step: 1000,
+            },
+          }}
+        />
+      ) : unitType === "Mass" ? (
+        <GoalPicker
+          units={["kg", "grams", "mg", "oz", "pounds", "µg"]}
+          ranges={{
+            kg: {
+              min: 1,
+              max: 1000,
+              step: 1,
+            },
+            grams: {
+              min: 5,
+              max: 4995,
+              step: 5,
+            },
+            mg: {
+              min: 1,
+              max: 10000,
+              step: 1,
+            },
+            oz: {
+              min: 1,
+              max: 1000,
+              step: 1,
+            },
+            pounds: {
+              min: 1,
+              max: 1000,
+              step: 1,
+            },
+            µg: {
+              min: 5,
+              max: 4995,
+              step: 5,
+            },
+          }}
+        />
+      ) : unitType === "Volume" ? (
+        <GoalPicker
+          units={["litres", "mL", "US fl oz", "cups"]}
+          ranges={{
+            litres: {
+              min: 1,
+              max: 1000,
+              step: 1,
+            },
+            mL: {
+              min: 100,
+              max: 29900,
+              step: 100,
+            },
+            "US fl oz": {
+              min: 5,
+              max: 995,
+              step: 5,
+            },
+            cups: {
+              min: 1,
+              max: 1000,
+              step: 1,
+            },
+          }}
+        />
+      ) : unitType === "Duration" ? (
+        <GoalPicker
+          units={["min", "hours"]}
+          ranges={{
+            min: {
+              min: 1,
+              max: 1200,
+              step: 1,
+            },
+            hours: {
+              min: 1,
+              max: 1000,
+              step: 1,
+            },
+          }}
+        />
+      ) : unitType === "Energy" ? (
+        <GoalPicker
+          units={["kilojoules", "cal", "kcal", "joules"]}
+          ranges={{
+            joules: {
+              min: 1000,
+              max: 99000,
+              step: 1000,
+            },
+            kilojoules: {
+              min: 50,
+              max: 41950,
+              step: 50,
+            },
+            cal: {
+              min: 500,
+              max: 1999500,
+              step: 500,
+            },
+            kcal: {
+              min: 100,
+              max: 9900,
+              step: 100,
+            },
+          }}
+        />
+      ) : unitType === "Length" ? (
+        <GoalPicker
+          units={["km", "metres", "feet", "yards", "miles"]}
+          ranges={{
+            metres: {
+              min: 10,
+              max: 49990,
+              step: 10,
+            },
+            km: {
+              min: 1,
+              max: 1000,
+              step: 1,
+            },
+            miles: {
+              min: 1,
+              max: 1000,
+              step: 1,
+            },
+            feet: {
+              min: 100,
+              max: 99900,
+              step: 100,
+            },
+            yards: {
+              min: 50,
+              max: 49950,
+              step: 50,
+            },
+          }}
+        />
+      ) : null}
+      <SelectUnitType unitType={unitType} />
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  pickerItem: {
-    fontSize: 14,
-    fontFamily: fontFamily.openSans.semiBold,
-    color: "#ffffff",
-  },
-});
 
 function GoalPicker<TUnit extends string>({
   ranges,
@@ -258,7 +244,11 @@ function GoalPicker<TUnit extends string>({
       <Picker
         selectedValue={unitValue}
         style={{ width: "26%" }}
-        itemStyle={styles.pickerItem}
+        itemStyle={{
+          fontSize: 14,
+          fontFamily: fontFamily.openSans.semiBold,
+          color: "#ffffff",
+        }}
         onValueChange={(value) => {
           setUnitValue(+value);
         }}
@@ -279,7 +269,11 @@ function GoalPicker<TUnit extends string>({
         style={{
           width: "34%",
         }}
-        itemStyle={styles.pickerItem}
+        itemStyle={{
+          fontSize: 14,
+          fontFamily: fontFamily.openSans.semiBold,
+          color: "#ffffff",
+        }}
       >
         {units.map((unit) => (
           <Picker.Item key={unit} label={unit} value={unit} />
@@ -289,7 +283,11 @@ function GoalPicker<TUnit extends string>({
         style={{
           width: "40%",
         }}
-        itemStyle={styles.pickerItem}
+        itemStyle={{
+          fontSize: 14,
+          fontFamily: fontFamily.openSans.semiBold,
+          color: "#ffffff",
+        }}
         selectedValue={recurrence}
         onValueChange={(itemValue) => {
           setRecurrence(itemValue);
@@ -307,13 +305,7 @@ function SelectUnitType({ unitType }: { unitType: UnitType }) {
   return (
     <Link href="/habits/create/target/unit-types" asChild>
       <Pressable className="mt-4 flex flex-row items-center justify-between rounded-xl bg-[#0e2942] p-5">
-        <Text
-          style={{
-            fontFamily: fontFamily.openSans.semiBold,
-          }}
-        >
-          Unit Type
-        </Text>
+        <Text className="font-semibold">Unit Type</Text>
         <View className="flex flex-row items-center justify-center gap-1">
           <Text className="text-muted-foreground">{unitType}</Text>
           <ChevronRight />

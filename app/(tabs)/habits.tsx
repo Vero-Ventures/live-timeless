@@ -10,9 +10,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Link, SplashScreen, router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
-import { fontFamily } from "~/lib/font";
-import { Plus } from "lucide-react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { CheckIcon, Plus } from "lucide-react-native";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
 import { useMutation, useQuery } from "convex/react";
@@ -20,7 +19,17 @@ import { api } from "~/convex/_generated/api";
 import { HABIT_ICONS } from "~/constants/habit-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { FunctionReturnType } from "convex/server";
-import { addDays, subDays } from "date-fns";
+import { addDays, getDate, isToday, isTomorrow, isYesterday } from "date-fns";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
+
+type Habit = NonNullable<
+  FunctionReturnType<typeof api.habits.listHabits>
+>[number];
 
 export default function HabitsPage() {
   useEffect(() => {
@@ -36,17 +45,10 @@ export default function HabitsPage() {
         justifyContent: "space-between",
       }}
     >
-      <View className="habit-container px-4">
+      <View className="habit-container">
         <DateHeading />
-        <Text
-          className="text-2xl"
-          style={{
-            fontFamily: fontFamily.openSans.bold,
-          }}
-        >
-          Habits
-        </Text>
-        <Separator className="my-6 bg-[#fff]/10" />
+        <Text className="ml-4 text-2xl font-bold">Habits</Text>
+        <Separator className="mt-6 bg-[#fff]/10" />
         <HabitList />
       </View>
       <View className="flex-row items-center gap-2 bg-[#0f2336] px-4">
@@ -65,16 +67,15 @@ export default function HabitsPage() {
 function DateHeading() {
   const { date } = useLocalSearchParams<{ date?: string }>();
   const today = new Date();
-  const tomorrow = addDays(today, 1);
-  const yesterday = subDays(today, 1);
   const selectedDate = date ? new Date(Number(date)) : today;
+
   return (
-    <Text className="mb-2 text-sm uppercase text-gray-500">
-      {selectedDate.toDateString() === today.toDateString()
+    <Text className="mb-2 ml-4 text-sm uppercase text-gray-500">
+      {isToday(selectedDate)
         ? "Today"
-        : selectedDate.toDateString() === yesterday.toDateString()
+        : isYesterday(selectedDate)
           ? "Yesterday"
-          : selectedDate.toDateString() === tomorrow.toDateString()
+          : isTomorrow(selectedDate)
             ? "Tomorrow"
             : selectedDate.toLocaleDateString("en-US", {
                 month: "long",
@@ -89,43 +90,74 @@ function HabitList() {
   const today = new Date();
   const selectedDate = date ? new Date(Number(date)) : today;
   const habits = useQuery(api.habits.listHabits, {
-    date: selectedDate.toUTCString(),
+    date: selectedDate.toDateString(),
   });
+
+  const { completedHabits, notCompletedHabits } = useMemo(() => {
+    let notCompletedHabits: Habit[] = [];
+    let completedHabits: Habit[] = [];
+
+    habits?.forEach((h) =>
+      h.log?.isComplete ? completedHabits.push(h) : notCompletedHabits.push(h)
+    );
+    return { notCompletedHabits, completedHabits };
+  }, [habits]);
 
   return !habits ? (
     <View className="mt-10 flex-1 gap-2">
       <ActivityIndicator />
     </View>
+  ) : habits.length === 0 ? (
+    <View className="h-full justify-center gap-6 px-4">
+      <Text className="text-center text-2xl font-bold">
+        Welcome to Live Timeless!
+      </Text>
+      <Text className="text-center">
+        Our habit tracker shows your progress day by day. Unlock your potential
+        and start your journey today!
+      </Text>
+      <Link href="/habits/create" asChild>
+        <Button>
+          <Text>Build a habit</Text>
+        </Button>
+      </Link>
+    </View>
   ) : (
-    <FlatList
-      contentContainerStyle={{
-        flex: 1,
-      }}
-      data={habits}
-      ItemSeparatorComponent={() => (
-        <Separator className="my-4 h-0.5 bg-[#fff]/10" />
-      )}
-      ListEmptyComponent={() => (
-        <View className="h-full justify-center gap-6">
-          <Text className="text-center text-2xl font-bold">
-            Welcome to Live Timeless
-          </Text>
-          <Text className="text-center">
-            Our habit tracker shows your progress day by day. Unlock your
-            potential and start your journey today!
-          </Text>
-          <Link href="/habits/create" asChild>
-            <Button>
-              <Text>Build a habit</Text>
-            </Button>
-          </Link>
-        </View>
-      )}
-      renderItem={({ item }) => (
-        <HabitItem habit={item} selectedDate={selectedDate} />
-      )}
-      keyExtractor={(item) => item._id.toString()}
-    />
+    <>
+      <View>
+        <FlatList
+          data={notCompletedHabits}
+          ItemSeparatorComponent={() => (
+            <Separator className="h-0.5 bg-[#fff]/10" />
+          )}
+          renderItem={({ item }) => (
+            <HabitItem habit={item} selectedDate={selectedDate} />
+          )}
+          keyExtractor={(item) => item._id.toString()}
+        />
+      </View>
+      <View className="flex-1">
+        <Accordion type="multiple" collapsible defaultValue={["item-1"]}>
+          <AccordionItem value="item-1" className="border-0">
+            <AccordionTrigger className="px-4">
+              <Text className="my-4 text-xl font-bold">{`${completedHabits.length} Completed`}</Text>
+            </AccordionTrigger>
+            <AccordionContent className="p-0">
+              <FlatList
+                data={completedHabits}
+                ItemSeparatorComponent={() => (
+                  <Separator className="h-0.5 bg-[#fff]/10" />
+                )}
+                renderItem={({ item }) => (
+                  <HabitItem habit={item} selectedDate={selectedDate} />
+                )}
+                keyExtractor={(item) => item._id.toString()}
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </View>
+    </>
   );
 }
 
@@ -133,12 +165,12 @@ function HabitItem({
   habit,
   selectedDate,
 }: {
-  habit: NonNullable<FunctionReturnType<typeof api.habits.listHabits>>[number];
+  habit: Habit;
   selectedDate: Date;
 }) {
   const year = selectedDate.getFullYear();
   const month = selectedDate.getMonth();
-  const day = selectedDate.getDay();
+  const day = getDate(selectedDate);
   const createHabitLog = useMutation(api.habitLogs.createHabitLog);
   const updateHabitLog = useMutation(api.habitLogs.updateHabitLog);
 
@@ -154,7 +186,7 @@ function HabitItem({
         year,
         month,
         day,
-        unitsCompleted: 1, // Initialize with zero units completed
+        unitsCompleted: 1,
       });
 
       if (!newLogId) {
@@ -162,9 +194,8 @@ function HabitItem({
       }
     } else {
       const newUnitsCompleted = habit.log.unitsCompleted + 1;
-      const hasHabitBeenCompleted = newUnitsCompleted === habit.unitValue;
 
-      if (hasHabitBeenCompleted) {
+      if (newUnitsCompleted <= habit.unitValue && !habit.log.isComplete) {
         await updateHabitLog({
           habitLogId: habit.log._id,
           unitsCompleted: newUnitsCompleted,
@@ -182,108 +213,55 @@ function HabitItem({
       }
     }
   }
-  async function handleLogDurationHabits() {
-    if (!habit.log) {
-      const newLogId = await createHabitLog({
-        habitId: habit._id,
-        isComplete: false,
-        unitsCompleted: 0,
-        year,
-        month,
-        day,
-      });
 
-      if (!newLogId) {
-        throw new Error("Failed to create a new habit log.");
-      }
-      router.push({
-        pathname: "/habits/[habitId]/[habitLogId]/start",
-        params: {
-          habitId: habit._id,
-          habitLogId: newLogId,
-        },
-      });
-    } else {
-      router.push({
-        pathname: "/habits/[habitId]/[habitLogId]/start",
-        params: {
-          habitId: habit._id,
-          habitLogId: habit.log._id,
-        },
-      });
-    }
-  }
   async function handleLogProgressHabits() {
-    if (!habit.log) {
-      const newLogId = await createHabitLog({
+    router.push({
+      pathname: "/habits/[habitId]/log-progress",
+      params: {
         habitId: habit._id,
-        isComplete: false,
-        year,
-        month,
-        day,
-        unitsCompleted: 0,
-      });
-
-      if (!newLogId) {
-        throw new Error("Failed to create a new habit log.");
-      }
-      router.push({
-        pathname: "/habits/[habitId]/[habitLogId]/start/logProgress",
-        params: {
-          habitId: habit._id,
-          habitLogId: newLogId,
-        },
-      });
-    } else {
-      router.push({
-        pathname: "/habits/[habitId]/[habitLogId]/start/logProgress",
-        params: {
-          habitId: habit._id,
-          habitLogId: habit.log._id,
-        },
-      });
-    }
+        date: selectedDate.toDateString(),
+      },
+    });
   }
 
   return (
-    <View className="flex-row items-center gap-4">
+    <View
+      className={cn(
+        "flex-row items-center gap-4 p-4",
+        habit.log?.isComplete && "bg-card"
+      )}
+    >
       <Link
         href={{
           pathname: `/habits/[habitId]`,
           params: {
             habitId: habit._id,
-            selectedHabitLogDate: encodeURIComponent(
-              selectedDate.toISOString()
-            ),
           },
         }}
         asChild
       >
-        <Pressable
-          className={cn("flex-1", habit.log?.isComplete && "bg-secondary")}
-        >
+        <Pressable className={cn("flex-1")}>
           <View className="flex-row items-center gap-4">
             <View
-              style={{
-                backgroundColor: habit.selectedIconBGColor,
-              }}
               className={cn(
-                "h-16 w-16 items-center justify-center rounded-full"
+                `size-14 items-center justify-center rounded-full`,
+                {
+                  "bg-[#2AA8CF]/20": habit.selectedIconColor === "#2AA8CF",
+                  "bg-[#2A67F5]/20": habit.selectedIconColor === "#2A67F5",
+                  "bg-[#299240]/20": habit.selectedIconColor === "#299240",
+                  "bg-[#E1861D]/20": habit.selectedIconColor === "#E1861D",
+                  "bg-[#D42C2C]/20": habit.selectedIconColor === "#D42C2C",
+                  "bg-[#982ABF]/20": habit.selectedIconColor === "#982ABF",
+                }
               )}
             >
               {IconComp ? (
                 <IconComp
                   name={habit.selectedIcon}
-                  color={habit.selectedIcon}
-                  size={30}
+                  color={habit.selectedIconColor}
+                  size={20}
                 />
-              ) : (
-                <MaterialCommunityIcons
-                  name="alert-circle-outline"
-                  color="gray"
-                  size={32}
-                />
-              )}
+              ) : null}
             </View>
 
             <View className="w-full gap-2">
@@ -298,15 +276,17 @@ function HabitItem({
               <Text className="text-xs text-muted-foreground">
                 {habit.log
                   ? `${Number.isInteger(habit.log.unitsCompleted) ? habit.log.unitsCompleted : habit.log.unitsCompleted.toFixed(1)} / ${Number.isInteger(habit.unitValue) ? habit.unitValue : habit.unitValue.toFixed(1)} ${habit.unit}`
-                  : `${Number.isInteger(habit.unitValue) ? habit.unitValue : habit.unitValue.toFixed(1)} ${habit.unit}`}
+                  : `0 / ${Number.isInteger(habit.unitValue) ? habit.unitValue : habit.unitValue.toFixed(1)} ${habit.unit}`}
               </Text>
             </View>
           </View>
         </Pressable>
       </Link>
-      {habit.unit === "times" ? (
+      {habit.log?.isComplete ? (
+        <CheckIcon className="color-input" size={32} />
+      ) : habit.unit === "times" ? (
         <Button
-          className="flex-row items-center gap-2 bg-gray-600"
+          className="flex-row items-center gap-2 bg-input"
           onPress={handleLogTimesHabits}
         >
           <Text className="text-white">Log</Text>
@@ -316,17 +296,17 @@ function HabitItem({
             color="white"
           />
         </Button>
-      ) : habit.unit === "hours" || habit.unit === "mintutes" ? (
+      ) : habit.unit === "hours" || habit.unit === "minutes" ? (
         <Button
-          className="flex-row items-center gap-2 bg-gray-600"
-          onPress={handleLogDurationHabits}
+          className="flex-row items-center gap-2 bg-input"
+          onPress={handleLogProgressHabits}
         >
           <Text className="text-white">Log</Text>
           <MaterialCommunityIcons name="alarm" size={20} color="white" />
         </Button>
       ) : (
         <Button
-          className="flex-row items-center gap-2 bg-gray-600"
+          className="flex-row items-center gap-2 bg-input"
           onPress={handleLogProgressHabits}
         >
           <Text className="text-white">Log</Text>
@@ -381,10 +361,7 @@ function CalendarStrip() {
           }}
         >
           <Text
-            style={{
-              fontFamily: fontFamily.openSans.bold,
-            }}
-            className={cn("text-sm uppercase", {
+            className={cn("text-sm font-bold uppercase", {
               "text-[#fff]/50":
                 date.toDateString() !== selectedDate.toDateString(),
             })}
@@ -393,10 +370,7 @@ function CalendarStrip() {
           </Text>
           <View className="w-14 items-center justify-center">
             <Text
-              style={{
-                fontFamily: fontFamily.openSans.bold,
-              }}
-              className={cn("text-sm", {
+              className={cn("text-sm font-bold", {
                 "text-[#fff]/50":
                   date.toDateString() !== selectedDate.toDateString(),
               })}

@@ -4,9 +4,7 @@ import { v } from "convex/values";
 
 export const getHabitLogById = query({
   args: { habitLogId: v.id("habitLogs") },
-  handler: async (ctx, { habitLogId }) => {
-    return await ctx.db.get(habitLogId);
-  },
+  handler: async (ctx, { habitLogId }) => await ctx.db.get(habitLogId),
 });
 
 export const getHabitLogsbyHabitId = query({

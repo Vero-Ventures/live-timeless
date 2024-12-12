@@ -1,34 +1,92 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { endOfToday, getDate } from "date-fns";
 
-export type Habit = {
-  _id: string;
-  userId: string;
-  challengeId?: string;
-  dailyRepeat: string[];
-  intervalRepeat: number;
-  monthlyRepeat: number[];
-  name: string;
-  repeatType: string;
-  selectedIcon: string;
-  selectedIconColor: string;
-  timeOfDay: string[];
-  timeReminder: number;
-  startDate: number;
-  unitType: string;
-  unitValue: number;
-  unit: string;
-  recurrence: string;
-  weeks?: number;
-  rate?: number;
-};
+export const getHabitByIdWithLogs = query({
+  args: { habitId: v.id("habits") },
+  handler: async (ctx, { habitId }) => {
+    const habit = await ctx.db.get(habitId);
+
+    if (!habit) {
+      return null;
+    }
+
+    const logs = await ctx.db
+      .query("habitLogs")
+      .filter((q) => q.and(q.eq(q.field("habitId"), habit._id)))
+      .collect();
+
+    return {
+      ...habit,
+      logs,
+    };
+  },
+});
+
+export const getHabitByIdWithLogsForCurrentMonth = query({
+  args: { habitId: v.id("habits"), month: v.number(), year: v.number() },
+  handler: async (ctx, { habitId, year, month }) => {
+    const habit = await ctx.db.get(habitId);
+
+    if (!habit) {
+      return null;
+    }
+
+    const logs = await ctx.db
+      .query("habitLogs")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("habitId"), habit._id),
+          q.eq(q.field("year"), year),
+          q.eq(q.field("month"), month)
+        )
+      )
+      .collect();
+
+    return {
+      ...habit,
+      logs,
+    };
+  },
+});
+
+export const getHabitByIdWithLogForCurrentDay = query({
+  args: {
+    habitId: v.id("habits"),
+    month: v.number(),
+    year: v.number(),
+    day: v.number(),
+  },
+  handler: async (ctx, { habitId, year, month, day }) => {
+    const habit = await ctx.db.get(habitId);
+
+    if (!habit) {
+      return null;
+    }
+
+    const log = await ctx.db
+      .query("habitLogs")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("habitId"), habit._id),
+          q.eq(q.field("year"), year),
+          q.eq(q.field("month"), month),
+          q.eq(q.field("day"), day)
+        )
+      )
+      .first();
+
+    return {
+      ...habit,
+      log,
+    };
+  },
+});
 
 export const getHabitById = query({
   args: { habitId: v.id("habits") },
-  handler: async (ctx, { habitId: habitId }) => {
-    return await ctx.db.get(habitId);
-  },
+  handler: async (ctx, { habitId }) => await ctx.db.get(habitId),
 });
 
 export const listHabits = query({
@@ -41,19 +99,16 @@ export const listHabits = query({
 
     const selectedDate = new Date(date);
 
-    const selectedDateMilliseconds = selectedDate.getTime();
-
     const selectedYear = selectedDate.getFullYear();
     const selectedMonth = selectedDate.getMonth();
-    const selectedDay = selectedDate.getDay();
+    const selectedDay = getDate(selectedDate);
 
-    // Query habits within the date range
     const habits = await ctx.db
       .query("habits")
       .filter((q) =>
         q.and(
           q.eq(q.field("userId"), userId),
-          q.lte(q.field("startDate"), selectedDateMilliseconds)
+          q.lte(q.field("startDate"), endOfToday().getTime())
         )
       )
       .collect();
@@ -92,7 +147,6 @@ export const createHabit = mutation({
     repeatType: v.string(),
     selectedIcon: v.string(),
     selectedIconColor: v.string(),
-    selectedIconBGColor: v.string(),
     timeOfDay: v.array(v.string()),
     timeReminder: v.number(),
     startDate: v.number(),
@@ -135,8 +189,8 @@ export const updateHabit = mutation({
     unit: v.string(),
     recurrence: v.string(),
   },
-  handler: async (ctx, args) => {
-    await ctx.db.patch(args.habitId, args);
+  handler: async (ctx, { habitId, ...updatedData }) => {
+    await ctx.db.patch(habitId, updatedData);
   },
 });
 
@@ -145,23 +199,12 @@ export const deleteHabit = mutation({
     habitId: v.id("habits"),
   },
   handler: async (ctx, { habitId }) => {
-    await ctx.db.delete(habitId);
-  },
-});
-
-export const deleteHabitAndHabitLogs = mutation({
-  args: {
-    habitId: v.id("habits"),
-  },
-  handler: async (ctx, { habitId }) => {
-    const habitLogs = await ctx.db
+    const logs = await ctx.db
       .query("habitLogs")
       .filter((q) => q.eq(q.field("habitId"), habitId))
       .collect();
 
-    for (const habitLog of habitLogs) {
-      await ctx.db.delete(habitLog._id);
-    }
+    await Promise.all(logs.map(async (log) => ctx.db.delete(log._id)));
     await ctx.db.delete(habitId);
   },
 });
