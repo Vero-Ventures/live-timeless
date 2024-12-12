@@ -41,23 +41,7 @@ export default function RewardsPage() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#082139" }}>
       <View className="gap-10 bg-background p-4">
-        <View className="flex flex-row items-center justify-center gap-6">
-          <View className="gap-2">
-            <Text className="text-center text-2xl font-bold">
-              {user?.tokens}
-            </Text>
-            <Text className="text-center text-xs">LT Tokens</Text>
-          </View>
-          <Text>
-            <Coins className="text-primary" size={40} />
-          </Text>
-          <View className="gap-2">
-            <Text className="text-center text-2xl font-bold">
-              ${convertTokensToDollars(user?.tokens ?? 0)}
-            </Text>
-            <Text className="text-center text-xs">CAD</Text>
-          </View>
-        </View>
+        <TokenAndDollarBalance tokens={user?.tokens ?? 0} />
         <View className="gap-3">
           <Text className="text-2xl font-semibold">Available Rewards</Text>
           <SearchInput query={query} />
@@ -75,6 +59,26 @@ export default function RewardsPage() {
         </View>
       )}
     </SafeAreaView>
+  );
+}
+
+function TokenAndDollarBalance({ tokens }: { tokens: number }) {
+  return (
+    <View className="flex flex-row items-center justify-center gap-6">
+      <View className="gap-2">
+        <Text className="text-center text-2xl font-bold">{tokens}</Text>
+        <Text className="text-center text-xs">LT Tokens</Text>
+      </View>
+      <Text>
+        <Coins className="text-primary" size={40} />
+      </Text>
+      <View className="gap-2">
+        <Text className="text-center text-2xl font-bold">
+          ${convertTokensToDollars(tokens)}
+        </Text>
+        <Text className="text-center text-xs">CAD</Text>
+      </View>
+    </View>
   );
 }
 
