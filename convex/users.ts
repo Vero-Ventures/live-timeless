@@ -183,6 +183,21 @@ export const updatePartialProfile = mutation({
   },
 });
 
+export const updateUserTokens = mutation({
+  args: {
+    tokens: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
+    await ctx.db.patch(userId, {
+      tokens: args.tokens,
+    });
+  },
+});
+
 export const deleteUser = mutation({
   args: {
     userId: v.id("users"),

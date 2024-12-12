@@ -16,56 +16,72 @@ import { useAction, useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 import type { ListProductsResponseProductsInner } from "tremendous";
 import { MaterialIcons } from "@expo/vector-icons";
+import { convertTokensToDollars } from "~/lib/tremendous";
 
 export default function RewardsPage() {
-  const [rewards, setRewards] = useState<
+  const [products, setProducts] = useState<
     ListProductsResponseProductsInner[] | null
   >(null);
   const { query } = useLocalSearchParams<{ query?: string }>();
   const user = useQuery(api.users.currentUser);
-  const fetchRewards = useAction(api.tremendous.listRewardsAction);
+  const fetchProducts = useAction(api.tremendous.listProductsAction);
 
   useEffect(() => {
-    fetchRewards().then((products) => setRewards(products));
-  }, [fetchRewards]);
+    fetchProducts().then((products) => setProducts(products));
+  }, [fetchProducts]);
 
-  const filteredRewards = rewards
+  const filteredProducts = products
     ? query
-      ? rewards.filter((reward) =>
+      ? products.filter((reward) =>
           reward.name.toLowerCase().includes(query.toLowerCase())
         )
-      : rewards
+      : products
     : null;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#082139" }}>
       <View className="gap-10 bg-background p-4">
-        <View className="flex flex-row items-center gap-4">
-          <Text>
-            <Coins className="text-primary" size={40} />
-          </Text>
-          <View className="gap-2">
-            <Text className="text-2xl font-bold">{user?.tokens}</Text>
-            <Text className="text-md">LT Token Balance</Text>
-          </View>
-        </View>
+        <TokenAndDollarBalance tokens={user?.tokens ?? 0} />
         <View className="gap-3">
           <Text className="text-2xl font-semibold">Available Rewards</Text>
           <SearchInput query={query} />
         </View>
       </View>
-      {filteredRewards ? (
-        <FlatList
-          data={filteredRewards}
-          ItemSeparatorComponent={() => <View className="py-2" />}
-          renderItem={({ item }) => <RewardItem product={item} />}
-        />
+      {filteredProducts ? (
+        <View>
+          <FlatList
+            contentContainerStyle={{ paddingBottom: 235 }}
+            data={filteredProducts}
+            ItemSeparatorComponent={() => <View className="py-2" />}
+            renderItem={({ item }) => <RewardItem product={item} />}
+          />
+        </View>
       ) : (
         <View className="h-full flex-1 items-center justify-center bg-background">
           <ActivityIndicator />
         </View>
       )}
     </SafeAreaView>
+  );
+}
+
+function TokenAndDollarBalance({ tokens }: { tokens: number }) {
+  return (
+    <View className="flex flex-row items-center justify-center gap-6">
+      <View className="gap-2">
+        <Text className="text-center text-2xl font-bold">{tokens}</Text>
+        <Text className="text-center text-xs">LT Tokens</Text>
+      </View>
+      <Text>
+        <Coins className="text-primary" size={40} />
+      </Text>
+      <View className="gap-2">
+        <Text className="text-center text-2xl font-bold">
+          ${convertTokensToDollars(tokens)}
+        </Text>
+        <Text className="text-center text-xs">CAD</Text>
+      </View>
+    </View>
   );
 }
 
