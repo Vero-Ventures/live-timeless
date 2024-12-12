@@ -40,6 +40,7 @@
     "@react-navigation/native": "^7.0.0",
     "@rn-primitives/accordion": "^1.1.0",
     "@rn-primitives/avatar": "^1.0.3",
+    "@rn-primitives/dialog": "^1.1.0",
     "@rn-primitives/label": "^1.0.3",
     "@rn-primitives/select": "^1.0.4",
     "@rn-primitives/separator": "^1.0.3",
@@ -47,6 +48,7 @@
     "@rn-primitives/tabs": "^1.0.3",
     "@rn-primitives/types": "^1.1.0",
     "ai": "^3.3.8",
+    "big.js": "^6.2.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "convex": "^1.14.0",
@@ -98,6 +100,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@types/big.js": "^6.2.2",
     "@types/jest": "^29.5.12",
     "@types/react": "~18.3.12",
     "@types/react-test-renderer": "^18.0.7",
