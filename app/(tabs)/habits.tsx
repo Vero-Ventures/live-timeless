@@ -10,7 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Link, SplashScreen, router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { CheckIcon, Plus } from "lucide-react-native";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
@@ -20,6 +20,10 @@ import { HABIT_ICONS } from "~/constants/habit-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { FunctionReturnType } from "convex/server";
 import { addDays, getDate, isToday, isTomorrow, isYesterday } from "date-fns";
+
+type Habit = NonNullable<
+  FunctionReturnType<typeof api.habits.listHabits>
+>[number];
 
 export default function HabitsPage() {
   useEffect(() => {
@@ -83,40 +87,63 @@ function HabitList() {
     date: selectedDate.toDateString(),
   });
 
+  const { completedHabits, notCompletedHabits } = useMemo(() => {
+    let notCompletedHabits: Habit[] = [];
+    let completedHabits: Habit[] = [];
+
+    habits?.forEach((h) =>
+      h.log?.isComplete ? completedHabits.push(h) : notCompletedHabits.push(h)
+    );
+    return { notCompletedHabits, completedHabits };
+  }, [habits]);
+
   return !habits ? (
     <View className="mt-10 flex-1 gap-2">
       <ActivityIndicator />
     </View>
+  ) : habits.length === 0 ? (
+    <View className="h-full justify-center gap-6 px-4">
+      <Text className="text-center text-2xl font-bold">
+        Welcome to Live Timeless!
+      </Text>
+      <Text className="text-center">
+        Our habit tracker shows your progress day by day. Unlock your potential
+        and start your journey today!
+      </Text>
+      <Link href="/habits/create" asChild>
+        <Button>
+          <Text>Build a habit</Text>
+        </Button>
+      </Link>
+    </View>
   ) : (
-    <FlatList
-      contentContainerStyle={{
-        flex: 1,
-      }}
-      data={habits}
-      ItemSeparatorComponent={() => (
-        <Separator className="h-0.5 bg-[#fff]/10" />
-      )}
-      ListEmptyComponent={() => (
-        <View className="h-full justify-center gap-6 px-4">
-          <Text className="text-center text-2xl font-bold">
-            Welcome to Live Timeless!
-          </Text>
-          <Text className="text-center">
-            Our habit tracker shows your progress day by day. Unlock your
-            potential and start your journey today!
-          </Text>
-          <Link href="/habits/create" asChild>
-            <Button>
-              <Text>Build a habit</Text>
-            </Button>
-          </Link>
-        </View>
-      )}
-      renderItem={({ item }) => (
-        <HabitItem habit={item} selectedDate={selectedDate} />
-      )}
-      keyExtractor={(item) => item._id.toString()}
-    />
+    <>
+      <View>
+        <FlatList
+          data={notCompletedHabits}
+          ItemSeparatorComponent={() => (
+            <Separator className="h-0.5 bg-[#fff]/10" />
+          )}
+          renderItem={({ item }) => (
+            <HabitItem habit={item} selectedDate={selectedDate} />
+          )}
+          keyExtractor={(item) => item._id.toString()}
+        />
+      </View>
+      <View className="flex-1">
+        <Text className="my-4 pl-4 text-xl font-bold">{`Completed (${completedHabits?.length})`}</Text>
+        <FlatList
+          data={completedHabits}
+          ItemSeparatorComponent={() => (
+            <Separator className="h-0.5 bg-[#fff]/10" />
+          )}
+          renderItem={({ item }) => (
+            <HabitItem habit={item} selectedDate={selectedDate} />
+          )}
+          keyExtractor={(item) => item._id.toString()}
+        />
+      </View>
+    </>
   );
 }
 
@@ -124,7 +151,7 @@ function HabitItem({
   habit,
   selectedDate,
 }: {
-  habit: NonNullable<FunctionReturnType<typeof api.habits.listHabits>>[number];
+  habit: Habit;
   selectedDate: Date;
 }) {
   const year = selectedDate.getFullYear();
