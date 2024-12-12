@@ -1,4 +1,5 @@
-import { View, Text } from "react-native";
+import { View } from "react-native";
+import { Text } from "../ui/text";
 
 interface StatCardProps {
   titleIcon?: React.ReactNode;
@@ -6,7 +7,7 @@ interface StatCardProps {
   value: string;
 }
 
-const StatCard = ({ titleIcon, title, value }: StatCardProps) => {
+export function StatCard({ titleIcon, title, value }: StatCardProps) {
   return (
     <View className="flex-1 flex-col gap-1 rounded-xl bg-card p-4">
       <View className="flex flex-row items-center gap-2">
@@ -16,5 +17,4 @@ const StatCard = ({ titleIcon, title, value }: StatCardProps) => {
       <Text className="text-xl font-bold text-white">{value}</Text>
     </View>
   );
-};
-export { StatCard };
+}
