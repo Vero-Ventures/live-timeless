@@ -328,7 +328,7 @@ export const getChallengeParticipants = query({
       )
       .collect();
 
-    return await Promise.all(
+    const participants = await Promise.all(
       challengeParticipants.map(async (participant) => {
         const profile = await ctx.db.get(participant.userId);
         return {
@@ -337,5 +337,7 @@ export const getChallengeParticipants = query({
         };
       })
     );
+
+    return participants;
   },
 });
