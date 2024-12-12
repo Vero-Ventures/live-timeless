@@ -174,20 +174,7 @@ function RedeemDialog({
         <DialogHeader>
           <DialogTitle>{productName}</DialogTitle>
           {hasRedeemed ? (
-            <View className="mt-6 gap-6">
-              <Text className="text-center text-lg font-semibold">
-                Congratulations!
-              </Text>
-              <CircleCheckBig className="mx-auto text-green-500" size={55} />
-              <View className="gap-2">
-                <Text className="text-center text-lg font-semibold">
-                  Your ${unitValue} Gift Card is Ready!
-                </Text>
-                <Text className="text-center">
-                  Check your email for the redemption link and instructions.
-                </Text>
-              </View>
-            </View>
+            <GiftCardSuccessScreen unitValue={unitValue} />
           ) : (
             <>
               <Text className="mt-3">
@@ -262,5 +249,24 @@ function RedeemDialog({
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+function GiftCardSuccessScreen({ unitValue }: { unitValue: number }) {
+  return (
+    <View className="mt-6 gap-6">
+      <Text className="text-center text-lg font-semibold">
+        Congratulations!
+      </Text>
+      <CircleCheckBig className="mx-auto text-green-500" size={55} />
+      <View className="gap-2">
+        <Text className="text-center text-lg font-semibold">
+          Your ${unitValue} Gift Card is Ready!
+        </Text>
+        <Text className="text-center">
+          Check your email for the redemption link and instructions.
+        </Text>
+      </View>
+    </View>
   );
 }
