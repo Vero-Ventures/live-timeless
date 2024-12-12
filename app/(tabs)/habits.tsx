@@ -216,23 +216,17 @@ function HabitList() {
                     <Separator className="h-0.5 bg-[#fff]/10" />
                   )}
                   renderItem={(props) => {
-                    if (isHabit(props.item)) {
-                      return (
-                        <HabitItem
-                          habit={props.item}
-                          selectedDate={selectedDate}
-                        />
-                      );
-                    }
-                    if (isChallenge(props.item)) {
-                      return (
-                        <ChallengeItem
-                          challenge={props.item}
-                          selectedDate={selectedDate}
-                        />
-                      );
-                    }
-                    return null;
+                    return isChallenge(props.item) ? (
+                      <ChallengeItem
+                        challenge={props.item}
+                        selectedDate={selectedDate}
+                      />
+                    ) : (
+                      <HabitItem
+                        habit={props.item}
+                        selectedDate={selectedDate}
+                      />
+                    );
                   }}
                   keyExtractor={(item) => item._id.toString()}
                 />
@@ -245,10 +239,7 @@ function HabitList() {
   );
 }
 
-function isHabit(item: Habit | Challenge): item is Habit {
-  return !("tokens" in item);
-}
-function isChallenge(item: Habit | Challenge): item is Habit {
+function isChallenge(item: Habit | Challenge): item is Challenge {
   return "tokens" in item;
 }
 
