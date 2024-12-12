@@ -48,11 +48,14 @@ export default function RewardsPage() {
         </View>
       </View>
       {filteredProducts ? (
-        <FlatList
-          data={filteredProducts}
-          ItemSeparatorComponent={() => <View className="py-2" />}
-          renderItem={({ item }) => <RewardItem product={item} />}
-        />
+        <View>
+          <FlatList
+            contentContainerStyle={{ paddingBottom: 235 }}
+            data={filteredProducts}
+            ItemSeparatorComponent={() => <View className="py-2" />}
+            renderItem={({ item }) => <RewardItem product={item} />}
+          />
+        </View>
       ) : (
         <View className="h-full flex-1 items-center justify-center bg-background">
           <ActivityIndicator />
