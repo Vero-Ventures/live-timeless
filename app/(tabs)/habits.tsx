@@ -35,6 +35,22 @@ type Challenge = NonNullable<
   FunctionReturnType<typeof api.challenges.listCurrentUsersChallenges>
 >[number];
 
+function getTimeBasedGreeting(): string {
+  const currentHour = new Date().getHours();
+
+  let greeting = "Hello";
+
+  if (currentHour >= 5 && currentHour < 12) {
+    greeting = "Good Morning";
+  } else if (currentHour >= 12 && currentHour < 18) {
+    greeting = "Good Afternoon";
+  } else if (currentHour >= 18 || currentHour < 5) {
+    greeting = "Good Night";
+  }
+
+  return greeting;
+}
+
 export default function HabitsPage() {
   useEffect(() => {
     SplashScreen.hideAsync();
@@ -51,7 +67,9 @@ export default function HabitsPage() {
     >
       <View className="habit-container">
         <DateHeading />
-        <Text className="ml-4 text-2xl font-bold">Habits</Text>
+        <Text className="ml-4 text-2xl font-bold">
+          {getTimeBasedGreeting()}
+        </Text>
         <Separator className="mt-6 bg-[#fff]/10" />
         <HabitList />
       </View>
