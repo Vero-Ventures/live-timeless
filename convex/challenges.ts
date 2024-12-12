@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { getDate, isAfter, isBefore } from "date-fns";
 
 export const getChallengeByIdWthHasJoined = query({
   args: { challengeId: v.id("challenges") },
@@ -57,6 +58,39 @@ export const getChallengeById = query({
   },
 });
 
+export const getChallengeByIdWithLogForCurrentDay = query({
+  args: {
+    challengeId: v.id("challenges"),
+    month: v.number(),
+    year: v.number(),
+    day: v.number(),
+  },
+  handler: async (ctx, { challengeId, year, month, day }) => {
+    const challenge = await ctx.db.get(challengeId);
+
+    if (!challenge) {
+      return null;
+    }
+
+    const log = await ctx.db
+      .query("challengeLogs")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("challengeId"), challenge._id),
+          q.eq(q.field("year"), year),
+          q.eq(q.field("month"), month),
+          q.eq(q.field("day"), day)
+        )
+      )
+      .first();
+
+    return {
+      ...challenge,
+      log,
+    };
+  },
+});
+
 export const listChallenges = query({
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
@@ -78,6 +112,75 @@ export const listChallenges = query({
       .collect();
 
     return challenges;
+  },
+});
+
+export const listCurrentUsersChallenges = query({
+  args: { date: v.string() },
+  handler: async (ctx, { date }) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Not logged in");
+    }
+
+    const user = await ctx.db.get(userId);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const joinedChallenges = await ctx.db
+      .query("challengeParticipants")
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .collect();
+
+    const challenges = await Promise.all(
+      joinedChallenges.map(async (c) => ctx.db.get(c.challengeId))
+    );
+
+    const selectedDate = new Date(date);
+
+    const selectedYear = selectedDate.getFullYear();
+    const selectedMonth = selectedDate.getMonth();
+    const selectedDay = getDate(selectedDate);
+
+    const onGoingChallenges = challenges
+      .filter((c) => c != null)
+      .filter((c) => {
+        // For some reason type checker for convex is detecting these as nullable
+        const startDate = new Date(c?.startDate ?? "");
+        const endDate = new Date(c?.endDate ?? "");
+
+        const isInBetweenStartDateAndEndDate =
+          isAfter(selectedDate, startDate) && isBefore(selectedDate, endDate);
+
+        return (
+          selectedDate.toDateString() === startDate.toDateString() ||
+          selectedDate.toDateString() === endDate.toDateString() ||
+          isInBetweenStartDateAndEndDate
+        );
+      });
+
+    const onGoingChallengesWithLogs = await Promise.all(
+      onGoingChallenges.map(async (c) => {
+        const log = await ctx.db
+          .query("challengeLogs")
+          .filter((q) =>
+            q.and(
+              q.eq(q.field("challengeId"), c?._id),
+              q.eq(q.field("year"), selectedYear),
+              q.eq(q.field("month"), selectedMonth),
+              q.eq(q.field("day"), selectedDay)
+            )
+          )
+          .first();
+        return {
+          ...c,
+          log,
+        };
+      })
+    );
+    return onGoingChallengesWithLogs;
   },
 });
 
