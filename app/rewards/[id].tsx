@@ -229,7 +229,7 @@ function RedeemDialog({
         ) : (
           <DialogFooter>
             <Button
-              disabled={isRedeeming}
+              disabled={isRedeeming || convertedDollars < unitValue}
               onPress={async () => {
                 setIsRedeeming(true);
 
