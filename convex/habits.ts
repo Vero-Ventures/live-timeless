@@ -133,18 +133,7 @@ export const listHabits = query({
       })
     );
 
-    return habitsWithLogs.sort((a, b) => {
-      // Handle cases with no logs or undefined isComplete
-      if (!a.log) return -1;
-      if (!b.log) return 1;
-
-      // Sort by completion status: not completed first, completed last
-      return a.log.isComplete === b.log.isComplete
-        ? 0
-        : a.log.isComplete
-          ? 1
-          : -1;
-    });
+    return habitsWithLogs;
   },
 });
 
