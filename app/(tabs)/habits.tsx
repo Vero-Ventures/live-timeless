@@ -20,6 +20,12 @@ import { HABIT_ICONS } from "~/constants/habit-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { FunctionReturnType } from "convex/server";
 import { addDays, getDate, isToday, isTomorrow, isYesterday } from "date-fns";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
 
 type Habit = NonNullable<
   FunctionReturnType<typeof api.habits.listHabits>
@@ -131,17 +137,25 @@ function HabitList() {
         />
       </View>
       <View className="flex-1">
-        <Text className="my-4 pl-4 text-xl font-bold">{`Completed (${completedHabits?.length})`}</Text>
-        <FlatList
-          data={completedHabits}
-          ItemSeparatorComponent={() => (
-            <Separator className="h-0.5 bg-[#fff]/10" />
-          )}
-          renderItem={({ item }) => (
-            <HabitItem habit={item} selectedDate={selectedDate} />
-          )}
-          keyExtractor={(item) => item._id.toString()}
-        />
+        <Accordion type="multiple" collapsible defaultValue={["item-1"]}>
+          <AccordionItem value="item-1" className="border-0">
+            <AccordionTrigger className="px-4">
+              <Text className="my-4 text-xl font-bold">{`Completed (${completedHabits?.length})`}</Text>
+            </AccordionTrigger>
+            <AccordionContent className="p-0">
+              <FlatList
+                data={completedHabits}
+                ItemSeparatorComponent={() => (
+                  <Separator className="h-0.5 bg-[#fff]/10" />
+                )}
+                renderItem={({ item }) => (
+                  <HabitItem habit={item} selectedDate={selectedDate} />
+                )}
+                keyExtractor={(item) => item._id.toString()}
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </View>
     </>
   );
