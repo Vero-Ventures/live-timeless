@@ -140,7 +140,7 @@ function HabitList() {
         <Accordion type="multiple" collapsible defaultValue={["item-1"]}>
           <AccordionItem value="item-1" className="border-0">
             <AccordionTrigger className="px-4">
-              <Text className="my-4 text-xl font-bold">{`Completed (${completedHabits?.length})`}</Text>
+              <Text className="my-4 text-xl font-bold">{`${completedHabits.length} Completed`}</Text>
             </AccordionTrigger>
             <AccordionContent className="p-0">
               <FlatList
