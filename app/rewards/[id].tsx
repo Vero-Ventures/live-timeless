@@ -250,7 +250,13 @@ function RedeemDialog({
                 setHasRedeemed(true);
               }}
             >
-              <Text>{isRedeeming ? "Redeeming..." : "Redeem"}</Text>
+              <Text>
+                {isRedeeming
+                  ? "Redeeming..."
+                  : convertedDollars < unitValue
+                    ? "Insufficient Tokens"
+                    : "Redeem"}
+              </Text>
             </Button>
           </DialogFooter>
         )}
