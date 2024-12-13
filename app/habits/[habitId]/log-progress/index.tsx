@@ -9,7 +9,6 @@ import { Input } from "~/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { AlertCircle } from "lucide-react-native";
 import FormSubmitButton from "~/components/form-submit-button";
-import { getDate } from "date-fns";
 
 export default function LogProgressScreen() {
   const { habitId, date } = useLocalSearchParams<{
@@ -24,7 +23,7 @@ export default function LogProgressScreen() {
 
   const year = selectedDate.getFullYear();
   const month = selectedDate.getMonth();
-  const day = getDate(selectedDate);
+  const day = selectedDate.getDate();
 
   const habit = useQuery(api.habits.getHabitByIdWithLogForCurrentDay, {
     habitId,

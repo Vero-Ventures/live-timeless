@@ -9,7 +9,6 @@ import { Input } from "~/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { AlertCircle } from "lucide-react-native";
 import FormSubmitButton from "~/components/form-submit-button";
-import { getDate } from "date-fns";
 
 export default function LogChallengeProgressScreen() {
   const { id, date } = useLocalSearchParams<{
@@ -24,7 +23,7 @@ export default function LogChallengeProgressScreen() {
 
   const year = selectedDate.getFullYear();
   const month = selectedDate.getMonth();
-  const day = getDate(selectedDate);
+  const day = selectedDate.getDate();
 
   const challenge = useQuery(
     api.challenges.getChallengeByIdWithLogForCurrentDay,

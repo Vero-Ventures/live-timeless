@@ -19,7 +19,7 @@ import { api } from "~/convex/_generated/api";
 import { HABIT_ICONS } from "~/constants/habit-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { FunctionReturnType } from "convex/server";
-import { addDays, getDate, isToday, isTomorrow, isYesterday } from "date-fns";
+import { addDays, isToday, isTomorrow, isYesterday } from "date-fns";
 import {
   Accordion,
   AccordionContent,
@@ -112,6 +112,7 @@ function HabitList() {
   const today = new Date();
   const selectedDate = date ? new Date(Number(date)) : today;
   const selectedDateString = selectedDate.toDateString();
+
   const habits = useQuery(api.habits.listHabits, {
     date: selectedDateString,
   });
@@ -252,7 +253,7 @@ function HabitItem({
 }) {
   const year = selectedDate.getFullYear();
   const month = selectedDate.getMonth();
-  const day = getDate(selectedDate);
+  const day = selectedDate.getDate();
   const createHabitLog = useMutation(api.habitLogs.createHabitLog);
   const updateHabitLog = useMutation(api.habitLogs.updateHabitLog);
 
@@ -408,7 +409,7 @@ function ChallengeItem({
 }) {
   const year = selectedDate.getFullYear();
   const month = selectedDate.getMonth();
-  const day = getDate(selectedDate);
+  const day = selectedDate.getDate();
   const createChallengeLog = useMutation(api.challengeLogs.createChallengeLog);
   const updateChallengeLog = useMutation(api.challengeLogs.updateChallengeLog);
 

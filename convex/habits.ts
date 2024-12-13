@@ -1,7 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { endOfToday, getDate } from "date-fns";
+import { endOfToday } from "date-fns";
 
 export const getHabitByIdWithLogs = query({
   args: { habitId: v.id("habits") },
@@ -101,7 +101,7 @@ export const listHabits = query({
 
     const selectedYear = selectedDate.getFullYear();
     const selectedMonth = selectedDate.getMonth();
-    const selectedDay = getDate(selectedDate);
+    const selectedDay = selectedDate.getDate();
 
     const habits = await ctx.db
       .query("habits")

@@ -1,7 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { getDate, isAfter, isBefore } from "date-fns";
+import { isAfter, isBefore } from "date-fns";
 
 export const getChallengeByIdWthHasJoined = query({
   args: { challengeId: v.id("challenges") },
@@ -142,7 +142,7 @@ export const listCurrentUsersChallenges = query({
 
     const selectedYear = selectedDate.getFullYear();
     const selectedMonth = selectedDate.getMonth();
-    const selectedDay = getDate(selectedDate);
+    const selectedDay = selectedDate.getDate();
 
     const onGoingChallenges = challenges
       .filter((c) => c != null)
