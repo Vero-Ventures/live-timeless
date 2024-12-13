@@ -66,6 +66,10 @@ export const getChallengeByIdWithLogForCurrentDay = query({
     day: v.number(),
   },
   handler: async (ctx, { challengeId, year, month, day }) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Not logged in");
+    }
     const challenge = await ctx.db.get(challengeId);
 
     if (!challenge) {
@@ -77,6 +81,7 @@ export const getChallengeByIdWithLogForCurrentDay = query({
       .filter((q) =>
         q.and(
           q.eq(q.field("challengeId"), challenge._id),
+          q.eq(q.field("userId"), userId),
           q.eq(q.field("year"), year),
           q.eq(q.field("month"), month),
           q.eq(q.field("day"), day)
@@ -121,12 +126,6 @@ export const listCurrentUsersChallenges = query({
     const userId = await getAuthUserId(ctx);
     if (!userId) {
       throw new Error("Not logged in");
-    }
-
-    const user = await ctx.db.get(userId);
-
-    if (!user) {
-      throw new Error("User not found");
     }
 
     const joinedChallenges = await ctx.db

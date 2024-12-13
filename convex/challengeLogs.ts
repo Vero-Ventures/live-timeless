@@ -16,12 +16,12 @@ export const createChallengeLog = mutation({
     if (userId === null) {
       return null;
     }
-    const challengeLog = await ctx.db.insert("challengeLogs", {
+    const challengeLogId = await ctx.db.insert("challengeLogs", {
       ...args,
       userId,
     });
 
-    if (!challengeLog) {
+    if (!challengeLogId) {
       throw new Error("Error creating challenge log");
     }
 
@@ -44,7 +44,7 @@ export const createChallengeLog = mutation({
         challengeParticipant.totalUnitsCompleted + args.unitsCompleted,
     });
 
-    return challengeLog;
+    return challengeLogId;
   },
 });
 
