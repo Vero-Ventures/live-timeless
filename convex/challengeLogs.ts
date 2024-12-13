@@ -16,9 +16,32 @@ export const createChallengeLog = mutation({
     if (userId === null) {
       return null;
     }
-    const habitId = await ctx.db.insert("challengeLogs", args);
+    const challengeLog = await ctx.db.insert("challengeLogs", args);
 
-    return habitId;
+    if (!challengeLog) {
+      throw new Error("Error creating challenge log");
+    }
+
+    const challengeParticipant = await ctx.db
+      .query("challengeParticipants")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("challengeId"), args.challengeId),
+          q.eq(q.field("userId"), userId)
+        )
+      )
+      .first();
+
+    if (!challengeParticipant) {
+      throw new Error("You have not joined the challenge");
+    }
+
+    await ctx.db.patch(challengeParticipant._id, {
+      totalUnitsCompleted:
+        challengeParticipant.totalUnitsCompleted + args.unitsCompleted,
+    });
+
+    return challengeLog;
   },
 });
 
@@ -26,9 +49,43 @@ export const updateChallengeLog = mutation({
   args: {
     challengeLogId: v.id("challengeLogs"),
     isComplete: v.optional(v.boolean()),
-    unitsCompleted: v.optional(v.number()),
+    unitsCompleted: v.number(),
   },
   handler: async (ctx, { challengeLogId, ...updateData }) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
+    const challengeLog = await ctx.db
+      .query("challengeLogs")
+      .filter((q) => q.eq(q.field("_id"), challengeLogId))
+      .first();
+
+    if (!challengeLog) {
+      throw new Error("There is no log for this challenge yet.");
+    }
+
+    const challengeParticipant = await ctx.db
+      .query("challengeParticipants")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("challengeId"), challengeLog.challengeId),
+          q.eq(q.field("userId"), userId)
+        )
+      )
+      .first();
+
+    if (!challengeParticipant) {
+      throw new Error("You have not joined the challenge");
+    }
+
+    await ctx.db.patch(challengeParticipant._id, {
+      totalUnitsCompleted:
+        challengeParticipant.totalUnitsCompleted +
+        updateData.unitsCompleted -
+        challengeLog.unitsCompleted,
+    });
+
     await ctx.db.patch(challengeLogId, updateData);
   },
 });
