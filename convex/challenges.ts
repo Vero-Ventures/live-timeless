@@ -309,6 +309,14 @@ export const deleteChallenge = mutation({
       .filter((q) => q.eq(q.field("challengeId"), challenge._id))
       .collect();
 
+    const challengeParticipants = await ctx.db
+      .query("challengeParticipants")
+      .filter((q) => q.eq(q.field("challengeId"), challenge._id))
+      .collect();
+
+    await Promise.all(
+      challengeParticipants.map(async (c) => ctx.db.delete(c._id))
+    );
     await Promise.all(challengeLogs.map(async (c) => ctx.db.delete(c._id)));
     await ctx.db.delete(challengeId);
   },
