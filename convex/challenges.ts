@@ -193,11 +193,11 @@ export const createChallenge = mutation({
     unitValue: v.number(),
     unit: v.string(),
     recurrence: v.string(),
-    startDate: v.number(),
-    endDate: v.number(),
+    startDateString: v.string(),
+    endDateString: v.string(),
     tokens: v.number(),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, { startDateString, endDateString, ...args }) => {
     const userId = await getAuthUserId(ctx);
 
     if (!userId) {
@@ -217,6 +217,8 @@ export const createChallenge = mutation({
     await ctx.db.insert("challenges", {
       ...args,
       organizationId: user.organizationId,
+      startDate: new Date(startDateString).getTime(),
+      endDate: new Date(endDateString).getTime(),
     });
   },
 });
@@ -231,11 +233,14 @@ export const updateChallenge = mutation({
     unitValue: v.number(),
     unit: v.string(),
     recurrence: v.string(),
-    startDate: v.number(),
-    endDate: v.number(),
+    startDateString: v.string(),
+    endDateString: v.string(),
     tokens: v.number(),
   },
-  handler: async (ctx, { challengeId, ...args }) => {
+  handler: async (
+    ctx,
+    { challengeId, startDateString, endDateString, ...args }
+  ) => {
     const userId = await getAuthUserId(ctx);
 
     if (!userId) {
@@ -261,7 +266,11 @@ export const updateChallenge = mutation({
       throw new Error("User doesn't belong in the organization");
     }
 
-    await ctx.db.patch(challengeId, args);
+    await ctx.db.patch(challengeId, {
+      ...args,
+      startDate: new Date(startDateString).getTime(),
+      endDate: new Date(endDateString).getTime(),
+    });
   },
 });
 

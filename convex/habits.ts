@@ -1,7 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { endOfToday } from "date-fns";
+import { endOfDay } from "date-fns";
 
 export const getHabitByIdWithLogs = query({
   args: { habitId: v.id("habits") },
@@ -108,7 +108,7 @@ export const listHabits = query({
       .filter((q) =>
         q.and(
           q.eq(q.field("userId"), userId),
-          q.lte(q.field("startDate"), endOfToday().getTime())
+          q.lte(q.field("startDate"), endOfDay(selectedDate).getTime())
         )
       )
       .collect();
@@ -148,15 +148,15 @@ export const createHabit = mutation({
     selectedIcon: v.string(),
     selectedIconColor: v.string(),
     timeOfDay: v.array(v.string()),
-    timeReminder: v.number(),
-    startDate: v.number(),
+    timeReminderString: v.string(),
+    startDateString: v.string(),
     unitType: v.string(),
     unitValue: v.number(),
     unit: v.string(),
     recurrence: v.string(),
     rate: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, { startDateString, timeReminderString, ...args }) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) {
       return null;
@@ -165,6 +165,8 @@ export const createHabit = mutation({
     const habitId = await ctx.db.insert("habits", {
       ...args,
       userId,
+      startDate: new Date(startDateString).getTime(),
+      timeReminder: new Date(timeReminderString).getTime(),
     });
 
     return habitId;
@@ -182,15 +184,22 @@ export const updateHabit = mutation({
     dailyRepeat: v.array(v.string()),
     monthlyRepeat: v.array(v.float64()),
     intervalRepeat: v.float64(),
-    timeReminder: v.number(),
-    startDate: v.number(),
+    timeReminderString: v.string(),
+    startDateString: v.string(),
     unitType: v.string(),
     unitValue: v.float64(),
     unit: v.string(),
     recurrence: v.string(),
   },
-  handler: async (ctx, { habitId, ...updatedData }) => {
-    await ctx.db.patch(habitId, updatedData);
+  handler: async (
+    ctx,
+    { habitId, startDateString, timeReminderString, ...updatedData }
+  ) => {
+    await ctx.db.patch(habitId, {
+      ...updatedData,
+      startDate: new Date(startDateString).getTime(),
+      timeReminder: new Date(timeReminderString).getTime(),
+    });
   },
 });
 
