@@ -22,6 +22,17 @@ export const createChallengeLog = mutation({
   },
 });
 
+export const updateChallengeLog = mutation({
+  args: {
+    challengeLogId: v.id("challengeLogs"),
+    isComplete: v.optional(v.boolean()),
+    unitsCompleted: v.optional(v.number()),
+  },
+  handler: async (ctx, { challengeLogId, ...updateData }) => {
+    await ctx.db.patch(challengeLogId, updateData);
+  },
+});
+
 export const getChallengeLogsById = query({
   args: { challengeId: v.id("challenges") },
   handler: async (ctx, { challengeId }) => {

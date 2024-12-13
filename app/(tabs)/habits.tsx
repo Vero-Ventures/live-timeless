@@ -31,6 +31,26 @@ type Habit = NonNullable<
   FunctionReturnType<typeof api.habits.listHabits>
 >[number];
 
+type Challenge = NonNullable<
+  FunctionReturnType<typeof api.challenges.listCurrentUsersChallenges>
+>[number];
+
+function getTimeBasedGreeting(): string {
+  const currentHour = new Date().getHours();
+
+  let greeting = "Hello";
+
+  if (currentHour >= 5 && currentHour < 12) {
+    greeting = "Good Morning";
+  } else if (currentHour >= 12 && currentHour < 18) {
+    greeting = "Good Afternoon";
+  } else if (currentHour >= 18 || currentHour < 5) {
+    greeting = "Good Night";
+  }
+
+  return greeting;
+}
+
 export default function HabitsPage() {
   useEffect(() => {
     SplashScreen.hideAsync();
@@ -47,7 +67,9 @@ export default function HabitsPage() {
     >
       <View className="habit-container">
         <DateHeading />
-        <Text className="ml-4 text-2xl font-bold">Habits</Text>
+        <Text className="ml-4 text-2xl font-bold">
+          {getTimeBasedGreeting()}
+        </Text>
         <Separator className="mt-6 bg-[#fff]/10" />
         <HabitList />
       </View>
@@ -89,8 +111,13 @@ function HabitList() {
   const { date } = useLocalSearchParams<{ date?: string }>();
   const today = new Date();
   const selectedDate = date ? new Date(Number(date)) : today;
+  const selectedDateString = selectedDate.toDateString();
   const habits = useQuery(api.habits.listHabits, {
-    date: selectedDate.toDateString(),
+    date: selectedDateString,
+  });
+
+  const challenges = useQuery(api.challenges.listCurrentUsersChallenges, {
+    date: selectedDateString,
   });
 
   const { completedHabits, notCompletedHabits } = useMemo(() => {
@@ -100,14 +127,28 @@ function HabitList() {
     habits?.forEach((h) =>
       h.log?.isComplete ? completedHabits.push(h) : notCompletedHabits.push(h)
     );
+
     return { notCompletedHabits, completedHabits };
   }, [habits]);
 
-  return !habits ? (
+  const { completedChallenges, notCompletedChallenges } = useMemo(() => {
+    let notCompletedChallenges: Challenge[] = [];
+    let completedChallenges: Challenge[] = [];
+
+    challenges?.forEach((c) =>
+      c.log?.isComplete
+        ? completedChallenges.push(c)
+        : notCompletedChallenges.push(c)
+    );
+
+    return { notCompletedChallenges, completedChallenges };
+  }, [challenges]);
+
+  return !habits || !challenges ? (
     <View className="mt-10 flex-1 gap-2">
       <ActivityIndicator />
     </View>
-  ) : habits.length === 0 ? (
+  ) : habits.length === 0 && challenges.length === 0 ? (
     <View className="h-full justify-center gap-6 px-4">
       <Text className="text-center text-2xl font-bold">
         Welcome to Live Timeless!
@@ -136,29 +177,70 @@ function HabitList() {
           keyExtractor={(item) => item._id.toString()}
         />
       </View>
-      <View className="flex-1">
-        <Accordion type="multiple" collapsible defaultValue={["item-1"]}>
-          <AccordionItem value="item-1" className="border-0">
-            <AccordionTrigger className="px-4">
-              <Text className="my-4 text-xl font-bold">{`${completedHabits.length} Completed`}</Text>
-            </AccordionTrigger>
-            <AccordionContent className="p-0">
-              <FlatList
-                data={completedHabits}
-                ItemSeparatorComponent={() => (
-                  <Separator className="h-0.5 bg-[#fff]/10" />
-                )}
-                renderItem={({ item }) => (
-                  <HabitItem habit={item} selectedDate={selectedDate} />
-                )}
-                keyExtractor={(item) => item._id.toString()}
-              />
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </View>
+      {!!notCompletedChallenges && notCompletedChallenges.length > 0 && (
+        <View>
+          <Accordion type="multiple" collapsible defaultValue={["item-1"]}>
+            <AccordionItem value="item-1" className="border-0">
+              <AccordionTrigger className="px-4">
+                <Text className="my-4 text-xl font-bold">Challenges</Text>
+              </AccordionTrigger>
+              <AccordionContent className="p-0">
+                <FlatList
+                  data={notCompletedChallenges}
+                  ItemSeparatorComponent={() => (
+                    <Separator className="h-0.5 bg-[#fff]/10" />
+                  )}
+                  renderItem={({ item }) => (
+                    <ChallengeItem
+                      challenge={item}
+                      selectedDate={selectedDate}
+                    />
+                  )}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </View>
+      )}
+      {(completedHabits.length > 0 || completedChallenges.length > 0) && (
+        <View>
+          <Accordion type="multiple" collapsible defaultValue={["item-1"]}>
+            <AccordionItem value="item-1" className="border-0">
+              <AccordionTrigger className="px-4">
+                <Text className="my-4 text-xl font-bold">{`${completedHabits.length + completedChallenges.length} Completed`}</Text>
+              </AccordionTrigger>
+              <AccordionContent className="p-0">
+                <FlatList
+                  data={[...completedHabits, ...completedChallenges]}
+                  ItemSeparatorComponent={() => (
+                    <Separator className="h-0.5 bg-[#fff]/10" />
+                  )}
+                  renderItem={(props) => {
+                    return isChallenge(props.item) ? (
+                      <ChallengeItem
+                        challenge={props.item}
+                        selectedDate={selectedDate}
+                      />
+                    ) : (
+                      <HabitItem
+                        habit={props.item}
+                        selectedDate={selectedDate}
+                      />
+                    );
+                  }}
+                  keyExtractor={(item) => item._id.toString()}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </View>
+      )}
     </>
   );
+}
+
+function isChallenge(item: Habit | Challenge): item is Challenge {
+  return "tokens" in item;
 }
 
 function HabitItem({
@@ -308,6 +390,151 @@ function HabitItem({
         <Button
           className="flex-row items-center gap-2 bg-input"
           onPress={handleLogProgressHabits}
+        >
+          <Text className="text-white">Log</Text>
+          <MaterialCommunityIcons name="keyboard" size={16} color="white" />
+        </Button>
+      )}
+    </View>
+  );
+}
+
+function ChallengeItem({
+  challenge,
+  selectedDate,
+}: {
+  challenge: Challenge;
+  selectedDate: Date;
+}) {
+  const year = selectedDate.getFullYear();
+  const month = selectedDate.getMonth();
+  const day = getDate(selectedDate);
+  const createChallengeLog = useMutation(api.challengeLogs.createChallengeLog);
+  const updateChallengeLog = useMutation(api.challengeLogs.updateChallengeLog);
+
+  async function handleLogTimesChallenges() {
+    if (!challenge.log) {
+      const newLogId = await createChallengeLog({
+        challengeId: challenge._id,
+        isComplete: challenge.unitValue === 1,
+        year,
+        month,
+        day,
+        unitsCompleted: 1,
+      });
+
+      if (!newLogId) {
+        throw new Error("Failed to create a new challenge log.");
+      }
+    } else {
+      const newUnitsCompleted = challenge.log.unitsCompleted + 1;
+
+      if (
+        newUnitsCompleted <= challenge.unitValue &&
+        !challenge.log.isComplete
+      ) {
+        await updateChallengeLog({
+          challengeLogId: challenge.log._id,
+          unitsCompleted: newUnitsCompleted,
+          isComplete: true,
+        });
+        Alert.alert(
+          "Challenge Completed",
+          "Congratulations! You’ve completed the challenge for today."
+        );
+      } else {
+        await updateChallengeLog({
+          challengeLogId: challenge.log._id,
+          unitsCompleted: newUnitsCompleted,
+        });
+      }
+    }
+  }
+
+  async function handleLogProgressChallenges() {
+    router.push({
+      pathname: "/challenges/[id]/log-progress",
+      params: {
+        id: challenge._id,
+        date: selectedDate.toDateString(),
+      },
+    });
+  }
+
+  return (
+    <View
+      className={cn(
+        "flex-row items-center gap-4 p-4",
+        challenge.log?.isComplete && "bg-card"
+      )}
+    >
+      <Link
+        href={{
+          pathname: `/challenges/[id]`,
+          params: {
+            id: challenge._id,
+          },
+        }}
+        asChild
+      >
+        <Pressable className={cn("flex-1")}>
+          <View className="flex-row items-center gap-4">
+            <View
+              className={cn(
+                `size-14 items-center justify-center rounded-full bg-[#E1861D]/20`
+              )}
+            >
+              <MaterialCommunityIcons
+                name="lightning-bolt"
+                color="#E1861D"
+                size={24}
+              />
+            </View>
+
+            <View className="w-full gap-2">
+              <Text
+                className={cn(
+                  "font-medium",
+                  challenge.log?.isComplete && "line-through"
+                )}
+              >
+                {challenge.name}
+              </Text>
+              <Text className="text-xs text-muted-foreground">
+                {challenge.log
+                  ? `${Number.isInteger(challenge.log.unitsCompleted) ? challenge.log.unitsCompleted : challenge.log.unitsCompleted.toFixed(1)} / ${Number.isInteger(challenge.unitValue) ? challenge.unitValue : challenge.unitValue.toFixed(1)} ${challenge.unit}`
+                  : `0 / ${Number.isInteger(challenge.unitValue) ? challenge.unitValue : challenge.unitValue.toFixed(1)} ${challenge.unit}`}
+              </Text>
+            </View>
+          </View>
+        </Pressable>
+      </Link>
+      {challenge.log?.isComplete ? (
+        <CheckIcon className="color-input" size={32} />
+      ) : challenge.unit === "times" ? (
+        <Button
+          className="flex-row items-center gap-2 bg-input"
+          onPress={handleLogTimesChallenges}
+        >
+          <Text className="text-white">Log</Text>
+          <MaterialCommunityIcons
+            name="check-circle-outline"
+            size={20}
+            color="white"
+          />
+        </Button>
+      ) : challenge.unit === "hours" || challenge.unit === "minutes" ? (
+        <Button
+          className="flex-row items-center gap-2 bg-input"
+          onPress={handleLogProgressChallenges}
+        >
+          <Text className="text-white">Log</Text>
+          <MaterialCommunityIcons name="alarm" size={20} color="white" />
+        </Button>
+      ) : (
+        <Button
+          className="flex-row items-center gap-2 bg-input"
+          onPress={handleLogProgressChallenges}
         >
           <Text className="text-white">Log</Text>
           <MaterialCommunityIcons name="keyboard" size={16} color="white" />

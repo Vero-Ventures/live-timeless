@@ -11,9 +11,9 @@ import { AlertCircle } from "lucide-react-native";
 import FormSubmitButton from "~/components/form-submit-button";
 import { getDate } from "date-fns";
 
-export default function LogProgressScreen() {
-  const { habitId, date } = useLocalSearchParams<{
-    habitId: Id<"habits">;
+export default function LogChallengeProgressScreen() {
+  const { id, date } = useLocalSearchParams<{
+    id: Id<"challenges">;
     date: string;
   }>();
   const [isPending, setIsPending] = useState(false);
@@ -26,15 +26,18 @@ export default function LogProgressScreen() {
   const month = selectedDate.getMonth();
   const day = getDate(selectedDate);
 
-  const habit = useQuery(api.habits.getHabitByIdWithLogForCurrentDay, {
-    habitId,
-    year,
-    month,
-    day,
-  });
+  const challenge = useQuery(
+    api.challenges.getChallengeByIdWithLogForCurrentDay,
+    {
+      challengeId: id,
+      year,
+      month,
+      day,
+    }
+  );
 
-  const createHabitLog = useMutation(api.habitLogs.createHabitLog);
-  const updateHabitLog = useMutation(api.habitLogs.updateHabitLog);
+  const createChallengeLog = useMutation(api.challengeLogs.createChallengeLog);
+  const updateChallengeLog = useMutation(api.challengeLogs.updateChallengeLog);
 
   return (
     <View className="h-full bg-background p-4 pt-10">
@@ -54,7 +57,7 @@ export default function LogProgressScreen() {
           headerBackButtonDisplayMode: "minimal",
         }}
       />
-      {habit ? (
+      {challenge ? (
         <View className="gap-4">
           <View className="relative">
             <Input
@@ -65,7 +68,7 @@ export default function LogProgressScreen() {
               placeholder="Enter value"
             />
             <Text className="absolute right-3 top-2 text-center font-bold">
-              {habit.unit}
+              {challenge.unit}
             </Text>
           </View>
 
@@ -84,14 +87,14 @@ export default function LogProgressScreen() {
                   throw new Error("You must enter a value greater than 0");
                 }
 
-                if (!habit.log) {
-                  const newLogId = await createHabitLog({
-                    habitId: habit._id,
+                if (!challenge.log) {
+                  const newLogId = await createChallengeLog({
+                    challengeId: challenge._id,
                     year,
                     month,
                     day,
                     unitsCompleted: unitsCompletedNumber,
-                    isComplete: unitsCompletedNumber >= habit.unitValue,
+                    isComplete: unitsCompletedNumber >= challenge.unitValue,
                   });
 
                   if (!newLogId) {
@@ -103,20 +106,20 @@ export default function LogProgressScreen() {
                 }
 
                 const newUnitsCompleted =
-                  habit.log.unitsCompleted + unitsCompletedNumber;
+                  challenge.log.unitsCompleted + unitsCompletedNumber;
 
                 if (
-                  newUnitsCompleted >= habit.unitValue &&
-                  !habit.log.isComplete
+                  newUnitsCompleted >= challenge.unitValue &&
+                  !challenge.log.isComplete
                 ) {
-                  await updateHabitLog({
-                    habitLogId: habit.log._id,
+                  await updateChallengeLog({
+                    challengeLogId: challenge.log._id,
                     unitsCompleted: newUnitsCompleted,
                     isComplete: true,
                   });
                 } else {
-                  await updateHabitLog({
-                    habitLogId: habit.log._id,
+                  await updateChallengeLog({
+                    challengeLogId: challenge.log._id,
                     unitsCompleted: newUnitsCompleted,
                   });
                 }
