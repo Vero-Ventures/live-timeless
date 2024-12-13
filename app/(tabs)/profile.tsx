@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import { Link, Redirect, router } from "expo-router";
+import { Link, Redirect } from "expo-router";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
@@ -24,7 +24,7 @@ export default function Profile() {
         </View>
       </AuthLoading>
       <Unauthenticated>
-        <Redirect href="/" />
+        <Redirect href="/onboarding" />
       </Unauthenticated>
       <Authenticated>
         <View className="h-full gap-8 p-4">
@@ -56,7 +56,6 @@ export default function Profile() {
             variant="destructive"
             size="lg"
             onPress={async () => {
-              router.replace("/onboarding");
               await signOut();
             }}
           >
