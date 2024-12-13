@@ -168,6 +168,7 @@ export const listCurrentUsersChallenges = query({
           .filter((q) =>
             q.and(
               q.eq(q.field("challengeId"), c?._id),
+              q.eq(q.field("userId"), userId),
               q.eq(q.field("year"), selectedYear),
               q.eq(q.field("month"), selectedMonth),
               q.eq(q.field("day"), selectedDay)

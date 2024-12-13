@@ -16,7 +16,10 @@ export const createChallengeLog = mutation({
     if (userId === null) {
       return null;
     }
-    const challengeLog = await ctx.db.insert("challengeLogs", args);
+    const challengeLog = await ctx.db.insert("challengeLogs", {
+      ...args,
+      userId,
+    });
 
     if (!challengeLog) {
       throw new Error("Error creating challenge log");

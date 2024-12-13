@@ -86,6 +86,7 @@ export default defineSchema({
   challengeLogs: defineTable({
     _id: v.id("challengeLogs"),
     challengeId: v.id("challenges"),
+    userId: v.id("users"),
     isComplete: v.boolean(),
     unitsCompleted: v.number(),
     year: v.number(),
