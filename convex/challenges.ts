@@ -294,6 +294,13 @@ export const deleteChallenge = mutation({
     if (challenge.organizationId !== user.organizationId) {
       throw new Error("User doesn't belong in the organization");
     }
+
+    const challengeLogs = await ctx.db
+      .query("challengeLogs")
+      .filter((q) => q.eq(q.field("challengeId"), challenge._id))
+      .collect();
+
+    await Promise.all(challengeLogs.map(async (c) => ctx.db.delete(c._id)));
     await ctx.db.delete(challengeId);
   },
 });
