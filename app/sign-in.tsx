@@ -113,8 +113,9 @@ export default function SignIn() {
                       router.replace("/habits");
                     } catch (error) {
                       if (error instanceof Error) {
-                        console.log(error);
-                        setError(error.message);
+                        setError(
+                          "Incorrect verification code. Please try again."
+                        );
                       }
                     } finally {
                       setIsPending(false);
