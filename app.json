@@ -3,7 +3,7 @@
     "owner": "live-timeless",
     "name": "Live Timeless",
     "slug": "live-timeless-app",
-    "version": "2.0.4",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "live-timeless",
@@ -15,14 +15,14 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.alex.live.timeless"
+      "bundleIdentifier": "com.vero.ventures.live.timeless"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#082139"
       },
-      "package": "com.alex.live.timeless"
+      "package": "com.vero.ventures.live.timeless"
     },
     "web": {
       "bundler": "metro",
@@ -48,7 +48,9 @@
       [
         "expo-asset",
         {
-          "assets": ["./assets/images/onboarding.jpg"]
+          "assets": [
+            "./assets/images/onboarding.jpg"
+          ]
         }
       ]
     ],
