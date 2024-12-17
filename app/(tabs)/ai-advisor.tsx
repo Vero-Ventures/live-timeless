@@ -1,4 +1,5 @@
 import { SafeAreaView } from "react-native-safe-area-context";
+import Markdown from "react-native-markdown-display";
 
 import { useState, useRef, useMemo } from "react";
 import { View, KeyboardAvoidingView, Platform, FlatList } from "react-native";
@@ -85,7 +86,13 @@ export default function AdvisorChatbot() {
 function MessageComp({ text, isViewer }: { text: string; isViewer: boolean }) {
   return (
     <View className={cn("gap-3 p-4", isViewer && "bg-card")}>
-      <Text className={cn(!isViewer && "font-semibold")}>{text}</Text>
+      <Markdown
+        style={{
+          body: { color: "#fafafa" },
+        }}
+      >
+        {text}
+      </Markdown>
       <Text
         className={cn(
           "text-sm font-light text-muted-foreground",
