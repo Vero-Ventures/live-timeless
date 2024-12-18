@@ -1,4 +1,4 @@
-import { Link, Stack } from "expo-router";
+import { Stack, router } from "expo-router";
 import { Pressable, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { cn } from "~/lib/utils";
@@ -36,6 +36,7 @@ export default function UnitTypes() {
             setUnitValue(1);
             setUnit("times");
             setRecurrence("per day");
+            router.back();
           }}
         />
         <UnitType
@@ -47,6 +48,7 @@ export default function UnitTypes() {
             setUnitValue(1);
             setUnit("times");
             setRecurrence("per day");
+            router.back();
           }}
         />
         <UnitType
@@ -65,6 +67,7 @@ export default function UnitTypes() {
             setUnitValue(1);
             setUnit("kg");
             setRecurrence("per day");
+            router.back();
           }}
         />
         <UnitType
@@ -76,6 +79,7 @@ export default function UnitTypes() {
             setUnitValue(1);
             setUnit("litres");
             setRecurrence("per day");
+            router.back();
           }}
         />
         <UnitType
@@ -87,6 +91,7 @@ export default function UnitTypes() {
             setUnitValue(1);
             setUnit("min");
             setRecurrence("per day");
+            router.back();
           }}
         />
         <UnitType
@@ -98,6 +103,7 @@ export default function UnitTypes() {
             setUnitValue(1000);
             setUnit("joules");
             setRecurrence("per day");
+            router.back();
           }}
         />
         <UnitType
@@ -108,6 +114,7 @@ export default function UnitTypes() {
             setUnitValue(10);
             setUnit("metres");
             setRecurrence("per day");
+            router.back();
           }}
         />
       </View>
@@ -127,22 +134,20 @@ function UnitType({
   className?: string;
 }) {
   return (
-    <Link href="/habits/create/target" asChild>
-      <Pressable
-        className={cn(
-          "flex flex-row items-center justify-between bg-[#0e2942] p-4",
-          className
-        )}
-        onPress={onPress}
+    <Pressable
+      className={cn(
+        "flex flex-row items-center justify-between bg-[#0e2942] p-4",
+        className
+      )}
+      onPress={onPress}
+    >
+      <Text className="text-lg tracking-wider">{type}</Text>
+      <Text
+        className="w-[40%] text-right text-sm font-semibold"
+        numberOfLines={1}
       >
-        <Text className="text-lg tracking-wider">{type}</Text>
-        <Text
-          className="w-[40%] text-right text-sm font-semibold"
-          numberOfLines={1}
-        >
-          {units.join(", ")}
-        </Text>
-      </Pressable>
-    </Link>
+        {units.join(", ")}
+      </Text>
+    </Pressable>
   );
 }
