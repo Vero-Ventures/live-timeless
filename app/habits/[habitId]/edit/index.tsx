@@ -10,7 +10,7 @@ import { Text } from "~/components/ui/text";
 import { Repeat } from "~/lib/icons/Repeat";
 import { Crosshair } from "~/lib/icons/Crosshair";
 import { Sun } from "~/lib/icons/Sun";
-import { Bell } from "~/lib/icons/Bell";
+// import { Bell } from "~/lib/icons/Bell";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
 import ScheduleStartDate from "~/components/habits/schedule-start-date";
 import {
@@ -21,7 +21,7 @@ import {
   type UnitType,
   useHabitFormStore,
 } from "~/stores/habit-store";
-import { formatTime } from "~/lib/date";
+// import { formatTime } from "~/lib/date";
 import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 import { cn } from "~/lib/utils";
 import { useShallow } from "zustand/react/shallow";
@@ -257,7 +257,7 @@ function EditHabitForm() {
             </Pressable>
           </Link>
         </View>
-        <View className="rounded-xl bg-[#0e2942]">
+        {/* <View className="rounded-xl bg-[#0e2942]">
           <Link href="/habits/create/reminders" asChild>
             <Pressable>
               <ScheduleItem
@@ -268,7 +268,7 @@ function EditHabitForm() {
               />
             </Pressable>
           </Link>
-        </View>
+        </View> */}
 
         <ScheduleStartDate />
 
