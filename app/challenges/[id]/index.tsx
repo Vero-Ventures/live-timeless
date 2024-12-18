@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "convex/react";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { Target } from "~/lib/icons/Target";
 import { Calendar } from "~/lib/icons/Calendar";
+import { Coins } from "~/lib/icons/Coins";
 import { ActivityIndicator, SafeAreaView, View, FlatList } from "react-native";
 import { Text } from "~/components/ui/text";
 import { api } from "~/convex/_generated/api";
@@ -91,6 +92,10 @@ export default function ChallengeScreen() {
                   }
                 )}`}
               </Text>
+            </View>
+            <View className="flex-row items-center gap-2">
+              <Coins className="stroke-gray-400" />
+              <Text className="text-gray-400">{challenge.tokens} tokens</Text>
             </View>
           </View>
           {!!challenge.description && (
