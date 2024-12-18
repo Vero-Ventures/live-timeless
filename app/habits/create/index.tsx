@@ -6,15 +6,15 @@ import FormSubmitButton from "~/components/form-submit-button";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Input } from "~/components/ui/input";
 import { Text } from "~/components/ui/text";
-import { Repeat } from "~/lib/icons/Repeat";
+// import { Repeat } from "~/lib/icons/Repeat";
 import { Crosshair } from "~/lib/icons/Crosshair";
-import { Sun } from "~/lib/icons/Sun";
+// import { Sun } from "~/lib/icons/Sun";
 // import { Bell } from "~/lib/icons/Bell";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
 import ScheduleStartDate from "~/components/habits/schedule-start-date";
 import { useHabitFormStore } from "~/stores/habit-store";
 // import { formatTime } from "~/lib/date";
-import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
+// import { addOrdinalSuffix } from "~/lib/add-ordinal-suffix";
 import { cn } from "~/lib/utils";
 import { useShallow } from "zustand/react/shallow";
 import { api } from "~/convex/_generated/api";
@@ -86,20 +86,20 @@ function CreateHabitForm() {
     return () => resetForm();
   }, [resetForm]);
 
-  const getRepeatValue = () => {
-    switch (repeatType) {
-      case "daily":
-        return dailyRepeat.length === 7
-          ? "Everyday"
-          : dailyRepeat.map((day) => day.slice(0, 3)).join(", ");
-      case "monthly":
-        return `Every month on ${monthlyRepeat.map(addOrdinalSuffix).join(", ")}`;
-      case "interval":
-        return `Every ${intervalRepeat} days`;
-      default:
-        return "Not set";
-    }
-  };
+  // const getRepeatValue = () => {
+  //   switch (repeatType) {
+  //     case "daily":
+  //       return dailyRepeat.length === 7
+  //         ? "Everyday"
+  //         : dailyRepeat.map((day) => day.slice(0, 3)).join(", ");
+  //     case "monthly":
+  //       return `Every month on ${monthlyRepeat.map(addOrdinalSuffix).join(", ")}`;
+  //     case "interval":
+  //       return `Every ${intervalRepeat} days`;
+  //     default:
+  //       return "Not set";
+  //   }
+  // };
 
   const IconComp = HABIT_ICONS.find(
     (item) => item.name === selectedIcon
@@ -132,7 +132,7 @@ function CreateHabitForm() {
           />
         </View>
         <View className="rounded-xl bg-[#0e2942]">
-          <Link href="/habits/create/repeat" asChild>
+          {/* <Link href="/habits/create/repeat" asChild>
             <Pressable>
               <ScheduleItem
                 Icon={Repeat}
@@ -141,7 +141,7 @@ function CreateHabitForm() {
                 value={getRepeatValue()}
               />
             </Pressable>
-          </Link>
+          </Link> */}
           <Link href="/habits/create/target" asChild>
             <Pressable>
               <ScheduleItem
@@ -152,7 +152,7 @@ function CreateHabitForm() {
               />
             </Pressable>
           </Link>
-          <Link href="/habits/create/time-of-day" asChild>
+          {/* <Link href="/habits/create/time-of-day" asChild>
             <Pressable>
               <ScheduleItem
                 Icon={Sun}
@@ -163,7 +163,7 @@ function CreateHabitForm() {
                 }
               />
             </Pressable>
-          </Link>
+          </Link> */}
         </View>
         {/* <View className="rounded-xl bg-[#0e2942]">
           <Link href="/habits/create/reminders" asChild>

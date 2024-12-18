@@ -7,7 +7,7 @@ import { fontFamily } from "~/lib/font";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
 import { useHabitFormStore } from "~/stores/habit-store";
 import type { UnitType } from "~/stores/habit-store";
-import { RECURRENCE } from "~/constants/habit-target";
+// import { RECURRENCE } from "~/constants/habit-target";
 import { useShallow } from "zustand/react/shallow";
 import { useMemo } from "react";
 
@@ -293,9 +293,10 @@ function GoalPicker<TUnit extends string>({
           setRecurrence(itemValue);
         }}
       >
-        {RECURRENCE.map((item) => (
+        {/* {RECURRENCE.map((item) => (
           <Picker.Item key={item} label={item} value={item} />
-        ))}
+        ))} */}
+        <Picker.Item label="per day" value="per day" />
       </Picker>
     </View>
   );
