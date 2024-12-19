@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "convex/react";
 import { Link, Redirect } from "expo-router";
-import { View } from "react-native";
+import { Alert, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -17,6 +17,25 @@ export default function Profile() {
   const { signOut } = useAuthActions();
   const user = useQuery(api.users.currentUser);
   const deleteCurrentUser = useMutation(api.users.deleteCurrentUser);
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      `Are you sure you want to delete your account?`,
+      "This action cannot be undone.",
+      [
+        {
+          text: "Yes",
+          onPress: async () => {
+            await signOut();
+            if (!user) return;
+            await deleteCurrentUser({ userId: user._id });
+          },
+          style: "destructive",
+        },
+        { text: "Cancel", style: "cancel" },
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={{ height: "100%", backgroundColor: "#082139" }}>
@@ -64,15 +83,7 @@ export default function Profile() {
             <Text>Sign Out</Text>
           </Button>
           <Separator />
-          <Button
-            variant="destructive"
-            size="lg"
-            onPress={async () => {
-              await signOut();
-              if (!user) return;
-              await deleteCurrentUser({ userId: user._id });
-            }}
-          >
+          <Button variant="destructive" size="lg" onPress={handleDeleteAccount}>
             <Text>Delete Account</Text>
           </Button>
         </View>
