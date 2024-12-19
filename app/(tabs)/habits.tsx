@@ -9,7 +9,13 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
-import { Link, SplashScreen, router, useLocalSearchParams } from "expo-router";
+import {
+  Link,
+  Redirect,
+  SplashScreen,
+  router,
+  useLocalSearchParams,
+} from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { CheckIcon, Plus } from "lucide-react-native";
 import { Separator } from "~/components/ui/separator";
@@ -52,9 +58,14 @@ function getTimeBasedGreeting(): string {
 }
 
 export default function HabitsPage() {
+  const user = useQuery(api.users.currentUser);
   useEffect(() => {
     SplashScreen.hideAsync();
   }, []);
+
+  if (user && !user.hasOnboarded) {
+    return <Redirect href="/onboarding/name" />;
+  }
 
   return (
     <SafeAreaView
