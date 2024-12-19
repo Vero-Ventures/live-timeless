@@ -111,7 +111,7 @@ export default function LogChallengeProgressScreen() {
                     });
                   }
 
-                  return router.navigate("/habits");
+                  return router.dismiss();
                 }
 
                 const newUnitsCompleted =
@@ -134,7 +134,7 @@ export default function LogChallengeProgressScreen() {
                     unitsCompleted: newUnitsCompleted,
                   });
                 }
-                router.navigate("/habits");
+                router.dismiss();
               } catch (error) {
                 if (error instanceof Error) {
                   setError(error.message);
