@@ -72,12 +72,16 @@ export default function LTWelcome({
             This message was produced and distributed by Live Timeless. ©{" "}
             {new Date().getFullYear()}, Live Timeless, Inc.. All rights
             reserved. Live Timeless is a registered trademark of{" "}
-            <Link href="https://livetimeless.com/" target="_blank" style={link}>
+            <Link
+              href="https://live-timeless.vercel.app/"
+              target="_blank"
+              style={link}
+            >
               Live Timeless
             </Link>
             , Inc. View our{" "}
             <Link
-              href="https://livetimeless.com/privacy-policy/"
+              href="https://live-timeless.vercel.app/privacy-policy"
               target="_blank"
               style={link}
             >
