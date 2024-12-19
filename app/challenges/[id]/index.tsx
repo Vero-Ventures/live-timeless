@@ -95,7 +95,9 @@ export default function ChallengeScreen() {
             </View>
             <View className="flex-row items-center gap-2">
               <Coins className="stroke-gray-400" />
-              <Text className="text-gray-400">{challenge.tokens} tokens</Text>
+              <Text className="text-gray-400">
+                {challenge.tokens} tokens per completion
+              </Text>
             </View>
           </View>
           {!!challenge.description && (
