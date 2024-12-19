@@ -98,7 +98,7 @@ export default function LogProgressScreen() {
                       "Log couldn't be created. Please try again."
                     );
                   }
-                  return router.navigate("/habits");
+                  return router.dismiss();
                 }
 
                 const newUnitsCompleted =
@@ -119,7 +119,7 @@ export default function LogProgressScreen() {
                     unitsCompleted: newUnitsCompleted,
                   });
                 }
-                router.navigate("/habits");
+                router.dismiss();
               } catch (error) {
                 if (error instanceof Error) {
                   setError(error.message);
