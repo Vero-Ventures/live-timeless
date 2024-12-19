@@ -131,7 +131,7 @@ function EditHabitForm() {
           text: "Yes",
           onPress: async () => {
             await deleteHabit({ habitId });
-            router.navigate("/habits");
+            router.dismissTo("/habits");
           },
           style: "destructive",
         },
@@ -302,7 +302,7 @@ function EditHabitForm() {
 
               await updateHabit(updatedHabit);
 
-              router.navigate("/habits");
+              router.dismissTo("/habits");
               resetForm();
             } catch (error) {
               if (error instanceof Error) {

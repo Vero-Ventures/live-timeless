@@ -90,7 +90,7 @@ export default function HabitScreen() {
         {
           text: "Yes",
           onPress: async () => {
-            router.dismiss(); // Dismiss first, page will break if habit does not exist before exit. Read nonexistent data
+            router.dismissTo("/habits"); // Dismiss first, page will break if habit does not exist before exit. Read nonexistent data
             await deleteHabit({ habitId });
           },
           style: "destructive",
@@ -126,9 +126,7 @@ export default function HabitScreen() {
                       pathname: "/habits/[habitId]/log-progress",
                       params: {
                         habitId,
-                        year: currentYear,
-                        month: currentDay,
-                        day: currentDay,
+                        date: today.toDateString(),
                       },
                     })
                   }

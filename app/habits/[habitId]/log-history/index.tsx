@@ -18,6 +18,7 @@ export default function LogHistoryPage() {
   const habit = useQuery(api.habits.getHabitByIdWithLogs, {
     habitId,
   });
+  console.log(habit?.logs);
 
   return (
     <View className="flex-1 pt-4" style={{ backgroundColor: "#082139" }}>
@@ -33,7 +34,7 @@ export default function LogHistoryPage() {
           headerBackButtonDisplayMode: "minimal",
         }}
       />
-      {habit?.logs ? (
+      {habit && habit.logs ? (
         <FlatList
           data={habit.logs}
           renderItem={({ item }) => (
