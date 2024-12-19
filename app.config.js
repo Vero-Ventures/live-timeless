@@ -35,11 +35,6 @@ export default {
     icon: "./assets/images/icon.png",
     scheme: "live-timeless",
     userInterfaceStyle: "automatic",
-    splash: {
-      image: "./assets/images/splash.png",
-      resizeMode: "contain",
-      backgroundColor: "#082139",
-    },
     ios: {
       supportsTablet: true,
       bundleIdentifier: getUniqueIdentifier(),
@@ -59,6 +54,18 @@ export default {
     plugins: [
       "expo-router",
       "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          backgroundColor: "#082139",
+          image: "./assets/logo.png",
+          dark: {
+            image: "./assets/logo.png",
+            backgroundColor: "#082139",
+          },
+          imageWidth: 200,
+        },
+      ],
       [
         "expo-font",
         {
