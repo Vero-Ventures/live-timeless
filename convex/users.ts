@@ -221,6 +221,91 @@ export const deleteUser = mutation({
   },
 });
 
+export const deleteCurrentUser = mutation({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, { userId }) => {
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Delete the user's invitations
+    const invitations = await ctx.db
+      .query("invitations")
+      .filter((q) => q.eq(q.field("email"), user.email))
+      .collect();
+    await Promise.all(
+      invitations.map(async (invitation) => ctx.db.delete(invitation._id))
+    );
+
+    // Delete the user's habits and habit logs
+    const habits = await ctx.db
+      .query("habits")
+      .withIndex("by_user_id", (q) => q.eq("userId", userId))
+      .collect();
+    await Promise.all(
+      habits.map(async (habit) => {
+        const habitLogs = await ctx.db
+          .query("habitLogs")
+          .withIndex("by_habit_id", (q) => q.eq("habitId", habit._id))
+          .collect();
+        await Promise.all(
+          habitLogs.map(async (habitLog) => ctx.db.delete(habitLog._id))
+        );
+        return ctx.db.delete(habit._id);
+      })
+    );
+
+    // Delete the user's participated challenges and challenge logs
+    const joinedChallenges = await ctx.db
+      .query("challengeParticipants")
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .collect();
+    await Promise.all(
+      joinedChallenges.map(async (cp) => ctx.db.delete(cp._id))
+    );
+    const joinedChallengeLogs = await ctx.db
+      .query("challengeLogs")
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .collect();
+    await Promise.all(
+      joinedChallengeLogs.map(async (cl) => ctx.db.delete(cl._id))
+    );
+
+    // Delete the user's thread and messages
+    const threads = await ctx.db
+      .query("threads")
+      .withIndex("by_user_id", (q) => q.eq("userId", userId))
+      .collect();
+    await Promise.all(
+      threads.map(async (thread) => {
+        const messages = await ctx.db
+          .query("messages")
+          .withIndex("by_thread_id", (q) => q.eq("threadId", thread.threadId))
+          .collect();
+        await Promise.all(
+          messages.map(async (message) => ctx.db.delete(message._id))
+        );
+        return ctx.db.delete(thread._id);
+      })
+    );
+
+    // Delete the user's auth account
+    const authAccount = await ctx.db
+      .query("authAccounts")
+      .withIndex("userIdAndProvider", (q) => q.eq("userId", userId))
+      .unique();
+    if (!authAccount) {
+      throw new Error("Can't find auth account to delete");
+    }
+    await ctx.db.delete(authAccount._id);
+
+    await ctx.db.delete(userId);
+  },
+});
+
 export const checkUserEmail = mutation({
   args: {
     email: v.string(),

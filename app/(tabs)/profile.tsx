@@ -1,4 +1,4 @@
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { Link, Redirect } from "expo-router";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -11,10 +11,12 @@ import { Loader2 } from "lucide-react-native";
 import { useAuthActions } from "@convex-dev/auth/dist/react";
 import PrivacyPolicyButton from "~/components/privacy-policy-button";
 import { User2 } from "~/lib/icons/User2";
+import { Separator } from "~/components/ui/separator";
 
 export default function Profile() {
   const { signOut } = useAuthActions();
   const user = useQuery(api.users.currentUser);
+  const deleteCurrentUser = useMutation(api.users.deleteCurrentUser);
 
   return (
     <SafeAreaView style={{ height: "100%", backgroundColor: "#082139" }}>
@@ -53,13 +55,25 @@ export default function Profile() {
             </Button>
           </Link>
           <Button
-            variant="destructive"
+            variant="outline"
             size="lg"
             onPress={async () => {
               await signOut();
             }}
           >
             <Text>Sign Out</Text>
+          </Button>
+          <Separator />
+          <Button
+            variant="destructive"
+            size="lg"
+            onPress={async () => {
+              await signOut();
+              if (!user) return;
+              await deleteCurrentUser({ userId: user._id });
+            }}
+          >
+            <Text>Delete Account</Text>
           </Button>
         </View>
       </Authenticated>
