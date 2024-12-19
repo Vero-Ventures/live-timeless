@@ -309,7 +309,7 @@ function HabitItem({
   }
 
   async function handleLogProgressHabits() {
-    router.push({
+    router.navigate({
       pathname: "/habits/[habitId]/log-progress",
       params: {
         habitId: habit._id,
@@ -464,7 +464,7 @@ function ChallengeItem({
   }
 
   async function handleLogProgressChallenges() {
-    router.push({
+    router.navigate({
       pathname: "/challenges/[id]/log-progress",
       params: {
         id: challenge._id,

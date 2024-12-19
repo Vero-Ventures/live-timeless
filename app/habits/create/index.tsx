@@ -216,7 +216,7 @@ function CreateHabitForm() {
                 throw new Error("Failed to create habit");
               }
 
-              router.navigate("/habits");
+              router.dismiss();
               resetForm();
             } catch (error) {
               if (error instanceof Error) {
