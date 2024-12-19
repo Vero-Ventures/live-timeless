@@ -34,9 +34,10 @@ export default function LogChallengeProgressScreen() {
       day,
     }
   );
-
+  const user = useQuery(api.users.currentUser);
   const createChallengeLog = useMutation(api.challengeLogs.createChallengeLog);
   const updateChallengeLog = useMutation(api.challengeLogs.updateChallengeLog);
+  const updateUserTokens = useMutation(api.users.updateUserTokens);
 
   return (
     <View className="h-full bg-background p-4 pt-10">
@@ -56,7 +57,7 @@ export default function LogChallengeProgressScreen() {
           headerBackButtonDisplayMode: "minimal",
         }}
       />
-      {challenge ? (
+      {challenge && user ? (
         <View className="gap-4">
           <View className="relative">
             <Input
@@ -87,13 +88,15 @@ export default function LogChallengeProgressScreen() {
                 }
 
                 if (!challenge.log) {
+                  const isComplete =
+                    unitsCompletedNumber >= challenge.unitValue;
                   const newLogId = await createChallengeLog({
                     challengeId: challenge._id,
                     year,
                     month,
                     day,
                     unitsCompleted: unitsCompletedNumber,
-                    isComplete: unitsCompletedNumber >= challenge.unitValue,
+                    isComplete,
                   });
 
                   if (!newLogId) {
@@ -101,20 +104,29 @@ export default function LogChallengeProgressScreen() {
                       "Log couldn't be created. Please try again."
                     );
                   }
+
+                  if (isComplete) {
+                    await updateUserTokens({
+                      tokens: user.tokens + challenge.tokens,
+                    });
+                  }
+
                   return router.navigate("/habits");
                 }
 
                 const newUnitsCompleted =
                   challenge.log.unitsCompleted + unitsCompletedNumber;
+                const isComplete = newUnitsCompleted >= challenge.unitValue;
 
-                if (
-                  newUnitsCompleted >= challenge.unitValue &&
-                  !challenge.log.isComplete
-                ) {
+                if (isComplete && !challenge.log.isComplete) {
                   await updateChallengeLog({
                     challengeLogId: challenge.log._id,
                     unitsCompleted: newUnitsCompleted,
                     isComplete: true,
+                  });
+
+                  await updateUserTokens({
+                    tokens: user.tokens + challenge.tokens,
                   });
                 } else {
                   await updateChallengeLog({
