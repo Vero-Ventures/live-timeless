@@ -3,14 +3,14 @@ const IS_PREVIEW = process.env.APP_VARIANT === "preview";
 
 const getUniqueIdentifier = () => {
   if (IS_DEV) {
-    return "com.VeroVentures.LiveTimeless.dev";
+    return "com.alex.live.timeless.dev";
   }
 
   if (IS_PREVIEW) {
-    return "com.VeroVentures.LiveTimeless.preview";
+    return "com.alex.live.timeless.preview";
   }
 
-  return "com.VeroVentures.LiveTimeless";
+  return "com.alex.live.timeless";
 };
 
 const getAppName = () => {
@@ -30,7 +30,7 @@ export default {
     owner: "live-timeless",
     name: getAppName(),
     slug: "live-timeless-app",
-    version: "1.0.0",
+    version: "2.0.4",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "live-timeless",
