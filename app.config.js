@@ -3,14 +3,14 @@ const IS_PREVIEW = process.env.APP_VARIANT === "preview";
 
 const getUniqueIdentifier = () => {
   if (IS_DEV) {
-    return "com.alex.live.timeless.dev";
+    return "com.live.timeless.dev";
   }
 
   if (IS_PREVIEW) {
-    return "com.alex.live.timeless.preview";
+    return "com.live.timeless.preview";
   }
 
-  return "com.alex.live.timeless";
+  return "com.live.timeless";
 };
 
 const getAppName = () => {
