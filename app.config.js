@@ -30,7 +30,7 @@ export default {
     owner: "live-timeless",
     name: getAppName(),
     slug: "live-timeless-app",
-    version: "2.0.4",
+    version: "3.0.0",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "live-timeless",
