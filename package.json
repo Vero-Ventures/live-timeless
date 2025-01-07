@@ -54,7 +54,7 @@
     "convex": "^1.14.0",
     "date-fns": "^4.1.0",
     "eslint-plugin-react": "^7.36.1",
-    "expo": "~52.0.23",
+    "expo": "^52.0.23",
     "expo-asset": "~11.0.1",
     "expo-constants": "~17.0.3",
     "expo-dev-client": "~5.0.6",
