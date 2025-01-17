@@ -10,7 +10,7 @@ const getUniqueIdentifier = () => {
     return "com.live.timeless.preview";
   }
 
-  return "com.live.timeless";
+  return "com.veroventures.live.timeless";
 };
 
 const getAppName = () => {
