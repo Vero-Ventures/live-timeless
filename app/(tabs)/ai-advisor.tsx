@@ -11,6 +11,8 @@ import { cn } from "~/lib/utils";
 import { Send } from "~/lib/icons/Send";
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
+import { ThumbsUp } from "~/lib/icons/ThumbsUp";
+import { ThumbsDown } from "~/lib/icons/ThumbsDown";
 
 export default function AdvisorChatbot() {
   const thread = useQuery(api.threads.getThread);
@@ -93,14 +95,30 @@ function MessageComp({ text, isViewer }: { text: string; isViewer: boolean }) {
       >
         {text}
       </Markdown>
-      <Text
-        className={cn(
-          "text-sm font-light text-muted-foreground",
-          isViewer && "text-right"
-        )}
-      >
-        {isViewer ? "You" : "LT AI Advisor"}
-      </Text>
+      {!!isViewer && (
+        <Text className="text-right text-sm font-light text-muted-foreground">
+          You
+        </Text>
+      )}
+      {!isViewer && (
+        <View className="flex-row items-center justify-between">
+          <Text className="text-sm font-light text-muted-foreground">
+            LT AI Advisor
+          </Text>
+          <View className="flex-row gap-8">
+            <Text>
+              {!isViewer && (
+                <ThumbsUp className="text-muted-foreground" size={20} />
+              )}
+            </Text>
+            <Text className="mr-4">
+              {!isViewer && (
+                <ThumbsDown className="text-muted-foreground" size={20} />
+              )}
+            </Text>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
