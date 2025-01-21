@@ -23,7 +23,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import type { LucideIcon } from "lucide-react-native";
 
 export default function AdvisorChatbot() {
   const thread = useQuery(api.threads.getThread);
@@ -117,9 +116,9 @@ function MessageComp({ text, isViewer }: { text: string; isViewer: boolean }) {
             LT AI Advisor
           </Text>
           <View className="flex-row gap-8">
-            <ThumbsUpFeedbackDialog icon={ThumbsUp} />
+            <ThumbsUpFeedbackDialog />
             <View className="mr-4">
-              <ThumbsDownFeedbackDialog icon={ThumbsDown} />
+              <ThumbsDownFeedbackDialog />
             </View>
           </View>
         </View>
@@ -128,7 +127,7 @@ function MessageComp({ text, isViewer }: { text: string; isViewer: boolean }) {
   );
 }
 
-function ThumbsUpFeedbackDialog({ icon: Icon }: { icon: LucideIcon }) {
+function ThumbsUpFeedbackDialog() {
   const [isCorrect, setIsCorrect] = useState(false);
   const [isEasyToUnderstand, setIsEasyToUnderstand] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
@@ -148,9 +147,17 @@ function ThumbsUpFeedbackDialog({ icon: Icon }: { icon: LucideIcon }) {
   };
 
   return (
-    <Dialog>
+    <Dialog
+      onOpenChange={(value) => {
+        if (!value) {
+          setIsCorrect(false);
+          setIsEasyToUnderstand(false);
+          setIsComplete(false);
+        }
+      }}
+    >
       <DialogTrigger asChild>
-        <Icon className="text-muted-foreground" size={20} />
+        <ThumbsUp className="text-muted-foreground" size={20} />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -159,7 +166,7 @@ function ThumbsUpFeedbackDialog({ icon: Icon }: { icon: LucideIcon }) {
           </DialogTitle>
           <View className="mt-5 flex-row flex-wrap gap-3">
             <Button
-              className="rounded-lg border border-gray-400 p-2 text-muted-foreground"
+              className="rounded-lg border p-2 text-muted-foreground"
               variant={isCorrect ? "default" : "outline"}
               onPress={() => setIsCorrect(!isCorrect)}
             >
@@ -168,7 +175,7 @@ function ThumbsUpFeedbackDialog({ icon: Icon }: { icon: LucideIcon }) {
               </Text>
             </Button>
             <Button
-              className="rounded-lg border border-gray-400 p-2 text-muted-foreground"
+              className="rounded-lg border p-2 text-muted-foreground"
               variant={isEasyToUnderstand ? "default" : "outline"}
               onPress={() => setIsEasyToUnderstand(!isEasyToUnderstand)}
             >
@@ -177,7 +184,7 @@ function ThumbsUpFeedbackDialog({ icon: Icon }: { icon: LucideIcon }) {
               </Text>
             </Button>
             <Button
-              className="rounded-lg border border-gray-400 p-2 text-muted-foreground"
+              className="rounded-lg border p-2 text-muted-foreground"
               variant={isComplete ? "default" : "outline"}
               onPress={() => setIsComplete(!isComplete)}
             >
@@ -191,7 +198,6 @@ function ThumbsUpFeedbackDialog({ icon: Icon }: { icon: LucideIcon }) {
           <DialogClose asChild>
             <Button
               className="ml-auto flex-wrap"
-              variant="ghost"
               disabled={!isCorrect && !isEasyToUnderstand && !isComplete}
               onPress={handleSubmit}
             >
@@ -204,7 +210,7 @@ function ThumbsUpFeedbackDialog({ icon: Icon }: { icon: LucideIcon }) {
   );
 }
 
-function ThumbsDownFeedbackDialog({ icon: Icon }: { icon: LucideIcon }) {
+function ThumbsDownFeedbackDialog() {
   const [isOffensive, setIsOffensive] = useState(false);
   const [isNotFactuallyCorrect, setIsNotFactuallyCorrect] = useState(false);
   const [isOther, setIsOther] = useState(false);
@@ -224,9 +230,17 @@ function ThumbsDownFeedbackDialog({ icon: Icon }: { icon: LucideIcon }) {
   };
 
   return (
-    <Dialog>
+    <Dialog
+      onOpenChange={(value) => {
+        if (!value) {
+          setIsOffensive(false);
+          setIsNotFactuallyCorrect(false);
+          setIsOther(false);
+        }
+      }}
+    >
       <DialogTrigger asChild>
-        <Icon className="text-muted-foreground" size={20} />
+        <ThumbsDown className="text-muted-foreground" size={20} />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -235,7 +249,7 @@ function ThumbsDownFeedbackDialog({ icon: Icon }: { icon: LucideIcon }) {
           </DialogTitle>
           <View className="mt-5 flex-row flex-wrap gap-3">
             <Button
-              className="rounded-lg border border-gray-400 p-2 text-muted-foreground"
+              className="rounded-lg border p-2 text-muted-foreground"
               variant={isOffensive ? "default" : "outline"}
               onPress={() => setIsOffensive(!isOffensive)}
             >
@@ -244,7 +258,7 @@ function ThumbsDownFeedbackDialog({ icon: Icon }: { icon: LucideIcon }) {
               </Text>
             </Button>
             <Button
-              className="rounded-lg border border-gray-400 p-2 text-muted-foreground"
+              className="rounded-lg border p-2 text-muted-foreground"
               variant={isNotFactuallyCorrect ? "default" : "outline"}
               onPress={() => setIsNotFactuallyCorrect(!isNotFactuallyCorrect)}
             >
@@ -253,7 +267,7 @@ function ThumbsDownFeedbackDialog({ icon: Icon }: { icon: LucideIcon }) {
               </Text>
             </Button>
             <Button
-              className="rounded-lg border border-gray-400 p-2 text-muted-foreground"
+              className="rounded-lg border p-2 text-muted-foreground"
               variant={isOther ? "default" : "outline"}
               onPress={() => setIsOther(!isOther)}
             >
@@ -267,7 +281,6 @@ function ThumbsDownFeedbackDialog({ icon: Icon }: { icon: LucideIcon }) {
           <DialogClose asChild>
             <Button
               className="ml-auto flex-wrap"
-              variant="ghost"
               disabled={!isOffensive && !isNotFactuallyCorrect && !isOther}
               onPress={handleSubmit}
             >
