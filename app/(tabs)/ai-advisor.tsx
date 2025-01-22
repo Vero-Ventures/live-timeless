@@ -1,5 +1,6 @@
 import { SafeAreaView } from "react-native-safe-area-context";
 import Markdown from "react-native-markdown-display";
+import Toast from "react-native-toast-message";
 
 import { useState, useRef, useMemo } from "react";
 import { View, KeyboardAvoidingView, Platform, FlatList } from "react-native";
@@ -11,6 +12,17 @@ import { cn } from "~/lib/utils";
 import { Send } from "~/lib/icons/Send";
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
+import { ThumbsUp } from "~/lib/icons/ThumbsUp";
+import { ThumbsDown } from "~/lib/icons/ThumbsDown";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
 
 export default function AdvisorChatbot() {
   const thread = useQuery(api.threads.getThread);
@@ -93,14 +105,190 @@ function MessageComp({ text, isViewer }: { text: string; isViewer: boolean }) {
       >
         {text}
       </Markdown>
-      <Text
-        className={cn(
-          "text-sm font-light text-muted-foreground",
-          isViewer && "text-right"
-        )}
-      >
-        {isViewer ? "You" : "LT AI Advisor"}
-      </Text>
+      {!!isViewer && (
+        <Text className="text-right text-sm font-light text-muted-foreground">
+          You
+        </Text>
+      )}
+      {!isViewer && (
+        <View className="flex-row items-center justify-between">
+          <Text className="text-sm font-light text-muted-foreground">
+            LT AI Advisor
+          </Text>
+          <View className="flex-row gap-8">
+            <ThumbsUpFeedbackDialog />
+            <View className="mr-4">
+              <ThumbsDownFeedbackDialog />
+            </View>
+          </View>
+        </View>
+      )}
     </View>
+  );
+}
+
+function ThumbsUpFeedbackDialog() {
+  const [isCorrect, setIsCorrect] = useState(false);
+  const [isEasyToUnderstand, setIsEasyToUnderstand] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
+
+  const handleSubmit = () => {
+    if (!isCorrect && !isEasyToUnderstand && !isComplete) {
+      return;
+    }
+    setIsCorrect(false);
+    setIsEasyToUnderstand(false);
+    setIsComplete(false);
+
+    Toast.show({
+      type: "success",
+      text1: "Thank you for your feedback!",
+    });
+  };
+
+  return (
+    <Dialog
+      onOpenChange={(value) => {
+        if (!value) {
+          setIsCorrect(false);
+          setIsEasyToUnderstand(false);
+          setIsComplete(false);
+        }
+      }}
+    >
+      <DialogTrigger asChild>
+        <ThumbsUp className="text-muted-foreground" size={20} />
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="native:text-xl">
+            Why did you choose this rating?
+          </DialogTitle>
+          <View className="mt-5 flex-row flex-wrap gap-3">
+            <Button
+              className="rounded-lg border p-2 text-muted-foreground"
+              variant={isCorrect ? "default" : "outline"}
+              onPress={() => setIsCorrect(!isCorrect)}
+            >
+              <Text className="native:text-md font-semibold tracking-wider">
+                Correct
+              </Text>
+            </Button>
+            <Button
+              className="rounded-lg border p-2 text-muted-foreground"
+              variant={isEasyToUnderstand ? "default" : "outline"}
+              onPress={() => setIsEasyToUnderstand(!isEasyToUnderstand)}
+            >
+              <Text className="native:text-md font-semibold tracking-wider">
+                Easy To Understand
+              </Text>
+            </Button>
+            <Button
+              className="rounded-lg border p-2 text-muted-foreground"
+              variant={isComplete ? "default" : "outline"}
+              onPress={() => setIsComplete(!isComplete)}
+            >
+              <Text className="native:text-md font-semibold tracking-wider">
+                Complete
+              </Text>
+            </Button>
+          </View>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button
+              className="ml-auto flex-wrap"
+              disabled={!isCorrect && !isEasyToUnderstand && !isComplete}
+              onPress={handleSubmit}
+            >
+              <Text>Submit</Text>
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ThumbsDownFeedbackDialog() {
+  const [isOffensive, setIsOffensive] = useState(false);
+  const [isNotFactuallyCorrect, setIsNotFactuallyCorrect] = useState(false);
+  const [isOther, setIsOther] = useState(false);
+
+  const handleSubmit = () => {
+    if (!isOffensive && !isNotFactuallyCorrect && !isOther) {
+      return;
+    }
+    setIsOffensive(false);
+    setIsNotFactuallyCorrect(false);
+    setIsOther(false);
+
+    Toast.show({
+      type: "success",
+      text1: "Thank you for your feedback!",
+    });
+  };
+
+  return (
+    <Dialog
+      onOpenChange={(value) => {
+        if (!value) {
+          setIsOffensive(false);
+          setIsNotFactuallyCorrect(false);
+          setIsOther(false);
+        }
+      }}
+    >
+      <DialogTrigger asChild>
+        <ThumbsDown className="text-muted-foreground" size={20} />
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="native:text-xl">
+            Why did you choose this rating?
+          </DialogTitle>
+          <View className="mt-5 flex-row flex-wrap gap-3">
+            <Button
+              className="rounded-lg border p-2 text-muted-foreground"
+              variant={isOffensive ? "default" : "outline"}
+              onPress={() => setIsOffensive(!isOffensive)}
+            >
+              <Text className="native:text-md font-semibold tracking-wider">
+                Offensive / Unsafe
+              </Text>
+            </Button>
+            <Button
+              className="rounded-lg border p-2 text-muted-foreground"
+              variant={isNotFactuallyCorrect ? "default" : "outline"}
+              onPress={() => setIsNotFactuallyCorrect(!isNotFactuallyCorrect)}
+            >
+              <Text className="native:text-md font-semibold tracking-wider">
+                Not factually correct
+              </Text>
+            </Button>
+            <Button
+              className="rounded-lg border p-2 text-muted-foreground"
+              variant={isOther ? "default" : "outline"}
+              onPress={() => setIsOther(!isOther)}
+            >
+              <Text className="native:text-md font-semibold tracking-wider">
+                Other
+              </Text>
+            </Button>
+          </View>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button
+              className="ml-auto flex-wrap"
+              disabled={!isOffensive && !isNotFactuallyCorrect && !isOther}
+              onPress={handleSubmit}
+            >
+              <Text>Submit</Text>
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
